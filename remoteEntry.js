@@ -3,7 +3,7 @@ const currentImports = {};
       let moduleMap = {
 "./DrawingApp":()=>{
       dynamicLoadingCss(["style-DW_WWBWR.css"], false, './DrawingApp');
-      return __federation_import('/agent-editor/assets/__federation_expose_DrawingApp-B_182cnb.js').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},};
+      return __federation_import('/agent-editor/assets/assets/__federation_expose_DrawingApp-B_182cnb.js').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},};
       const seen = {};
       const dynamicLoadingCss = (cssFilePaths, dontAppendStylesToHead, exposeItemName) => {
         const metaUrl = import.meta.url;
@@ -12,7 +12,7 @@ const currentImports = {};
           return;
         }
 
-        const curUrl = metaUrl.substring(0, metaUrl.lastIndexOf('remoteEntry.js'));
+        const curUrl = metaUrl.substring(0, metaUrl.lastIndexOf('../remoteEntry.js'));
         const base = '/agent-editor/';
         'assets';
 
