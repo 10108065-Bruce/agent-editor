@@ -1,0 +1,39 @@
+{
+  "name": "drawing-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "deploy": "gh-pages -d build"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-modal": "^3.16.3",
+    "react-scripts": "5.0.1",
+    "reactflow": "^11.11.4",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@originjs/vite-plugin-federation": "^1.4.1",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "gh-pages": "^6.3.0",
+    "globals": "^15.15.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.2.0",
+    "vite-plugin-federation": "^0.0.1"
+  },
+  "homepage": "https://10108065-bruce.github.io/agent-editor"
+}
