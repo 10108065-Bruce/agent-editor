@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-B9TrPrXS.js';
+import FlowEditor, { j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-M1XkzEou.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
