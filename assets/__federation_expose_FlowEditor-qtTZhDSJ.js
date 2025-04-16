@@ -12145,6 +12145,7 @@ function FlowEditor() {
     }
   }, [nodes, edges, flowMetadata, showNotification]);
   const sendDataForDownload = useCallback(async () => {
+    console.log("isInIframe:", isInIframe);
     if (!isInIframe) {
       return saveToLocalFile();
     }
@@ -12168,6 +12169,10 @@ function FlowEditor() {
         "_"
       );
       const filename = `${safeTitle}_${date}.json`;
+      console.log("Preparing to send data for download:", {
+        flowData,
+        filename
+      });
       window.parent.postMessage(
         {
           type: "DOWNLOAD_JSON",
