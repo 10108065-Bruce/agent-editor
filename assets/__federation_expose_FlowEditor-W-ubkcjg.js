@@ -11857,6 +11857,10 @@ function FlowEditor() {
     const onMsg = (e) => {
       if (e.data?.type === "FROM_PARENT") {
         console.log("子應用收到母應用訊息:", e.data.payload);
+        setFlowMetadata((prev) => ({
+          ...prev,
+          title: e.data.payload
+        }));
       }
     };
     window.addEventListener("message", onMsg);
