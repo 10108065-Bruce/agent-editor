@@ -9174,19 +9174,15 @@ const {useState: useState$7} = React$g;
 
 const APAAssistant = ({ title, onTitleChange }) => {
   const [isEditing, setIsEditing] = useState$7(false);
-  const [titleText, setTitleText] = useState$7(title || "APA 診間小幫手");
   const handleEditClick = () => {
     setIsEditing(true);
   };
   const handleSave = () => {
     setIsEditing(false);
-    if (onTitleChange) {
-      onTitleChange(titleText);
-    }
   };
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      handleSave();
+      setIsEditing(false);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-4 left-1/2 transform -translate-x-1/2 z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-full shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-200 rounded-full px-4 py-2 flex items-center w-64 md:w-80", children: [
@@ -9240,8 +9236,8 @@ const APAAssistant = ({ title, onTitleChange }) => {
       {
         type: "text",
         className: "w-full outline-none text-gray-800 bg-transparent",
-        value: titleText,
-        onChange: (e) => setTitleText(e.target.value),
+        value: title || "APA 診間小幫手",
+        onChange: (e) => onTitleChange(e.target.value),
         onBlur: handleSave,
         onKeyDown: handleKeyDown,
         autoFocus: true
@@ -9251,7 +9247,7 @@ const APAAssistant = ({ title, onTitleChange }) => {
       {
         className: "w-full text-gray-800 cursor-pointer hover:text-gray-600 truncate",
         onClick: handleEditClick,
-        children: titleText
+        children: title || "APA 診間小幫手"
       }
     ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2 text-gray-500 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
