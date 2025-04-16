@@ -69,6 +69,50 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
+## Deployment to Git
+
+To deploy your project to Git, follow these steps:
+
+1. **Initialize a Git Repository**  
+   If you haven't already initialized a Git repository, run:
+
+   ```bash
+   git init
+   ```
+
+2. **Add Remote Repository**  
+   Add your remote Git repository:
+
+   ```bash
+   git remote add origin <your-repository-url>
+   ```
+
+3. **Build the Project**  
+   Remove local dist
+   Run the following command to build the project for production:
+
+   ```bash
+   rm -rf dist
+   npm run build
+   mkdir -p dist
+   touch dist/.nojekyll
+   ls -la dist/.nojekyll
+   ```
+
+4. **Deploy the Build Folder**  
+   Push the contents of the `build` folder to your Git repository:
+
+   ```bash
+   git add dist
+   git commit -m "Deploy build to Git"
+   git subtree push --prefix build origin main
+   ```
+
+   Replace `main` with your branch name if it's different.
+
+5. **Verify Deployment**  
+   Check your repository to ensure the build folder has been deployed successfully.
+
 ## 自定義元件開發
 
 ### NodeItem 開發指南

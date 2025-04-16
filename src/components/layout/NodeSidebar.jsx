@@ -15,7 +15,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   };
 
   return (
-    <div className='w-64 bg-white p-4 shadow-md h-full'>
+    <div className='w-64 bg-white p-4 shadow-md h-full overflow-y-auto'>
       {/* 搜尋框 */}
       <div className='relative mb-3'>
         <input

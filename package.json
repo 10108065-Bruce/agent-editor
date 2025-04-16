@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist --dotfiles"
   },
   "dependencies": {
     "react": "^19.1.0",
@@ -23,6 +23,7 @@
     "@originjs/vite-plugin-federation": "^1.4.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.21.0",
