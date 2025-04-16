@@ -11847,6 +11847,21 @@ function FlowEditor() {
       updateNodeFunctions();
     }
   }, [updateNodeFunctions]);
+  useEffect(() => {
+    window.parent.postMessage(
+      { type: "FROM_CHILD", payload: "子應用載入完成 🎉" },
+      "*"
+    );
+  }, []);
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (e.data?.type === "FROM_PARENT") {
+        console.log("子應用收到母應用訊息:", e.data.payload);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
   const showNotification = useCallback((message, type = "info") => {
     setNotification({ show: true, message, type });
     setTimeout(() => {
@@ -12168,6 +12183,17 @@ function FlowEditor() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(SaveFileButton, { onSave: saveToLocalFile })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "mt-2 bg-blue-500 text-white px-3 py-1 rounded-md text-sm",
+            onClick: () => window.parent?.postMessage(
+              { type: "FROM_CHILD", payload: "👋 子應用打招呼囉！" },
+              "*"
+            ),
+            children: "傳送訊息給母應用"
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
