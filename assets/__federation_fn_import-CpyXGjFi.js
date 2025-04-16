@@ -1,3 +1,5 @@
+window.drawingApp = window.drawingApp || {};
+
 const buildIdentifier = "[0-9A-Za-z-]+";
 const build = `(?:\\+(${buildIdentifier}(?:\\.${buildIdentifier})*))`;
 const numericIdentifier = "0|[1-9]\\d*";
@@ -356,7 +358,7 @@ function satisfy(version, range) {
 const currentImports = {};
 
 // eslint-disable-next-line no-undef
-const moduleMap = {'react':{get:()=>()=>__federation_import(new URL('__federation_shared_react-uocnGSER.js', import.meta.url).href),import:true},'react-dom':{get:()=>()=>__federation_import(new URL('__federation_shared_react-dom-CL5_CR4f.js', import.meta.url).href),import:true}};
+const moduleMap = {'react':{get:()=>()=>__federation_import(new URL('__federation_shared_react-C07mL24r.js', import.meta.url).href),import:true},'react-dom':{get:()=>()=>__federation_import(new URL('__federation_shared_react-dom-3J4K63Hn.js', import.meta.url).href),import:true}};
 const moduleCache = Object.create(null);
 async function importShared(name, shareScope = 'default') {
   return moduleCache[name]

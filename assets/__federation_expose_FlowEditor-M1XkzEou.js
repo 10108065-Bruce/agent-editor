@@ -1,5 +1,7 @@
-import { importShared } from './__federation_fn_import-CPTB00SE.js';
-import { r as requireReact, g as getDefaultExportFromCjs } from './index-B1hOKVPw.js';
+window.drawingApp = window.drawingApp || {};
+
+import { importShared } from './__federation_fn_import-CpyXGjFi.js';
+import { r as requireReact, g as getDefaultExportFromCjs } from './index-DvUXrXSS.js';
 
 var jsxRuntime = {exports: {}};
 

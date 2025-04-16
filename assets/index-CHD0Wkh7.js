@@ -1,4 +1,6 @@
-import { r as requireReact } from './index-B1hOKVPw.js';
+window.drawingApp = window.drawingApp || {};
+
+import { r as requireReact } from './index-DvUXrXSS.js';
 
 var reactDom = {exports: {}};
 
