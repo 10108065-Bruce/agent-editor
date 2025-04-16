@@ -12062,7 +12062,7 @@ function FlowEditor() {
     "custom-edge": CustomEdge
     // 使用自定義邊緣
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-full", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       APAAssistant,
       {
