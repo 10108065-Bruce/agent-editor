@@ -11743,6 +11743,49 @@ class FileIOService {
 }
 
 await importShared('react');
+
+const DownloadButton = ({ onDownload, className = "" }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      className: `p-2 rounded-md shadow-md border flex items-center space-x-1 bg-white border-gray-200 text-gray-700 hover:bg-gray-50 ${className}`,
+      onClick: onDownload,
+      title: "下載至母頁面",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "svg",
+          {
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "20",
+            height: "20",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "7 10 12 15 17 10" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "line",
+                {
+                  x1: "12",
+                  y1: "15",
+                  x2: "12",
+                  y2: "3"
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "傳送" })
+      ]
+    }
+  );
+};
+
+await importShared('react');
 function CustomEdge({
   id,
   sourceX,
@@ -11844,7 +11887,7 @@ function FlowEditor() {
   const isInIframe = useMemo(() => {
     try {
       return window.self !== window.top;
-    } catch {
+    } catch (e) {
       return true;
     }
   }, []);
@@ -11881,6 +11924,10 @@ function FlowEditor() {
               title: newTitle
             }));
           }
+          break;
+        case "REQUEST_DATA_FOR_DOWNLOAD":
+          console.log("收到下載數據請求");
+          sendDataForDownload();
           break;
       }
     };
@@ -12097,6 +12144,54 @@ function FlowEditor() {
       throw error;
     }
   }, [nodes, edges, flowMetadata, showNotification]);
+  const sendDataForDownload = useCallback(async () => {
+    if (!isInIframe) {
+      return saveToLocalFile();
+    }
+    try {
+      const flowData = {
+        id: flowMetadata.id || `flow_${Date.now()}`,
+        title: flowMetadata.title || "未命名流程",
+        version: flowMetadata.version || 1,
+        nodes,
+        edges,
+        metadata: {
+          lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+          savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+          nodeCount: nodes.length,
+          edgeCount: edges.length
+        }
+      };
+      const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+      const safeTitle = (flowMetadata.title || "未命名_流程").replace(
+        /\s+/g,
+        "_"
+      );
+      const filename = `${safeTitle}_${date}.json`;
+      window.parent.postMessage(
+        {
+          type: "DOWNLOAD_JSON",
+          data: flowData,
+          filename,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        },
+        "*"
+      );
+      showNotification("已發送數據到母頁面進行下載", "success");
+      return { success: true };
+    } catch (error) {
+      console.error("準備下載數據時發生錯誤：", error);
+      showNotification("發送數據失敗", "error");
+      throw error;
+    }
+  }, [
+    nodes,
+    edges,
+    flowMetadata,
+    isInIframe,
+    saveToLocalFile,
+    showNotification
+  ]);
   const loadFromLocalFile = useCallback(async () => {
     try {
       const result = await FileIOService.readFromFile();
@@ -12236,7 +12331,7 @@ function FlowEditor() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2 mr-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(LoadFileButton, { onLoad: loadFromLocalFile }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SaveFileButton, { onSave: saveToLocalFile })
+          isInIframe ? /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadButton, { onDownload: sendDataForDownload }) : /* @__PURE__ */ jsxRuntimeExports.jsx(SaveFileButton, { onSave: saveToLocalFile })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
