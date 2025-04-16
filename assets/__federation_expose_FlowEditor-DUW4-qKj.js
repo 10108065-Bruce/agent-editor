@@ -8657,7 +8657,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
     if (!searchTerm) return true;
     return label.toLowerCase().includes(searchTerm.toLowerCase());
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-64 bg-white p-4 shadow-md h-full", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-64 bg-white p-4 shadow-md h-full overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "input",
