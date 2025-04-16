@@ -1,7 +1,7 @@
-import { importShared } from './__federation_fn_import-CPTB00SE.js';
-import FlowEditor, { j as jsxRuntimeExports } from './__federation_expose_FlowEditor-B_182cnb.js';
-import { r as requireReact, g as getDefaultExportFromCjs } from './index-B1hOKVPw.js';
-import { r as requireReactDom } from './index-7SrgunHe.js';
+import { importShared } from './assets/__federation_fn_import-CPTB00SE.js';
+import FlowEditor, { j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-B_182cnb.js';
+import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-B1hOKVPw.js';
+import { r as requireReactDom } from './assets/index-7SrgunHe.js';
 
 var client = {exports: {}};
 
