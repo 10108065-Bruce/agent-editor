@@ -1151,9 +1151,6 @@ video {
 .cursor-pointer {
   cursor: pointer;
 }
-.resize {
-  resize: both;
-}
 .flex-col {
   flex-direction: column;
 }
@@ -1415,10 +1412,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
-.bg-yellow-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 249 195 / var(--tw-bg-opacity, 1));
-}
 .bg-opacity-40 {
   --tw-bg-opacity: 0.4;
 }
@@ -1560,10 +1553,6 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-}
-.text-yellow-800 {
-  --tw-text-opacity: 1;
-  color: rgb(133 77 14 / var(--tw-text-opacity, 1));
 }
 .opacity-0 {
   opacity: 0;

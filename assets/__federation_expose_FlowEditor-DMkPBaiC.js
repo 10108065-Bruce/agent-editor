@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$l = await importShared('react');
-const {createContext,useContext,useMemo,memo: memo$g,useRef: useRef$4,useState: useState$a,useEffect: useEffect$3,forwardRef,useCallback: useCallback$4} = React$l;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$4,useState: useState$a,useEffect: useEffect$3,forwardRef,useCallback: useCallback$4} = React$l;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3893,7 +3893,7 @@ const useStoreApi = () => {
   if (store === null) {
     throw new Error(zustandErrorMessage);
   }
-  return useMemo(() => ({
+  return useMemo$1(() => ({
     getState: store.getState,
     setState: store.setState,
     subscribe: store.subscribe,
@@ -4289,7 +4289,7 @@ const SmoothStepEdge = memo$g(({ sourceX, sourceY, targetX, targetY, label, labe
   return React$l.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 SmoothStepEdge.displayName = "SmoothStepEdge";
-const StepEdge = memo$g((props) => React$l.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
+const StepEdge = memo$g((props) => React$l.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
 StepEdge.displayName = "StepEdge";
 function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
   const [labelX, labelY, offsetX, offsetY] = getEdgeCenter({
@@ -5060,7 +5060,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
   const [keyPressed, setKeyPressed] = useState$a(false);
   const modifierPressed = useRef$4(false);
   const pressedKeys = useRef$4(/* @__PURE__ */ new Set([]));
-  const [keyCodes, keysToWatch] = useMemo(() => {
+  const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
       const keys = keyCodeArr.filter((kc) => typeof kc === "string").map((kc) => kc.split("+"));
@@ -5279,7 +5279,7 @@ const selector$b = (s) => ({
 const useViewportHelper = () => {
   const store = useStoreApi();
   const { d3Zoom, d3Selection } = useStore(selector$b, shallow$1);
-  const viewportHelperFunctions = useMemo(() => {
+  const viewportHelperFunctions = useMemo$1(() => {
     if (d3Selection && d3Zoom) {
       return {
         zoomIn: (options) => d3Zoom.scaleBy(getD3Transition(d3Selection, options?.duration), 1.2),
@@ -5510,7 +5510,7 @@ function useReactFlow() {
     const partiallyVisible = partially && overlappingArea > 0;
     return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
   }, []);
-  return useMemo(() => {
+  return useMemo$1(() => {
     return {
       ...viewportHelper,
       getNodes,
@@ -6747,7 +6747,7 @@ const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
   const resizeObserverRef = useRef$4();
-  const resizeObserver = useMemo(() => {
+  const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
     }
@@ -6816,8 +6816,8 @@ var wrapEdge = (EdgeComponent) => {
     const [updateHover, setUpdateHover] = useState$a(false);
     const [updating, setUpdating] = useState$a(false);
     const store = useStoreApi();
-    const markerStartUrl = useMemo(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
-    const markerEndUrl = useMemo(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
+    const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
+    const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
     if (hidden) {
       return null;
     }
@@ -7094,7 +7094,7 @@ const MarkerSymbols = {
 };
 function useMarkerSymbol(type) {
   const store = useStoreApi();
-  const symbol = useMemo(() => {
+  const symbol = useMemo$1(() => {
     const symbolExists = Object.prototype.hasOwnProperty.call(MarkerSymbols, type);
     if (!symbolExists) {
       store.getState().onError?.("009", errorMessages["error009"](type));
@@ -7300,7 +7300,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
   useRef$4(null);
   useStoreApi();
-  const typesParsed = useMemo(() => {
+  const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
   }, [nodeOrEdgeTypes]);
   return typesParsed;
@@ -11795,11 +11795,14 @@ function CustomEdge({
 }
 
 const React = await importShared('react');
-const {useState,useEffect,useCallback,useRef} = React;
-const nodeTypes = enhancedNodeTypes;
+const {useState,useEffect,useCallback,useRef,useMemo} = React;
 function FlowEditor() {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const isInitialized = useRef(false);
+  const nodeTypes = useMemo(() => enhancedNodeTypes, []);
+  const edgeTypes = useMemo(() => ({ "custom-edge": CustomEdge }), []);
+  const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
   const {
     nodes,
     edges,
@@ -11838,30 +11841,68 @@ function FlowEditor() {
     message: "",
     type: "info"
   });
+  const isInIframe = useMemo(() => {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  }, []);
   useEffect(() => {
-    if (updateNodeFunctions) {
-      updateNodeFunctions();
+    if (!isInitialized.current) {
+      if (updateNodeFunctions) {
+        updateNodeFunctions();
+      }
+      isInitialized.current = true;
     }
   }, [updateNodeFunctions]);
   useEffect(() => {
-    window.parent.postMessage(
-      { type: "FROM_CHILD", payload: "子應用載入完成 🎉" },
-      "*"
-    );
-  }, []);
+    if (isInIframe) {
+      window.parent.postMessage(
+        { type: "READY", payload: "子應用載入完成 🎉" },
+        "*"
+      );
+    }
+  }, [isInIframe]);
   useEffect(() => {
+    if (!isInIframe) return;
     const onMsg = (e) => {
-      if (e.data?.type === "FROM_PARENT") {
-        console.log("子應用收到母應用訊息:", e.data.payload);
-        setFlowMetadata((prev) => ({
-          ...prev,
-          title: e.data.payload
-        }));
+      const message = e.data;
+      if (!message || !message.type) return;
+      console.log("子應用收到訊息:", message);
+      switch (message.type) {
+        case "FROM_PARENT":
+        case "SET_TITLE":
+          if (message.payload || message.title) {
+            const newTitle = message.payload || message.title;
+            console.log("設置新標題:", newTitle);
+            setFlowMetadata((prev) => ({
+              ...prev,
+              title: newTitle
+            }));
+          }
+          break;
       }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, []);
+  }, [isInIframe]);
+  const handleTitleChange = useCallback(
+    (title) => {
+      setFlowMetadata((prev) => ({ ...prev, title }));
+      if (isInIframe) {
+        window.parent.postMessage(
+          {
+            type: "TITLE_CHANGED",
+            title,
+            timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          },
+          "*"
+        );
+      }
+    },
+    [isInIframe]
+  );
   const showNotification = useCallback((message, type = "info") => {
     setNotification({ show: true, message, type });
     setTimeout(() => {
@@ -11988,13 +12029,35 @@ function FlowEditor() {
       });
       console.log("FlowEditor: 流程儲存成功", response);
       showNotification("流程儲存成功", "success");
+      if (isInIframe) {
+        window.parent.postMessage(
+          {
+            type: "FLOW_SAVED",
+            success: true,
+            flowId: response.flowId,
+            timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          },
+          "*"
+        );
+      }
       return response;
     } catch (error) {
       console.error("FlowEditor: 儲存流程時發生錯誤：", error);
       showNotification("儲存流程時發生錯誤", "error");
+      if (isInIframe) {
+        window.parent.postMessage(
+          {
+            type: "FLOW_SAVED",
+            success: false,
+            error: error.message,
+            timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          },
+          "*"
+        );
+      }
       throw error;
     }
-  }, [nodes, edges, flowMetadata, showNotification]);
+  }, [nodes, edges, flowMetadata, showNotification, isInIframe]);
   const saveToLocalFile = useCallback(async () => {
     try {
       const flowData = {
@@ -12072,19 +12135,12 @@ function FlowEditor() {
     },
     [handleNodeSelection]
   );
-  const defaultViewport = { x: 0, y: 0, zoom: 1.3 };
-  const edgeTypes = {
-    "custom-edge": CustomEdge
-    // 使用自定義邊緣
-  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       APAAssistant,
       {
         title: flowMetadata.title,
-        onTitleChange: (title) => {
-          setFlowMetadata({ ...flowMetadata, title });
-        }
+        onTitleChange: handleTitleChange
       }
     ),
     notification.show && /* @__PURE__ */ jsxRuntimeExports.jsx(
