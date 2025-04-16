@@ -4,7 +4,7 @@ const currentImports = {};
       const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
       let moduleMap = {
 "./FlowEditor":()=>{
-      dynamicLoadingCss(["style-DW_WWBWR.css"], false, './FlowEditor');
+      dynamicLoadingCss(["styles.css"], false, './FlowEditor');
       return __federation_import('/agent-editor/assets/__federation_expose_FlowEditor-M1XkzEou.js').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},};
       const seen = {};
       const dynamicLoadingCss = (cssFilePaths, dontAppendStylesToHead, exposeItemName) => {
