@@ -12330,6 +12330,7 @@ function FlowEditor() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2 mr-2", children: [
+          isInIframe ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "yes" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "no" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(LoadFileButton, { onLoad: loadFromLocalFile }),
           isInIframe ? /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadButton, { onDownload: sendDataForDownload }) : /* @__PURE__ */ jsxRuntimeExports.jsx(SaveFileButton, { onSave: saveToLocalFile })
         ] }),
