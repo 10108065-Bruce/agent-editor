@@ -279,7 +279,7 @@ function requireWithSelector () {
 var withSelectorExports = requireWithSelector();
 const useSyncExternalStoreExports = /*@__PURE__*/getDefaultExportFromCjs(withSelectorExports);
 
-const __vite_import_meta_env__ = {};
+const __vite_import_meta_env__$1 = {};
 const createStoreImpl = (createState) => {
   let state;
   const listeners = /* @__PURE__ */ new Set();
@@ -298,7 +298,7 @@ const createStoreImpl = (createState) => {
     return () => listeners.delete(listener);
   };
   const destroy = () => {
-    if ((__vite_import_meta_env__ ? "production" : void 0) !== "production") {
+    if ((__vite_import_meta_env__$1 ? "production" : void 0) !== "production") {
       console.warn(
         "[DEPRECATED] The `destroy` method will be unsupported in a future version. Instead use unsubscribe function returned by subscribe. Everything will be garbage-collected if store is garbage-collected."
       );
@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$l = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$4,useState: useState$a,useEffect: useEffect$3,forwardRef,useCallback: useCallback$4} = React$l;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$4,useState: useState$a,useEffect: useEffect$3,forwardRef: forwardRef$1,useCallback: useCallback$4} = React$l;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -4795,7 +4795,7 @@ const connectingSelector = (nodeId, handleId, type) => (state) => {
     clickConnecting: clickHandle?.nodeId === nodeId && clickHandle?.handleId === handleId && clickHandle?.type === type
   };
 };
-const Handle = forwardRef(({ type = "source", position = Position.Top, isValidConnection, isConnectable = true, isConnectableStart = true, isConnectableEnd = true, id, onConnect, children, className, onMouseDown, onTouchStart, ...rest }, ref) => {
+const Handle = forwardRef$1(({ type = "source", position = Position.Top, isValidConnection, isConnectable = true, isConnectableStart = true, isConnectableEnd = true, id, onConnect, children, className, onMouseDown, onTouchStart, ...rest }, ref) => {
   const handleId = id || null;
   const isTarget = type === "target";
   const store = useStoreApi();
@@ -7636,7 +7636,7 @@ const wrapperStyle = {
   position: "relative",
   zIndex: 0
 };
-const ReactFlow = forwardRef(({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes = defaultNodeTypes, edgeTypes = defaultEdgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionMode = ConnectionMode.Strict, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = "Backspace", selectionKeyCode = "Shift", selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = "Space", multiSelectionKeyCode = isMacOs() ? "Meta" : "Control", zoomActivationKeyCode = isMacOs() ? "Meta" : "Control", snapToGrid = false, snapGrid = initSnapGrid, onlyRenderVisibleElements = false, selectNodesOnDrag = true, nodesDraggable, nodesConnectable, nodesFocusable, nodeOrigin = initNodeOrigin, edgesFocusable, edgesUpdatable, elementsSelectable, defaultViewport = initDefaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = "#b1b1b7", zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, children, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onEdgeUpdate, onEdgeUpdateStart, onEdgeUpdateEnd, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius = 10, edgeUpdaterRadius = 10, onNodesChange, onEdgesChange, noDragClassName = "nodrag", noWheelClassName = "nowheel", noPanClassName = "nopan", fitView: fitView2 = false, fitViewOptions, connectOnClick = true, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect = true, autoPanOnNodeDrag = true, connectionRadius = 20, isValidConnection, onError, style: style2, id, nodeDragThreshold, ...rest }, ref) => {
+const ReactFlow = forwardRef$1(({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes = defaultNodeTypes, edgeTypes = defaultEdgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionMode = ConnectionMode.Strict, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = "Backspace", selectionKeyCode = "Shift", selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = "Space", multiSelectionKeyCode = isMacOs() ? "Meta" : "Control", zoomActivationKeyCode = isMacOs() ? "Meta" : "Control", snapToGrid = false, snapGrid = initSnapGrid, onlyRenderVisibleElements = false, selectNodesOnDrag = true, nodesDraggable, nodesConnectable, nodesFocusable, nodeOrigin = initNodeOrigin, edgesFocusable, edgesUpdatable, elementsSelectable, defaultViewport = initDefaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = "#b1b1b7", zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, children, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onEdgeUpdate, onEdgeUpdateStart, onEdgeUpdateEnd, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius = 10, edgeUpdaterRadius = 10, onNodesChange, onEdgesChange, noDragClassName = "nodrag", noWheelClassName = "nowheel", noPanClassName = "nopan", fitView: fitView2 = false, fitViewOptions, connectOnClick = true, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect = true, autoPanOnNodeDrag = true, connectionRadius = 20, isValidConnection, onError, style: style2, id, nodeDragThreshold, ...rest }, ref) => {
   const rfId = id || "1";
   return React$l.createElement(
     "div",
@@ -11785,6 +11785,206 @@ const DownloadButton = ({ onDownload, className = "" }) => {
   );
 };
 
+// src/services/IFrameBridgeService.js
+
+/**
+ * 增強版 IFrameBridgeService - 處理從母網站接收標題修改及下載JSON功能
+ */
+class IFrameBridgeService {
+  constructor() {
+    // 標記是否已初始化，防止重複初始化
+    this.initialized = false;
+
+    // 追蹤已註冊的事件處理函數
+    this.eventHandlers = {
+      titleChange: [],
+      downloadRequest: [],
+      ready: []
+    };
+
+    // 是否在 iframe 內部
+    this.isInIframe = false;
+
+    // 初始化
+    this.init();
+  }
+
+  /**
+   * 初始化通訊橋接器
+   */
+  init() {
+    // 防止重複初始化
+    if (this.initialized) return;
+    this.initialized = true;
+
+    try {
+      this.isInIframe = window.self !== window.top;
+    } catch {
+      // 如果訪問window.top出現安全錯誤，則我們肯定在iframe中
+      this.isInIframe = true;
+    }
+
+    if (this.isInIframe) {
+      // 監聽來自父頁面的消息
+      window.addEventListener(
+        'message',
+        this.handleIncomingMessage.bind(this),
+        false
+      );
+
+      // 通知父頁面我們已準備好
+      this.sendToParent({
+        type: 'READY',
+        timestamp: new Date().toISOString()
+      });
+
+      // 觸發內部準備好事件
+      this.triggerEvent('ready', {
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('IFrameBridgeService 已初始化 - 在 iframe 模式中運行');
+    } else {
+      console.log('IFrameBridgeService 已初始化 - 在獨立模式中運行');
+    }
+  }
+
+  /**
+   * 處理來自父頁面的消息
+   * @param {MessageEvent} event - 消息事件對象
+   */
+  handleIncomingMessage(event) {
+    const message = event.data;
+
+    // 檢查消息結構
+    if (!message || !message.type) {
+      return;
+    }
+
+    console.log('收到消息:', message);
+
+    // 根據消息類型處理
+    switch (message.type) {
+      case 'SET_TITLE':
+        if (message.title) {
+          this.triggerEvent('titleChange', message.title);
+        }
+        break;
+
+      case 'REQUEST_DATA_FOR_DOWNLOAD':
+        // 觸發下載請求事件
+        this.triggerEvent('downloadRequest', message.options || {});
+        break;
+    }
+  }
+
+  /**
+   * 向父頁面發送消息
+   * @param {Object} message - 要發送的消息對象
+   */
+  sendToParent(message) {
+    if (!this.isInIframe) {
+      console.warn('無法發送消息：未在 iframe 中運行');
+      return false;
+    }
+
+    try {
+      window.parent.postMessage(message, '*');
+      return true;
+    } catch (error) {
+      console.error('向父頁面發送消息時出錯:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 註冊事件處理程序
+   * @param {string} eventType - 事件類型
+   * @param {Function} callback - 回調函數
+   * @returns {boolean} - 是否成功註冊
+   */
+  on(eventType, callback) {
+    if (!this.eventHandlers[eventType]) {
+      console.warn(`未知的事件類型: ${eventType}`);
+      return false;
+    }
+
+    this.eventHandlers[eventType].push(callback);
+    return true;
+  }
+
+  /**
+   * 觸發特定事件的所有處理程序
+   * @param {string} eventType - 事件類型
+   * @param {*} data - 要傳遞給處理程序的數據
+   */
+  triggerEvent(eventType, data) {
+    if (!this.eventHandlers[eventType]) {
+      console.warn(`未知的事件類型: ${eventType}`);
+      return;
+    }
+
+    this.eventHandlers[eventType].forEach((handler) => {
+      try {
+        handler(data);
+      } catch (error) {
+        console.error(`執行 ${eventType} 事件處理程序時出錯:`, error);
+      }
+    });
+  }
+
+  /**
+   * 取消註冊事件處理程序
+   * @param {string} eventType - 事件類型
+   * @param {Function} callback - 要移除的回調函數
+   * @returns {boolean} - 是否成功取消註冊
+   */
+  off(eventType, callback) {
+    if (!this.eventHandlers[eventType]) {
+      console.warn(`未知的事件類型: ${eventType}`);
+      return false;
+    }
+
+    const initialLength = this.eventHandlers[eventType].length;
+    this.eventHandlers[eventType] = this.eventHandlers[eventType].filter(
+      (handler) => handler !== callback
+    );
+
+    return initialLength !== this.eventHandlers[eventType].length;
+  }
+
+  /**
+   * 向父頁面發送JSON數據以進行下載
+   * @param {Object} data - 要下載的JSON數據
+   * @param {string} filename - 檔案名稱
+   * @returns {boolean} - 是否成功發送下載請求
+   */
+  requestDownload(data, filename) {
+    if (!this.isInIframe) {
+      console.warn('無法請求下載：未在 iframe 中運行');
+      return false;
+    }
+
+    try {
+      this.sendToParent({
+        type: 'DOWNLOAD_JSON',
+        data: data,
+        filename: filename,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('已向父頁面發送下載請求', { filename });
+      return true;
+    } catch (error) {
+      console.error('發送下載請求時出錯:', error);
+      return false;
+    }
+  }
+}
+
+// 創建單例實例
+const iframeBridge = new IFrameBridgeService();
+
 await importShared('react');
 function CustomEdge({
   id,
@@ -11837,9 +12037,73 @@ function CustomEdge({
   ] });
 }
 
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T00:30:51.899Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.0"};
+function getEnvVar(name, defaultValue) {
+  if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
+    return window.ENV[name];
+  }
+  if (typeof import.meta !== "undefined" && __vite_import_meta_env__ && __vite_import_meta_env__[name]) {
+    return __vite_import_meta_env__[name];
+  }
+  return defaultValue;
+}
+class VersionService {
+  constructor() {
+    this.version = getEnvVar("VITE_APP_VERSION", "0.0.0");
+    this.buildTime = getEnvVar("VITE_APP_BUILD_TIME", (/* @__PURE__ */ new Date()).toISOString());
+    this.buildId = getEnvVar("VITE_APP_BUILD_ID", "development");
+    this.environment = getEnvVar("MODE", "development");
+  }
+  /**
+   * 获取完整版本信息
+   * @returns {Object} 版本信息
+   */
+  getVersionInfo() {
+    return {
+      version: this.version,
+      buildTime: this.buildTime,
+      buildId: this.buildId,
+      environment: this.environment
+    };
+  }
+  /**
+   * 获取版本号
+   * @returns {string} 版本号
+   */
+  getVersion() {
+    return this.version;
+  }
+  /**
+   * 获取格式化的版本字串
+   * @returns {string} 格式化的版本字串
+   */
+  getFormattedVersion() {
+    const buildIdDisplay = this.buildId && this.buildId !== "development" ? this.buildId.substring(0, 7) : "dev";
+    return `v${this.version} (${buildIdDisplay})`;
+  }
+}
+const versionService = new VersionService();
+
+await importShared('react');
+const VersionDisplay = ({ className = "" }) => {
+  const versionInfo = versionService.getVersionInfo();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `version-display text-xs text-gray-500 ${className}`, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "version-number", children: [
+      "v",
+      versionInfo.version
+    ] }),
+    versionInfo.environment !== "production" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "version-environment ml-1", children: [
+      "(",
+      versionInfo.environment,
+      ")"
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "build-id ml-2 text-gray-400", children: versionInfo.buildId.substring(0, 7) })
+  ] });
+};
+
 const React = await importShared('react');
-const {useState,useEffect,useCallback,useRef,useMemo} = React;
-function FlowEditor() {
+const {useState,useEffect,useCallback,useRef,useMemo,forwardRef,useImperativeHandle} = React;
+const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const isInitialized = useRef(false);
@@ -11875,7 +12139,7 @@ function FlowEditor() {
   } = useFlowNodes();
   const [flowMetadata, setFlowMetadata] = useState({
     id: null,
-    title: "APA 診間小幫手",
+    title: initialTitle || "APA 診間小幫手",
     lastSaved: null,
     version: 1
   });
@@ -11887,10 +12151,36 @@ function FlowEditor() {
   const isInIframe = useMemo(() => {
     try {
       return window.self !== window.top;
-    } catch (e) {
+    } catch {
       return true;
     }
   }, []);
+  useImperativeHandle(ref, () => ({
+    // 導出流程數據的方法
+    exportFlowData: () => {
+      return {
+        id: flowMetadata.id || `flow_${Date.now()}`,
+        title: flowMetadata.title || "未命名流程",
+        version: flowMetadata.version || 1,
+        nodes,
+        edges,
+        metadata: {
+          lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+          savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+          nodeCount: nodes.length,
+          edgeCount: edges.length
+        }
+      };
+    },
+    // 設置流程標題的方法
+    setFlowTitle: (title) => {
+      if (title && typeof title === "string") {
+        setFlowMetadata((prev) => ({ ...prev, title }));
+        return true;
+      }
+      return false;
+    }
+  }));
   useEffect(() => {
     if (!isInitialized.current) {
       if (updateNodeFunctions) {
@@ -11899,56 +12189,14 @@ function FlowEditor() {
       isInitialized.current = true;
     }
   }, [updateNodeFunctions]);
-  useEffect(() => {
-    if (isInIframe) {
-      window.parent.postMessage(
-        { type: "READY", payload: "子應用載入完成 🎉" },
-        "*"
-      );
-    }
-  }, [isInIframe]);
-  useEffect(() => {
-    if (!isInIframe) return;
-    const onMsg = (e) => {
-      const message = e.data;
-      if (!message || !message.type) return;
-      console.log("子應用收到訊息:", message);
-      switch (message.type) {
-        case "FROM_PARENT":
-        case "SET_TITLE":
-          if (message.payload || message.title) {
-            const newTitle = message.payload || message.title;
-            console.log("設置新標題:", newTitle);
-            setFlowMetadata((prev) => ({
-              ...prev,
-              title: newTitle
-            }));
-          }
-          break;
-        case "REQUEST_DATA_FOR_DOWNLOAD":
-          console.log("收到下載數據請求");
-          sendDataForDownload();
-          break;
-      }
-    };
-    window.addEventListener("message", onMsg);
-    return () => window.removeEventListener("message", onMsg);
-  }, [isInIframe]);
   const handleTitleChange = useCallback(
     (title) => {
       setFlowMetadata((prev) => ({ ...prev, title }));
-      if (isInIframe) {
-        window.parent.postMessage(
-          {
-            type: "TITLE_CHANGED",
-            title,
-            timestamp: (/* @__PURE__ */ new Date()).toISOString()
-          },
-          "*"
-        );
+      if (onTitleChange && typeof onTitleChange === "function") {
+        onTitleChange(title);
       }
     },
-    [isInIframe]
+    [onTitleChange]
   );
   const showNotification = useCallback((message, type = "info") => {
     setNotification({ show: true, message, type });
@@ -12077,30 +12325,24 @@ function FlowEditor() {
       console.log("FlowEditor: 流程儲存成功", response);
       showNotification("流程儲存成功", "success");
       if (isInIframe) {
-        window.parent.postMessage(
-          {
-            type: "FLOW_SAVED",
-            success: true,
-            flowId: response.flowId,
-            timestamp: (/* @__PURE__ */ new Date()).toISOString()
-          },
-          "*"
-        );
+        iframeBridge.sendToParent({
+          type: "FLOW_SAVED",
+          success: true,
+          flowId: response.flowId,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        });
       }
       return response;
     } catch (error) {
       console.error("FlowEditor: 儲存流程時發生錯誤：", error);
       showNotification("儲存流程時發生錯誤", "error");
       if (isInIframe) {
-        window.parent.postMessage(
-          {
-            type: "FLOW_SAVED",
-            success: false,
-            error: error.message,
-            timestamp: (/* @__PURE__ */ new Date()).toISOString()
-          },
-          "*"
-        );
+        iframeBridge.sendToParent({
+          type: "FLOW_SAVED",
+          success: false,
+          error: error.message,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        });
       }
       throw error;
     }
@@ -12145,7 +12387,6 @@ function FlowEditor() {
     }
   }, [nodes, edges, flowMetadata, showNotification]);
   const sendDataForDownload = useCallback(async () => {
-    console.log("isInIframe:", isInIframe);
     if (!isInIframe) {
       return saveToLocalFile();
     }
@@ -12169,24 +12410,16 @@ function FlowEditor() {
         "_"
       );
       const filename = `${safeTitle}_${date}.json`;
-      console.log("Preparing to send data for download:", {
-        flowData,
-        filename
-      });
-      window.parent.postMessage(
-        {
-          type: "DOWNLOAD_JSON",
-          data: flowData,
-          filename,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString()
-        },
-        "*"
-      );
-      showNotification("已發送數據到母頁面進行下載", "success");
-      return { success: true };
+      const result = iframeBridge.requestDownload(flowData, filename);
+      if (result) {
+        showNotification("已發送下載請求", "success");
+      } else {
+        showNotification("發送下載請求失敗", "error");
+      }
+      return { success: result };
     } catch (error) {
       console.error("準備下載數據時發生錯誤：", error);
-      showNotification("發送數據失敗", "error");
+      showNotification("發送下載請求失敗", "error");
       throw error;
     }
   }, [
@@ -12215,6 +12448,9 @@ function FlowEditor() {
           version: result.data.version || 1
         });
         updateNodeFunctions();
+        if (isInIframe && onTitleChange) {
+          onTitleChange(result.data.title || "匯入的流程");
+        }
       }
       return result;
     } catch (error) {
@@ -12222,7 +12458,14 @@ function FlowEditor() {
       showNotification("無法載入檔案", "error");
       throw error;
     }
-  }, [setFlowNodes, setFlowEdges, showNotification, updateNodeFunctions]);
+  }, [
+    setFlowNodes,
+    setFlowEdges,
+    showNotification,
+    updateNodeFunctions,
+    isInIframe,
+    onTitleChange
+  ]);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const toggleSidebar = useCallback(() => {
     setSidebarVisible((prev) => !prev);
@@ -12235,6 +12478,11 @@ function FlowEditor() {
     },
     [handleNodeSelection]
   );
+  useEffect(() => {
+    if (initialTitle && initialTitle !== flowMetadata.title) {
+      setFlowMetadata((prev) => ({ ...prev, title: initialTitle }));
+    }
+  }, [initialTitle]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       APAAssistant,
@@ -12286,6 +12534,7 @@ function FlowEditor() {
       {
         className: `absolute top-0 left-0 h-full transition-transform duration-300 transform ${sidebarVisible ? "translate-x-0" : "-translate-x-full"}`,
         children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             NodeSidebar,
             {
@@ -12335,7 +12584,6 @@ function FlowEditor() {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2 mr-2", children: [
-          isInIframe ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "yes" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "no" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(LoadFileButton, { onLoad: loadFromLocalFile }),
           isInIframe ? /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadButton, { onDownload: sendDataForDownload }) : /* @__PURE__ */ jsxRuntimeExports.jsx(SaveFileButton, { onSave: saveToLocalFile })
         ] }),
@@ -12403,6 +12651,7 @@ function FlowEditor() {
       ] })
     ] })
   ] });
-}
+});
+FlowEditor.displayName = "FlowEditor";
 
-export { FlowEditor as default, jsxRuntimeExports as j };
+export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j };

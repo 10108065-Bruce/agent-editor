@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-qtTZhDSJ.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DMi73ulX.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15790,9 +15790,73 @@ function requireClient () {
 var clientExports = requireClient();
 const ReactDOM = /*@__PURE__*/getDefaultExportFromCjs(clientExports);
 
-await importShared('react');
+const React$2 = await importShared('react');
+const {useEffect: useEffect$1,useState: useState$1,useCallback,useRef} = React$2;
+const IFrameFlowEditor = () => {
+  const [flowTitle, setFlowTitle] = useState$1("APA 診間小幫手");
+  const flowEditorRef = useRef(null);
+  const handleTitleChange = useCallback((title) => {
+    if (title && typeof title === "string") {
+      console.log("從父頁面接收到新標題:", title);
+      setFlowTitle(title);
+    }
+  }, []);
+  const handleDownloadRequest = useCallback((options) => {
+    console.log("收到下載請求:", options);
+    if (flowEditorRef.current && flowEditorRef.current.exportFlowData) {
+      const flowData = flowEditorRef.current.exportFlowData();
+      const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+      const safeTitle = (flowData.title || "未命名_流程").replace(/\s+/g, "_");
+      const filename = `${safeTitle}_${date}.json`;
+      iframeBridge.requestDownload(flowData, filename);
+    } else {
+      console.warn("流程編輯器實例未準備好，無法處理下載請求");
+    }
+  }, []);
+  const notifyTitleChanged = useCallback((title) => {
+    iframeBridge.sendToParent({
+      type: "TITLE_CHANGED",
+      title,
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  }, []);
+  useEffect$1(() => {
+    iframeBridge.on("titleChange", handleTitleChange);
+    iframeBridge.on("downloadRequest", handleDownloadRequest);
+    return () => {
+      iframeBridge.off("titleChange", handleTitleChange);
+      iframeBridge.off("downloadRequest", handleDownloadRequest);
+    };
+  }, [handleTitleChange, handleDownloadRequest]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "iframe-flow-editor-container", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    FlowEditor,
+    {
+      ref: flowEditorRef,
+      initialTitle: flowTitle,
+      onTitleChange: notifyTitleChanged
+    }
+  ) });
+};
+
+const React$1 = await importShared('react');
+const {useEffect,useState} = React$1;
 function App() {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "App", children: /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {}) });
+  const [isInIframe, setIsInIframe] = useState(false);
+  useEffect(() => {
+    try {
+      setIsInIframe(window.self !== window.top);
+    } catch {
+      setIsInIframe(true);
+    }
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "App", children: isInIframe ? (
+    // If we're in an iframe, use the IFrameFlowEditor which has
+    // the iframe communication functionality
+    /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, {})
+  ) : (
+    // Otherwise, use the regular FlowEditor for standalone mode
+    /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {})
+  ) });
 }
 
 const React = await importShared('react');
