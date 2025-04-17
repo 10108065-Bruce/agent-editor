@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T02:03:04.434Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.8"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T02:04:38.959Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.9"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12478,7 +12478,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     if (initialTitle && initialTitle !== flowMetadata.title) {
       setFlowMetadata((prev) => ({ ...prev, title: initialTitle }));
     }
-  }, [initialTitle, flowMetadata.title]);
+  }, [initialTitle]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       APAAssistant,
