@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T00:57:39.904Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.5"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T01:03:43.435Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.6"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12025,11 +12025,12 @@ class IFrameBridgeService {
       console.warn('無法請求下載：未在 iframe 中運行');
       return false;
     }
-
+    // Create a clean, serializable copy of the data
+    const serializableData = JSON.parse(JSON.stringify(data));
     try {
       this.sendToParent({
         type: 'DOWNLOAD_JSON',
-        data: data,
+        data: serializableData,
         filename: filename,
         timestamp: new Date().toISOString()
       });
@@ -12392,8 +12393,15 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         id: flowMetadata.id || `flow_${Date.now()}`,
         title: flowMetadata.title || "未命名流程",
         version: flowMetadata.version || 1,
-        nodes,
-        edges,
+        // Create clean copies of nodes and edges
+        nodes: nodes.map((node) => {
+          const cleanNode = { ...node };
+          delete cleanNode.data?.handleNodeSelection;
+          delete cleanNode.data?.onUpdate;
+          delete cleanNode.data?.onChange;
+          return cleanNode;
+        }),
+        edges: JSON.parse(JSON.stringify(edges)),
         metadata: {
           lastModified: (/* @__PURE__ */ new Date()).toISOString(),
           savedAt: (/* @__PURE__ */ new Date()).toISOString(),
