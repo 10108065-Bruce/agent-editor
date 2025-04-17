@@ -8646,6 +8646,66 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T00:57:39.904Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.5"};
+function getEnvVar(name, defaultValue) {
+  if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
+    return window.ENV[name];
+  }
+  if (typeof import.meta !== "undefined" && __vite_import_meta_env__ && __vite_import_meta_env__[name]) {
+    return __vite_import_meta_env__[name];
+  }
+  return defaultValue;
+}
+class VersionService {
+  constructor() {
+    this.version = getEnvVar("VITE_APP_VERSION", "0.0.0");
+    this.buildTime = getEnvVar("VITE_APP_BUILD_TIME", (/* @__PURE__ */ new Date()).toISOString());
+    this.buildId = getEnvVar("VITE_APP_BUILD_ID", "development");
+    this.environment = getEnvVar("MODE", "development");
+  }
+  /**
+   * 獲取完整的版本信息
+   * @returns {Object} 版本信息
+   */
+  getVersionInfo() {
+    return {
+      version: this.version,
+      buildTime: this.buildTime,
+      buildId: this.buildId,
+      environment: this.environment
+    };
+  }
+  /**
+   * 獲取版本號
+   * @param {string} version 版本號
+   */
+  getVersion() {
+    return this.version;
+  }
+  /**
+   * 獲取格式化的版本字串
+   * @returns {string} 格式化的版本字串
+   */
+  getFormattedVersion() {
+    const buildIdDisplay = this.buildId && this.buildId !== "development" ? this.buildId.substring(0, 7) : "dev";
+    return `v${this.version} (${buildIdDisplay})`;
+  }
+}
+const versionService = new VersionService();
+
+await importShared('react');
+const VersionDisplay = ({ className = "" }) => {
+  const versionInfo = versionService.getVersionInfo();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `version-display text-xs text-gray-500 ${className}`, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "version-number", children: versionService.getFormattedVersion() }),
+    versionInfo.environment !== "production" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "version-environment ml-1", children: [
+      "(",
+      versionInfo.environment,
+      ")"
+    ] })
+  ] });
+};
+
 const React$h = await importShared('react');
 const {useState: useState$8} = React$h;
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
@@ -9069,7 +9129,8 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
           onDragStart: customDragStart
         }
       )
-    ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
   ] });
 };
 const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
@@ -12037,66 +12098,6 @@ function CustomEdge({
   ] });
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T00:43:42.159Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.4"};
-function getEnvVar(name, defaultValue) {
-  if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
-    return window.ENV[name];
-  }
-  if (typeof import.meta !== "undefined" && __vite_import_meta_env__ && __vite_import_meta_env__[name]) {
-    return __vite_import_meta_env__[name];
-  }
-  return defaultValue;
-}
-class VersionService {
-  constructor() {
-    this.version = getEnvVar("VITE_APP_VERSION", "0.0.0");
-    this.buildTime = getEnvVar("VITE_APP_BUILD_TIME", (/* @__PURE__ */ new Date()).toISOString());
-    this.buildId = getEnvVar("VITE_APP_BUILD_ID", "development");
-    this.environment = getEnvVar("MODE", "development");
-  }
-  /**
-   * 获取完整版本信息
-   * @returns {Object} 版本信息
-   */
-  getVersionInfo() {
-    return {
-      version: this.version,
-      buildTime: this.buildTime,
-      buildId: this.buildId,
-      environment: this.environment
-    };
-  }
-  /**
-   * 获取版本号
-   * @returns {string} 版本号
-   */
-  getVersion() {
-    return this.version;
-  }
-  /**
-   * 获取格式化的版本字串
-   * @returns {string} 格式化的版本字串
-   */
-  getFormattedVersion() {
-    const buildIdDisplay = this.buildId && this.buildId !== "development" ? this.buildId.substring(0, 7) : "dev";
-    return `v${this.version} (${buildIdDisplay})`;
-  }
-}
-const versionService = new VersionService();
-
-await importShared('react');
-const VersionDisplay = ({ className = "" }) => {
-  const versionInfo = versionService.getVersionInfo();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `version-display text-xs text-gray-500 ${className}`, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "version-number", children: versionService.getFormattedVersion() }),
-    versionInfo.environment !== "production" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "version-environment ml-1", children: [
-      "(",
-      versionInfo.environment,
-      ")"
-    ] })
-  ] });
-};
-
 const React = await importShared('react');
 const {useState,useEffect,useCallback,useRef,useMemo,forwardRef,useImperativeHandle} = React;
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
@@ -12530,7 +12531,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       {
         className: `absolute top-0 left-0 h-full transition-transform duration-300 transform ${sidebarVisible ? "translate-x-0" : "-translate-x-full"}`,
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             NodeSidebar,
             {
