@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T01:03:43.435Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.6"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T01:05:34.285Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.7"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12393,15 +12393,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         id: flowMetadata.id || `flow_${Date.now()}`,
         title: flowMetadata.title || "未命名流程",
         version: flowMetadata.version || 1,
-        // Create clean copies of nodes and edges
-        nodes: nodes.map((node) => {
-          const cleanNode = { ...node };
-          delete cleanNode.data?.handleNodeSelection;
-          delete cleanNode.data?.onUpdate;
-          delete cleanNode.data?.onChange;
-          return cleanNode;
-        }),
-        edges: JSON.parse(JSON.stringify(edges)),
+        nodes,
+        edges,
         metadata: {
           lastModified: (/* @__PURE__ */ new Date()).toISOString(),
           savedAt: (/* @__PURE__ */ new Date()).toISOString(),
