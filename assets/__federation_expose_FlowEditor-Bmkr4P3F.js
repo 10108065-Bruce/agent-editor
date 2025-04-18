@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-17T02:07:24.648Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.10"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-18T03:09:15.387Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.12"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11582,85 +11582,85 @@ const LoadFileButton = ({ onLoad, className = "" }) => {
 // src/services/MockApiService.js
 
 /**
- * Mock API service for saving flow data
- * In a real application, this would make actual HTTP requests to your backend
+ * 用於儲存流程資料的模擬 API 服務
+ * 在真實應用程式中，這將會向後端發送實際的 HTTP 請求
  */
 class MockApiService {
   /**
-   * Save flow data to the mock API
-   * @param {Object} flowData - The flow data to save
-   * @returns {Promise} - Resolves with success response or rejects with error
+   * 將流程資料儲存到模擬 API
+   * @param {Object} flowData - 要儲存的流程資料
+   * @returns {Promise} - 成功時返回成功響應，失敗時返回錯誤
    */
   static saveFlow(flowData) {
-    console.log('MockApiService: Saving flow data...', flowData);
+    console.log('MockApiService: 正在儲存流程資料...', flowData);
 
-    // Simulate API call with 50% chance of success, 50% chance of failure
+    // 模擬 API 呼叫，50% 成功機率，50% 失敗機率
     return new Promise((resolve, reject) => {
-      // Simulate network latency
+      // 模擬網路延遲
       setTimeout(() => {
-        // Randomly succeed or fail to demonstrate both scenarios
+        // 隨機成功或失敗以展示兩種情況
         const isSuccess = Math.random() > 0.8;
 
         if (isSuccess) {
           const response = {
             success: true,
-            message: 'Flow saved successfully',
+            message: '流程已成功儲存',
             flowId: 'flow_' + Date.now(),
             timestamp: new Date().toISOString()
           };
-          console.log('MockApiService: Save successful', response);
+          console.log('MockApiService: 儲存成功', response);
           resolve(response);
         } else {
           const error = {
             success: false,
-            message: 'Failed to save flow',
+            message: '儲存流程失敗',
             errorCode: 'ERR_SERVER',
-            details: 'Mock server error'
+            details: '模擬伺服器錯誤'
           };
-          console.error('MockApiService: Save failed', error);
+          console.error('MockApiService: 儲存失敗', error);
           reject(error);
         }
-      }, 1500); // 1.5 second delay to simulate network
+      }, 1500); // 模擬 1.5 秒的延遲
     });
   }
 
   /**
-   * Load flow data from the mock API
-   * @param {string} flowId - The ID of the flow to load
-   * @returns {Promise} - Resolves with the flow data or rejects with error
+   * 從模擬 API 載入流程資料
+   * @param {string} flowId - 要載入的流程 ID
+   * @returns {Promise} - 成功時返回流程資料，失敗時返回錯誤
    */
   static loadFlow(flowId) {
-    console.log('MockApiService: Loading flow data for ID:', flowId);
+    console.log('MockApiService: 正在載入流程資料，ID:', flowId);
 
     return new Promise((resolve, reject) => {
-      // Try to get data from localStorage first
+      // 優先從 localStorage 獲取資料
       const savedData = localStorage.getItem('flowEditorData');
 
       setTimeout(() => {
         if (savedData) {
           try {
             const parsedData = JSON.parse(savedData);
-            console.log('MockApiService: Load successful', parsedData);
+            console.log('MockApiService: 載入成功', parsedData);
             resolve({
               success: true,
               data: parsedData,
-              message: 'Flow loaded successfully'
+              message: '流程已成功載入'
             });
-          } catch (error) {
+          } catch {
             reject({
               success: false,
-              message: 'Failed to parse flow data',
+              message: '解析流程資料失敗',
               errorCode: 'ERR_PARSE'
             });
           }
         } else {
           reject({
             success: false,
-            message: 'No flow data found',
+            message: '找不到流程資料',
             errorCode: 'ERR_NOT_FOUND'
           });
         }
-      }, 1000); // 1 second delay
+      }, 1000); // 模擬 1 秒的延遲
     });
   }
 }
@@ -11924,6 +11924,19 @@ class IFrameBridgeService {
 
     // 根據消息類型處理
     switch (message.type) {
+      case 'PING':
+        // 立即回應PONG
+        this.sendToParent({
+          type: 'PONG',
+          timestamp: new Date().toISOString()
+        });
+
+        // 同時重新發送READY消息以確保連接建立
+        this.sendToParent({
+          type: 'READY',
+          timestamp: new Date().toISOString()
+        });
+        break;
       case 'SET_TITLE':
         if (message.title) {
           this.triggerEvent('titleChange', message.title);
