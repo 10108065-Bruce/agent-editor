@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { w as workflowAPIService, W as WorkflowDataTransformer, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CaQYgPpp.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DBLc2UNm.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15804,40 +15804,10 @@ const IFrameFlowEditor = () => {
     }
   }, []);
   const handleLoadWorkflow = useCallback(async (workflowId) => {
-    console.log("開始載入工作流:", workflowId);
-    setIsLoading(true);
-    setError(null);
-    try {
-      const apiData = await workflowAPIService.loadWorkflow(workflowId);
-      console.log("API 回傳數據:", apiData);
-      const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataTransformer.transformToReactFlowFormat(apiData);
-      if (flowEditorRef.current) {
-        flowEditorRef.current.setNodes(transformedNodes);
-        flowEditorRef.current.setEdges(transformedEdges);
-        if (apiData.metadata) {
-          if (flowEditorRef.current.setFlowMetadata) {
-            flowEditorRef.current.setFlowMetadata(apiData.metadata);
-          }
-        }
-        iframeBridge.sendToParent({
-          type: "WORKFLOW_LOADED",
-          success: true,
-          workflowId,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString()
-        });
-      }
-    } catch (error2) {
-      console.error("載入工作流失敗:", error2);
-      setError(error2.message);
-      iframeBridge.sendToParent({
-        type: "WORKFLOW_LOADED",
-        success: false,
-        workflowId,
-        error: error2.message,
-        timestamp: (/* @__PURE__ */ new Date()).toISOString()
-      });
-    } finally {
-      setIsLoading(false);
+    if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
+      flowEditorRef.current.loadWorkflow(workflowId);
+    } else {
+      console.warn("流程編輯器實例未準備好，無法處理載入請求");
     }
   }, []);
   const handleDownloadRequest = useCallback((options) => {

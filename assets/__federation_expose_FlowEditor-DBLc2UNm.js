@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T05:20:09.300Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.13"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T05:48:21.250Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.14"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12993,6 +12993,27 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         return true;
       }
       return false;
+    },
+    loadWorkflow: async (workflowId) => {
+      try {
+        const apiData = await workflowAPIService.loadWorkflow(workflowId);
+        const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataTransformer.transformToReactFlowFormat(apiData);
+        setFlowNodes(transformedNodes);
+        setFlowEdges(transformedEdges);
+        setFlowMetadata((prev) => ({
+          ...prev,
+          id: apiData.flow_id,
+          title: apiData.title || prev.title,
+          version: apiData.version || prev.version
+        }));
+        updateNodeFunctions();
+        showNotification("工作流載入成功", "success");
+        return true;
+      } catch (error) {
+        console.error("載入工作流失敗:", error);
+        showNotification("載入工作流失敗", "error");
+        return false;
+      }
     }
   }));
   useEffect(() => {
@@ -13509,4 +13530,4 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 });
 FlowEditor.displayName = "FlowEditor";
 
-export { WorkflowDataTransformer as W, FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, workflowAPIService as w };
+export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j };
