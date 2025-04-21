@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:23:59.265Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.18"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:28:03.964Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.19"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9297,7 +9297,7 @@ const APAAssistant = ({ title, onTitleChange }) => {
       {
         type: "text",
         className: "w-full outline-none text-gray-800 bg-transparent",
-        value: title || "APA 診間小幫手",
+        value: title || "",
         onChange: (e) => onTitleChange(e.target.value),
         onBlur: handleSave,
         onKeyDown: handleKeyDown,
@@ -9308,7 +9308,7 @@ const APAAssistant = ({ title, onTitleChange }) => {
       {
         className: "w-full text-gray-800 cursor-pointer hover:text-gray-600 truncate",
         onClick: handleEditClick,
-        children: title || "APA 診間小幫手"
+        children: title || ""
       }
     ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2 text-gray-500 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -12959,7 +12959,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   } = useFlowNodes();
   const [flowMetadata, setFlowMetadata] = useState({
     id: null,
-    title: initialTitle || "APA 診間小幫手",
+    title: initialTitle || "",
     lastSaved: null,
     version: 1
   });
@@ -13299,7 +13299,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   useCallback(async () => {
     console.log("開始載入工作流:", "ext01");
     try {
-      const apiData = await workflowAPIService.loadWorkflow("APA 診間小幫手");
+      const apiData = await workflowAPIService.loadWorkflow("");
       console.log("API 回傳數據:", apiData);
       const reactFlowData2 = WorkflowDataTransformer.transformToReactFlowFormat(apiData);
       console.log("使用 WorkflowDataTransformer 轉換結果：", reactFlowData2);
