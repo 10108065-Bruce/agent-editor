@@ -1,5 +1,13 @@
-// Modified version of FlowEditor.js to support drag and drop
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+// src/components/FlowEditor.jsx
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  forwardRef,
+  useImperativeHandle
+} from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -17,16 +25,23 @@ import {
 } from '../components/buttons/FileButtons';
 import MockApiService from '../services/MockAPIService';
 import FileIOService from '../services/FileIOService';
+import DownloadButton from '../components/buttons/DownloadButton';
+import { iframeBridge } from '../services/IFrameBridgeService';
 
 import 'reactflow/dist/style.css';
 import { CustomEdge } from '../components/CustomEdge';
-
-// 使用增強的節點類型，支援選擇
-const nodeTypes = enhancedNodeTypes;
-
-export default function FlowEditor() {
+// 使用 forwardRef 將 FlowEditor 包裝起來，使其可以接收 ref
+const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const isInitialized = useRef(false);
+
+  // 使用 useMemo 記憶化 nodeTypes 和 edgeTypes，這樣它們在每次渲染時保持穩定
+  const nodeTypes = useMemo(() => enhancedNodeTypes, []);
+  const edgeTypes = useMemo(() => ({ 'custom-edge': CustomEdge }), []);
+
+  // 使用 useMemo 記憶化 defaultViewport
+  const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
 
   const {
     nodes,
@@ -59,7 +74,7 @@ export default function FlowEditor() {
   // 儲存流程元資料
   const [flowMetadata, setFlowMetadata] = useState({
     id: null,
-    title: 'APA 診間小幫手',
+    title: initialTitle || 'APA 診間小幫手',
     lastSaved: null,
     version: 1
   });
@@ -71,12 +86,65 @@ export default function FlowEditor() {
     type: 'info'
   });
 
+  // 檢查是否在 iframe 中
+  const isInIframe = useMemo(() => {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  }, []);
+
+  // 向父組件暴露方法
+  useImperativeHandle(ref, () => ({
+    // 導出流程數據的方法
+    exportFlowData: () => {
+      return {
+        id: flowMetadata.id || `flow_${Date.now()}`,
+        title: flowMetadata.title || '未命名流程',
+        version: flowMetadata.version || 1,
+        nodes,
+        edges,
+        metadata: {
+          lastModified: new Date().toISOString(),
+          savedAt: new Date().toISOString(),
+          nodeCount: nodes.length,
+          edgeCount: edges.length
+        }
+      };
+    },
+    // 設置流程標題的方法
+    setFlowTitle: (title) => {
+      if (title && typeof title === 'string') {
+        setFlowMetadata((prev) => ({ ...prev, title }));
+        return true;
+      }
+      return false;
+    }
+  }));
+
   // 在首次渲染時初始化節點函數
   useEffect(() => {
-    if (updateNodeFunctions) {
-      updateNodeFunctions();
+    if (!isInitialized.current) {
+      if (updateNodeFunctions) {
+        updateNodeFunctions();
+      }
+      isInitialized.current = true;
     }
   }, [updateNodeFunctions]);
+
+  // 處理標題變更
+  const handleTitleChange = useCallback(
+    (title) => {
+      setFlowMetadata((prev) => ({ ...prev, title }));
+
+      // 如果提供了標題變更回調函數，則呼叫它
+      if (onTitleChange && typeof onTitleChange === 'function') {
+        onTitleChange(title);
+      }
+    },
+    [onTitleChange]
+  );
 
   // 顯示通知的輔助函數
   const showNotification = useCallback((message, type = 'info') => {
@@ -236,13 +304,35 @@ export default function FlowEditor() {
 
       console.log('FlowEditor: 流程儲存成功', response);
       showNotification('流程儲存成功', 'success');
+
+      // 通知流程已保存
+      if (isInIframe) {
+        iframeBridge.sendToParent({
+          type: 'FLOW_SAVED',
+          success: true,
+          flowId: response.flowId,
+          timestamp: new Date().toISOString()
+        });
+      }
+
       return response;
     } catch (error) {
       console.error('FlowEditor: 儲存流程時發生錯誤：', error);
       showNotification('儲存流程時發生錯誤', 'error');
+
+      // 通知儲存失敗
+      if (isInIframe) {
+        iframeBridge.sendToParent({
+          type: 'FLOW_SAVED',
+          success: false,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+
       throw error;
     }
-  }, [nodes, edges, flowMetadata, showNotification]);
+  }, [nodes, edges, flowMetadata, showNotification, isInIframe]);
 
   /**
    * 將流程資料儲存到本地檔案
@@ -297,6 +387,63 @@ export default function FlowEditor() {
   }, [nodes, edges, flowMetadata, showNotification]);
 
   /**
+   * 將流程數據發送給父頁面以觸發下載
+   */
+  const sendDataForDownload = useCallback(async () => {
+    if (!isInIframe) {
+      // 如果不在 iframe 中，直接使用本地下載
+      return saveToLocalFile();
+    }
+
+    try {
+      // 準備要發送的數據
+      const flowData = {
+        id: flowMetadata.id || `flow_${Date.now()}`,
+        title: flowMetadata.title || '未命名流程',
+        version: flowMetadata.version || 1,
+        nodes,
+        edges,
+        metadata: {
+          lastModified: new Date().toISOString(),
+          savedAt: new Date().toISOString(),
+          nodeCount: nodes.length,
+          edgeCount: edges.length
+        }
+      };
+
+      // 根據標題和日期產生檔案名稱
+      const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const safeTitle = (flowMetadata.title || '未命名_流程').replace(
+        /\s+/g,
+        '_'
+      );
+      const filename = `${safeTitle}_${date}.json`;
+
+      // 使用 IFrameBridgeService 發送下載請求
+      const result = iframeBridge.requestDownload(flowData, filename);
+
+      if (result) {
+        showNotification('已發送下載請求', 'success');
+      } else {
+        showNotification('發送下載請求失敗', 'error');
+      }
+
+      return { success: result };
+    } catch (error) {
+      console.error('準備下載數據時發生錯誤：', error);
+      showNotification('發送下載請求失敗', 'error');
+      throw error;
+    }
+  }, [
+    nodes,
+    edges,
+    flowMetadata,
+    isInIframe,
+    saveToLocalFile,
+    showNotification
+  ]);
+
+  /**
    * 從本地檔案載入流程資料
    */
   const loadFromLocalFile = useCallback(async () => {
@@ -327,6 +474,11 @@ export default function FlowEditor() {
 
         // 確保載入的節點已新增函數
         updateNodeFunctions();
+
+        // 如果在 iframe 中，通知父頁面標題已變更
+        if (isInIframe && onTitleChange) {
+          onTitleChange(result.data.title || '匯入的流程');
+        }
       }
 
       return result;
@@ -335,7 +487,14 @@ export default function FlowEditor() {
       showNotification('無法載入檔案', 'error');
       throw error;
     }
-  }, [setFlowNodes, setFlowEdges, showNotification, updateNodeFunctions]);
+  }, [
+    setFlowNodes,
+    setFlowEdges,
+    showNotification,
+    updateNodeFunctions,
+    isInIframe,
+    onTitleChange
+  ]);
 
   const [sidebarVisible, setSidebarVisible] = useState(true);
 
@@ -354,21 +513,25 @@ export default function FlowEditor() {
     [handleNodeSelection]
   );
 
-  // 定義預設視窗設定
-  const defaultViewport = { x: 0, y: 0, zoom: 1.3 };
-
-  const edgeTypes = {
-    'custom-edge': CustomEdge // 使用自定義邊緣
-  };
+  // 當 initialTitle 改變時更新流程元資料
+  useEffect(() => {
+    if (initialTitle) {
+      setFlowMetadata((prev) => {
+        // Only update if the title has changed
+        if (prev.title !== initialTitle) {
+          return { ...prev, title: initialTitle };
+        }
+        return prev;
+      });
+    }
+  }, [initialTitle]); // Only depends on initialTitle
 
   return (
     <div className='relative w-full h-screen'>
       {/* APA Assistant at top */}
       <APAAssistant
         title={flowMetadata.title}
-        onTitleChange={(title) => {
-          setFlowMetadata({ ...flowMetadata, title });
-        }}
+        onTitleChange={handleTitleChange}
       />
 
       {/* Notification */}
@@ -462,7 +625,11 @@ export default function FlowEditor() {
           {/* File operations */}
           <div className='flex space-x-2 mr-2'>
             <LoadFileButton onLoad={loadFromLocalFile} />
-            <SaveFileButton onSave={saveToLocalFile} />
+            {isInIframe ? (
+              <DownloadButton onDownload={sendDataForDownload} />
+            ) : (
+              <SaveFileButton onSave={saveToLocalFile} />
+            )}
           </div>
 
           {/* Separator */}
@@ -522,4 +689,9 @@ export default function FlowEditor() {
       </div>
     </div>
   );
-}
+});
+
+// Set display name for React DevTools
+FlowEditor.displayName = 'FlowEditor';
+
+export default FlowEditor;

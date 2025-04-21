@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import LineIcon from '../icons/LineIcon';
-
+import VersionDisplay from '../../components/VersionDisplay';
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -363,6 +363,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
           />
         )}
       </div>
+      <VersionDisplay />
     </div>
   );
 };

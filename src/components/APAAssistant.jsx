@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
+// This version uses a fully controlled pattern with no internal state for the title
 const APAAssistant = ({ title, onTitleChange }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [titleText, setTitleText] = useState(title || 'APA 診間小幫手');
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -10,14 +10,11 @@ const APAAssistant = ({ title, onTitleChange }) => {
 
   const handleSave = () => {
     setIsEditing(false);
-    if (onTitleChange) {
-      onTitleChange(titleText);
-    }
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      handleSave();
+      setIsEditing(false);
     }
   };
 
@@ -56,14 +53,13 @@ const APAAssistant = ({ title, onTitleChange }) => {
                 y2='9'></line>
             </svg>
           </div>
-
           <div className='flex-1 relative min-w-0'>
             {isEditing ? (
               <input
                 type='text'
                 className='w-full outline-none text-gray-800 bg-transparent'
-                value={titleText}
-                onChange={(e) => setTitleText(e.target.value)}
+                value={title || 'APA 診間小幫手'}
+                onChange={(e) => onTitleChange(e.target.value)}
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
                 autoFocus
@@ -72,11 +68,10 @@ const APAAssistant = ({ title, onTitleChange }) => {
               <div
                 className='w-full text-gray-800 cursor-pointer hover:text-gray-600 truncate'
                 onClick={handleEditClick}>
-                {titleText}
+                {title || 'APA 診間小幫手'}
               </div>
             )}
           </div>
-
           <div className='ml-2 text-gray-500 flex-shrink-0'>
             <svg
               xmlns='http://www.w3.org/2000/svg'
