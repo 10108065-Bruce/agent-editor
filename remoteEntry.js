@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-Bmkr4P3F.js';
+import FlowEditor, { w as workflowAPIService, W as WorkflowDataTransformer, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CaQYgPpp.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15795,10 +15795,49 @@ const {useEffect: useEffect$1,useState: useState$1,useCallback,useRef} = React$2
 const IFrameFlowEditor = () => {
   const [flowTitle, setFlowTitle] = useState$1("APA 診間小幫手");
   const flowEditorRef = useRef(null);
+  const [isLoading, setIsLoading] = useState$1(false);
+  const [error, setError] = useState$1(null);
   const handleTitleChange = useCallback((title) => {
     if (title && typeof title === "string") {
       console.log("從父頁面接收到新標題:", title);
       setFlowTitle(title);
+    }
+  }, []);
+  const handleLoadWorkflow = useCallback(async (workflowId) => {
+    console.log("開始載入工作流:", workflowId);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const apiData = await workflowAPIService.loadWorkflow(workflowId);
+      console.log("API 回傳數據:", apiData);
+      const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataTransformer.transformToReactFlowFormat(apiData);
+      if (flowEditorRef.current) {
+        flowEditorRef.current.setNodes(transformedNodes);
+        flowEditorRef.current.setEdges(transformedEdges);
+        if (apiData.metadata) {
+          if (flowEditorRef.current.setFlowMetadata) {
+            flowEditorRef.current.setFlowMetadata(apiData.metadata);
+          }
+        }
+        iframeBridge.sendToParent({
+          type: "WORKFLOW_LOADED",
+          success: true,
+          workflowId,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        });
+      }
+    } catch (error2) {
+      console.error("載入工作流失敗:", error2);
+      setError(error2.message);
+      iframeBridge.sendToParent({
+        type: "WORKFLOW_LOADED",
+        success: false,
+        workflowId,
+        error: error2.message,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } finally {
+      setIsLoading(false);
     }
   }, []);
   const handleDownloadRequest = useCallback((options) => {
@@ -15822,20 +15861,29 @@ const IFrameFlowEditor = () => {
   }, []);
   useEffect$1(() => {
     iframeBridge.on("titleChange", handleTitleChange);
+    iframeBridge.on("loadWorkflow", handleLoadWorkflow);
     iframeBridge.on("downloadRequest", handleDownloadRequest);
     return () => {
       iframeBridge.off("titleChange", handleTitleChange);
+      iframeBridge.off("loadWorkflow", handleLoadWorkflow);
       iframeBridge.off("downloadRequest", handleDownloadRequest);
     };
-  }, [handleTitleChange, handleDownloadRequest]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "iframe-flow-editor-container", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-    FlowEditor,
-    {
-      ref: flowEditorRef,
-      initialTitle: flowTitle,
-      onTitleChange: notifyTitleChanged
-    }
-  ) });
+  }, [handleTitleChange, handleLoadWorkflow, handleDownloadRequest]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "iframe-flow-editor-container", children: [
+    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "loading-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "loading-spinner", children: "載入中..." }) }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "error-message", children: [
+      "載入工作流失敗: ",
+      error
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      FlowEditor,
+      {
+        ref: flowEditorRef,
+        initialTitle: flowTitle,
+        onTitleChange: notifyTitleChanged
+      }
+    )
+  ] });
 };
 
 const React$1 = await importShared('react');

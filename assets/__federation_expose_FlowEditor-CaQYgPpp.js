@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5bbea91311465eb919e92b6322370921e7055857", "VITE_APP_BUILD_TIME": "2025-04-18T03:09:15.387Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.12"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T05:20:09.300Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.13"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11302,283 +11302,6 @@ const SaveButton = ({ onSave, className = "" }) => {
 const React$1 = await importShared('react');
 const {useState: useState$1} = React$1;
 
-const SaveFileButton = ({ onSave, className = "" }) => {
-  const [saveState, setSaveState] = useState$1("");
-  const handleSaveClick = async () => {
-    if (saveState === "saving") return;
-    setSaveState("saving");
-    try {
-      await onSave();
-      setSaveState("saved");
-      setTimeout(() => {
-        setSaveState("");
-      }, 2e3);
-    } catch (error) {
-      console.error("儲存檔案時發生錯誤：", error);
-      setSaveState("error");
-      setTimeout(() => {
-        setSaveState("");
-      }, 2e3);
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "button",
-    {
-      className: `p-2 rounded-md shadow-md border flex items-center space-x-1 ${saveState === "saving" ? "bg-blue-100 border-blue-300 text-blue-600" : saveState === "saved" ? "bg-green-100 border-green-300 text-green-600" : saveState === "error" ? "bg-red-100 border-red-300 text-red-600" : "bg-white border-gray-200 text-gray-700"} ${className}`,
-      onClick: handleSaveClick,
-      disabled: saveState === "saving",
-      title: "儲存至檔案",
-      children: saveState === "saving" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "svg",
-          {
-            className: "animate-spin",
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "儲存中..." })
-      ] }) : saveState === "saved" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 6L9 17l-5-5" })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "已儲存" })
-      ] }) : saveState === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "circle",
-                {
-                  cx: "12",
-                  cy: "12",
-                  r: "10"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "8",
-                  x2: "12",
-                  y2: "12"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "16",
-                  x2: "12.01",
-                  y2: "16"
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "錯誤" })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "7 10 12 15 17 10" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "15",
-                  x2: "12",
-                  y2: "3"
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "下載" })
-      ] })
-    }
-  );
-};
-const LoadFileButton = ({ onLoad, className = "" }) => {
-  const [loadState, setLoadState] = useState$1("");
-  const handleLoadClick = async () => {
-    if (loadState === "loading") return;
-    setLoadState("loading");
-    try {
-      await onLoad();
-      setLoadState("loaded");
-      setTimeout(() => {
-        setLoadState("");
-      }, 2e3);
-    } catch (error) {
-      console.error("載入檔案時發生錯誤：", error);
-      setLoadState("error");
-      setTimeout(() => {
-        setLoadState("");
-      }, 2e3);
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "button",
-    {
-      className: `p-2 rounded-md shadow-md border flex items-center space-x-1 ${loadState === "loading" ? "bg-blue-100 border-blue-300 text-blue-600" : loadState === "loaded" ? "bg-green-100 border-green-300 text-green-600" : loadState === "error" ? "bg-red-100 border-red-300 text-red-600" : "bg-white border-gray-200 text-gray-700"} ${className}`,
-      onClick: handleLoadClick,
-      disabled: loadState === "loading",
-      title: "從檔案載入",
-      children: loadState === "loading" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "svg",
-          {
-            className: "animate-spin",
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "載入中..." })
-      ] }) : loadState === "loaded" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 6L9 17l-5-5" })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "已載入" })
-      ] }) : loadState === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "circle",
-                {
-                  cx: "12",
-                  cy: "12",
-                  r: "10"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "8",
-                  x2: "12",
-                  y2: "12"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "16",
-                  x2: "12.01",
-                  y2: "16"
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "錯誤" })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "17 8 12 3 7 8" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "3",
-                  x2: "12",
-                  y2: "15"
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "上傳" })
-      ] })
-    }
-  );
-};
-
 // src/services/MockApiService.js
 
 /**
@@ -11805,47 +11528,6 @@ class FileIOService {
 
 await importShared('react');
 
-const DownloadButton = ({ onDownload, className = "" }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "button",
-    {
-      className: `p-2 rounded-md shadow-md border flex items-center space-x-1 bg-white border-gray-200 text-gray-700 hover:bg-gray-50 ${className}`,
-      onClick: onDownload,
-      title: "下載至母頁面",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "7 10 12 15 17 10" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "15",
-                  x2: "12",
-                  y2: "3"
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", children: "傳送" })
-      ]
-    }
-  );
-};
-
 /**
  * 增強版 IFrameBridgeService - 處理從母網站接收標題修改及下載JSON功能
  */
@@ -11858,6 +11540,7 @@ class IFrameBridgeService {
     this.eventHandlers = {
       titleChange: [],
       downloadRequest: [],
+      loadWorkflow: [], // 新增載入工作流事件
       ready: []
     };
 
@@ -11940,7 +11623,14 @@ class IFrameBridgeService {
       case 'SET_TITLE':
         if (message.title) {
           this.triggerEvent('titleChange', message.title);
+          // 假設標題包含工作流ID，觸發載入工作流事件
+          // 如果標題格式不同，可以根據實際情況調整解析邏輯
+          const workflowId = message.title;
+          if (workflowId) {
+            this.triggerEvent('loadWorkflow', workflowId);
+          }
         }
+
         break;
 
       case 'REQUEST_DATA_FOR_DOWNLOAD':
@@ -12108,6 +11798,1121 @@ function CustomEdge({
     ),
     label && /* @__PURE__ */ jsxRuntimeExports.jsx(EdgeLabelRenderer, {})
   ] });
+}
+
+/**
+ * API Service for loading and saving workflow data from/to the API
+ * Enhanced with node-specific parameter handling
+ */
+class WorkflowAPIService {
+  constructor() {
+    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
+  }
+
+  /**
+   * Load workflow data from the API
+   * @param {string} workflowId - The ID of the workflow to load
+   * @returns {Promise<Object>} The workflow data
+   */
+  async loadWorkflow(workflowId) {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/workflows/load_workflow`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            flow_id: workflowId
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Failed to load workflow:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Save workflow data to the API
+   * @param {string} flowName - The name of the workflow
+   * @param {Object} flowData - The workflow data to save
+   * @returns {Promise<Object>} The API response
+   */
+  async saveWorkflow(data1) {
+    console.log(data1);
+    console.log(data1.flow_name, data1.content);
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/workflows/save_workflow`,
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            flow_name: data1.flow_name,
+            content: data1.content
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Failed to save workflow:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Transform ReactFlow data back to API format
+   * @param {Object} reactFlowData - The ReactFlow format data (nodes and edges)
+   * @returns {Object} API format workflow data
+   */
+  transformToAPIFormat(reactFlowData) {
+    const { nodes, edges, id } = reactFlowData;
+
+    // Transform nodes back to API format
+    const flowPipeline = nodes.map((node) => {
+      // Extract node connections from edges
+      const nodeInput = this.extractNodeInput(node, edges);
+
+      // Extract outputs from node data
+      const nodeOutput = this.extractNodeOutput(node);
+
+      return {
+        id: node.id,
+        category: node.data.category || this.getCategoryFromType(node.type),
+        operator: node.data.operator || this.getOperatorFromType(node.type),
+        parameters: this.extractNodeParameters(node),
+        position_x: node.position.x,
+        position_y: node.position.y,
+        version: node.data.version || '0.0.1',
+        node_input: nodeInput,
+        node_output: nodeOutput
+      };
+    });
+
+    return {
+      flow_id: id || `flow_${Date.now()}`,
+      user_id: '1', // This should come from your auth context
+      flow_type: 1, // Default flow type
+      flow_pipeline: flowPipeline
+    };
+  }
+
+  /**
+   * Extract node inputs based on node type
+   * @param {Object} node - The node object
+   * @param {Array} edges - The edges array
+   * @returns {Object} The extracted node inputs
+   */
+  extractNodeInput(node, edges) {
+    const nodeInput = {};
+
+    // Special handling for different node types
+    switch (node.type) {
+      case 'ai': // AI nodes have specific input requirements
+        edges.forEach((edge) => {
+          if (edge.target === node.id) {
+            if (
+              edge.targetHandle === 'prompt' ||
+              edge.targetHandle === 'context'
+            ) {
+              nodeInput[edge.targetHandle] = {
+                node_id: edge.source,
+                output_name: edge.sourceHandle
+              };
+            }
+          }
+        });
+        break;
+
+      case 'browser_extension_output': {
+        // Browser extension output can have multiple inputs
+        let inputCounter = 1;
+        edges.forEach((edge) => {
+          if (edge.target === node.id) {
+            nodeInput[`input${inputCounter}`] = {
+              type: 'string',
+              output_name: edge.sourceHandle,
+              node_id: edge.source
+            };
+            inputCounter++;
+          }
+        });
+        break;
+      }
+
+      default:
+        // Default behavior for other nodes
+        edges.forEach((edge) => {
+          if (edge.target === node.id) {
+            nodeInput[edge.targetHandle || 'input'] = {
+              node_id: edge.source,
+              output_name: edge.sourceHandle
+            };
+          }
+        });
+    }
+
+    return nodeInput;
+  }
+
+  /**
+   * Extract node outputs based on node type
+   * @param {Object} node - The node object
+   * @returns {Object} The extracted node outputs
+   */
+  extractNodeOutput(node) {
+    switch (node.type) {
+      case 'browser_extension_input': {
+        // Browser extension input has dynamic outputs based on items
+        const items = node.data.items || [];
+        const output = {};
+        items.forEach((item, index) => {
+          const outputKey = item.id || `a${index + 1}`; // e.g., a1, a2, etc.
+          output[outputKey] = {
+            node_id: node.id,
+            type: 'string'
+          };
+        });
+        return output;
+      }
+
+      case 'input': {
+        // Input nodes have dynamic outputs based on fields
+        const fields = node.data.fields || [];
+        if (fields.length === 0) {
+          return { output: {} };
+        }
+        const inputOutput = {};
+        fields.forEach((field, index) => {
+          const outputKey = `output-${index}`;
+          inputOutput[outputKey] = {};
+        });
+        return inputOutput;
+      }
+
+      case 'webhook':
+        return {
+          headers: {
+            node_id: node.id,
+            type: 'json',
+            data: {}
+          },
+          payload: {
+            node_id: node.id,
+            type: 'json',
+            data: {}
+          }
+        };
+
+      case 'ai':
+        return { output: {} };
+
+      default:
+        return node.data.node_output || { output: {} };
+    }
+  }
+
+  /**
+   * Extract parameters based on node type
+   * @param {Object} node - The node object
+   * @returns {Object} The extracted parameters
+   */
+  extractNodeParameters(node) {
+    const parameters = {};
+    const nodeData = node.data;
+
+    switch (node.type) {
+      case 'browser_extension_input':
+        if (nodeData.browser_extension_url) {
+          parameters.browser_extension_url = {
+            data: nodeData.browser_extension_url
+          };
+        }
+
+        // Transform items to functions
+        if (nodeData.items) {
+          parameters.functions = nodeData.items.map((item, index) => ({
+            func_id: item.id || `a${index + 1}`,
+            func_name: item.name || '',
+            func_icon: item.icon || ''
+          }));
+        }
+        break;
+
+      case 'webhook':
+        if (nodeData.webhookUrl) {
+          parameters.webhook_url = { data: nodeData.webhookUrl };
+        }
+        break;
+
+      case 'ai':
+        if (nodeData.model) {
+          parameters.model = { data: nodeData.model };
+        }
+        break;
+
+      case 'input':
+        // Handle multiple fields for input node
+        if (nodeData.fields && nodeData.fields.length > 0) {
+          nodeData.fields.forEach((field, index) => {
+            if (field.defaultValue) {
+              parameters[`default_value_${index}`] = {
+                data: field.defaultValue
+              };
+            }
+            if (field.inputName) {
+              parameters[`input_name_${index}`] = { data: field.inputName };
+            }
+          });
+        }
+        break;
+
+      case 'if/else':
+        if (nodeData.variableName) {
+          parameters.variable = { data: nodeData.variableName };
+        }
+        if (nodeData.operator) {
+          parameters.operator = { data: nodeData.operator };
+        }
+        if (nodeData.compareValue) {
+          parameters.compare_value = { data: nodeData.compareValue };
+        }
+        break;
+
+      case 'knowledge_retrieval':
+        if (nodeData.selectedFile) {
+          parameters.data_source = { data: nodeData.selectedFile };
+        }
+        break;
+
+      case 'http':
+        if (nodeData.url) {
+          parameters.url = { data: nodeData.url };
+        }
+        if (nodeData.method) {
+          parameters.method = { data: nodeData.method };
+        }
+        break;
+
+      case 'timer':
+        if (nodeData.hours !== undefined) {
+          parameters.hours = { data: nodeData.hours };
+        }
+        if (nodeData.minutes !== undefined) {
+          parameters.minutes = { data: nodeData.minutes };
+        }
+        if (nodeData.seconds !== undefined) {
+          parameters.seconds = { data: nodeData.seconds };
+        }
+        break;
+
+      case 'line':
+        if (nodeData.mode) {
+          parameters.mode = { data: nodeData.mode };
+        }
+        if (nodeData.text) {
+          parameters.text = { data: nodeData.text };
+        }
+        break;
+
+      case 'end':
+        if (nodeData.outputText) {
+          parameters.output_text = { data: nodeData.outputText };
+        }
+        break;
+
+      default:
+        // For any node type not specifically handled, process all non-system properties
+        Object.entries(nodeData).forEach(([key, value]) => {
+          if (
+            ![
+              'label',
+              'category',
+              'operator',
+              'version',
+              'node_input',
+              'node_output'
+            ].includes(key)
+          ) {
+            parameters[key] = { data: value };
+          }
+        });
+    }
+
+    return parameters;
+  }
+
+  /**
+   * Extract category from node type
+   * @param {string} nodeType - The ReactFlow node type
+   * @returns {string} The category
+   */
+  getCategoryFromType(nodeType) {
+    const categoryMap = {
+      browser_extension_input: 'starter',
+      browser_extension_output: 'starter',
+      webhook: 'starter',
+      input: 'input',
+      ai: 'advanced',
+      'if/else': 'advanced',
+      knowledge_retrieval: 'advanced',
+      http: 'advanced',
+      event: 'advanced',
+      timer: 'advanced',
+      line: 'output',
+      end: 'output'
+    };
+    return categoryMap[nodeType] || 'advanced';
+  }
+
+  /**
+   * Extract operator from node type
+   * @param {string} nodeType - The ReactFlow node type
+   * @returns {string} The operator
+   */
+  getOperatorFromType(nodeType) {
+    const operatorMap = {
+      ai: 'ask_ai',
+      input: 'basic_input',
+      browser_extension_input: 'browser_extension_input',
+      browser_extension_output: 'browser_extension_output',
+      webhook: 'webhook',
+      'if/else': 'if/else',
+      knowledge_retrieval: 'knowledge_retrieval',
+      http: 'http',
+      event: 'event',
+      timer: 'timer',
+      line: 'line',
+      end: 'end'
+    };
+    return operatorMap[nodeType] || nodeType;
+  }
+}
+
+const workflowAPIService = new WorkflowAPIService();
+
+/**
+ * 將 API 回傳的流程數據轉換為 ReactFlow 格式
+ * Enhanced version with node-specific parameter handling
+ */
+class WorkflowDataTransformer {
+  /**
+   * 轉換 API 數據為 ReactFlow 格式
+   * @param {Object} apiData - API 回傳的原始數據
+   * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
+   */
+  static transformToReactFlowFormat(apiData) {
+    const nodes = [];
+    const edges = [];
+
+    // 處理每個節點
+    apiData.flow_pipeline.forEach((node) => {
+      // 轉換為 ReactFlow 節點格式
+      const reactFlowNode = {
+        id: node.id,
+        type: this.getNodeType(node.operator),
+        position: { x: node.position_x || 0, y: node.position_y || 0 },
+        data: this.transformNodeData(node)
+      };
+
+      nodes.push(reactFlowNode);
+
+      // 處理節點之間的連接
+      if (node.node_input) {
+        Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
+          if (inputValue && inputValue.node_id) {
+            edges.push({
+              id: `${inputValue.node_id}-${node.id}-${inputKey}`,
+              source: inputValue.node_id,
+              sourceHandle: inputValue.output_name || null,
+              target: node.id,
+              targetHandle: inputKey,
+              type: 'custom-edge'
+            });
+          }
+        });
+      }
+    });
+
+    // 自動布局（如果位置都是 0,0）
+    this.autoLayout(nodes);
+
+    return { nodes, edges };
+  }
+
+  /**
+   * Transform node data based on node type
+   * @param {Object} node - API format node
+   * @returns {Object} ReactFlow format node data
+   */
+  static transformNodeData(node) {
+    const baseData = {
+      label: this.getNodeLabel(node),
+      category: node.category,
+      operator: node.operator,
+      version: node.version,
+      node_input: node.node_input,
+      node_output: node.node_output
+    };
+
+    // Transform parameters based on node type
+    switch (node.operator) {
+      case 'browser_extension_input':
+        return {
+          ...baseData,
+          type: 'browserExtensionInput',
+          browser_extension_url: node.parameters?.browser_extension_url?.data,
+          items:
+            node.parameters?.functions?.map((func) => ({
+              id: func.func_id,
+              name: func.func_name,
+              icon: func.func_icon
+            })) || []
+        };
+
+      case 'browser_extension_output':
+        return {
+          ...baseData
+          // Browser extension output doesn't have specific parameters in the current implementation
+        };
+
+      case 'webhook':
+        return {
+          ...baseData,
+          webhookUrl: node.parameters?.webhook_url?.data
+        };
+
+      case 'ask_ai':
+        return {
+          ...baseData,
+          model: node.parameters?.model?.data || 'O3-mini',
+          selectedOption: node.parameters?.selected_option?.data || 'prompt'
+        };
+
+      case 'basic_input': {
+        // Extract multiple fields from parameters
+        const fields = [];
+        const paramKeys = Object.keys(node.parameters || {});
+
+        // Find all input field pairs
+        const fieldCount = Math.max(
+          ...paramKeys
+            .filter(
+              (key) =>
+                key.startsWith('default_value_') ||
+                key.startsWith('input_name_')
+            )
+            .map((key) => parseInt(key.split('_').pop()) + 1),
+          0
+        );
+
+        for (let i = 0; i < fieldCount; i++) {
+          const field = {
+            inputName: node.parameters?.[`input_name_${i}`]?.data || '',
+            defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
+          };
+          fields.push(field);
+        }
+
+        return {
+          ...baseData,
+          fields
+        };
+      }
+
+      case 'if/else':
+        return {
+          ...baseData,
+          variableName: node.parameters?.variable?.data,
+          operator: node.parameters?.operator?.data || 'equals',
+          compareValue: node.parameters?.compare_value?.data
+        };
+
+      case 'knowledge_retrieval':
+        return {
+          ...baseData,
+          selectedFile: node.parameters?.data_source?.data,
+          availableFiles: [
+            { id: 'icdcode', name: 'ICDCode.csv' },
+            { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
+          ]
+        };
+
+      case 'http':
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data,
+          method: node.parameters?.method?.data || 'GET'
+        };
+
+      case 'timer':
+        return {
+          ...baseData,
+          hours: node.parameters?.hours?.data || 0,
+          minutes: node.parameters?.minutes?.data || 0,
+          seconds: node.parameters?.seconds?.data || 0
+        };
+
+      case 'line':
+        return {
+          ...baseData,
+          mode: node.parameters?.mode?.data || 'reply',
+          text: node.parameters?.text?.data
+        };
+
+      case 'end':
+        return {
+          ...baseData,
+          outputText: node.parameters?.output_text?.data
+        };
+
+      default: {
+        // For any unhandled node types, keep original parameters
+        const transformedParams = {};
+        Object.entries(node.parameters || {}).forEach(([key, value]) => {
+          transformedParams[key] = value.data;
+        });
+        return {
+          ...baseData,
+          ...transformedParams
+        };
+      }
+    }
+  }
+
+  /**
+   * 根據 operator 獲取對應的 ReactFlow 節點類型
+   * @param {string} operator - 節點操作類型
+   * @returns {string} - ReactFlow 節點類型
+   */
+  static getNodeType(operator) {
+    const typeMap = {
+      browser_extension_input: 'browserExtensionInput',
+      browser_extension_output: 'browserExtensionOutput',
+      ask_ai: 'aiCustomInput',
+      basic_input: 'customInput',
+      'if/else': 'if/else',
+      knowledge_retrieval: 'knowledgeRetrieval',
+      end: 'end',
+      webhook: 'webhook',
+      http: 'http',
+      event: 'event',
+      timer: 'timer',
+      line: 'line'
+    };
+
+    return typeMap[operator] || 'default';
+  }
+
+  /**
+   * 根據節點數據生成標籤
+   * @param {Object} node - 節點數據
+   * @returns {string} - 節點標籤
+   */
+  static getNodeLabel(node) {
+    switch (node.operator) {
+      case 'browser_extension_input':
+        return '瀏覽器擴充輸入';
+      case 'browser_extension_output':
+        return '瀏覽器擴充輸出';
+      case 'ask_ai':
+        return `AI (${node.parameters?.model?.data || 'GPT-4o'})`;
+      case 'basic_input':
+        return node.parameters?.input_name?.data || '輸入';
+      case 'if/else':
+        return '條件判斷';
+      case 'knowledge_retrieval':
+        return '知識檢索';
+      case 'end':
+        return '結束';
+      case 'webhook':
+        return 'Webhook';
+      case 'http':
+        return 'HTTP 請求';
+      case 'timer':
+        return '計時器';
+      case 'line':
+        return 'LINE 訊息';
+      default:
+        return node.operator;
+    }
+  }
+
+  /**
+   * 自動布局節點（如果所有節點都在同一位置）
+   * @param {Array} nodes - ReactFlow 節點數組
+   */
+  static autoLayout(nodes) {
+    const needsLayout = nodes.every(
+      (node) => node.position.x === 0 && node.position.y === 0
+    );
+
+    if (needsLayout) {
+      let currentX = 50;
+      let currentY = 50;
+      const xSpacing = 300;
+      const ySpacing = 150;
+
+      // Categorize nodes
+      const starterNodes = nodes.filter((node) =>
+        ['browser_extension_input', 'webhook'].includes(node.type)
+      );
+
+      const inputNodes = nodes.filter((node) => ['input'].includes(node.type));
+
+      const processingNodes = nodes.filter((node) =>
+        ['ai', 'if/else', 'knowledge_retrieval', 'http', 'timer'].includes(
+          node.type
+        )
+      );
+
+      const outputNodes = nodes.filter((node) =>
+        ['browser_extension_output', 'line', 'end'].includes(node.type)
+      );
+
+      // Layout starter nodes
+      starterNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+
+      // Layout input nodes
+      currentX += xSpacing;
+      inputNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+
+      // Layout processing nodes
+      currentX += xSpacing;
+      processingNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+
+      // Layout output nodes
+      currentX += xSpacing;
+      outputNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+    }
+  }
+}
+
+/**
+ * 雙向格式轉換器
+ * 轉換 ReactFlow 格式和 API 格式之間的數據
+ */
+class BidirectionalFormatConverter {
+  /**
+   * 將 ReactFlow 格式轉換為 API 格式
+   * @param {Object} reactFlowData - ReactFlow 格式數據
+   * @returns {Object} API 格式數據
+   */
+  static convertReactFlowToAPI(reactFlowData) {
+    const flowPipeline = reactFlowData.nodes.map((node) => {
+      // 提取節點輸入連接
+      const nodeInput = this.extractNodeInputForAPI(
+        node.id,
+        reactFlowData.edges
+      );
+
+      // 提取節點輸出連接
+      const nodeOutput = this.extractNodeOutputForAPI(node);
+
+      // 轉換節點數據
+      const parameters = this.convertNodeDataToParameters(node);
+
+      return {
+        id: node.id,
+        category: this.getCategoryFromType(node.type),
+        operator: this.getOperatorFromType(node.type),
+        parameters,
+        position_x: node.position.x,
+        position_y: node.position.y,
+        version: node.data?.version || '0.0.1',
+        node_input: nodeInput,
+        node_output: nodeOutput
+      };
+    });
+
+    return {
+      flow_name: reactFlowData.title || '未命名流程',
+      content: {
+        flow_id: reactFlowData.id,
+        user_id: '1', // 預設值，可根據需求調整
+        flow_type: 1, // 預設值，可根據需求調整
+        headers: {
+          Authorization: 'Bearer your-token-here',
+          'Content-Type': 'application/json'
+        },
+        flow_pipeline: flowPipeline
+      }
+    };
+  }
+
+  /**
+   * 將 API 格式轉換為 ReactFlow 格式
+   * @param {Object} apiData - API 格式數據
+   * @returns {Object} ReactFlow 格式數據
+   */
+  static convertAPIToReactFlow(apiData) {
+    const nodes = [];
+    const edges = [];
+
+    // 轉換節點
+    apiData.content.flow_pipeline.forEach((node) => {
+      const reactFlowNode = {
+        id: node.id,
+        type: this.getTypeFromOperator(node.operator),
+        position: {
+          x: node.position_x,
+          y: node.position_y
+        },
+        data: this.convertParametersToNodeData(node),
+        width: 256, // 預設寬度
+        height: 200 // 預設高度，可根據節點類型調整
+      };
+
+      nodes.push(reactFlowNode);
+
+      // 生成邊
+      if (node.node_input) {
+        Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
+          if (inputValue && inputValue.node_id) {
+            edges.push({
+              source: inputValue.node_id,
+              sourceHandle: inputValue.output_name || inputKey,
+              target: node.id,
+              targetHandle: inputKey,
+              type: 'custom-edge',
+              label: 'Connection',
+              id: `reactflow__edge-${inputValue.node_id}${
+                inputValue.output_name || inputKey
+              }-${node.id}${inputKey}`
+            });
+          }
+        });
+      }
+    });
+
+    return {
+      id: apiData.content.flow_id,
+      title: apiData.flow_name,
+      version: 1, // 預設版本
+      nodes,
+      edges,
+      metadata: {
+        lastModified: new Date().toISOString(),
+        savedAt: new Date().toISOString(),
+        nodeCount: nodes.length,
+        edgeCount: edges.length
+      }
+    };
+  }
+
+  /**
+   * 從 ReactFlow 類型獲取 API 類別
+   */
+  static getCategoryFromType(type) {
+    const categoryMap = {
+      browserExtensionInput: 'starter',
+      browserExtInput: 'starter',
+      webhook: 'starter',
+      customInput: 'input',
+      input: 'input',
+      aiCustomInput: 'advanced',
+      ai: 'advanced',
+      knowledgeRetrieval: 'advanced',
+      knowledge_retrieval: 'advanced',
+      end: 'output'
+    };
+    return categoryMap[type] || 'advanced';
+  }
+
+  /**
+   * 從 ReactFlow 類型獲取 API 操作符
+   */
+  static getOperatorFromType(type) {
+    const operatorMap = {
+      browserExtensionInput: 'browser_extension_input',
+      browserExtInput: 'browser_extension_input',
+      webhook: 'webhook',
+      customInput: 'basic_input',
+      input: 'basic_input',
+      aiCustomInput: 'ask_ai',
+      ai: 'ask_ai',
+      knowledgeRetrieval: 'knowledge_retrieval',
+      knowledge_retrieval: 'knowledge_retrieval',
+      end: 'end'
+    };
+    return operatorMap[type] || type;
+  }
+
+  /**
+   * 從 API 操作符獲取 ReactFlow 類型
+   */
+  static getTypeFromOperator(operator) {
+    const typeMap = {
+      browser_extension_input: 'browserExtensionInput',
+      webhook: 'webhook',
+      basic_input: 'customInput',
+      ask_ai: 'aiCustomInput',
+      knowledge_retrieval: 'knowledgeRetrieval',
+      end: 'end'
+    };
+    return typeMap[operator] || operator;
+  }
+
+  /**
+   * 將節點數據轉換為 API 參數格式
+   */
+  static convertNodeDataToParameters(node) {
+    const parameters = {};
+
+    switch (node.type) {
+      case 'customInput':
+      case 'input':
+        if (node.data.fields && node.data.fields.length > 0) {
+          node.data.fields.forEach((field, index) => {
+            parameters[`input_name_${index}`] = { data: field.inputName };
+            parameters[`default_value_${index}`] = { data: field.defaultValue };
+          });
+        }
+        break;
+
+      case 'aiCustomInput':
+      case 'ai':
+        parameters.model = { data: node.data.model || 'O3-mini' };
+        if (node.data.selectedOption) {
+          parameters.selected_option = { data: node.data.selectedOption };
+        }
+        break;
+
+      case 'browserExtensionInput':
+      case 'browserExtInput':
+        if (node.data.browser_extension_url) {
+          parameters.browser_extension_url = {
+            data: node.data.browser_extension_url
+          };
+        }
+        if (node.data.items) {
+          parameters.functions = node.data.items.map((item, index) => ({
+            func_id: item.id || `a${index + 1}`,
+            func_name: item.name,
+            func_icon: item.icon
+          }));
+        }
+        break;
+
+      case 'webhook':
+        if (node.data.webhookUrl) {
+          parameters.webhook_url = { data: node.data.webhookUrl };
+        }
+        break;
+
+      case 'knowledgeRetrieval':
+      case 'knowledge_retrieval':
+        if (node.data.selectedFile) {
+          parameters.data_source = { data: node.data.selectedFile };
+        }
+        break;
+
+      case 'end':
+        if (node.data.outputText) {
+          parameters.output_text = { data: node.data.outputText };
+        }
+        break;
+
+      default:
+        // 對於其他類型，直接轉換所有非系統屬性
+        if (node.data) {
+          Object.entries(node.data).forEach(([key, value]) => {
+            if (
+              key !== 'label' &&
+              key !== 'category' &&
+              key !== 'operator' &&
+              key !== 'version' &&
+              key !== 'node_input' &&
+              key !== 'node_output'
+            ) {
+              parameters[key] = { data: value };
+            }
+          });
+        }
+    }
+
+    return parameters;
+  }
+
+  /**
+   * 將 API 參數轉換為節點數據格式
+   */
+  static convertParametersToNodeData(node) {
+    const data = {};
+
+    switch (node.operator) {
+      case 'basic_input':
+        data.fields = [];
+        // 檢查新格式參數
+        if (node.parameters) {
+          const paramKeys = Object.keys(node.parameters);
+          const fieldCount = Math.max(
+            ...paramKeys
+              .filter(
+                (key) =>
+                  key.startsWith('input_name_') ||
+                  key.startsWith('default_value_')
+              )
+              .map((key) => parseInt(key.split('_').pop()) + 1),
+            0
+          );
+
+          for (let i = 0; i < fieldCount; i++) {
+            data.fields.push({
+              inputName: node.parameters[`input_name_${i}`]?.data || '',
+              defaultValue: node.parameters[`default_value_${i}`]?.data || ''
+            });
+          }
+        }
+        break;
+
+      case 'ask_ai':
+        data.model = node.parameters?.model?.data || 'O3-mini';
+        data.selectedOption =
+          node.parameters?.selected_option?.data || 'prompt';
+        break;
+
+      case 'browser_extension_input':
+        data.browser_extension_url =
+          node.parameters?.browser_extension_url?.data;
+        data.items =
+          node.parameters?.functions?.map((func) => ({
+            id: func.func_id,
+            name: func.func_name,
+            icon: func.func_icon || 'upload'
+          })) || [];
+        break;
+
+      case 'webhook':
+        data.webhookUrl = node.parameters?.webhook_url?.data;
+        break;
+
+      case 'knowledge_retrieval':
+        data.selectedFile = node.parameters?.data_source?.data || '';
+        data.availableFiles = [
+          { id: 'icdcode', name: 'ICDCode.csv' },
+          { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
+        ];
+        break;
+
+      case 'end':
+        data.outputText = node.parameters?.output_text?.data || '';
+        break;
+
+      default:
+        // 對於其他類型，直接轉換所有參數
+        if (node.parameters) {
+          Object.entries(node.parameters).forEach(([key, value]) => {
+            data[key] = value.data;
+          });
+        }
+    }
+
+    return data;
+  }
+
+  /**
+   * 提取節點輸入以供 API 格式使用
+   */
+  static extractNodeInputForAPI(nodeId, edges) {
+    const nodeInput = {};
+
+    edges.forEach((edge) => {
+      if (edge.target === nodeId) {
+        nodeInput[edge.targetHandle || 'input'] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle,
+          type: 'string' // 預設類型，可根據需求調整
+        };
+      }
+    });
+
+    return nodeInput;
+  }
+
+  /**
+   * 提取節點輸出以供 API 格式使用
+   */
+  static extractNodeOutputForAPI(node) {
+    const nodeOutput = {};
+
+    switch (node.type) {
+      case 'browserExtensionInput':
+      case 'browserExtInput':
+        if (node.data.items) {
+          node.data.items.forEach((item, index) => {
+            const outputKey = item.id || `a${index + 1}`;
+            nodeOutput[outputKey] = {
+              node_id: node.id,
+              type: 'string'
+            };
+          });
+        }
+        break;
+
+      case 'webhook':
+        nodeOutput.headers = {
+          node_id: node.id,
+          type: 'json',
+          data: {}
+        };
+        nodeOutput.payload = {
+          node_id: node.id,
+          type: 'json',
+          data: {}
+        };
+        break;
+
+      case 'customInput':
+      case 'input':
+        if (node.data.fields) {
+          node.data.fields.forEach((field, index) => {
+            nodeOutput[`output-${index}`] = {};
+          });
+        }
+        break;
+
+      default:
+        // 預設輸出
+        nodeOutput.output = {
+          node_id: node.id,
+          type: 'string',
+          data: {}
+        };
+    }
+
+    return nodeOutput;
+  }
 }
 
 const React = await importShared('react');
@@ -12308,7 +13113,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
   }, []);
-  const saveFlowData = useCallback(async () => {
+  useCallback(async () => {
     console.log("FlowEditor: 準備儲存流程資料...");
     const flowData = {
       id: flowMetadata.id || `flow_${Date.now()}`,
@@ -12395,7 +13200,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       throw error;
     }
   }, [nodes, edges, flowMetadata, showNotification]);
-  const sendDataForDownload = useCallback(async () => {
+  useCallback(async () => {
     if (!isInIframe) {
       return saveToLocalFile();
     }
@@ -12439,7 +13244,47 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     saveToLocalFile,
     showNotification
   ]);
-  const loadFromLocalFile = useCallback(async () => {
+  const saveToServer = useCallback(async () => {
+    const flowData = {
+      id: flowMetadata.id || `flow_${Date.now()}`,
+      title: flowMetadata.title || "未命名流程",
+      version: flowMetadata.version || 1,
+      nodes,
+      edges,
+      metadata: {
+        lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+        savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+        nodeCount: nodes.length,
+        edgeCount: edges.length
+      }
+    };
+    const data1 = BidirectionalFormatConverter.convertReactFlowToAPI(flowData);
+    console.log("FlowEditor: 將流程數據轉換為 API 格式:", data1);
+    try {
+      const response = await workflowAPIService.saveWorkflow(data1);
+      console.log("FlowEditor: 儲存成功", response);
+      showNotification("流程儲存成功", "success");
+    } catch (error) {
+      console.error("FlowEditor: 儲存流程時發生錯誤：", error);
+      showNotification("儲存流程時發生錯誤", "error");
+    }
+  });
+  useCallback(async () => {
+    console.log("開始載入工作流:", "ext01");
+    try {
+      const apiData = await workflowAPIService.loadWorkflow("APA 診間小幫手");
+      console.log("API 回傳數據:", apiData);
+      const reactFlowData2 = WorkflowDataTransformer.transformToReactFlowFormat(apiData);
+      console.log("使用 WorkflowDataTransformer 轉換結果：", reactFlowData2);
+      const { nodes: transformedNodes, edges: transformedEdges } = reactFlowData2;
+      setFlowNodes(transformedNodes);
+      setFlowEdges(transformedEdges);
+      updateNodeFunctions();
+    } catch (error) {
+      console.error("載入工作流時發生錯誤:", error);
+    }
+  }, []);
+  useCallback(async () => {
     try {
       const result = await FileIOService.readFromFile();
       if (result.success && result.data) {
@@ -12596,10 +13441,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2 mr-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(LoadFileButton, { onLoad: loadFromLocalFile }),
-          isInIframe ? /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadButton, { onDownload: sendDataForDownload }) : /* @__PURE__ */ jsxRuntimeExports.jsx(SaveFileButton, { onSave: saveToLocalFile })
-        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2 mr-2" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -12653,7 +13495,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             )
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SaveButton, { onSave: saveFlowData }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SaveButton, { onSave: saveToServer }) })
       ] }),
       flowMetadata.lastSaved && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 bg-white px-3 py-1 rounded-md shadow text-xs text-gray-500 z-10", children: [
         "Last saved: ",
@@ -12667,4 +13509,4 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 });
 FlowEditor.displayName = "FlowEditor";
 
-export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j };
+export { WorkflowDataTransformer as W, FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, workflowAPIService as w };
