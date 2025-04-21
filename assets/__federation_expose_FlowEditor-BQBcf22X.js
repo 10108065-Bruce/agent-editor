@@ -8657,7 +8657,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T07:10:59.537Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.27"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T07:15:50.561Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.28"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9434,7 +9434,7 @@ const InputIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
 );
 
 const React$d = await importShared('react');
-const {memo: memo$a} = React$d;
+const {memo: memo$a,useReducer} = React$d;
 const CustomInputNode = ({ data, isConnectable }) => {
   const fields = data.fields || [];
   const handleAddField = () => {
@@ -9442,8 +9442,19 @@ const CustomInputNode = ({ data, isConnectable }) => {
       data.addField();
     } else {
       console.warn("addField function is not defined");
+      const newField = {
+        inputName: "New Input",
+        defaultValue: "Default value"
+      };
+      if (Array.isArray(data.fields)) {
+        data.fields.push(newField);
+      } else {
+        data.fields = [newField];
+      }
+      forceUpdate();
     }
   };
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-64 relative", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-blue-100 rounded-t-lg p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2", children: [
@@ -13075,7 +13086,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           title: apiData.title || prev.title,
           version: apiData.version || prev.version
         }));
-        updateNodeFunctions();
+        setTimeout(() => {
+          console.log("載入工作流後更新節點函數...");
+          updateNodeFunctions();
+        }, 0);
         showNotification("工作流載入成功", "success");
         return true;
       } catch (error) {
