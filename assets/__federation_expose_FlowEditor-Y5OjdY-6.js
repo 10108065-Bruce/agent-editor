@@ -8560,53 +8560,63 @@ function useFlowNodes() {
     [safeSetNodes]
   );
   const updateNodeFunctions = useCallback$3(() => {
-    console.log("開始更新節點函數...");
-    console.log("目前節點數量:", nodes.length);
+    console.log("開始更新節點函數，總節點數:", nodes.length);
     const nodesToUpdate = [];
     nodes.forEach((node) => {
       const nodeId = node.id;
       const nodeType = node.type;
+      console.log(
+        `檢查節點 ${nodeId}，類型: ${nodeType}，目前數據:`,
+        node.data
+      );
       let missingCallbacks = false;
       switch (nodeType) {
         case "customInput":
           missingCallbacks = !node.data.addField || !node.data.updateFieldInputName || !node.data.updateFieldDefaultValue;
+          if (!Array.isArray(node.data.fields)) {
+            nodesToUpdate.push({ node, nodeId, nodeType, needsFields: true });
+            console.log(`節點 ${nodeId} 缺少 fields 屬性`);
+          } else {
+            console.log(`節點 ${nodeId} 有 ${node.data.fields.length} 個欄位`);
+          }
           break;
-        case "browserExtensionInput":
-          missingCallbacks = !node.data.addItem || !node.data.updateItemName;
-          break;
+        // 其他節點類型的檢查...
         default:
           missingCallbacks = !node.data.onSelect || !node.data.updateNodeData;
           break;
       }
       if (missingCallbacks) {
         nodesToUpdate.push({ node, nodeId, nodeType });
+        console.log(`節點 ${nodeId} 缺少回調函數`);
       }
     });
     if (nodesToUpdate.length > 0) {
-      console.log(`發現 ${nodesToUpdate.length} 個需要更新函數的節點`);
+      console.log(`發現 ${nodesToUpdate.length} 個需要更新的節點`);
       const updatedNodes = [...nodes];
-      nodesToUpdate.forEach(({ nodeId, nodeType }) => {
+      nodesToUpdate.forEach(({ nodeId, nodeType, needsFields }) => {
         const callbacks = getNodeCallbacks(nodeId, nodeType);
         const nodeIndex = updatedNodes.findIndex((n) => n.id === nodeId);
         if (nodeIndex !== -1) {
-          if (nodeType === "customInput" && !updatedNodes[nodeIndex].data.fields) {
-            console.log(`修復節點 ${nodeId} 的 fields 屬性`);
-            updatedNodes[nodeIndex].data.fields = [];
+          console.log(`更新節點 ${nodeId} 的函數和數據`);
+          const updatedData = { ...updatedNodes[nodeIndex].data };
+          Object.assign(updatedData, callbacks);
+          if (needsFields && nodeType === "customInput") {
+            updatedData.fields = updatedData.fields || [
+              { inputName: "input_name", defaultValue: "Default value" }
+            ];
+            console.log(`為節點 ${nodeId} 添加默認欄位`);
           }
           updatedNodes[nodeIndex] = {
             ...updatedNodes[nodeIndex],
-            data: {
-              ...updatedNodes[nodeIndex].data,
-              ...callbacks
-            }
+            data: updatedData
           };
-          console.log(`更新節點 ${nodeId} 的函數，類型: ${nodeType}`);
         }
       });
+      console.log("批量更新節點...");
       setNodes(updatedNodes);
-      console.log("節點函數更新完成");
+      console.log("節點更新完成");
     } else {
-      console.log("沒有需要更新函數的節點");
+      console.log("所有節點都有正確的函數，無需更新");
     }
   }, [nodes, getNodeCallbacks, setNodes]);
   return {
@@ -8657,7 +8667,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T07:43:42.398Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.30"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T07:50:31.283Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.31"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12384,11 +12394,13 @@ class WorkflowDataTransformer {
         };
 
       case 'basic_input': {
-        // Extract multiple fields from parameters
+        // 提取參數中的欄位
         const fields = [];
         const paramKeys = Object.keys(node.parameters || {});
 
-        // Find all input field pairs
+        console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
+
+        // 查找所有輸入欄位對
         const fieldCount = Math.max(
           ...paramKeys
             .filter(
@@ -12400,12 +12412,25 @@ class WorkflowDataTransformer {
           0
         );
 
+        console.log(`發現 ${fieldCount} 個欄位`);
+
         for (let i = 0; i < fieldCount; i++) {
           const field = {
-            inputName: node.parameters?.[`input_name_${i}`]?.data || '',
+            inputName:
+              node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
             defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
           };
           fields.push(field);
+          console.log(`添加欄位 ${i}:`, field);
+        }
+
+        // 確保至少有一個欄位
+        if (fields.length === 0) {
+          fields.push({
+            inputName: 'default_input',
+            defaultValue: 'Enter value here'
+          });
+          console.log('添加一個默認欄位');
         }
 
         return {
@@ -13095,7 +13120,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         setTimeout(() => {
           console.log("載入工作流後更新節點函數...");
           updateNodeFunctions();
-        }, 0);
+        }, 200);
         showNotification("工作流載入成功", "success");
         return true;
       } catch (error) {
