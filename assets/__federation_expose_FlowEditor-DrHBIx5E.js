@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:06:52.982Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.16"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:19:13.004Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.17"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11626,6 +11626,7 @@ class IFrameBridgeService {
           // 假設標題包含工作流ID，觸發載入工作流事件
           // 如果標題格式不同，可以根據實際情況調整解析邏輯
           const workflowId = message.title;
+          console.log('SET_TITLE:', workflowId);
           if (workflowId) {
             this.triggerEvent('loadWorkflow', workflowId);
           }
@@ -12656,7 +12657,7 @@ class BidirectionalFormatConverter {
   static getOperatorFromType(type) {
     const operatorMap = {
       browserExtensionInput: 'browser_extension_input',
-      browserExtInput: 'browser_extension_input',
+      browserExtensionOutput: 'browser_extension_output',
       webhook: 'webhook',
       customInput: 'basic_input',
       input: 'basic_input',
@@ -12675,6 +12676,7 @@ class BidirectionalFormatConverter {
   static getTypeFromOperator(operator) {
     const typeMap = {
       browser_extension_input: 'browserExtensionInput',
+      browser_extension_output: 'browserExtensionOutput',
       webhook: 'webhook',
       basic_input: 'customInput',
       ask_ai: 'aiCustomInput',
@@ -12736,6 +12738,9 @@ class BidirectionalFormatConverter {
         if (node.data.selectedFile) {
           parameters.data_source = { data: node.data.selectedFile };
         }
+        break;
+      case 'browserExtensionOutput':
+        // 目前沒有特定的參數需要轉換
         break;
 
       case 'end':
