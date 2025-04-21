@@ -8561,6 +8561,8 @@ function useFlowNodes() {
   );
   const updateNodeFunctions = useCallback$3(() => {
     const nodesToUpdate = [];
+    console.log("開始更新節點函數...");
+    console.log("目前節點數量:", nodes.length);
     nodes.forEach((node) => {
       const nodeId = node.id;
       const nodeType = node.type;
@@ -8581,8 +8583,17 @@ function useFlowNodes() {
       }
     });
     if (nodesToUpdate.length > 0) {
+      console.log(`發現 ${updatedNodes.length} 個需要更新函數的節點`);
       const updatedNodes = [...nodes];
-      nodesToUpdate.forEach(({ nodeId, nodeType }) => {
+      nodesToUpdate.forEach(({ node, nodeId, nodeType }) => {
+        console.log(
+          `更新節點 ${nodeId} 的函數，類型: ${nodeType}，目前數據:`,
+          node.data
+        );
+        if (node.type === "customInput" && !node.data.fields) {
+          console.log(`修復節點 ${node.id} 的 fields 屬性`);
+          node.data.fields = [];
+        }
         const callbacks = getNodeCallbacks(nodeId, nodeType);
         const nodeIndex = updatedNodes.findIndex((n) => n.id === nodeId);
         if (nodeIndex !== -1) {
@@ -8646,7 +8657,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:56:38.651Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.25"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T07:08:10.126Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.26"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
