@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T05:48:21.250Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.14"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T05:59:43.807Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.15"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12290,7 +12290,8 @@ class WorkflowDataTransformer {
 
       case 'browser_extension_output':
         return {
-          ...baseData
+          ...baseData,
+          type: 'browserExtensionOutput'
           // Browser extension output doesn't have specific parameters in the current implementation
         };
 
@@ -12409,7 +12410,7 @@ class WorkflowDataTransformer {
       browser_extension_output: 'browserExtensionOutput',
       ask_ai: 'aiCustomInput',
       basic_input: 'customInput',
-      'if/else': 'if/else',
+      'if/else': 'ifElse',
       knowledge_retrieval: 'knowledgeRetrieval',
       end: 'end',
       webhook: 'webhook',
