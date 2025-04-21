@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-FYY67vTs.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DwgnAV5K.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15812,10 +15812,15 @@ const IFrameFlowEditor = () => {
       console.warn("IFrameFlowEditor: 接收到無效標題:", title);
     }
   }, []);
+  const isLoadingRef = useRef(false);
   const handleLoadWorkflow = useCallback(async (workflowId) => {
     console.log("IFrameFlowEditor: 處理載入工作流請求:", workflowId);
-    setIsLoading(true);
-    setError(null);
+    if (isLoadingRef.current) {
+      console.log("IFrameFlowEditor: 載入工作流已在進行中，忽略重複請求");
+      return;
+    }
+    isLoadingRef.current = true;
+    console.log("IFrameFlowEditor: 處理載入工作流請求:", workflowId);
     try {
       if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
         console.log("IFrameFlowEditor: 調用流程編輯器載入方法");
@@ -15838,6 +15843,7 @@ const IFrameFlowEditor = () => {
       setError(err.message || "載入時發生未知錯誤");
     } finally {
       setIsLoading(false);
+      isLoadingRef.current = false;
     }
   }, []);
   const handleDownloadRequest = useCallback((options) => {
@@ -15866,25 +15872,29 @@ const IFrameFlowEditor = () => {
   }, []);
   useEffect$1(() => {
     console.log("IFrameFlowEditor: 註冊事件處理器");
-    if (eventsRegistered.current) {
-      console.log("IFrameFlowEditor: 事件處理器已註冊，跳過");
-      return;
-    }
+    iframeBridge.off("titleChange", handleTitleChange);
+    iframeBridge.off("loadWorkflow", handleLoadWorkflow);
+    iframeBridge.off("downloadRequest", handleDownloadRequest);
     iframeBridge.on("titleChange", handleTitleChange);
     iframeBridge.on("loadWorkflow", handleLoadWorkflow);
     iframeBridge.on("downloadRequest", handleDownloadRequest);
     eventsRegistered.current = true;
-    if (flowTitle) {
-      console.log("IFrameFlowEditor: 初始化時已有標題:", flowTitle);
-    }
     return () => {
       console.log("IFrameFlowEditor: 移除事件處理器");
       iframeBridge.off("titleChange", handleTitleChange);
       iframeBridge.off("loadWorkflow", handleLoadWorkflow);
       iframeBridge.off("downloadRequest", handleDownloadRequest);
-      eventsRegistered.current = false;
     };
-  }, [handleTitleChange, handleLoadWorkflow, handleDownloadRequest, flowTitle]);
+  }, [handleTitleChange, handleLoadWorkflow, handleDownloadRequest]);
+  useEffect$1(() => {
+    if (flowTitle && flowEditorRef.current && flowEditorRef.current.setFlowTitle) {
+      console.log(
+        "IFrameFlowEditor: flowTitle 變化時更新編輯器標題:",
+        flowTitle
+      );
+      flowEditorRef.current.setFlowTitle(flowTitle);
+    }
+  }, [flowTitle]);
   useEffect$1(() => {
     const timeout = setTimeout(() => {
       console.log("IFrameFlowEditor: 重新發送 READY 消息");
