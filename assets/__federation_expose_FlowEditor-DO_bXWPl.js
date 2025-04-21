@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T05:59:43.807Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.15"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:06:52.982Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.16"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12339,7 +12339,7 @@ class WorkflowDataTransformer {
         };
       }
 
-      case 'if/else':
+      case 'ifElse':
         return {
           ...baseData,
           variableName: node.parameters?.variable?.data,
@@ -12410,7 +12410,7 @@ class WorkflowDataTransformer {
       browser_extension_output: 'browserExtensionOutput',
       ask_ai: 'aiCustomInput',
       basic_input: 'customInput',
-      'if/else': 'ifElse',
+      ifElse: 'ifElse',
       knowledge_retrieval: 'knowledgeRetrieval',
       end: 'end',
       webhook: 'webhook',
@@ -12438,7 +12438,7 @@ class WorkflowDataTransformer {
         return `AI (${node.parameters?.model?.data || 'GPT-4o'})`;
       case 'basic_input':
         return node.parameters?.input_name?.data || '輸入';
-      case 'if/else':
+      case 'ifElse':
         return '條件判斷';
       case 'knowledge_retrieval':
         return '知識檢索';
@@ -12480,7 +12480,7 @@ class WorkflowDataTransformer {
       const inputNodes = nodes.filter((node) => ['input'].includes(node.type));
 
       const processingNodes = nodes.filter((node) =>
-        ['ai', 'if/else', 'knowledge_retrieval', 'http', 'timer'].includes(
+        ['ai', 'ifElse', 'knowledge_retrieval', 'http', 'timer'].includes(
           node.type
         )
       );
