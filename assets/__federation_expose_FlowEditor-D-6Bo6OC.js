@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:28:03.964Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.19"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T06:56:38.651Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.25"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11622,21 +11622,46 @@ class IFrameBridgeService {
         break;
       case 'SET_TITLE':
         if (message.title) {
+          // 更詳細的日誌，顯示將要觸發的事件類型和數據
+          console.log(`準備觸發 titleChange 事件，標題值: "${message.title}"`);
+          console.log(
+            `註冊的 titleChange 處理程序數量: ${this.eventHandlers.titleChange.length}`
+          );
+
+          // 觸發標題變更事件
           this.triggerEvent('titleChange', message.title);
-          // 假設標題包含工作流ID，觸發載入工作流事件
-          // 如果標題格式不同，可以根據實際情況調整解析邏輯
+
+          // 如果標題可作為工作流ID，觸發載入工作流事件
           const workflowId = message.title;
-          console.log('SET_TITLE:', workflowId);
+          console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
+          console.log(
+            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+          );
+
           if (workflowId) {
             this.triggerEvent('loadWorkflow', workflowId);
           }
+        } else {
+          console.warn('收到 SET_TITLE 消息，但標題為空');
         }
-
         break;
 
       case 'REQUEST_DATA_FOR_DOWNLOAD':
+        // 日誌顯示下載請求事件
+        console.log(
+          `準備觸發 downloadRequest 事件，選項:`,
+          message.options || {}
+        );
+        console.log(
+          `註冊的 downloadRequest 處理程序數量: ${this.eventHandlers.downloadRequest.length}`
+        );
+
         // 觸發下載請求事件
         this.triggerEvent('downloadRequest', message.options || {});
+        break;
+
+      default:
+        console.log(`收到未處理的消息類型: ${message.type}`);
         break;
     }
   }
@@ -11653,6 +11678,7 @@ class IFrameBridgeService {
 
     try {
       window.parent.postMessage(message, '*');
+      console.log(`已向父頁面發送消息: ${message.type}`, message);
       return true;
     } catch (error) {
       console.error('向父頁面發送消息時出錯:', error);
@@ -11673,6 +11699,9 @@ class IFrameBridgeService {
     }
 
     this.eventHandlers[eventType].push(callback);
+    console.log(
+      `已註冊 ${eventType} 事件處理程序，當前處理程序數量: ${this.eventHandlers[eventType].length}`
+    );
     return true;
   }
 
@@ -11687,11 +11716,25 @@ class IFrameBridgeService {
       return;
     }
 
-    this.eventHandlers[eventType].forEach((handler) => {
+    if (this.eventHandlers[eventType].length === 0) {
+      console.warn(`觸發 ${eventType} 事件，但沒有註冊的處理程序`);
+      return;
+    }
+
+    console.log(
+      `正在觸發 ${eventType} 事件，處理程序數量: ${this.eventHandlers[eventType].length}`
+    );
+
+    this.eventHandlers[eventType].forEach((handler, index) => {
       try {
+        console.log(`執行 ${eventType} 事件處理程序 #${index + 1}`);
         handler(data);
+        console.log(`${eventType} 事件處理程序 #${index + 1} 執行成功`);
       } catch (error) {
-        console.error(`執行 ${eventType} 事件處理程序時出錯:`, error);
+        console.error(
+          `執行 ${eventType} 事件處理程序 #${index + 1} 時出錯:`,
+          error
+        );
       }
     });
   }
@@ -11713,7 +11756,16 @@ class IFrameBridgeService {
       (handler) => handler !== callback
     );
 
-    return initialLength !== this.eventHandlers[eventType].length;
+    const removed = initialLength !== this.eventHandlers[eventType].length;
+    if (removed) {
+      console.log(
+        `已移除 ${eventType} 事件處理程序，當前處理程序數量: ${this.eventHandlers[eventType].length}`
+      );
+    } else {
+      console.warn(`嘗試移除未找到的 ${eventType} 事件處理程序`);
+    }
+
+    return removed;
   }
 
   /**
