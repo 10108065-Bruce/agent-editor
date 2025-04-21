@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DrHBIx5E.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-siK9symO.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15793,7 +15793,7 @@ const ReactDOM = /*@__PURE__*/getDefaultExportFromCjs(clientExports);
 const React$2 = await importShared('react');
 const {useEffect: useEffect$1,useState: useState$1,useCallback,useRef} = React$2;
 const IFrameFlowEditor = () => {
-  const [flowTitle, setFlowTitle] = useState$1("APA 診間小幫手");
+  const [flowTitle, setFlowTitle] = useState$1("");
   const flowEditorRef = useRef(null);
   const [isLoading, setIsLoading] = useState$1(false);
   const [error, setError] = useState$1(null);
