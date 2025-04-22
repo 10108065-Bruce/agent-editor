@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$l = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$4,useState: useState$a,useEffect: useEffect$3,forwardRef: forwardRef$1,useCallback: useCallback$4} = React$l;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$4,useState: useState$a,useEffect: useEffect$4,forwardRef: forwardRef$1,useCallback: useCallback$4} = React$l;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3920,7 +3920,7 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
   const edgeRef = useRef$4(null);
   const [edgeTextBbox, setEdgeTextBbox] = useState$a({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$g(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$3(() => {
+  useEffect$4(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$3(() => {
+  useEffect$4(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$3(() => {
+  useEffect$4(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$3(() => {
+  useEffect$4(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$3(() => {
+  useEffect$4(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5627,7 +5627,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
   const isPanScrolling = useRef$4(false);
   const panScrollTimeout = useRef$4();
   useResizeHandler(zoomPane);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -6279,7 +6279,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
   const dragStarted = useRef$4(false);
   const abortDrag = useRef$4(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$3(() => {
+    useEffect$4(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$3(() => {
+    useEffect$4(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$3(() => {
+    useEffect$4(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6640,7 +6640,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
   const nodeRef = useRef$4(null);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$3(() => {
+  useEffect$4(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -7205,7 +7205,7 @@ function Viewport({ children }) {
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
   const isInitialized = useRef$4(false);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7673,7 +7673,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$k = await importShared('react');
-const {memo: memo$f,useRef: useRef$3,useEffect: useEffect$2} = React$k;
+const {memo: memo$f,useRef: useRef$3,useEffect: useEffect$3} = React$k;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7744,7 +7744,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
     const viewScaleRef = useRef$3(0);
     viewScaleRef.current = viewScale;
-    useEffect$2(() => {
+    useEffect$3(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7811,7 +7811,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$f(MiniMap);
 
 const React$j = await importShared('react');
-const {memo: memo$e,useState: useState$9,useEffect: useEffect$1} = React$j;
+const {memo: memo$e,useState: useState$9,useEffect: useEffect$2} = React$j;
 
 function PlusIcon() {
     return (React$j.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7851,7 +7851,7 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
     const [isVisible, setIsVisible] = useState$9(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$1(() => {
+    useEffect$2(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7951,7 +7951,7 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
 Background.displayName = 'Background';
 var Background$1 = memo$d(Background);
 
-const {useRef: useRef$1,useCallback: useCallback$3} = await importShared('react');
+const {useRef: useRef$1,useCallback: useCallback$3,useEffect: useEffect$1} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -8531,8 +8531,11 @@ function useFlowNodes() {
     },
     [safeSetEdges]
   );
+  const needsUpdateAfterUndo = useRef$1(false);
   const undo = useCallback$3(() => {
     if (undoStack.current.length === 0) return;
+    console.log("執行撤銷操作");
+    needsUpdateAfterUndo.current = true;
     redoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
       edges: JSON.parse(JSON.stringify(edges))
@@ -8543,6 +8546,8 @@ function useFlowNodes() {
   }, [nodes, edges, setNodes, setEdges]);
   const redo = useCallback$3(() => {
     if (redoStack.current.length === 0) return;
+    console.log("執行重做操作");
+    needsUpdateAfterUndo.current = true;
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
       edges: JSON.parse(JSON.stringify(edges))
@@ -8551,6 +8556,16 @@ function useFlowNodes() {
     setNodes(next.nodes);
     setEdges(next.edges);
   }, [nodes, edges, setNodes, setEdges]);
+  useEffect$1(() => {
+    if (needsUpdateAfterUndo.current) {
+      console.log("檢測到撤銷/重做後的節點變化，更新節點函數");
+      const timer = setTimeout(() => {
+        forceUpdateNodeFunctions();
+        needsUpdateAfterUndo.current = false;
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [nodes]);
   const updateNodeLabel = useCallback$3(
     (id, label) => {
       safeSetNodes(
@@ -8561,64 +8576,63 @@ function useFlowNodes() {
   );
   const updateNodeFunctions = useCallback$3(() => {
     console.log("開始更新節點函數，總節點數:", nodes.length);
-    const nodesToUpdate = [];
-    nodes.forEach((node) => {
+    const updatedNodes = nodes.map((node) => {
       const nodeId = node.id;
       const nodeType = node.type;
-      console.log(
-        `檢查節點 ${nodeId}，類型: ${nodeType}，目前數據:`,
-        node.data
-      );
-      let missingCallbacks = false;
-      switch (nodeType) {
-        case "customInput":
-          missingCallbacks = !node.data.addField || !node.data.updateFieldInputName || !node.data.updateFieldDefaultValue;
-          if (!Array.isArray(node.data.fields)) {
-            nodesToUpdate.push({ node, nodeId, nodeType, needsFields: true });
-            console.log(`節點 ${nodeId} 缺少 fields 屬性`);
-          } else {
-            console.log(`節點 ${nodeId} 有 ${node.data.fields.length} 個欄位`);
+      const callbacks = getNodeCallbacks(nodeId, nodeType);
+      if (nodeType === "customInput" && !Array.isArray(node.data.fields)) {
+        console.log(`為節點 ${nodeId} 添加缺失的 fields 屬性`);
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ...callbacks,
+            fields: [{ inputName: "input_name", defaultValue: "Default value" }]
           }
-          break;
-        // 其他節點類型的檢查...
-        default:
-          missingCallbacks = !node.data.onSelect || !node.data.updateNodeData;
-          break;
+        };
       }
-      if (missingCallbacks) {
-        nodesToUpdate.push({ node, nodeId, nodeType });
-        console.log(`節點 ${nodeId} 缺少回調函數`);
-      }
-    });
-    if (nodesToUpdate.length > 0) {
-      console.log(`發現 ${nodesToUpdate.length} 個需要更新的節點`);
-      const updatedNodes = [...nodes];
-      nodesToUpdate.forEach(({ nodeId, nodeType, needsFields }) => {
-        const callbacks = getNodeCallbacks(nodeId, nodeType);
-        const nodeIndex = updatedNodes.findIndex((n) => n.id === nodeId);
-        if (nodeIndex !== -1) {
-          console.log(`更新節點 ${nodeId} 的函數和數據`);
-          const updatedData = { ...updatedNodes[nodeIndex].data };
-          Object.assign(updatedData, callbacks);
-          if (needsFields && nodeType === "customInput") {
-            updatedData.fields = updatedData.fields || [
-              { inputName: "input_name", defaultValue: "Default value" }
-            ];
-            console.log(`為節點 ${nodeId} 添加默認欄位`);
-          }
-          updatedNodes[nodeIndex] = {
-            ...updatedNodes[nodeIndex],
-            data: updatedData
-          };
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          ...callbacks
         }
-      });
-      console.log("批量更新節點...");
-      setNodes(updatedNodes);
-      console.log("節點更新完成");
-    } else {
-      console.log("所有節點都有正確的函數，無需更新");
-    }
+      };
+    });
+    setNodes(updatedNodes);
+    console.log("節點函數更新完成");
+    return true;
   }, [nodes, getNodeCallbacks, setNodes]);
+  useEffect$1(() => {
+    console.log("初始化所有節點函數");
+    forceUpdateNodeFunctions();
+  }, []);
+  const forceUpdateNodeFunctions = useCallback$3(() => {
+    console.log("開始強制更新所有節點函數");
+    setNodes((currentNodes) => {
+      return currentNodes.map((node) => {
+        const callbacks = getNodeCallbacks(node.id, node.type);
+        if (node.type === "customInput") {
+          const updatedData = {
+            ...node.data,
+            ...callbacks,
+            fields: Array.isArray(node.data.fields) && node.data.fields.length > 0 ? [...node.data.fields] : [{ inputName: "input_name", defaultValue: "Default value" }]
+            // 添加默認欄位
+          };
+          return { ...node, data: updatedData };
+        }
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ...callbacks
+          }
+        };
+      });
+    });
+    console.log("節點函數強制更新完成");
+    return true;
+  }, [getNodeCallbacks, setNodes]);
   return {
     nodes,
     setNodes: safeSetNodes,
@@ -8667,7 +8681,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-21T07:50:31.283Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.31"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-22T01:37:48.770Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.32"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11334,92 +11348,6 @@ const SaveButton = ({ onSave, className = "" }) => {
 const React$1 = await importShared('react');
 const {useState: useState$1} = React$1;
 
-// src/services/MockApiService.js
-
-/**
- * 用於儲存流程資料的模擬 API 服務
- * 在真實應用程式中，這將會向後端發送實際的 HTTP 請求
- */
-class MockApiService {
-  /**
-   * 將流程資料儲存到模擬 API
-   * @param {Object} flowData - 要儲存的流程資料
-   * @returns {Promise} - 成功時返回成功響應，失敗時返回錯誤
-   */
-  static saveFlow(flowData) {
-    console.log('MockApiService: 正在儲存流程資料...', flowData);
-
-    // 模擬 API 呼叫，50% 成功機率，50% 失敗機率
-    return new Promise((resolve, reject) => {
-      // 模擬網路延遲
-      setTimeout(() => {
-        // 隨機成功或失敗以展示兩種情況
-        const isSuccess = Math.random() > 0.8;
-
-        if (isSuccess) {
-          const response = {
-            success: true,
-            message: '流程已成功儲存',
-            flowId: 'flow_' + Date.now(),
-            timestamp: new Date().toISOString()
-          };
-          console.log('MockApiService: 儲存成功', response);
-          resolve(response);
-        } else {
-          const error = {
-            success: false,
-            message: '儲存流程失敗',
-            errorCode: 'ERR_SERVER',
-            details: '模擬伺服器錯誤'
-          };
-          console.error('MockApiService: 儲存失敗', error);
-          reject(error);
-        }
-      }, 1500); // 模擬 1.5 秒的延遲
-    });
-  }
-
-  /**
-   * 從模擬 API 載入流程資料
-   * @param {string} flowId - 要載入的流程 ID
-   * @returns {Promise} - 成功時返回流程資料，失敗時返回錯誤
-   */
-  static loadFlow(flowId) {
-    console.log('MockApiService: 正在載入流程資料，ID:', flowId);
-
-    return new Promise((resolve, reject) => {
-      // 優先從 localStorage 獲取資料
-      const savedData = localStorage.getItem('flowEditorData');
-
-      setTimeout(() => {
-        if (savedData) {
-          try {
-            const parsedData = JSON.parse(savedData);
-            console.log('MockApiService: 載入成功', parsedData);
-            resolve({
-              success: true,
-              data: parsedData,
-              message: '流程已成功載入'
-            });
-          } catch {
-            reject({
-              success: false,
-              message: '解析流程資料失敗',
-              errorCode: 'ERR_PARSE'
-            });
-          }
-        } else {
-          reject({
-            success: false,
-            message: '找不到流程資料',
-            errorCode: 'ERR_NOT_FOUND'
-          });
-        }
-      }, 1000); // 模擬 1 秒的延遲
-    });
-  }
-}
-
 // src/services/FileIOService.js
 
 /**
@@ -11886,641 +11814,83 @@ function CustomEdge({
 }
 
 /**
- * API Service for loading and saving workflow data from/to the API
- * Enhanced with node-specific parameter handling
+ * 工作流相關服務共用的基礎映射和轉換功能
  */
-class WorkflowAPIService {
-  constructor() {
-    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
-  }
-
+class WorkflowMappingService {
   /**
-   * Load workflow data from the API
-   * @param {string} workflowId - The ID of the workflow to load
-   * @returns {Promise<Object>} The workflow data
+   * 從 ReactFlow 類型獲取 API 操作符
+   * @param {string} type - ReactFlow 節點類型
+   * @returns {string} - API 操作符類型
    */
-  async loadWorkflow(workflowId) {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/load_workflow`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_id: workflowId
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Failed to load workflow:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Save workflow data to the API
-   * @param {string} flowName - The name of the workflow
-   * @param {Object} flowData - The workflow data to save
-   * @returns {Promise<Object>} The API response
-   */
-  async saveWorkflow(data1) {
-    console.log(data1);
-    console.log(data1.flow_name, data1.content);
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/save_workflow`,
-        {
-          method: 'POST',
-          headers: {
-            accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_name: data1.flow_name,
-            content: data1.content
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Failed to save workflow:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Transform ReactFlow data back to API format
-   * @param {Object} reactFlowData - The ReactFlow format data (nodes and edges)
-   * @returns {Object} API format workflow data
-   */
-  transformToAPIFormat(reactFlowData) {
-    const { nodes, edges, id } = reactFlowData;
-
-    // Transform nodes back to API format
-    const flowPipeline = nodes.map((node) => {
-      // Extract node connections from edges
-      const nodeInput = this.extractNodeInput(node, edges);
-
-      // Extract outputs from node data
-      const nodeOutput = this.extractNodeOutput(node);
-
-      return {
-        id: node.id,
-        category: node.data.category || this.getCategoryFromType(node.type),
-        operator: node.data.operator || this.getOperatorFromType(node.type),
-        parameters: this.extractNodeParameters(node),
-        position_x: node.position.x,
-        position_y: node.position.y,
-        version: node.data.version || '0.0.1',
-        node_input: nodeInput,
-        node_output: nodeOutput
-      };
-    });
-
-    return {
-      flow_id: id || `flow_${Date.now()}`,
-      user_id: '1', // This should come from your auth context
-      flow_type: 1, // Default flow type
-      flow_pipeline: flowPipeline
-    };
-  }
-
-  /**
-   * Extract node inputs based on node type
-   * @param {Object} node - The node object
-   * @param {Array} edges - The edges array
-   * @returns {Object} The extracted node inputs
-   */
-  extractNodeInput(node, edges) {
-    const nodeInput = {};
-
-    // Special handling for different node types
-    switch (node.type) {
-      case 'ai': // AI nodes have specific input requirements
-        edges.forEach((edge) => {
-          if (edge.target === node.id) {
-            if (
-              edge.targetHandle === 'prompt' ||
-              edge.targetHandle === 'context'
-            ) {
-              nodeInput[edge.targetHandle] = {
-                node_id: edge.source,
-                output_name: edge.sourceHandle
-              };
-            }
-          }
-        });
-        break;
-
-      case 'browser_extension_output': {
-        // Browser extension output can have multiple inputs
-        let inputCounter = 1;
-        edges.forEach((edge) => {
-          if (edge.target === node.id) {
-            nodeInput[`input${inputCounter}`] = {
-              type: 'string',
-              output_name: edge.sourceHandle,
-              node_id: edge.source
-            };
-            inputCounter++;
-          }
-        });
-        break;
-      }
-
-      default:
-        // Default behavior for other nodes
-        edges.forEach((edge) => {
-          if (edge.target === node.id) {
-            nodeInput[edge.targetHandle || 'input'] = {
-              node_id: edge.source,
-              output_name: edge.sourceHandle
-            };
-          }
-        });
-    }
-
-    return nodeInput;
-  }
-
-  /**
-   * Extract node outputs based on node type
-   * @param {Object} node - The node object
-   * @returns {Object} The extracted node outputs
-   */
-  extractNodeOutput(node) {
-    switch (node.type) {
-      case 'browser_extension_input': {
-        // Browser extension input has dynamic outputs based on items
-        const items = node.data.items || [];
-        const output = {};
-        items.forEach((item, index) => {
-          const outputKey = item.id || `a${index + 1}`; // e.g., a1, a2, etc.
-          output[outputKey] = {
-            node_id: node.id,
-            type: 'string'
-          };
-        });
-        return output;
-      }
-
-      case 'input': {
-        // Input nodes have dynamic outputs based on fields
-        const fields = node.data.fields || [];
-        if (fields.length === 0) {
-          return { output: {} };
-        }
-        const inputOutput = {};
-        fields.forEach((field, index) => {
-          const outputKey = `output-${index}`;
-          inputOutput[outputKey] = {};
-        });
-        return inputOutput;
-      }
-
-      case 'webhook':
-        return {
-          headers: {
-            node_id: node.id,
-            type: 'json',
-            data: {}
-          },
-          payload: {
-            node_id: node.id,
-            type: 'json',
-            data: {}
-          }
-        };
-
-      case 'ai':
-        return { output: {} };
-
-      default:
-        return node.data.node_output || { output: {} };
-    }
-  }
-
-  /**
-   * Extract parameters based on node type
-   * @param {Object} node - The node object
-   * @returns {Object} The extracted parameters
-   */
-  extractNodeParameters(node) {
-    const parameters = {};
-    const nodeData = node.data;
-
-    switch (node.type) {
-      case 'browser_extension_input':
-        if (nodeData.browser_extension_url) {
-          parameters.browser_extension_url = {
-            data: nodeData.browser_extension_url
-          };
-        }
-
-        // Transform items to functions
-        if (nodeData.items) {
-          parameters.functions = nodeData.items.map((item, index) => ({
-            func_id: item.id || `a${index + 1}`,
-            func_name: item.name || '',
-            func_icon: item.icon || ''
-          }));
-        }
-        break;
-
-      case 'webhook':
-        if (nodeData.webhookUrl) {
-          parameters.webhook_url = { data: nodeData.webhookUrl };
-        }
-        break;
-
-      case 'ai':
-        if (nodeData.model) {
-          parameters.model = { data: nodeData.model };
-        }
-        break;
-
-      case 'input':
-        // Handle multiple fields for input node
-        if (nodeData.fields && nodeData.fields.length > 0) {
-          nodeData.fields.forEach((field, index) => {
-            if (field.defaultValue) {
-              parameters[`default_value_${index}`] = {
-                data: field.defaultValue
-              };
-            }
-            if (field.inputName) {
-              parameters[`input_name_${index}`] = { data: field.inputName };
-            }
-          });
-        }
-        break;
-
-      case 'if/else':
-        if (nodeData.variableName) {
-          parameters.variable = { data: nodeData.variableName };
-        }
-        if (nodeData.operator) {
-          parameters.operator = { data: nodeData.operator };
-        }
-        if (nodeData.compareValue) {
-          parameters.compare_value = { data: nodeData.compareValue };
-        }
-        break;
-
-      case 'knowledge_retrieval':
-        if (nodeData.selectedFile) {
-          parameters.data_source = { data: nodeData.selectedFile };
-        }
-        break;
-
-      case 'http':
-        if (nodeData.url) {
-          parameters.url = { data: nodeData.url };
-        }
-        if (nodeData.method) {
-          parameters.method = { data: nodeData.method };
-        }
-        break;
-
-      case 'timer':
-        if (nodeData.hours !== undefined) {
-          parameters.hours = { data: nodeData.hours };
-        }
-        if (nodeData.minutes !== undefined) {
-          parameters.minutes = { data: nodeData.minutes };
-        }
-        if (nodeData.seconds !== undefined) {
-          parameters.seconds = { data: nodeData.seconds };
-        }
-        break;
-
-      case 'line':
-        if (nodeData.mode) {
-          parameters.mode = { data: nodeData.mode };
-        }
-        if (nodeData.text) {
-          parameters.text = { data: nodeData.text };
-        }
-        break;
-
-      case 'end':
-        if (nodeData.outputText) {
-          parameters.output_text = { data: nodeData.outputText };
-        }
-        break;
-
-      default:
-        // For any node type not specifically handled, process all non-system properties
-        Object.entries(nodeData).forEach(([key, value]) => {
-          if (
-            ![
-              'label',
-              'category',
-              'operator',
-              'version',
-              'node_input',
-              'node_output'
-            ].includes(key)
-          ) {
-            parameters[key] = { data: value };
-          }
-        });
-    }
-
-    return parameters;
-  }
-
-  /**
-   * Extract category from node type
-   * @param {string} nodeType - The ReactFlow node type
-   * @returns {string} The category
-   */
-  getCategoryFromType(nodeType) {
-    const categoryMap = {
-      browser_extension_input: 'starter',
-      browser_extension_output: 'starter',
-      webhook: 'starter',
-      input: 'input',
-      ai: 'advanced',
-      'if/else': 'advanced',
-      knowledge_retrieval: 'advanced',
-      http: 'advanced',
-      event: 'advanced',
-      timer: 'advanced',
-      line: 'output',
-      end: 'output'
-    };
-    return categoryMap[nodeType] || 'advanced';
-  }
-
-  /**
-   * Extract operator from node type
-   * @param {string} nodeType - The ReactFlow node type
-   * @returns {string} The operator
-   */
-  getOperatorFromType(nodeType) {
+  static getOperatorFromType(type) {
     const operatorMap = {
-      ai: 'ask_ai',
-      input: 'basic_input',
-      browser_extension_input: 'browser_extension_input',
-      browser_extension_output: 'browser_extension_output',
+      browserExtensionInput: 'browser_extension_input',
+      browserExtensionOutput: 'browser_extension_output',
       webhook: 'webhook',
-      'if/else': 'if/else',
+      customInput: 'basic_input',
+      input: 'basic_input',
+      aiCustomInput: 'ask_ai',
+      ai: 'ask_ai',
+      ifElse: 'ifElse',
+      knowledgeRetrieval: 'knowledge_retrieval',
       knowledge_retrieval: 'knowledge_retrieval',
       http: 'http',
-      event: 'event',
       timer: 'timer',
       line: 'line',
+      event: 'event',
       end: 'end'
     };
-    return operatorMap[nodeType] || nodeType;
-  }
-}
-
-const workflowAPIService = new WorkflowAPIService();
-
-/**
- * 將 API 回傳的流程數據轉換為 ReactFlow 格式
- * Enhanced version with node-specific parameter handling
- */
-class WorkflowDataTransformer {
-  /**
-   * 轉換 API 數據為 ReactFlow 格式
-   * @param {Object} apiData - API 回傳的原始數據
-   * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
-   */
-  static transformToReactFlowFormat(apiData) {
-    const nodes = [];
-    const edges = [];
-
-    // 處理每個節點
-    apiData.flow_pipeline.forEach((node) => {
-      // 轉換為 ReactFlow 節點格式
-      const reactFlowNode = {
-        id: node.id,
-        type: this.getNodeType(node.operator),
-        position: { x: node.position_x || 0, y: node.position_y || 0 },
-        data: this.transformNodeData(node)
-      };
-
-      nodes.push(reactFlowNode);
-
-      // 處理節點之間的連接
-      if (node.node_input) {
-        Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          if (inputValue && inputValue.node_id) {
-            edges.push({
-              id: `${inputValue.node_id}-${node.id}-${inputKey}`,
-              source: inputValue.node_id,
-              sourceHandle: inputValue.output_name || null,
-              target: node.id,
-              targetHandle: inputKey,
-              type: 'custom-edge'
-            });
-          }
-        });
-      }
-    });
-
-    // 自動布局（如果位置都是 0,0）
-    this.autoLayout(nodes);
-
-    return { nodes, edges };
+    return operatorMap[type] || type;
   }
 
   /**
-   * Transform node data based on node type
-   * @param {Object} node - API format node
-   * @returns {Object} ReactFlow format node data
-   */
-  static transformNodeData(node) {
-    const baseData = {
-      label: this.getNodeLabel(node),
-      category: node.category,
-      operator: node.operator,
-      version: node.version,
-      node_input: node.node_input,
-      node_output: node.node_output
-    };
-
-    // Transform parameters based on node type
-    switch (node.operator) {
-      case 'browser_extension_input':
-        return {
-          ...baseData,
-          type: 'browserExtensionInput',
-          browser_extension_url: node.parameters?.browser_extension_url?.data,
-          items:
-            node.parameters?.functions?.map((func) => ({
-              id: func.func_id,
-              name: func.func_name,
-              icon: func.func_icon
-            })) || []
-        };
-
-      case 'browser_extension_output':
-        return {
-          ...baseData,
-          type: 'browserExtensionOutput'
-          // Browser extension output doesn't have specific parameters in the current implementation
-        };
-
-      case 'webhook':
-        return {
-          ...baseData,
-          webhookUrl: node.parameters?.webhook_url?.data
-        };
-
-      case 'ask_ai':
-        return {
-          ...baseData,
-          model: node.parameters?.model?.data || 'O3-mini',
-          selectedOption: node.parameters?.selected_option?.data || 'prompt'
-        };
-
-      case 'basic_input': {
-        // 提取參數中的欄位
-        const fields = [];
-        const paramKeys = Object.keys(node.parameters || {});
-
-        console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
-
-        // 查找所有輸入欄位對
-        const fieldCount = Math.max(
-          ...paramKeys
-            .filter(
-              (key) =>
-                key.startsWith('default_value_') ||
-                key.startsWith('input_name_')
-            )
-            .map((key) => parseInt(key.split('_').pop()) + 1),
-          0
-        );
-
-        console.log(`發現 ${fieldCount} 個欄位`);
-
-        for (let i = 0; i < fieldCount; i++) {
-          const field = {
-            inputName:
-              node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
-            defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
-          };
-          fields.push(field);
-          console.log(`添加欄位 ${i}:`, field);
-        }
-
-        // 確保至少有一個欄位
-        if (fields.length === 0) {
-          fields.push({
-            inputName: 'default_input',
-            defaultValue: 'Enter value here'
-          });
-          console.log('添加一個默認欄位');
-        }
-
-        return {
-          ...baseData,
-          fields
-        };
-      }
-
-      case 'ifElse':
-        return {
-          ...baseData,
-          variableName: node.parameters?.variable?.data,
-          operator: node.parameters?.operator?.data || 'equals',
-          compareValue: node.parameters?.compare_value?.data
-        };
-
-      case 'knowledge_retrieval':
-        return {
-          ...baseData,
-          selectedFile: node.parameters?.data_source?.data,
-          availableFiles: [
-            { id: 'icdcode', name: 'ICDCode.csv' },
-            { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
-          ]
-        };
-
-      case 'http':
-        return {
-          ...baseData,
-          url: node.parameters?.url?.data,
-          method: node.parameters?.method?.data || 'GET'
-        };
-
-      case 'timer':
-        return {
-          ...baseData,
-          hours: node.parameters?.hours?.data || 0,
-          minutes: node.parameters?.minutes?.data || 0,
-          seconds: node.parameters?.seconds?.data || 0
-        };
-
-      case 'line':
-        return {
-          ...baseData,
-          mode: node.parameters?.mode?.data || 'reply',
-          text: node.parameters?.text?.data
-        };
-
-      case 'end':
-        return {
-          ...baseData,
-          outputText: node.parameters?.output_text?.data
-        };
-
-      default: {
-        // For any unhandled node types, keep original parameters
-        const transformedParams = {};
-        Object.entries(node.parameters || {}).forEach(([key, value]) => {
-          transformedParams[key] = value.data;
-        });
-        return {
-          ...baseData,
-          ...transformedParams
-        };
-      }
-    }
-  }
-
-  /**
-   * 根據 operator 獲取對應的 ReactFlow 節點類型
-   * @param {string} operator - 節點操作類型
+   * 從 API 操作符獲取 ReactFlow 類型
+   * @param {string} operator - API 操作符類型
    * @returns {string} - ReactFlow 節點類型
    */
-  static getNodeType(operator) {
+  static getTypeFromOperator(operator) {
     const typeMap = {
       browser_extension_input: 'browserExtensionInput',
       browser_extension_output: 'browserExtensionOutput',
-      ask_ai: 'aiCustomInput',
+      webhook: 'webhook',
       basic_input: 'customInput',
+      ask_ai: 'aiCustomInput',
       ifElse: 'ifElse',
       knowledge_retrieval: 'knowledgeRetrieval',
-      end: 'end',
-      webhook: 'webhook',
       http: 'http',
-      event: 'event',
       timer: 'timer',
-      line: 'line'
+      line: 'line',
+      event: 'event',
+      end: 'end'
     };
+    return typeMap[operator] || operator;
+  }
 
-    return typeMap[operator] || 'default';
+  /**
+   * 從 ReactFlow 類型獲取 API 類別
+   * @param {string} type - ReactFlow 節點類型
+   * @returns {string} - API 節點類別
+   */
+  static getCategoryFromType(type) {
+    const categoryMap = {
+      browserExtensionInput: 'starter',
+      browserExtInput: 'starter',
+      webhook: 'starter',
+      customInput: 'input',
+      input: 'input',
+      aiCustomInput: 'advanced',
+      ai: 'advanced',
+      knowledgeRetrieval: 'advanced',
+      knowledge_retrieval: 'advanced',
+      ifElse: 'logic',
+      http: 'integration',
+      timer: 'event',
+      line: 'integration',
+      event: 'event',
+      end: 'output',
+      browserExtensionOutput: 'output'
+    };
+    return categoryMap[type] || 'advanced';
   }
 
   /**
@@ -12536,8 +11906,13 @@ class WorkflowDataTransformer {
         return '瀏覽器擴充輸出';
       case 'ask_ai':
         return `AI (${node.parameters?.model?.data || 'GPT-4o'})`;
-      case 'basic_input':
-        return node.parameters?.input_name?.data || '輸入';
+      case 'basic_input': // 嘗試獲取第一個輸入欄位的名稱
+      {
+        const inputName =
+          node.parameters?.input_name_0?.data ||
+          node.parameters?.input_name?.data;
+        return inputName || '輸入';
+      }
       case 'ifElse':
         return '條件判斷';
       case 'knowledge_retrieval':
@@ -12552,414 +11927,34 @@ class WorkflowDataTransformer {
         return '計時器';
       case 'line':
         return 'LINE 訊息';
+      case 'event':
+        return '事件處理';
       default:
         return node.operator;
     }
   }
 
   /**
-   * 自動布局節點（如果所有節點都在同一位置）
-   * @param {Array} nodes - ReactFlow 節點數組
-   */
-  static autoLayout(nodes) {
-    const needsLayout = nodes.every(
-      (node) => node.position.x === 0 && node.position.y === 0
-    );
-
-    if (needsLayout) {
-      let currentX = 50;
-      let currentY = 50;
-      const xSpacing = 300;
-      const ySpacing = 150;
-
-      // Categorize nodes
-      const starterNodes = nodes.filter((node) =>
-        ['browser_extension_input', 'webhook'].includes(node.type)
-      );
-
-      const inputNodes = nodes.filter((node) => ['input'].includes(node.type));
-
-      const processingNodes = nodes.filter((node) =>
-        ['ai', 'ifElse', 'knowledge_retrieval', 'http', 'timer'].includes(
-          node.type
-        )
-      );
-
-      const outputNodes = nodes.filter((node) =>
-        ['browser_extension_output', 'line', 'end'].includes(node.type)
-      );
-
-      // Layout starter nodes
-      starterNodes.forEach((node, index) => {
-        node.position.x = currentX;
-        node.position.y = currentY + index * ySpacing;
-      });
-
-      // Layout input nodes
-      currentX += xSpacing;
-      inputNodes.forEach((node, index) => {
-        node.position.x = currentX;
-        node.position.y = currentY + index * ySpacing;
-      });
-
-      // Layout processing nodes
-      currentX += xSpacing;
-      processingNodes.forEach((node, index) => {
-        node.position.x = currentX;
-        node.position.y = currentY + index * ySpacing;
-      });
-
-      // Layout output nodes
-      currentX += xSpacing;
-      outputNodes.forEach((node, index) => {
-        node.position.x = currentX;
-        node.position.y = currentY + index * ySpacing;
-      });
-    }
-  }
-}
-
-/**
- * 雙向格式轉換器
- * 轉換 ReactFlow 格式和 API 格式之間的數據
- */
-class BidirectionalFormatConverter {
-  /**
-   * 將 ReactFlow 格式轉換為 API 格式
-   * @param {Object} reactFlowData - ReactFlow 格式數據
-   * @returns {Object} API 格式數據
-   */
-  static convertReactFlowToAPI(reactFlowData) {
-    const flowPipeline = reactFlowData.nodes.map((node) => {
-      // 提取節點輸入連接
-      const nodeInput = this.extractNodeInputForAPI(
-        node.id,
-        reactFlowData.edges
-      );
-
-      // 提取節點輸出連接
-      const nodeOutput = this.extractNodeOutputForAPI(node);
-
-      // 轉換節點數據
-      const parameters = this.convertNodeDataToParameters(node);
-
-      return {
-        id: node.id,
-        category: this.getCategoryFromType(node.type),
-        operator: this.getOperatorFromType(node.type),
-        parameters,
-        position_x: node.position.x,
-        position_y: node.position.y,
-        version: node.data?.version || '0.0.1',
-        node_input: nodeInput,
-        node_output: nodeOutput
-      };
-    });
-
-    return {
-      flow_name: reactFlowData.title || '未命名流程',
-      content: {
-        flow_id: reactFlowData.id,
-        user_id: '1', // 預設值，可根據需求調整
-        flow_type: 1, // 預設值，可根據需求調整
-        headers: {
-          Authorization: 'Bearer your-token-here',
-          'Content-Type': 'application/json'
-        },
-        flow_pipeline: flowPipeline
-      }
-    };
-  }
-
-  /**
-   * 將 API 格式轉換為 ReactFlow 格式
-   * @param {Object} apiData - API 格式數據
-   * @returns {Object} ReactFlow 格式數據
-   */
-  static convertAPIToReactFlow(apiData) {
-    const nodes = [];
-    const edges = [];
-
-    // 轉換節點
-    apiData.content.flow_pipeline.forEach((node) => {
-      const reactFlowNode = {
-        id: node.id,
-        type: this.getTypeFromOperator(node.operator),
-        position: {
-          x: node.position_x,
-          y: node.position_y
-        },
-        data: this.convertParametersToNodeData(node),
-        width: 256, // 預設寬度
-        height: 200 // 預設高度，可根據節點類型調整
-      };
-
-      nodes.push(reactFlowNode);
-
-      // 生成邊
-      if (node.node_input) {
-        Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          if (inputValue && inputValue.node_id) {
-            edges.push({
-              source: inputValue.node_id,
-              sourceHandle: inputValue.output_name || inputKey,
-              target: node.id,
-              targetHandle: inputKey,
-              type: 'custom-edge',
-              label: 'Connection',
-              id: `reactflow__edge-${inputValue.node_id}${
-                inputValue.output_name || inputKey
-              }-${node.id}${inputKey}`
-            });
-          }
-        });
-      }
-    });
-
-    return {
-      id: apiData.content.flow_id,
-      title: apiData.flow_name,
-      version: 1, // 預設版本
-      nodes,
-      edges,
-      metadata: {
-        lastModified: new Date().toISOString(),
-        savedAt: new Date().toISOString(),
-        nodeCount: nodes.length,
-        edgeCount: edges.length
-      }
-    };
-  }
-
-  /**
-   * 從 ReactFlow 類型獲取 API 類別
-   */
-  static getCategoryFromType(type) {
-    const categoryMap = {
-      browserExtensionInput: 'starter',
-      browserExtInput: 'starter',
-      webhook: 'starter',
-      customInput: 'input',
-      input: 'input',
-      aiCustomInput: 'advanced',
-      ai: 'advanced',
-      knowledgeRetrieval: 'advanced',
-      knowledge_retrieval: 'advanced',
-      end: 'output'
-    };
-    return categoryMap[type] || 'advanced';
-  }
-
-  /**
-   * 從 ReactFlow 類型獲取 API 操作符
-   */
-  static getOperatorFromType(type) {
-    const operatorMap = {
-      browserExtensionInput: 'browser_extension_input',
-      browserExtensionOutput: 'browser_extension_output',
-      webhook: 'webhook',
-      customInput: 'basic_input',
-      input: 'basic_input',
-      aiCustomInput: 'ask_ai',
-      ai: 'ask_ai',
-      knowledgeRetrieval: 'knowledge_retrieval',
-      knowledge_retrieval: 'knowledge_retrieval',
-      end: 'end'
-    };
-    return operatorMap[type] || type;
-  }
-
-  /**
-   * 從 API 操作符獲取 ReactFlow 類型
-   */
-  static getTypeFromOperator(operator) {
-    const typeMap = {
-      browser_extension_input: 'browserExtensionInput',
-      browser_extension_output: 'browserExtensionOutput',
-      webhook: 'webhook',
-      basic_input: 'customInput',
-      ask_ai: 'aiCustomInput',
-      knowledge_retrieval: 'knowledgeRetrieval',
-      end: 'end'
-    };
-    return typeMap[operator] || operator;
-  }
-
-  /**
-   * 將節點數據轉換為 API 參數格式
-   */
-  static convertNodeDataToParameters(node) {
-    const parameters = {};
-
-    switch (node.type) {
-      case 'customInput':
-      case 'input':
-        if (node.data.fields && node.data.fields.length > 0) {
-          node.data.fields.forEach((field, index) => {
-            parameters[`input_name_${index}`] = { data: field.inputName };
-            parameters[`default_value_${index}`] = { data: field.defaultValue };
-          });
-        }
-        break;
-
-      case 'aiCustomInput':
-      case 'ai':
-        parameters.model = { data: node.data.model || 'O3-mini' };
-        if (node.data.selectedOption) {
-          parameters.selected_option = { data: node.data.selectedOption };
-        }
-        break;
-
-      case 'browserExtensionInput':
-      case 'browserExtInput':
-        if (node.data.browser_extension_url) {
-          parameters.browser_extension_url = {
-            data: node.data.browser_extension_url
-          };
-        }
-        if (node.data.items) {
-          parameters.functions = node.data.items.map((item, index) => ({
-            func_id: item.id || `a${index + 1}`,
-            func_name: item.name,
-            func_icon: item.icon
-          }));
-        }
-        break;
-
-      case 'webhook':
-        if (node.data.webhookUrl) {
-          parameters.webhook_url = { data: node.data.webhookUrl };
-        }
-        break;
-
-      case 'knowledgeRetrieval':
-      case 'knowledge_retrieval':
-        if (node.data.selectedFile) {
-          parameters.data_source = { data: node.data.selectedFile };
-        }
-        break;
-      case 'browserExtensionOutput':
-        // 目前沒有特定的參數需要轉換
-        break;
-
-      case 'end':
-        if (node.data.outputText) {
-          parameters.output_text = { data: node.data.outputText };
-        }
-        break;
-
-      default:
-        // 對於其他類型，直接轉換所有非系統屬性
-        if (node.data) {
-          Object.entries(node.data).forEach(([key, value]) => {
-            if (
-              key !== 'label' &&
-              key !== 'category' &&
-              key !== 'operator' &&
-              key !== 'version' &&
-              key !== 'node_input' &&
-              key !== 'node_output'
-            ) {
-              parameters[key] = { data: value };
-            }
-          });
-        }
-    }
-
-    return parameters;
-  }
-
-  /**
-   * 將 API 參數轉換為節點數據格式
-   */
-  static convertParametersToNodeData(node) {
-    const data = {};
-
-    switch (node.operator) {
-      case 'basic_input':
-        data.fields = [];
-        // 檢查新格式參數
-        if (node.parameters) {
-          const paramKeys = Object.keys(node.parameters);
-          const fieldCount = Math.max(
-            ...paramKeys
-              .filter(
-                (key) =>
-                  key.startsWith('input_name_') ||
-                  key.startsWith('default_value_')
-              )
-              .map((key) => parseInt(key.split('_').pop()) + 1),
-            0
-          );
-
-          for (let i = 0; i < fieldCount; i++) {
-            data.fields.push({
-              inputName: node.parameters[`input_name_${i}`]?.data || '',
-              defaultValue: node.parameters[`default_value_${i}`]?.data || ''
-            });
-          }
-        }
-        break;
-
-      case 'ask_ai':
-        data.model = node.parameters?.model?.data || 'O3-mini';
-        data.selectedOption =
-          node.parameters?.selected_option?.data || 'prompt';
-        break;
-
-      case 'browser_extension_input':
-        data.browser_extension_url =
-          node.parameters?.browser_extension_url?.data;
-        data.items =
-          node.parameters?.functions?.map((func) => ({
-            id: func.func_id,
-            name: func.func_name,
-            icon: func.func_icon || 'upload'
-          })) || [];
-        break;
-
-      case 'webhook':
-        data.webhookUrl = node.parameters?.webhook_url?.data;
-        break;
-
-      case 'knowledge_retrieval':
-        data.selectedFile = node.parameters?.data_source?.data || '';
-        data.availableFiles = [
-          { id: 'icdcode', name: 'ICDCode.csv' },
-          { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
-        ];
-        break;
-
-      case 'end':
-        data.outputText = node.parameters?.output_text?.data || '';
-        break;
-
-      default:
-        // 對於其他類型，直接轉換所有參數
-        if (node.parameters) {
-          Object.entries(node.parameters).forEach(([key, value]) => {
-            data[key] = value.data;
-          });
-        }
-    }
-
-    return data;
-  }
-
-  /**
    * 提取節點輸入以供 API 格式使用
+   * @param {string} nodeId - 節點 ID
+   * @param {Array} edges - 所有邊緣
+   * @returns {Object} - API 格式的節點輸入
    */
   static extractNodeInputForAPI(nodeId, edges) {
     const nodeInput = {};
+    console.log(`提取節點 ${nodeId} 的輸入連接`);
 
-    edges.forEach((edge) => {
-      if (edge.target === nodeId) {
-        nodeInput[edge.targetHandle || 'input'] = {
-          node_id: edge.source,
-          output_name: edge.sourceHandle,
-          type: 'string' // 預設類型，可根據需求調整
-        };
-      }
+    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
+    console.log(`找到 ${relevantEdges.length} 個輸入連接`);
+
+    relevantEdges.forEach((edge) => {
+      const targetHandle = edge.targetHandle || 'input';
+      nodeInput[targetHandle] = {
+        node_id: edge.source,
+        output_name: edge.sourceHandle || 'output',
+        type: 'string' // 預設類型
+      };
+      console.log(`輸入連接: ${edge.source} -> ${nodeId}:${targetHandle}`);
     });
 
     return nodeInput;
@@ -12967,14 +11962,17 @@ class BidirectionalFormatConverter {
 
   /**
    * 提取節點輸出以供 API 格式使用
+   * @param {Object} node - ReactFlow 節點
+   * @returns {Object} - API 格式的節點輸出
    */
   static extractNodeOutputForAPI(node) {
     const nodeOutput = {};
+    console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
       case 'browserExtensionInput':
       case 'browserExtInput':
-        if (node.data.items) {
+        if (node.data.items && node.data.items.length > 0) {
           node.data.items.forEach((item, index) => {
             const outputKey = item.id || `a${index + 1}`;
             nodeOutput[outputKey] = {
@@ -12982,6 +11980,12 @@ class BidirectionalFormatConverter {
               type: 'string'
             };
           });
+          console.log(`瀏覽器擴展輸入: 設置 ${node.data.items.length} 個輸出`);
+        } else {
+          nodeOutput.output = {
+            node_id: node.id,
+            type: 'string'
+          };
         }
         break;
 
@@ -13000,11 +12004,33 @@ class BidirectionalFormatConverter {
 
       case 'customInput':
       case 'input':
-        if (node.data.fields) {
+        if (node.data.fields && node.data.fields.length > 0) {
           node.data.fields.forEach((field, index) => {
-            nodeOutput[`output-${index}`] = {};
+            nodeOutput[`output-${index}`] = {
+              node_id: node.id,
+              type: 'string'
+            };
           });
+          console.log(`輸入節點: 設置 ${node.data.fields.length} 個輸出`);
+        } else {
+          nodeOutput.output = {
+            node_id: node.id,
+            type: 'string'
+          };
         }
+        break;
+
+      case 'ifElse':
+        nodeOutput.true = {
+          node_id: node.id,
+          type: 'boolean',
+          data: true
+        };
+        nodeOutput.false = {
+          node_id: node.id,
+          type: 'boolean',
+          data: false
+        };
         break;
 
       default:
@@ -13020,6 +12046,597 @@ class BidirectionalFormatConverter {
   }
 }
 
+/**
+ * 更新後的工作流 API 服務，使用共用的映射功能
+ */
+class WorkflowAPIService {
+  constructor() {
+    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
+  }
+
+  /**
+   * 載入工作流數據
+   * @param {string} workflowId - 要載入的工作流 ID
+   * @returns {Promise<Object>} 工作流數據
+   */
+  async loadWorkflow(workflowId) {
+    try {
+      console.log(`嘗試載入工作流 ID: ${workflowId}`);
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/workflows/load_workflow`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            flow_id: workflowId
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('成功載入工作流數據');
+      return data;
+    } catch (error) {
+      console.error('載入工作流失敗:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 保存工作流數據
+   * @param {Object} data - 要保存的工作流數據
+   * @returns {Promise<Object>} API 回應
+   */
+  async saveWorkflow(data) {
+    console.log('開始保存工作流:', data.flow_name);
+
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/workflows/save_workflow`,
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            flow_name: data.flow_name,
+            content: data.content
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log('工作流保存成功');
+      return responseData;
+    } catch (error) {
+      console.error('保存工作流失敗:', error);
+      throw error;
+    }
+  }
+}
+
+/**
+ * 更新後的工作流數據轉換器，使用共用的映射功能
+ */
+class WorkflowDataConverter {
+  /**
+   * 轉換 API 數據為 ReactFlow 格式
+   * @param {Object} apiData - API 回傳的原始數據
+   * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
+   */
+  static transformToReactFlowFormat(apiData) {
+    console.log('開始轉換 API 格式為 ReactFlow 格式');
+
+    // 處理 API 數據結構差異
+    const flowPipeline =
+      apiData.flow_pipeline ||
+      (apiData.content ? apiData.content.flow_pipeline : []);
+
+    if (!flowPipeline || !Array.isArray(flowPipeline)) {
+      console.error('找不到有效的 flow_pipeline 陣列');
+      return { nodes: [], edges: [] };
+    }
+
+    const nodes = [];
+    const edges = [];
+
+    // 處理每個節點
+    flowPipeline.forEach((node) => {
+      console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
+
+      // 轉換為 ReactFlow 節點格式
+      const reactFlowNode = {
+        id: node.id,
+        type: WorkflowMappingService.getTypeFromOperator(node.operator),
+        position: {
+          x: typeof node.position_x === 'number' ? node.position_x : 0,
+          y: typeof node.position_y === 'number' ? node.position_y : 0
+        },
+        data: this.transformNodeDataToReactFlow(node)
+      };
+
+      nodes.push(reactFlowNode);
+
+      // 處理節點之間的連接
+      if (node.node_input) {
+        Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
+          if (inputValue && inputValue.node_id) {
+            const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}`;
+
+            edges.push({
+              id: edgeId,
+              source: inputValue.node_id,
+              sourceHandle: inputValue.output_name || null,
+              target: node.id,
+              targetHandle: inputKey,
+              type: 'custom-edge'
+            });
+          }
+        });
+      }
+    });
+
+    // 自動布局（如果位置都是 0,0）
+    this.autoLayout(nodes);
+
+    console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
+    return { nodes, edges };
+  }
+
+  /**
+   * 將 API 節點數據轉換為 ReactFlow 節點數據
+   * @param {Object} node - API 格式節點
+   * @returns {Object} - ReactFlow 格式節點數據
+   */
+  static transformNodeDataToReactFlow(node) {
+    const baseData = {
+      label: WorkflowMappingService.getNodeLabel(node),
+      category: node.category,
+      operator: node.operator,
+      version: node.version,
+      node_input: node.node_input,
+      node_output: node.node_output
+    };
+
+    // 根據節點類型轉換參數
+    switch (node.operator) {
+      case 'browser_extension_input':
+        return {
+          ...baseData,
+          type: 'browserExtensionInput',
+          browser_extension_url: node.parameters?.browser_extension_url?.data,
+          items:
+            node.parameters?.functions?.map((func) => ({
+              id: func.func_id,
+              name: func.func_name,
+              icon: func.func_icon || 'document'
+            })) || []
+        };
+
+      case 'browser_extension_output':
+        return {
+          ...baseData,
+          type: 'browserExtensionOutput'
+        };
+
+      case 'webhook':
+        return {
+          ...baseData,
+          webhookUrl: node.parameters?.webhook_url?.data || ''
+        };
+
+      case 'ask_ai':
+        return {
+          ...baseData,
+          model: node.parameters?.model?.data || 'O3-mini',
+          selectedOption: node.parameters?.selected_option?.data || 'prompt'
+        };
+
+      case 'basic_input': {
+        // 提取參數中的欄位
+        const fields = [];
+        const paramKeys = Object.keys(node.parameters || {});
+
+        console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
+
+        // 查找所有輸入欄位對
+        const fieldIndicies = new Set();
+
+        paramKeys.forEach((key) => {
+          if (
+            key.startsWith('input_name_') ||
+            key.startsWith('default_value_')
+          ) {
+            const match = key.match(/_(\d+)$/);
+            if (match && match[1]) {
+              fieldIndicies.add(parseInt(match[1]));
+            }
+          }
+        });
+
+        const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
+        console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
+
+        // 處理每個欄位
+        sortedIndicies.forEach((i) => {
+          const field = {
+            inputName:
+              node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
+            defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
+          };
+          fields.push(field);
+          console.log(`添加欄位 ${i}:`, field);
+        });
+
+        // 確保至少有一個欄位
+        if (fields.length === 0) {
+          const defaultField = {
+            inputName: 'default_input',
+            defaultValue: 'Enter value here'
+          };
+          fields.push(defaultField);
+          console.log('添加一個默認欄位:', defaultField);
+        }
+
+        return {
+          ...baseData,
+          fields
+        };
+      }
+
+      case 'ifElse':
+        return {
+          ...baseData,
+          variableName: node.parameters?.variable?.data || '',
+          operator: node.parameters?.operator?.data || 'equals',
+          compareValue: node.parameters?.compare_value?.data || ''
+        };
+
+      case 'knowledge_retrieval':
+        return {
+          ...baseData,
+          selectedFile: node.parameters?.data_source?.data || '',
+          availableFiles: [
+            { id: 'icdcode', name: 'ICDCode.csv' },
+            { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
+          ]
+        };
+
+      case 'http':
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data || '',
+          method: node.parameters?.method?.data || 'GET'
+        };
+
+      case 'timer':
+        return {
+          ...baseData,
+          hours: node.parameters?.hours?.data || 0,
+          minutes: node.parameters?.minutes?.data || 0,
+          seconds: node.parameters?.seconds?.data || 0
+        };
+
+      case 'line':
+        return {
+          ...baseData,
+          mode: node.parameters?.mode?.data || 'reply',
+          text: node.parameters?.text?.data || ''
+        };
+
+      case 'event':
+        return {
+          ...baseData,
+          eventType: node.parameters?.event_type?.data || 'message',
+          eventSource: node.parameters?.event_source?.data || ''
+        };
+
+      case 'end':
+        return {
+          ...baseData,
+          outputText: node.parameters?.output_text?.data || ''
+        };
+
+      default: {
+        // 對於未明確處理的節點類型，保留原始參數
+        const transformedParams = {};
+        Object.entries(node.parameters || {}).forEach(([key, value]) => {
+          transformedParams[key] = value.data;
+        });
+        return {
+          ...baseData,
+          ...transformedParams
+        };
+      }
+    }
+  }
+
+  /**
+   * 自動布局節點（如果所有節點都在同一位置）
+   * @param {Array} nodes - ReactFlow 節點數組
+   */
+  static autoLayout(nodes) {
+    // 檢查是否需要自動布局
+    const needsLayout =
+      nodes.length > 1 &&
+      nodes.every((node) => node.position.x === 0 && node.position.y === 0);
+
+    if (needsLayout) {
+      console.log('執行自動節點布局');
+
+      let currentX = 50;
+      let currentY = 50;
+      const xSpacing = 300;
+      const ySpacing = 150;
+
+      // 對節點進行分類
+      const starterNodes = nodes.filter((node) =>
+        ['browserExtensionInput', 'webhook'].includes(node.type)
+      );
+
+      const inputNodes = nodes.filter((node) =>
+        ['customInput', 'input'].includes(node.type)
+      );
+
+      const processingNodes = nodes.filter((node) =>
+        [
+          'aiCustomInput',
+          'ai',
+          'ifElse',
+          'knowledgeRetrieval',
+          'http',
+          'timer',
+          'event'
+        ].includes(node.type)
+      );
+
+      const outputNodes = nodes.filter((node) =>
+        ['browserExtensionOutput', 'line', 'end'].includes(node.type)
+      );
+
+      // 布局開始節點
+      starterNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+
+      // 布局輸入節點
+      currentX += xSpacing;
+      inputNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+
+      // 布局處理節點
+      currentX += xSpacing;
+      processingNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+
+      // 布局輸出節點
+      currentX += xSpacing;
+      outputNodes.forEach((node, index) => {
+        node.position.x = currentX;
+        node.position.y = currentY + index * ySpacing;
+      });
+
+      console.log('自動布局完成');
+    }
+  }
+
+  /**
+   * 將 ReactFlow 格式轉換為 API 格式
+   * @param {Object} reactFlowData - ReactFlow 格式數據
+   * @returns {Object} - API 格式數據
+   */
+  static convertReactFlowToAPI(reactFlowData) {
+    console.log('開始轉換 ReactFlow 格式為 API 格式');
+
+    const flowPipeline = reactFlowData.nodes.map((node) => {
+      console.log(`處理節點 ${node.id}, 類型: ${node.type}`);
+
+      // 提取節點輸入連接
+      const nodeInput = WorkflowMappingService.extractNodeInputForAPI(
+        node.id,
+        reactFlowData.edges
+      );
+
+      // 提取節點輸出連接
+      const nodeOutput = WorkflowMappingService.extractNodeOutputForAPI(node);
+
+      // 轉換節點數據
+      const parameters = this.transformNodeDataToAPI(node);
+
+      return {
+        id: node.id,
+        category: WorkflowMappingService.getCategoryFromType(node.type),
+        operator: WorkflowMappingService.getOperatorFromType(node.type),
+        parameters,
+        position_x: node.position.x,
+        position_y: node.position.y,
+        version: node.data?.version || '0.0.1',
+        node_input: nodeInput,
+        node_output: nodeOutput
+      };
+    });
+
+    const apiData = {
+      flow_name: reactFlowData.title || '未命名流程',
+      content: {
+        flow_id: reactFlowData.id || `flow_${Date.now()}`,
+        user_id: reactFlowData.userId || '1',
+        flow_type: reactFlowData.flowType || 1,
+        headers: reactFlowData.headers || {
+          Authorization: 'Bearer your-token-here',
+          'Content-Type': 'application/json'
+        },
+        flow_pipeline: flowPipeline
+      }
+    };
+
+    console.log('轉換為 API 格式完成');
+    return apiData;
+  }
+
+  /**
+   * 將 ReactFlow 節點數據轉換為 API 參數格式
+   * @param {Object} node - ReactFlow 節點
+   * @returns {Object} - API 格式參數
+   */
+  static transformNodeDataToAPI(node) {
+    const parameters = {};
+    console.log(`轉換節點 ${node.id} 數據為 API 參數`);
+
+    switch (node.type) {
+      case 'customInput':
+      case 'input':
+        if (node.data.fields && node.data.fields.length > 0) {
+          node.data.fields.forEach((field, index) => {
+            parameters[`input_name_${index}`] = { data: field.inputName || '' };
+            parameters[`default_value_${index}`] = {
+              data: field.defaultValue || ''
+            };
+          });
+          console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
+        } else {
+          console.warn(`節點 ${node.id} 沒有欄位資料`);
+        }
+        break;
+
+      case 'aiCustomInput':
+      case 'ai':
+        parameters.model = { data: node.data.model || 'O3-mini' };
+        if (node.data.selectedOption) {
+          parameters.selected_option = { data: node.data.selectedOption };
+        }
+        break;
+
+      case 'browserExtensionInput':
+      case 'browserExtInput':
+        if (node.data.browser_extension_url) {
+          parameters.browser_extension_url = {
+            data: node.data.browser_extension_url
+          };
+        }
+        if (node.data.items && node.data.items.length > 0) {
+          parameters.functions = node.data.items.map((item, index) => ({
+            func_id: item.id || `a${index + 1}`,
+            func_name: item.name || '',
+            func_icon: item.icon || 'document'
+          }));
+        }
+        break;
+
+      case 'webhook':
+        if (node.data.webhookUrl) {
+          parameters.webhook_url = { data: node.data.webhookUrl };
+        }
+        break;
+
+      case 'knowledgeRetrieval':
+      case 'knowledge_retrieval':
+        if (node.data.selectedFile) {
+          parameters.data_source = { data: node.data.selectedFile };
+        }
+        break;
+
+      case 'ifElse':
+        if (node.data.variableName) {
+          parameters.variable = { data: node.data.variableName };
+        }
+        if (node.data.operator) {
+          parameters.operator = { data: node.data.operator };
+        }
+        if (node.data.compareValue !== undefined) {
+          parameters.compare_value = { data: node.data.compareValue };
+        }
+        break;
+
+      case 'http':
+        if (node.data.url) {
+          parameters.url = { data: node.data.url };
+        }
+        if (node.data.method) {
+          parameters.method = { data: node.data.method };
+        }
+        break;
+
+      case 'timer':
+        parameters.hours = { data: node.data.hours || 0 };
+        parameters.minutes = { data: node.data.minutes || 0 };
+        parameters.seconds = { data: node.data.seconds || 0 };
+        break;
+
+      case 'line':
+        parameters.mode = { data: node.data.mode || 'reply' };
+        if (node.data.text !== undefined) {
+          parameters.text = { data: node.data.text };
+        }
+        break;
+
+      case 'event':
+        parameters.event_type = { data: node.data.eventType || 'message' };
+        if (node.data.eventSource) {
+          parameters.event_source = { data: node.data.eventSource };
+        }
+        break;
+
+      case 'end':
+        if (node.data.outputText !== undefined) {
+          parameters.output_text = { data: node.data.outputText };
+        }
+        break;
+
+      case 'browserExtensionOutput':
+        // 目前沒有特定的參數需要轉換
+        break;
+
+      default:
+        // 對於其他類型，直接轉換非系統屬性
+        if (node.data) {
+          Object.entries(node.data).forEach(([key, value]) => {
+            // 排除系統屬性和函數
+            if (
+              ![
+                'label',
+                'category',
+                'operator',
+                'version',
+                'node_input',
+                'node_output',
+                'onSelect',
+                'updateNodeData',
+                'addField',
+                'updateFieldInputName',
+                'updateFieldDefaultValue'
+              ].includes(key) &&
+              typeof value !== 'function'
+            ) {
+              parameters[key] = { data: value };
+            }
+          });
+        }
+    }
+
+    return parameters;
+  }
+}
+
+// 建立並導出 API 服務實例
+const workflowAPIService = new WorkflowAPIService();
+
 const React = await importShared('react');
 const {useState,useEffect,useCallback,useRef,useMemo,forwardRef,useImperativeHandle} = React;
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
@@ -13029,12 +12646,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const nodeTypes = useMemo(() => enhancedNodeTypes, []);
   const edgeTypes = useMemo(() => ({ "custom-edge": CustomEdge }), []);
   const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
-  useCallback(
-    (nodeId) => {
-      reactFlowInstance.updateNodeInternals(nodeId);
-    },
-    [reactFlowInstance]
-  );
   const {
     nodes,
     edges,
@@ -13057,8 +12668,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddTimerNode,
     handleAddLineNode,
     handleNodeSelection,
-    undo,
-    redo,
     setNodes: setFlowNodes,
     setEdges: setFlowEdges
   } = useFlowNodes();
@@ -13108,7 +12717,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     loadWorkflow: async (workflowId) => {
       try {
         const apiData = await workflowAPIService.loadWorkflow(workflowId);
-        const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataTransformer.transformToReactFlowFormat(apiData);
+        const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataConverter.transformToReactFlowFormat(apiData);
         setFlowNodes(transformedNodes);
         setFlowEdges(transformedEdges);
         setFlowMetadata((prev) => ({
@@ -13120,7 +12729,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         setTimeout(() => {
           console.log("載入工作流後更新節點函數...");
           updateNodeFunctions();
-        }, 200);
+        }, 300);
         showNotification("工作流載入成功", "success");
         return true;
       } catch (error) {
@@ -13248,54 +12857,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
   }, []);
-  useCallback(async () => {
-    console.log("FlowEditor: 準備儲存流程資料...");
-    const flowData = {
-      id: flowMetadata.id || `flow_${Date.now()}`,
-      title: flowMetadata.title,
-      version: flowMetadata.version,
-      nodes,
-      edges,
-      metadata: {
-        lastModified: (/* @__PURE__ */ new Date()).toISOString(),
-        nodeCount: nodes.length,
-        edgeCount: edges.length
-      }
-    };
-    try {
-      console.log("FlowEditor: 呼叫 API 儲存流程...");
-      const response = await MockApiService.saveFlow(flowData);
-      setFlowMetadata({
-        ...flowMetadata,
-        id: response.flowId || flowMetadata.id,
-        lastSaved: response.timestamp,
-        version: flowMetadata.version + 1
-      });
-      console.log("FlowEditor: 流程儲存成功", response);
-      showNotification("流程儲存成功", "success");
-      if (isInIframe) {
-        iframeBridge.sendToParent({
-          type: "FLOW_SAVED",
-          success: true,
-          flowId: response.flowId,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString()
-        });
-      }
-      return response;
-    } catch (error) {
-      console.error("FlowEditor: 儲存流程時發生錯誤：", error);
-      showNotification("儲存流程時發生錯誤", "error");
-      if (isInIframe) {
-        iframeBridge.sendToParent({
-          type: "FLOW_SAVED",
-          success: false,
-          error: error.message,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString()
-        });
-      }
-      throw error;
-    }
-  }, [nodes, edges, flowMetadata, showNotification, isInIframe]);
   const saveToLocalFile = useCallback(async () => {
     try {
       const flowData = {
@@ -13393,7 +12954,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         edgeCount: edges.length
       }
     };
-    const data1 = BidirectionalFormatConverter.convertReactFlowToAPI(flowData);
+    const data1 = WorkflowDataConverter.convertReactFlowToAPI(flowData);
     console.log("FlowEditor: 將流程數據轉換為 API 格式:", data1);
     try {
       const response = await workflowAPIService.saveWorkflow(data1);
@@ -13404,21 +12965,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       showNotification("儲存流程時發生錯誤", "error");
     }
   });
-  useCallback(async () => {
-    console.log("開始載入工作流:", "ext01");
-    try {
-      const apiData = await workflowAPIService.loadWorkflow("");
-      console.log("API 回傳數據:", apiData);
-      const reactFlowData2 = WorkflowDataTransformer.transformToReactFlowFormat(apiData);
-      console.log("使用 WorkflowDataTransformer 轉換結果：", reactFlowData2);
-      const { nodes: transformedNodes, edges: transformedEdges } = reactFlowData2;
-      setFlowNodes(transformedNodes);
-      setFlowEdges(transformedEdges);
-      updateNodeFunctions();
-    } catch (error) {
-      console.error("載入工作流時發生錯誤:", error);
-    }
-  }, []);
   useCallback(async () => {
     try {
       const result = await FileIOService.readFromFile();
@@ -13578,58 +13124,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2 mr-2" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: "bg-white p-2 rounded-md shadow-md border border-gray-200",
-            onClick: undo,
-            title: "Undo",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "svg",
-              {
-                xmlns: "http://www.w3.org/2000/svg",
-                width: "20",
-                height: "20",
-                viewBox: "0 0 24 24",
-                fill: "none",
-                stroke: "currentColor",
-                strokeWidth: "2",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M3 7v6h6" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 17a9 9 0 0 0-9-9H3" })
-                ]
-              }
-            )
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: "bg-white p-2 rounded-md shadow-md border border-gray-200",
-            onClick: redo,
-            title: "Redo",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "svg",
-              {
-                xmlns: "http://www.w3.org/2000/svg",
-                width: "20",
-                height: "20",
-                viewBox: "0 0 24 24",
-                fill: "none",
-                stroke: "currentColor",
-                strokeWidth: "2",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 7v6h-6" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M3 17a9 9 0 0 1 9-9h9" })
-                ]
-              }
-            )
-          }
-        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SaveButton, { onSave: saveToServer }) })
       ] }),
       flowMetadata.lastSaved && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 bg-white px-3 py-1 rounded-md shadow text-xs text-gray-500 z-10", children: [

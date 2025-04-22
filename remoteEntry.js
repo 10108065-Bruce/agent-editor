@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-Y5OjdY-6.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-3GPEEl1J.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15820,18 +15820,12 @@ const IFrameFlowEditor = () => {
       return;
     }
     isLoadingRef.current = true;
-    console.log("IFrameFlowEditor: 處理載入工作流請求:", workflowId);
+    setIsLoading(true);
     try {
       if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
         console.log("IFrameFlowEditor: 調用流程編輯器載入方法");
         const result = await flowEditorRef.current.loadWorkflow(workflowId);
         console.log("IFrameFlowEditor: 載入工作流結果:", result);
-        if (result && flowEditorRef.current.updateNodeFunctions) {
-          console.log("IFrameFlowEditor: 額外調用更新節點函數");
-          setTimeout(() => {
-            flowEditorRef.current.updateNodeFunctions();
-          }, 100);
-        }
       } else {
         console.warn(
           "IFrameFlowEditor: 流程編輯器實例未準備好，無法處理載入請求"
