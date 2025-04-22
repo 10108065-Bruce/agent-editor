@@ -8681,7 +8681,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-22T01:37:48.770Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.32"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "407685a40079b15eaac19e865110c50be5370f8f", "VITE_APP_BUILD_TIME": "2025-04-22T07:05:14.874Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.33"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11906,8 +11906,8 @@ class WorkflowMappingService {
         return '瀏覽器擴充輸出';
       case 'ask_ai':
         return `AI (${node.parameters?.model?.data || 'GPT-4o'})`;
-      case 'basic_input': // 嘗試獲取第一個輸入欄位的名稱
-      {
+      case 'basic_input': {
+        // 嘗試獲取第一個輸入欄位的名稱
         const inputName =
           node.parameters?.input_name_0?.data ||
           node.parameters?.input_name?.data;
@@ -12063,7 +12063,7 @@ class WorkflowAPIService {
     try {
       console.log(`嘗試載入工作流 ID: ${workflowId}`);
       const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/load_workflow`,
+        `${this.baseUrl}/agent_designer/workflows/load`,
         {
           method: 'POST',
           headers: {
@@ -12098,7 +12098,7 @@ class WorkflowAPIService {
 
     try {
       const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/save_workflow`,
+        `${this.baseUrl}/agent_designer/workflows/save`,
         {
           method: 'POST',
           headers: {
