@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T04:09:00.789Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.37"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T04:09:35.524Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.38"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9675,20 +9675,17 @@ class WorkflowAPIService {
     console.log('開始保存工作流:', data);
 
     try {
-      const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/save`,
-        {
-          method: 'PUT',
-          headers: {
-            accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_name: data.flow_name,
-            content: data.content
-          })
-        }
-      );
+      const response = await fetch(`${this.baseUrl}/agent_designer/workflows`, {
+        method: 'PUT',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_name: data.flow_name,
+          content: data.content
+        })
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
