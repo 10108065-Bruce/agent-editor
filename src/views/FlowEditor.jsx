@@ -102,10 +102,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, []);
 
   // 添加一個內部方法來處理工作流加載
-  const handleLoadWorkflow = useCallback(async (workflowId) => {
+  const handleLoadWorkflow = useCallback(async (flowId) => {
     try {
       // 呼叫已經在 useImperativeHandle 中定義的 loadWorkflow 方法
-      const success = await loadWorkflowImpl(workflowId);
+      const success = await loadWorkflowImpl(flowId);
       return success;
     } catch (error) {
       console.error('無法載入工作流:', error);
@@ -115,9 +115,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, []);
 
   // 實現 loadWorkflow 的邏輯，這將在 useImperativeHandle 中被引用
-  const loadWorkflowImpl = async (workflowId) => {
+  const loadWorkflowImpl = async (flowId) => {
     try {
-      const apiData = await workflowAPIService.loadWorkflow(workflowId);
+      const apiData = await workflowAPIService.loadWorkflow(flowId);
 
       const { nodes: transformedNodes, edges: transformedEdges } =
         WorkflowDataConverter.transformToReactFlowFormat(apiData);
@@ -128,7 +128,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       setFlowMetadata((prev) => ({
         ...prev,
         id: apiData.flow_id,
-        title: apiData.title || prev.title,
+        title: apiData.flow_name || prev.flow_name,
         version: apiData.version || prev.version
       }));
 
@@ -169,6 +169,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     setFlowTitle: (title) => {
       if (title && typeof title === 'string') {
         setFlowMetadata((prev) => ({ ...prev, title }));
+        return true;
+      }
+      return false;
+    },
+    setFlowId: (flowId) => {
+      if (flowId && typeof flowId === 'string') {
+        setFlowMetadata((prev) => ({ ...prev, flowId }));
         return true;
       }
       return false;
@@ -446,12 +453,40 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       }
     };
 
-    const data1 = WorkflowDataConverter.convertReactFlowToAPI(flowData);
-    console.log('FlowEditor: 將流程數據轉換為 API 格式:', data1);
+    const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+    console.log('FlowEditor: 將流程數據轉換為 API 格式:', apiData);
     try {
-      const response = await workflowAPIService.saveWorkflow(data1);
-      console.log('FlowEditor: 儲存成功', response);
-      showNotification('流程儲存成功', 'success');
+      // 根據是否有 flow_id 決定使用 POST 還是 PUT
+      let response;
+      if (flowMetadata.id) {
+        // 更新現有流程
+        response = await workflowAPIService.updateWorkflow(apiData);
+        console.log('FlowEditor: 更新流程成功', response);
+        showNotification('流程更新成功', 'success');
+      } else {
+        // 創建新流程
+        response = await workflowAPIService.createWorkflow(apiData);
+        console.log('FlowEditor: 創建流程成功', response);
+
+        // 如果後端回傳了 flow_id，更新流程元數據
+        if (response && response.flow_id) {
+          setFlowMetadata((prev) => ({
+            ...prev,
+            id: response.flow_id,
+            lastSaved: new Date().toISOString()
+          }));
+        }
+
+        showNotification('流程創建成功', 'success');
+      }
+
+      // 無論創建還是更新，都更新最後儲存時間
+      setFlowMetadata((prev) => ({
+        ...prev,
+        lastSaved: new Date().toISOString()
+      }));
+
+      return response;
     } catch (error) {
       console.error('FlowEditor: 儲存流程時發生錯誤：', error);
       showNotification('儲存流程時發生錯誤', 'error');

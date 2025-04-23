@@ -19,22 +19,22 @@ const IFrameFlowEditor = () => {
   const eventsRegistered = useRef(false);
 
   // 處理從父頁面接收標題變更
-  const handleTitleChange = useCallback((title) => {
-    if (title && typeof title === 'string') {
-      console.log('IFrameFlowEditor: 從父頁面接收到新標題:', title);
-      setFlowTitle(title);
+  // const handleTitleChange = useCallback((title) => {
+  //   if (title && typeof title === 'string') {
+  //     console.log('IFrameFlowEditor: 從父頁面接收到新標題:', title);
+  //     setFlowTitle(title);
 
-      // 如果流程編輯器引用可用，也直接設置標題
-      if (flowEditorRef.current && flowEditorRef.current.setFlowTitle) {
-        console.log('IFrameFlowEditor: 直接設置流程編輯器標題:', title);
-        flowEditorRef.current.setFlowTitle(title);
-      } else {
-        console.log('IFrameFlowEditor: 流程編輯器引用不可用，只更新狀態');
-      }
-    } else {
-      console.warn('IFrameFlowEditor: 接收到無效標題:', title);
-    }
-  }, []);
+  //     // 如果流程編輯器引用可用，也直接設置標題
+  //     if (flowEditorRef.current && flowEditorRef.current.setFlowTitle) {
+  //       console.log('IFrameFlowEditor: 直接設置流程編輯器標題:', title);
+  //       flowEditorRef.current.setFlowTitle(title);
+  //     } else {
+  //       console.log('IFrameFlowEditor: 流程編輯器引用不可用，只更新狀態');
+  //     }
+  //   } else {
+  //     console.warn('IFrameFlowEditor: 接收到無效標題:', title);
+  //   }
+  // }, []);
 
   const isLoadingRef = useRef(false);
   // 處理載入工作流
@@ -99,27 +99,27 @@ const IFrameFlowEditor = () => {
   }, []);
 
   // 當標題在編輯器中變更時通知父頁面
-  const notifyTitleChanged = useCallback((title) => {
-    console.log('IFrameFlowEditor: 通知父頁面標題已變更:', title);
+  // const notifyTitleChanged = useCallback((title) => {
+  //   console.log('IFrameFlowEditor: 通知父頁面標題已變更:', title);
 
-    iframeBridge.sendToParent({
-      type: 'TITLE_CHANGED',
-      title: title,
-      timestamp: new Date().toISOString()
-    });
-  }, []);
+  //   iframeBridge.sendToParent({
+  //     type: 'TITLE_CHANGED',
+  //     title: title,
+  //     timestamp: new Date().toISOString()
+  //   });
+  // }, []);
 
   // 註冊事件處理器
   useEffect(() => {
     console.log('IFrameFlowEditor: 註冊事件處理器');
 
     // 清理之前的事件處理器
-    iframeBridge.off('titleChange', handleTitleChange);
+    // iframeBridge.off('titleChange', handleTitleChange);
     iframeBridge.off('loadWorkflow', handleLoadWorkflow);
     iframeBridge.off('downloadRequest', handleDownloadRequest);
 
     // 監聽來自服務的標題變更事件
-    iframeBridge.on('titleChange', handleTitleChange);
+    // iframeBridge.on('titleChange', handleTitleChange);
 
     // 監聽載入工作流事件
     iframeBridge.on('loadWorkflow', handleLoadWorkflow);
@@ -133,27 +133,12 @@ const IFrameFlowEditor = () => {
     // 清理函數
     return () => {
       console.log('IFrameFlowEditor: 移除事件處理器');
-      iframeBridge.off('titleChange', handleTitleChange);
+      // iframeBridge.off('titleChange', handleTitleChange);
       iframeBridge.off('loadWorkflow', handleLoadWorkflow);
       iframeBridge.off('downloadRequest', handleDownloadRequest);
     };
     // 移除 flowTitle 依賴，只有在處理器函數變更時才重新註冊
-  }, [handleTitleChange, handleLoadWorkflow, handleDownloadRequest]);
-
-  // 如果需要對 flowTitle 的變化做出反應，可以添加一個單獨的 useEffect
-  useEffect(() => {
-    if (
-      flowTitle &&
-      flowEditorRef.current &&
-      flowEditorRef.current.setFlowTitle
-    ) {
-      console.log(
-        'IFrameFlowEditor: flowTitle 變化時更新編輯器標題:',
-        flowTitle
-      );
-      flowEditorRef.current.setFlowTitle(flowTitle);
-    }
-  }, [flowTitle]);
+  }, [handleLoadWorkflow, handleDownloadRequest]);
 
   // 組件掛載後手動觸發一次 READY 消息，確保與父頁面的連接
   useEffect(() => {
@@ -169,21 +154,18 @@ const IFrameFlowEditor = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  // 記錄渲染
-  console.log('IFrameFlowEditor: 渲染，當前標題:', flowTitle);
-
   return (
     <div className='iframe-flow-editor-container'>
-      {isLoading && (
+      {/* {isLoading && (
         <div className='loading-overlay'>
           <div className='loading-spinner'>載入中...</div>
         </div>
-      )}
+      )} */}
       {error && <div className='error-message'>載入工作流失敗: {error}</div>}
       <FlowEditor
         ref={flowEditorRef}
         initialTitle={flowTitle}
-        onTitleChange={notifyTitleChanged}
+        // onTitleChange={notifyTitleChanged}
       />
     </div>
   );

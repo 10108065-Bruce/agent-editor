@@ -274,16 +274,15 @@ class WorkflowAPIService {
   }
 
   /**
-   * 保存工作流數據
+   * 建立工作流數據
    * @param {Object} data - 要保存的工作流數據
    * @returns {Promise<Object>} API 回應
    */
-  async saveWorkflow(data) {
-    console.log('開始保存工作流:', data.flow_name);
-
+  async createWorkflow(data) {
+    console.log('創建新工作流:', data);
     try {
       const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/save`,
+        `${this.baseUrl}/agent_designer/workflows/`,
         {
           method: 'POST',
           headers: {
@@ -292,7 +291,8 @@ class WorkflowAPIService {
           },
           body: JSON.stringify({
             flow_name: data.flow_name,
-            content: data.content
+            content: data.content,
+            flow_pipeline: data.flow_pipeline
           })
         }
       );
@@ -302,7 +302,45 @@ class WorkflowAPIService {
       }
 
       const responseData = await response.json();
-      console.log('工作流保存成功');
+      console.log('工作流創建成功');
+      return responseData;
+    } catch (error) {
+      console.error('保存工作流失敗:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 保存工作流數據
+   * @param {Object} data - 要保存的工作流數據
+   * @returns {Promise<Object>} API 回應
+   */
+  async updateWorkflow(data) {
+    console.log('更新工作流:', data);
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/workflows/`,
+        {
+          method: 'PUT',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            flow_name: data.flow_name,
+            content: data.content,
+            flow_id: data.flow_id,
+            flow_pipeline: data.flow_pipeline
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log('工作流更新成功');
       return responseData;
     } catch (error) {
       console.error('保存工作流失敗:', error);
@@ -310,7 +348,6 @@ class WorkflowAPIService {
     }
   }
 }
-
 /**
  * LLM模型服務 - 處理與LLM模型相關的API請求
  */
@@ -771,16 +808,17 @@ class WorkflowDataConverter {
 
     const apiData = {
       flow_name: reactFlowData.title || '未命名流程',
+      flow_id: reactFlowData.id || `flow_${Date.now()}`,
       content: {
-        flow_id: reactFlowData.id || `flow_${Date.now()}`,
-        user_id: reactFlowData.userId || '1',
+        // flow_id: reactFlowData.id || `flow_${Date.now()}`,
+        // user_id: reactFlowData.userId || '1',
         flow_type: 'NORMAL',
         headers: reactFlowData.headers || {
           Authorization: 'Bearer your-token-here',
           'Content-Type': 'application/json'
-        },
-        flow_pipeline: flowPipeline
-      }
+        }
+      },
+      flow_pipeline: flowPipeline
     };
 
     console.log('轉換為 API 格式完成');

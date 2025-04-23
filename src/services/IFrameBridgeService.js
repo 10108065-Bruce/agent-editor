@@ -90,6 +90,19 @@ class IFrameBridgeService {
           timestamp: new Date().toISOString()
         });
         break;
+      case 'SET_FLOW_ID':
+        if (message.flowId) {
+          const flowId = message.flowId;
+          // 更詳細的日誌，顯示將要觸發的事件類型和數據
+          console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
+          console.log(
+            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+          );
+
+          // 觸發流ID變更事件
+          this.triggerEvent('loadWorkflow', flowId);
+        }
+        break;
       case 'SET_TITLE':
         if (message.title) {
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
@@ -99,18 +112,18 @@ class IFrameBridgeService {
           );
 
           // 觸發標題變更事件
-          this.triggerEvent('titleChange', message.title);
+          // this.triggerEvent('titleChange', message.title);
 
           // 如果標題可作為工作流ID，觸發載入工作流事件
-          const workflowId = message.title;
-          console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
-          console.log(
-            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
-          );
+          // const workflowId = message.title;
+          // console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
+          // console.log(
+          //   `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+          // );
 
-          if (workflowId) {
-            this.triggerEvent('loadWorkflow', workflowId);
-          }
+          // if (workflowId) {
+          //   this.triggerEvent('loadWorkflow', workflowId);
+          // }
         } else {
           console.warn('收到 SET_TITLE 消息，但標題為空');
         }

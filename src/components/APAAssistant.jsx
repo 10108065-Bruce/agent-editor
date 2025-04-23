@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 // This version uses a fully controlled pattern with no internal state for the title
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
 
   const handleEditClick = () => {
     setIsEditing(true);
