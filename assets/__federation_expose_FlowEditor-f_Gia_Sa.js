@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T06:29:46.049Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.40"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T06:32:39.303Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.41"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12389,7 +12389,7 @@ class IFrameBridgeService {
         break;
       case 'SET_FLOW_ID':
         if (message.flowId) {
-          const flowId = message.title;
+          const flowId = message.flowId;
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
           console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
           console.log(
