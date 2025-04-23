@@ -10,6 +10,7 @@ class IFrameBridgeService {
     this.eventHandlers = {
       titleChange: [],
       downloadRequest: [],
+      loadWorkflow: [], // 新增載入工作流事件
       ready: []
     };
 
@@ -91,16 +92,46 @@ class IFrameBridgeService {
         break;
       case 'SET_TITLE':
         if (message.title) {
+          // 更詳細的日誌，顯示將要觸發的事件類型和數據
+          console.log(`準備觸發 titleChange 事件，標題值: "${message.title}"`);
+          console.log(
+            `註冊的 titleChange 處理程序數量: ${this.eventHandlers.titleChange.length}`
+          );
+
+          // 觸發標題變更事件
           this.triggerEvent('titleChange', message.title);
+
+          // 如果標題可作為工作流ID，觸發載入工作流事件
+          const workflowId = message.title;
+          console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
+          console.log(
+            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+          );
+
+          if (workflowId) {
+            this.triggerEvent('loadWorkflow', workflowId);
+          }
+        } else {
+          console.warn('收到 SET_TITLE 消息，但標題為空');
         }
         break;
 
       case 'REQUEST_DATA_FOR_DOWNLOAD':
+        // 日誌顯示下載請求事件
+        console.log(
+          `準備觸發 downloadRequest 事件，選項:`,
+          message.options || {}
+        );
+        console.log(
+          `註冊的 downloadRequest 處理程序數量: ${this.eventHandlers.downloadRequest.length}`
+        );
+
         // 觸發下載請求事件
         this.triggerEvent('downloadRequest', message.options || {});
         break;
 
       default:
+        console.log(`收到未處理的消息類型: ${message.type}`);
         break;
     }
   }
@@ -117,6 +148,7 @@ class IFrameBridgeService {
 
     try {
       window.parent.postMessage(message, '*');
+      console.log(`已向父頁面發送消息: ${message.type}`, message);
       return true;
     } catch (error) {
       console.error('向父頁面發送消息時出錯:', error);
@@ -137,6 +169,9 @@ class IFrameBridgeService {
     }
 
     this.eventHandlers[eventType].push(callback);
+    console.log(
+      `已註冊 ${eventType} 事件處理程序，當前處理程序數量: ${this.eventHandlers[eventType].length}`
+    );
     return true;
   }
 
@@ -151,11 +186,25 @@ class IFrameBridgeService {
       return;
     }
 
-    this.eventHandlers[eventType].forEach((handler) => {
+    if (this.eventHandlers[eventType].length === 0) {
+      console.warn(`觸發 ${eventType} 事件，但沒有註冊的處理程序`);
+      return;
+    }
+
+    console.log(
+      `正在觸發 ${eventType} 事件，處理程序數量: ${this.eventHandlers[eventType].length}`
+    );
+
+    this.eventHandlers[eventType].forEach((handler, index) => {
       try {
+        console.log(`執行 ${eventType} 事件處理程序 #${index + 1}`);
         handler(data);
+        console.log(`${eventType} 事件處理程序 #${index + 1} 執行成功`);
       } catch (error) {
-        console.error(`執行 ${eventType} 事件處理程序時出錯:`, error);
+        console.error(
+          `執行 ${eventType} 事件處理程序 #${index + 1} 時出錯:`,
+          error
+        );
       }
     });
   }
@@ -177,7 +226,16 @@ class IFrameBridgeService {
       (handler) => handler !== callback
     );
 
-    return initialLength !== this.eventHandlers[eventType].length;
+    const removed = initialLength !== this.eventHandlers[eventType].length;
+    if (removed) {
+      console.log(
+        `已移除 ${eventType} 事件處理程序，當前處理程序數量: ${this.eventHandlers[eventType].length}`
+      );
+    } else {
+      console.warn(`嘗試移除未找到的 ${eventType} 事件處理程序`);
+    }
+
+    return removed;
   }
 
   /**
