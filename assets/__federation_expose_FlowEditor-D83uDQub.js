@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1eb78085ac193104ad31b262d397588abdf7e8cc", "VITE_APP_BUILD_TIME": "2025-04-23T08:25:17.340Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.43"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1eb78085ac193104ad31b262d397588abdf7e8cc", "VITE_APP_BUILD_TIME": "2025-04-23T08:52:40.352Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.44"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9847,13 +9847,16 @@ class LLMService {
 
       // 創建新請求
       console.log('獲取已完成文件列表...');
-      this.pendingFilesRequest = fetch(`${this.baseUrl}/files/completed`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
+      this.pendingFilesRequest = fetch(
+        `${this.baseUrl}/agent_designer/files/completed`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          }
         }
-      })
+      )
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
