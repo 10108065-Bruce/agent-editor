@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CiCJbcRf.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-C2bB_9on.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15793,23 +15793,23 @@ const ReactDOM = /*@__PURE__*/getDefaultExportFromCjs(clientExports);
 const React$2 = await importShared('react');
 const {useEffect: useEffect$1,useState: useState$1,useCallback,useRef} = React$2;
 const IFrameFlowEditor = () => {
-  const [flowTitle, setFlowTitle] = useState$1("");
+  const [flowId, setFlowId] = useState$1("");
   const flowEditorRef = useRef(null);
   const [isLoading, setIsLoading] = useState$1(false);
   const [error, setError] = useState$1(null);
   const eventsRegistered = useRef(false);
-  const handleTitleChange = useCallback((title) => {
-    if (title && typeof title === "string") {
-      console.log("IFrameFlowEditor: 從父頁面接收到新標題:", title);
-      setFlowTitle(title);
-      if (flowEditorRef.current && flowEditorRef.current.setFlowTitle) {
-        console.log("IFrameFlowEditor: 直接設置流程編輯器標題:", title);
-        flowEditorRef.current.setFlowTitle(title);
+  const handleIDChange = useCallback((flowId2) => {
+    if (flowId2 && typeof flowId2 === "string") {
+      console.log("IFrameFlowEditor: 從父頁面接收到新標題:", flowId2);
+      setFlowId(flowId2);
+      if (flowEditorRef.current && flowEditorRef.current.setFlowId) {
+        console.log("IFrameFlowEditor: 直接設置流程編輯器標題:", flowId2);
+        flowEditorRef.current.setFlowId(flowId2);
       } else {
         console.log("IFrameFlowEditor: 流程編輯器引用不可用，只更新狀態");
       }
     } else {
-      console.warn("IFrameFlowEditor: 接收到無效標題:", title);
+      console.warn("IFrameFlowEditor: 接收到無效標題:", flowId2);
     }
   }, []);
   const isLoadingRef = useRef(false);
@@ -15856,39 +15856,36 @@ const IFrameFlowEditor = () => {
       );
     }
   }, []);
-  const notifyTitleChanged = useCallback((title) => {
-    console.log("IFrameFlowEditor: 通知父頁面標題已變更:", title);
+  const notifyIdChanged = useCallback((flowId2) => {
+    console.log("IFrameFlowEditor: 通知父頁面Id已變更:", flowId2);
     iframeBridge.sendToParent({
-      type: "TITLE_CHANGED",
-      title,
+      type: "ID_CHANGED",
+      id: flowId2,
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     });
   }, []);
   useEffect$1(() => {
     console.log("IFrameFlowEditor: 註冊事件處理器");
-    iframeBridge.off("titleChange", handleTitleChange);
+    iframeBridge.off("idChange", handleIDChange);
     iframeBridge.off("loadWorkflow", handleLoadWorkflow);
     iframeBridge.off("downloadRequest", handleDownloadRequest);
-    iframeBridge.on("titleChange", handleTitleChange);
+    iframeBridge.on("idChange", handleIDChange);
     iframeBridge.on("loadWorkflow", handleLoadWorkflow);
     iframeBridge.on("downloadRequest", handleDownloadRequest);
     eventsRegistered.current = true;
     return () => {
       console.log("IFrameFlowEditor: 移除事件處理器");
-      iframeBridge.off("titleChange", handleTitleChange);
+      iframeBridge.off("idChange", handleIDChange);
       iframeBridge.off("loadWorkflow", handleLoadWorkflow);
       iframeBridge.off("downloadRequest", handleDownloadRequest);
     };
-  }, [handleTitleChange, handleLoadWorkflow, handleDownloadRequest]);
+  }, [handleIDChange, handleLoadWorkflow, handleDownloadRequest]);
   useEffect$1(() => {
-    if (flowTitle && flowEditorRef.current && flowEditorRef.current.setFlowTitle) {
-      console.log(
-        "IFrameFlowEditor: flowTitle 變化時更新編輯器標題:",
-        flowTitle
-      );
-      flowEditorRef.current.setFlowTitle(flowTitle);
+    if (flowId && flowEditorRef.current && flowEditorRef.current.setFlowId) {
+      console.log("IFrameFlowEditor: flowId 變化時更新編輯器標題:", flowId);
+      flowEditorRef.current.setFlowId(flowId);
     }
-  }, [flowTitle]);
+  }, [flowId]);
   useEffect$1(() => {
     const timeout = setTimeout(() => {
       console.log("IFrameFlowEditor: 重新發送 READY 消息");
@@ -15899,7 +15896,7 @@ const IFrameFlowEditor = () => {
     }, 1e3);
     return () => clearTimeout(timeout);
   }, []);
-  console.log("IFrameFlowEditor: 渲染，當前標題:", flowTitle);
+  console.log("IFrameFlowEditor: 渲染，當前標題:", flowId);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "iframe-flow-editor-container", children: [
     isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "loading-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "loading-spinner", children: "載入中..." }) }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "error-message", children: [
@@ -15910,8 +15907,8 @@ const IFrameFlowEditor = () => {
       FlowEditor,
       {
         ref: flowEditorRef,
-        initialTitle: flowTitle,
-        onTitleChange: notifyTitleChanged
+        initialFlowId: flowId,
+        onIdChange: notifyIdChanged
       }
     )
   ] });
