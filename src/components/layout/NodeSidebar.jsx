@@ -79,7 +79,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
           />
         )}
 
-        {filterNodes('If/Else') && (
+        {/* {filterNodes('If/Else') && (
           <NodeItem
             color='purple'
             icon={
@@ -104,7 +104,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
             nodeType='if/else'
             onDragStart={customDragStart}
           />
-        )}
+        )} */}
 
         {filterNodes('AI') && (
           <NodeItem
@@ -224,7 +224,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
           />
         )}
         {/* 新的結束節點 */}
-        {filterNodes('End') && (
+        {/* {filterNodes('End') && (
           <NodeItem
             color='green'
             icon={
@@ -255,9 +255,9 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
             nodeType='end'
             onDragStart={customDragStart}
           />
-        )}
+        )} */}
         {/* Webhook 節點 */}
-        {filterNodes('Webhook') && (
+        {/* {filterNodes('Webhook') && (
           <NodeItem
             color='red'
             icon={
@@ -280,9 +280,9 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
             nodeType='webhook'
             onDragStart={customDragStart}
           />
-        )}
+        )} */}
         {/* HTTP 節點 */}
-        {filterNodes('http') && (
+        {/* {filterNodes('http') && (
           <NodeItem
             color='red'
             icon={
@@ -297,9 +297,9 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
             nodeType='http'
             onDragStart={customDragStart}
           />
-        )}
+        )} */}
         {/* 事件節點 */}
-        {filterNodes('timer') && (
+        {/* {filterNodes('timer') && (
           <NodeItem
             color='purple'
             icon={
@@ -326,9 +326,9 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
             nodeType='timer'
             onDragStart={customDragStart}
           />
-        )}
+        )} */}
         {/* 計時器節點 */}
-        {filterNodes('event') && (
+        {/* {filterNodes('event') && (
           <NodeItem
             color='red'
             icon={
@@ -350,9 +350,9 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
             nodeType='event'
             onDragStart={customDragStart}
           />
-        )}
+        )} */}
         {/* Line 節點 */}
-        {filterNodes('line') && (
+        {/* {filterNodes('line') && (
           <NodeItem
             color='green'
             icon={<LineIcon className='w-8 h-8 text-white-500' />}
@@ -361,7 +361,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
             nodeType='line'
             onDragStart={customDragStart}
           />
-        )}
+        )} */}
       </div>
       <VersionDisplay />
     </div>

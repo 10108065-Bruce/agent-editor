@@ -1,19 +1,35 @@
-import React, { memo } from 'react';
+import React, { memo, useReducer } from 'react';
 import { Handle, Position } from 'reactflow';
 import InputIcon from '../icons/InputIcon'; // Import the new InputIcon component
 
 const CustomInputNode = ({ data, isConnectable }) => {
-  // Safe access to fields with default empty array
+  // 安全訪問 fields，提供默認空陣列
   const fields = data.fields || [];
 
-  // Handle button click to add a new field
+  // 處理按鈕點擊添加新字段，添加防護措施
   const handleAddField = () => {
     if (typeof data.addField === 'function') {
       data.addField();
     } else {
       console.warn('addField function is not defined');
+      // 提供一個臨時解決方案，直接添加一個字段到當前節點
+      // 這裡只是臨時措施，不會保存到狀態
+      const newField = {
+        inputName: 'New Input',
+        defaultValue: 'Default value'
+      };
+      if (Array.isArray(data.fields)) {
+        data.fields.push(newField);
+      } else {
+        data.fields = [newField];
+      }
+      // 強制重新渲染
+      forceUpdate();
     }
   };
+
+  // 使用 useReducer 來強制重新渲染
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   return (
     <div className='shadow-md w-64 relative'>

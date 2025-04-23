@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // src/components/FlowEditor.jsx
 import React, {
   useState,
@@ -23,13 +24,19 @@ import {
   SaveFileButton,
   LoadFileButton
 } from '../components/buttons/FileButtons';
-import MockApiService from '../services/MockAPIService';
 import FileIOService from '../services/FileIOService';
 import DownloadButton from '../components/buttons/DownloadButton';
 import { iframeBridge } from '../services/IFrameBridgeService';
 
 import 'reactflow/dist/style.css';
 import { CustomEdge } from '../components/CustomEdge';
+import {
+  WorkflowDataConverter,
+  workflowAPIService
+} from '../services/WorkflowServicesIntegration';
+
+import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
+
 // 使用 forwardRef 將 FlowEditor 包裝起來，使其可以接收 ref
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
@@ -42,7 +49,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
   // 使用 useMemo 記憶化 defaultViewport
   const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
-
   const {
     nodes,
     edges,
@@ -74,7 +80,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   // 儲存流程元資料
   const [flowMetadata, setFlowMetadata] = useState({
     id: null,
-    title: initialTitle || 'APA 診間小幫手',
+    title: initialTitle || '',
     lastSaved: null,
     version: 1
   });
@@ -94,6 +100,52 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return true;
     }
   }, []);
+
+  // 添加一個內部方法來處理工作流加載
+  const handleLoadWorkflow = useCallback(async (workflowId) => {
+    try {
+      // 呼叫已經在 useImperativeHandle 中定義的 loadWorkflow 方法
+      const success = await loadWorkflowImpl(workflowId);
+      return success;
+    } catch (error) {
+      console.error('無法載入工作流:', error);
+      showNotification('載入工作流失敗', 'error');
+      return false;
+    }
+  }, []);
+
+  // 實現 loadWorkflow 的邏輯，這將在 useImperativeHandle 中被引用
+  const loadWorkflowImpl = async (workflowId) => {
+    try {
+      const apiData = await workflowAPIService.loadWorkflow(workflowId);
+
+      const { nodes: transformedNodes, edges: transformedEdges } =
+        WorkflowDataConverter.transformToReactFlowFormat(apiData);
+
+      setFlowNodes(transformedNodes);
+      setFlowEdges(transformedEdges);
+
+      setFlowMetadata((prev) => ({
+        ...prev,
+        id: apiData.flow_id,
+        title: apiData.title || prev.title,
+        version: apiData.version || prev.version
+      }));
+
+      // 確保在設置節點後再等待一個渲染周期，然後更新節點函數
+      setTimeout(() => {
+        console.log('載入工作流後更新節點函數...');
+        updateNodeFunctions();
+      }, 300);
+
+      showNotification('工作流載入成功', 'success');
+      return true;
+    } catch (error) {
+      console.error('載入工作流失敗:', error);
+      showNotification('載入工作流失敗', 'error');
+      return false;
+    }
+  };
 
   // 向父組件暴露方法
   useImperativeHandle(ref, () => ({
@@ -120,7 +172,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         return true;
       }
       return false;
-    }
+    },
+    loadWorkflow: loadWorkflowImpl
   }));
 
   // 在首次渲染時初始化節點函數
@@ -270,71 +323,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, []);
 
   /**
-   * 準備流程資料並透過 MockApiService 儲存
-   */
-  const saveFlowData = useCallback(async () => {
-    console.log('FlowEditor: 準備儲存流程資料...');
-
-    // 準備需要儲存的資料
-    const flowData = {
-      id: flowMetadata.id || `flow_${Date.now()}`,
-      title: flowMetadata.title,
-      version: flowMetadata.version,
-      nodes,
-      edges,
-      metadata: {
-        lastModified: new Date().toISOString(),
-        nodeCount: nodes.length,
-        edgeCount: edges.length
-      }
-    };
-
-    try {
-      // 呼叫模擬 API 服務儲存資料
-      console.log('FlowEditor: 呼叫 API 儲存流程...');
-      const response = await MockApiService.saveFlow(flowData);
-
-      // 成功儲存後更新流程元資料
-      setFlowMetadata({
-        ...flowMetadata,
-        id: response.flowId || flowMetadata.id,
-        lastSaved: response.timestamp,
-        version: flowMetadata.version + 1
-      });
-
-      console.log('FlowEditor: 流程儲存成功', response);
-      showNotification('流程儲存成功', 'success');
-
-      // 通知流程已保存
-      if (isInIframe) {
-        iframeBridge.sendToParent({
-          type: 'FLOW_SAVED',
-          success: true,
-          flowId: response.flowId,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      return response;
-    } catch (error) {
-      console.error('FlowEditor: 儲存流程時發生錯誤：', error);
-      showNotification('儲存流程時發生錯誤', 'error');
-
-      // 通知儲存失敗
-      if (isInIframe) {
-        iframeBridge.sendToParent({
-          type: 'FLOW_SAVED',
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      throw error;
-    }
-  }, [nodes, edges, flowMetadata, showNotification, isInIframe]);
-
-  /**
    * 將流程資料儲存到本地檔案
    */
   const saveToLocalFile = useCallback(async () => {
@@ -442,6 +430,33 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     saveToLocalFile,
     showNotification
   ]);
+
+  const saveToServer = useCallback(async () => {
+    const flowData = {
+      id: flowMetadata.id || `flow_${Date.now()}`,
+      title: flowMetadata.title || '未命名流程',
+      version: flowMetadata.version || 1,
+      nodes,
+      edges,
+      metadata: {
+        lastModified: new Date().toISOString(),
+        savedAt: new Date().toISOString(),
+        nodeCount: nodes.length,
+        edgeCount: edges.length
+      }
+    };
+
+    const data1 = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+    console.log('FlowEditor: 將流程數據轉換為 API 格式:', data1);
+    try {
+      const response = await workflowAPIService.saveWorkflow(data1);
+      console.log('FlowEditor: 儲存成功', response);
+      showNotification('流程儲存成功', 'success');
+    } catch (error) {
+      console.error('FlowEditor: 儲存流程時發生錯誤：', error);
+      showNotification('儲存流程時發生錯誤', 'error');
+    }
+  });
 
   /**
    * 從本地檔案載入流程資料
@@ -624,19 +639,22 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         <div className='flex space-x-2'>
           {/* File operations */}
           <div className='flex space-x-2 mr-2'>
-            <LoadFileButton onLoad={loadFromLocalFile} />
-            {isInIframe ? (
+            <LoadWorkflowButton onLoad={handleLoadWorkflow} />
+            {/* <LoadFileButton onLoad={loadFromLocalFile} />
+            <LoadFileButton onLoad={loadFromServer} /> */}
+            {/* {isInIframe ? (
               <DownloadButton onDownload={sendDataForDownload} />
             ) : (
-              <SaveFileButton onSave={saveToLocalFile} />
-            )}
+              // <SaveFileButton onSave={saveToLocalFile} />
+              <SaveFileButton onSave={saveToServer} />
+            )} */}
           </div>
 
           {/* Separator */}
           <div className='h-10 w-px bg-gray-300'></div>
 
           {/* Undo/Redo */}
-          <button
+          {/* <button
             className='bg-white p-2 rounded-md shadow-md border border-gray-200'
             onClick={undo}
             title='Undo'>
@@ -671,14 +689,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               <path d='M21 7v6h-6'></path>
               <path d='M3 17a9 9 0 0 1 9-9h9'></path>
             </svg>
-          </button>
+          </button> */}
 
           {/* Server save button */}
           <div className='ml-2'>
-            <SaveButton onSave={saveFlowData} />
+            <SaveButton onSave={saveToServer} />
           </div>
         </div>
-
         {/* Flow metadata info - now positioned below the action buttons */}
         {flowMetadata.lastSaved && (
           <div className='mt-2 bg-white px-3 py-1 rounded-md shadow text-xs text-gray-500 z-10'>
@@ -693,5 +710,24 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
 // Set display name for React DevTools
 FlowEditor.displayName = 'FlowEditor';
+
+function WorkflowBuilder() {
+  // 根據用戶角色或權限定義白名單
+  const userNodeWhitelist = [
+    'input',
+    'ai',
+    'browser extension input',
+    'browser extension output',
+    'knowledge retrieval'
+  ];
+
+  // 傳遞白名單給 FlowEditor
+  return (
+    <FlowEditor
+      initialTitle='My Workflow'
+      nodeWhitelist={userNodeWhitelist}
+    />
+  );
+}
 
 export default FlowEditor;

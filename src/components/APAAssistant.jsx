@@ -58,7 +58,7 @@ const APAAssistant = ({ title, onTitleChange }) => {
               <input
                 type='text'
                 className='w-full outline-none text-gray-800 bg-transparent'
-                value={title || 'APA 診間小幫手'}
+                value={title || ''}
                 onChange={(e) => onTitleChange(e.target.value)}
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
@@ -68,7 +68,7 @@ const APAAssistant = ({ title, onTitleChange }) => {
               <div
                 className='w-full text-gray-800 cursor-pointer hover:text-gray-600 truncate'
                 onClick={handleEditClick}>
-                {title || 'APA 診間小幫手'}
+                {title || ''}
               </div>
             )}
           </div>
