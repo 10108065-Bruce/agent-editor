@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "29de7e5cf65c0140a63257adbb4d2a00ce0b9b64", "VITE_APP_BUILD_TIME": "2025-04-23T01:01:42.617Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.35"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T01:10:04.123Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.36"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12268,7 +12268,6 @@ class IFrameBridgeService {
     // 追蹤已註冊的事件處理函數
     this.eventHandlers = {
       titleChange: [],
-      idChange: [], // 新增 ID 變更事件
       downloadRequest: [],
       loadWorkflow: [], // 新增載入工作流事件
       ready: []
@@ -12350,19 +12349,19 @@ class IFrameBridgeService {
           timestamp: new Date().toISOString()
         });
         break;
-      case 'SET_ID':
-        if (message.id) {
+      case 'SET_TITLE':
+        if (message.title) {
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
-          console.log(`準備觸發 idChange 事件，標題值: "${message.id}"`);
+          console.log(`準備觸發 titleChange 事件，標題值: "${message.title}"`);
           console.log(
-            `註冊的 idChange 處理程序數量: ${this.eventHandlers.idChange.length}`
+            `註冊的 titleChange 處理程序數量: ${this.eventHandlers.titleChange.length}`
           );
 
           // 觸發標題變更事件
-          this.triggerEvent('idChange', message.id);
+          this.triggerEvent('titleChange', message.title);
 
           // 如果標題可作為工作流ID，觸發載入工作流事件
-          const workflowId = message.id;
+          const workflowId = message.title;
           console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
           console.log(
             `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
@@ -12781,7 +12780,7 @@ const LoadWorkflowButton = ({ onLoad }) => {
 
 const React = await importShared('react');
 const {useState,useEffect,useCallback,useRef,useMemo,forwardRef,useImperativeHandle} = React;
-const FlowEditor = forwardRef(({ initialFlowId, onIdChange }, ref) => {
+const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const isInitialized = useRef(false);
@@ -12814,8 +12813,8 @@ const FlowEditor = forwardRef(({ initialFlowId, onIdChange }, ref) => {
     setEdges: setFlowEdges
   } = useFlowNodes();
   const [flowMetadata, setFlowMetadata] = useState({
-    id: initialFlowId || null,
-    title: "",
+    id: null,
+    title: initialTitle || "",
     lastSaved: null,
     version: 1
   });
@@ -12883,9 +12882,9 @@ const FlowEditor = forwardRef(({ initialFlowId, onIdChange }, ref) => {
       };
     },
     // 設置流程標題的方法
-    setFlowId: (flowId) => {
-      if (flowId && typeof flowId === "string") {
-        setFlowMetadata((prev) => ({ ...prev, id: flowId }));
+    setFlowTitle: (title) => {
+      if (title && typeof title === "string") {
+        setFlowMetadata((prev) => ({ ...prev, title }));
         return true;
       }
       return false;
@@ -12903,11 +12902,11 @@ const FlowEditor = forwardRef(({ initialFlowId, onIdChange }, ref) => {
   const handleTitleChange = useCallback(
     (title) => {
       setFlowMetadata((prev) => ({ ...prev, title }));
-      if (onIdChange && typeof onIdChange === "function") {
-        onIdChange(title);
+      if (onTitleChange && typeof onTitleChange === "function") {
+        onTitleChange(title);
       }
     },
-    [onIdChange]
+    [onTitleChange]
   );
   const showNotification = useCallback((message, type = "info") => {
     setNotification({ show: true, message, type });
@@ -13136,8 +13135,8 @@ const FlowEditor = forwardRef(({ initialFlowId, onIdChange }, ref) => {
           version: result.data.version || 1
         });
         updateNodeFunctions();
-        if (isInIframe && onIdChange) {
-          onIdChange(result.data.title || "匯入的流程");
+        if (isInIframe && onTitleChange) {
+          onTitleChange(result.data.title || "匯入的流程");
         }
       }
       return result;
@@ -13152,7 +13151,7 @@ const FlowEditor = forwardRef(({ initialFlowId, onIdChange }, ref) => {
     showNotification,
     updateNodeFunctions,
     isInIframe,
-    onIdChange
+    onTitleChange
   ]);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const toggleSidebar = useCallback(() => {
@@ -13167,21 +13166,21 @@ const FlowEditor = forwardRef(({ initialFlowId, onIdChange }, ref) => {
     [handleNodeSelection]
   );
   useEffect(() => {
-    if (initialFlowId) {
+    if (initialTitle) {
       setFlowMetadata((prev) => {
-        if (prev.id !== initialFlowId) {
-          return { ...prev, id: initialFlowId };
+        if (prev.title !== initialTitle) {
+          return { ...prev, title: initialTitle };
         }
         return prev;
       });
     }
-  }, [initialFlowId]);
+  }, [initialTitle]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       APAAssistant,
       {
         title: flowMetadata.title,
-        onIdChange: handleTitleChange
+        onTitleChange: handleTitleChange
       }
     ),
     notification.show && /* @__PURE__ */ jsxRuntimeExports.jsx(
