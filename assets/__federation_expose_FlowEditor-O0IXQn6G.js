@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T04:09:35.524Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.38"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T06:14:20.461Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.39"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9050,7 +9050,7 @@ const React$h = await importShared('react');
 const {useState: useState$9} = React$h;
 
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$9(false);
+  const [isEditing, setIsEditing] = useState$9(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -9667,32 +9667,73 @@ class WorkflowAPIService {
   }
 
   /**
-   * 保存工作流數據
+   * 建立工作流數據
    * @param {Object} data - 要保存的工作流數據
    * @returns {Promise<Object>} API 回應
    */
-  async saveWorkflow(data) {
-    console.log('開始保存工作流:', data);
-
+  async createWorkflow(data) {
+    console.log('創建新工作流:', data);
     try {
-      const response = await fetch(`${this.baseUrl}/agent_designer/workflows`, {
-        method: 'PUT',
-        headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          flow_name: data.flow_name,
-          content: data.content
-        })
-      });
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/workflows/`,
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            flow_name: data.flow_name,
+            content: data.content,
+            flow_pipeline: data.flow_pipeline
+          })
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       }
 
       const responseData = await response.json();
-      console.log('工作流保存成功');
+      console.log('工作流創建成功');
+      return responseData;
+    } catch (error) {
+      console.error('保存工作流失敗:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 保存工作流數據
+   * @param {Object} data - 要保存的工作流數據
+   * @returns {Promise<Object>} API 回應
+   */
+  async updateWorkflow(data) {
+    console.log('更新工作流:', data);
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/workflows/`,
+        {
+          method: 'PUT',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            flow_name: data.flow_name,
+            content: data.content,
+            flow_id: data.flow_id,
+            flow_pipeline: data.flow_pipeline
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log('工作流更新成功');
       return responseData;
     } catch (error) {
       console.error('保存工作流失敗:', error);
@@ -9700,7 +9741,6 @@ class WorkflowAPIService {
     }
   }
 }
-
 /**
  * LLM模型服務 - 處理與LLM模型相關的API請求
  */
@@ -10161,16 +10201,17 @@ class WorkflowDataConverter {
 
     const apiData = {
       flow_name: reactFlowData.title || '未命名流程',
+      flow_id: reactFlowData.id || `flow_${Date.now()}`,
       content: {
-        flow_id: reactFlowData.id || `flow_${Date.now()}`,
-        user_id: reactFlowData.userId || '1',
+        // flow_id: reactFlowData.id || `flow_${Date.now()}`,
+        // user_id: reactFlowData.userId || '1',
         flow_type: 'NORMAL',
         headers: reactFlowData.headers || {
           Authorization: 'Bearer your-token-here',
           'Content-Type': 'application/json'
-        },
-        flow_pipeline: flowPipeline
-      }
+        }
+      },
+      flow_pipeline: flowPipeline
     };
 
     console.log('轉換為 API 格式完成');
@@ -12355,7 +12396,7 @@ class IFrameBridgeService {
           );
 
           // 觸發標題變更事件
-          this.triggerEvent('titleChange', message.title);
+          // this.triggerEvent('titleChange', message.title);
 
           // 如果標題可作為工作流ID，觸發載入工作流事件
           const workflowId = message.title;
@@ -12846,7 +12887,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       setFlowMetadata((prev) => ({
         ...prev,
         id: apiData.flow_id,
-        title: apiData.title || prev.title,
+        title: apiData.flow_name || prev.flow_name,
         version: apiData.version || prev.version
       }));
       setTimeout(() => {
@@ -13103,12 +13144,31 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         edgeCount: edges.length
       }
     };
-    const data1 = WorkflowDataConverter.convertReactFlowToAPI(flowData);
-    console.log("FlowEditor: 將流程數據轉換為 API 格式:", data1);
+    const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+    console.log("FlowEditor: 將流程數據轉換為 API 格式:", apiData);
     try {
-      const response = await workflowAPIService.saveWorkflow(data1);
-      console.log("FlowEditor: 儲存成功", response);
-      showNotification("流程儲存成功", "success");
+      let response;
+      if (flowMetadata.id) {
+        response = await workflowAPIService.updateWorkflow(apiData);
+        console.log("FlowEditor: 更新流程成功", response);
+        showNotification("流程更新成功", "success");
+      } else {
+        response = await workflowAPIService.createWorkflow(apiData);
+        console.log("FlowEditor: 創建流程成功", response);
+        if (response && response.flow_id) {
+          setFlowMetadata((prev) => ({
+            ...prev,
+            id: response.flow_id,
+            lastSaved: (/* @__PURE__ */ new Date()).toISOString()
+          }));
+        }
+        showNotification("流程創建成功", "success");
+      }
+      setFlowMetadata((prev) => ({
+        ...prev,
+        lastSaved: (/* @__PURE__ */ new Date()).toISOString()
+      }));
+      return response;
     } catch (error) {
       console.error("FlowEditor: 儲存流程時發生錯誤：", error);
       showNotification("儲存流程時發生錯誤", "error");
