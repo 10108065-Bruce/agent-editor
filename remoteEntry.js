@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-D4D8si5R.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-BXtcbixw.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15901,7 +15901,6 @@ const IFrameFlowEditor = () => {
   }, []);
   console.log("IFrameFlowEditor: 渲染，當前標題:", flowTitle);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "iframe-flow-editor-container", children: [
-    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "loading-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "loading-spinner", children: "載入中..." }) }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "error-message", children: [
       "載入工作流失敗: ",
       error

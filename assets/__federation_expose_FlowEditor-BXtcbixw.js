@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T01:10:04.123Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.36"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T04:09:00.789Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.37"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9672,13 +9672,13 @@ class WorkflowAPIService {
    * @returns {Promise<Object>} API 回應
    */
   async saveWorkflow(data) {
-    console.log('開始保存工作流:', data.flow_name);
+    console.log('開始保存工作流:', data);
 
     try {
       const response = await fetch(
         `${this.baseUrl}/agent_designer/workflows/save`,
         {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             accept: 'application/json',
             'Content-Type': 'application/json'
