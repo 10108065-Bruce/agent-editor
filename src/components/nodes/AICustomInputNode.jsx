@@ -1,8 +1,14 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 import { llmService } from '../../services/WorkflowServicesIntegration';
 
 const AICustomInputNode = ({ data, isConnectable }) => {
+  // 生成唯一ID (確保每個實例都有唯一ID)
+  const nodeIdRef = useRef(
+    `ai-node-${Math.random().toString(36).substr(2, 9)}`
+  );
+  const nodeId = nodeIdRef.current;
+
   // 保存LLM模型選項
   const [modelOptions, setModelOptions] = useState([
     { value: 'O3-mini', label: 'O3-mini' },
@@ -15,48 +21,23 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   // 錯誤狀態
   const [modelLoadError, setModelLoadError] = useState(null);
-  // 本地的模型選擇，當 data.updateNodeData 不可用時使用
-  const [localModel, setLocalModel] = useState(data?.model || 'O3-mini');
-  const [localSelectedOption, setLocalSelectedOption] = useState(
-    data?.selectedOption || 'prompt'
-  );
 
-  // 安全的更新節點數據
-  const safeUpdateNodeData = (key, value) => {
-    // 檢查 data.updateNodeData 是否為函數
-    if (data && typeof data.updateNodeData === 'function') {
-      data.updateNodeData(key, value);
-    } else {
-      console.warn(
-        `updateNodeData 不是一個函數，無法更新 ${key}。使用本地狀態代替。`
-      );
-      // 使用本地狀態備用
-      if (key === 'model') {
-        setLocalModel(value);
-      } else if (key === 'selectedOption') {
-        setLocalSelectedOption(value);
-      }
-    }
-  };
+  // 本地狀態 - 確保初始化時有預設值
+  const [localModel, setLocalModel] = useState('O3-mini');
+  const [localSelectedOption, setLocalSelectedOption] = useState('prompt');
 
-  // 獲取當前模型值，優先使用 data.model，如果不可用則使用本地狀態
-  const getCurrentModel = () => {
-    return data?.model || localModel;
-  };
-
-  // 獲取當前選項，優先使用 data.selectedOption，如果不可用則使用本地狀態
-  const getCurrentSelectedOption = () => {
-    return data?.selectedOption || localSelectedOption;
-  };
-
-  // 節點被創建時立即加載模型列表
+  // 使用useEffect來同步data和本地狀態
   useEffect(() => {
-    loadModels();
-  }, []);
+    if (data?.model) {
+      setLocalModel(data.model);
+    }
+    if (data?.selectedOption) {
+      setLocalSelectedOption(data.selectedOption);
+    }
+  }, [data?.model, data?.selectedOption]);
 
   // 從API加載模型列表
   const loadModels = async () => {
-    // 避免重複載入
     if (isLoadingModels) return;
 
     setIsLoadingModels(true);
@@ -65,32 +46,33 @@ const AICustomInputNode = ({ data, isConnectable }) => {
     try {
       const options = await llmService.getModelOptions();
 
-      // 只有在成功獲取到新的選項時才更新
       if (options && options.length > 0) {
         setModelOptions(options);
 
-        // 如果當前選中的模型不在新的選項列表中，選擇預設模型
-        const currentModel = getCurrentModel();
-        if (!options.some((opt) => opt.value === currentModel)) {
+        // 檢查當前選擇的模型是否在新的選項中
+        if (!options.some((opt) => opt.value === localModel)) {
           const defaultModel =
             options.find((opt) => opt.isDefault)?.value || options[0].value;
-          safeUpdateNodeData('model', defaultModel);
+          setLocalModel(defaultModel);
+
+          // 嘗試更新父組件的狀態，但不依賴它
+          if (data && typeof data.updateNodeData === 'function') {
+            data.updateNodeData('model', defaultModel);
+          }
         }
       }
     } catch (error) {
       console.error('加載模型失敗:', error);
 
-      // 檢查錯誤訊息是否為"已有進行中的LLM模型請求"
+      // 僅對非"進行中的請求"錯誤顯示錯誤信息
       if (
-        error.message &&
-        (error.message.includes('已有進行中的LLM模型請求') ||
-          error.message.includes('進行中的請求') ||
-          error.message.includes('使用相同請求'))
+        !(
+          error.message &&
+          (error.message.includes('已有進行中的LLM模型請求') ||
+            error.message.includes('進行中的請求') ||
+            error.message.includes('使用相同請求'))
+        )
       ) {
-        // 這是因為有其他請求正在進行中，不顯示錯誤
-        console.log('正在等待其他相同請求完成...');
-      } else {
-        // 對於其他類型的錯誤，顯示錯誤信息
         setModelLoadError('無法載入模型列表，請稍後再試');
       }
     } finally {
@@ -98,14 +80,31 @@ const AICustomInputNode = ({ data, isConnectable }) => {
     }
   };
 
-  // 處理模型選擇變更
+  // 組件掛載時加載模型
+  useEffect(() => {
+    loadModels();
+  }, []);
+
+  // 處理模型變更
   const handleModelChange = (e) => {
-    safeUpdateNodeData('model', e.target.value);
+    const newModelValue = e.target.value;
+    setLocalModel(newModelValue);
+
+    // 嘗試更新父組件的狀態，但不依賴它
+    if (data && typeof data.updateNodeData === 'function') {
+      data.updateNodeData('model', newModelValue);
+    }
   };
 
   // 處理選項變更
   const handleOptionChange = (option) => {
-    safeUpdateNodeData('selectedOption', option);
+    console.log(`節點 ${nodeId} 選項變更為: ${option}`);
+    setLocalSelectedOption(option);
+
+    // 嘗試更新父組件的狀態，但不依賴它
+    if (data && typeof data.updateNodeData === 'function') {
+      data.updateNodeData('selectedOption', option);
+    }
   };
 
   return (
@@ -146,7 +145,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
               className={`w-full border border-gray-300 rounded p-2 text-sm bg-white 
                 ${isLoadingModels ? 'opacity-70 cursor-wait' : ''} 
                 ${modelLoadError ? 'border-red-300' : ''}`}
-              value={getCurrentModel()}
+              value={localModel}
               onChange={handleModelChange}
               disabled={isLoadingModels}>
               {modelOptions.map((option) => (
@@ -170,61 +169,59 @@ const AICustomInputNode = ({ data, isConnectable }) => {
           )}
         </div>
 
-        {/* Prompt option with radio button */}
-        <div className='flex items-center mb-3'>
-          <div className='mr-2 relative w-4 h-4'>
-            <input
-              type='radio'
-              id='prompt-radio'
-              name='ai-option'
-              className='absolute opacity-0 w-4 h-4 cursor-pointer'
-              checked={getCurrentSelectedOption() === 'prompt'}
-              onChange={() => handleOptionChange('prompt')}
-            />
-            <label
-              htmlFor='prompt-radio'
-              className='block w-4 h-4 rounded-full border border-gray-300 bg-white cursor-pointer'>
-              {getCurrentSelectedOption() === 'prompt' && (
-                <span className='absolute inset-0 flex items-center justify-center'>
-                  <span className='w-2 h-2 rounded-full bg-gray-600'></span>
-                </span>
-              )}
+        {/* 選項區域 */}
+        <div>
+          {/* Prompt option */}
+          <div className='flex items-center mb-3'>
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <div className='relative'>
+                <input
+                  type='radio'
+                  className='hidden'
+                  checked={localSelectedOption === 'prompt'}
+                  onChange={() => handleOptionChange('prompt')}
+                />
+                <div
+                  className={`w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${
+                    localSelectedOption === 'prompt' ? 'border-gray-500' : ''
+                  }`}>
+                  {localSelectedOption === 'prompt' && (
+                    <div className='w-2 h-2 rounded-full bg-gray-600'></div>
+                  )}
+                </div>
+              </div>
+              <span className='text-sm text-gray-700'>prompt</span>
             </label>
           </div>
-          <label
-            htmlFor='prompt-radio'
-            className='text-sm text-gray-700 cursor-pointer'>
-            prompt
-          </label>
+
+          {/* Context option */}
+          <div className='flex items-center'>
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <div className='relative'>
+                <input
+                  type='radio'
+                  className='hidden'
+                  checked={localSelectedOption === 'context'}
+                  onChange={() => handleOptionChange('context')}
+                />
+                <div
+                  className={`w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${
+                    localSelectedOption === 'context' ? 'border-gray-500' : ''
+                  }`}>
+                  {localSelectedOption === 'context' && (
+                    <div className='w-2 h-2 rounded-full bg-gray-600'></div>
+                  )}
+                </div>
+              </div>
+              <span className='text-sm text-gray-700'>context</span>
+            </label>
+          </div>
         </div>
 
-        {/* Context option with radio button */}
-        <div className='flex items-center'>
-          <div className='mr-2 relative w-4 h-4'>
-            <input
-              type='radio'
-              id='context-radio'
-              name='ai-option'
-              className='absolute opacity-0 w-4 h-4 cursor-pointer'
-              checked={getCurrentSelectedOption() === 'context'}
-              onChange={() => handleOptionChange('context')}
-            />
-            <label
-              htmlFor='context-radio'
-              className='block w-4 h-4 rounded-full border border-gray-300 bg-white cursor-pointer'>
-              {getCurrentSelectedOption() === 'context' && (
-                <span className='absolute inset-0 flex items-center justify-center'>
-                  <span className='w-2 h-2 rounded-full bg-gray-600'></span>
-                </span>
-              )}
-            </label>
-          </div>
-          <label
-            htmlFor='context-radio'
-            className='text-sm text-gray-700 cursor-pointer'>
-            context
-          </label>
-        </div>
+        {/* 顯示當前選項（調試用） */}
+        {/* <div className='mt-2 text-xs text-gray-400'>
+          選項: {localSelectedOption} | ID: {nodeId.slice(-4)}
+        </div> */}
       </div>
 
       {/* Input handle - left side */}
