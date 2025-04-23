@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T06:14:20.461Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.39"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T06:29:46.049Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.40"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12387,6 +12387,19 @@ class IFrameBridgeService {
           timestamp: new Date().toISOString()
         });
         break;
+      case 'SET_FLOW_ID':
+        if (message.flowId) {
+          const flowId = message.title;
+          // 更詳細的日誌，顯示將要觸發的事件類型和數據
+          console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
+          console.log(
+            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+          );
+
+          // 觸發流ID變更事件
+          this.triggerEvent('loadWorkflow', flowId);
+        }
+        break;
       case 'SET_TITLE':
         if (message.title) {
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
@@ -12399,15 +12412,15 @@ class IFrameBridgeService {
           // this.triggerEvent('titleChange', message.title);
 
           // 如果標題可作為工作流ID，觸發載入工作流事件
-          const workflowId = message.title;
-          console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
-          console.log(
-            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
-          );
+          // const workflowId = message.title;
+          // console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
+          // console.log(
+          //   `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+          // );
 
-          if (workflowId) {
-            this.triggerEvent('loadWorkflow', workflowId);
-          }
+          // if (workflowId) {
+          //   this.triggerEvent('loadWorkflow', workflowId);
+          // }
         } else {
           console.warn('收到 SET_TITLE 消息，但標題為空');
         }
@@ -12868,9 +12881,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return true;
     }
   }, []);
-  const handleLoadWorkflow = useCallback(async (workflowId) => {
+  const handleLoadWorkflow = useCallback(async (flowId) => {
     try {
-      const success = await loadWorkflowImpl(workflowId);
+      const success = await loadWorkflowImpl(flowId);
       return success;
     } catch (error) {
       console.error("無法載入工作流:", error);
@@ -12878,9 +12891,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return false;
     }
   }, []);
-  const loadWorkflowImpl = async (workflowId) => {
+  const loadWorkflowImpl = async (flowId) => {
     try {
-      const apiData = await workflowAPIService.loadWorkflow(workflowId);
+      const apiData = await workflowAPIService.loadWorkflow(flowId);
       const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataConverter.transformToReactFlowFormat(apiData);
       setFlowNodes(transformedNodes);
       setFlowEdges(transformedEdges);
