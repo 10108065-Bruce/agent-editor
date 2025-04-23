@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$m = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$5,useState: useState$c,useEffect: useEffect$4,forwardRef: forwardRef$1,useCallback: useCallback$4} = React$m;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$5,useState: useState$c,useEffect: useEffect$5,forwardRef: forwardRef$1,useCallback: useCallback$4} = React$m;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3920,7 +3920,7 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
   const edgeRef = useRef$5(null);
   const [edgeTextBbox, setEdgeTextBbox] = useState$c({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$g(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$4(() => {
+  useEffect$5(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$4(() => {
+  useEffect$5(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$4(() => {
+  useEffect$5(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5627,7 +5627,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
   const isPanScrolling = useRef$5(false);
   const panScrollTimeout = useRef$5();
   useResizeHandler(zoomPane);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -6279,7 +6279,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
   const dragStarted = useRef$5(false);
   const abortDrag = useRef$5(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$4(() => {
+    useEffect$5(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$4(() => {
+    useEffect$5(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$4(() => {
+    useEffect$5(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6640,7 +6640,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
   const nodeRef = useRef$5(null);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$4(() => {
+  useEffect$5(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -7205,7 +7205,7 @@ function Viewport({ children }) {
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
   const isInitialized = useRef$5(false);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7673,7 +7673,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$l = await importShared('react');
-const {memo: memo$f,useRef: useRef$4,useEffect: useEffect$3} = React$l;
+const {memo: memo$f,useRef: useRef$4,useEffect: useEffect$4} = React$l;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7744,7 +7744,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
     const viewScaleRef = useRef$4(0);
     viewScaleRef.current = viewScale;
-    useEffect$3(() => {
+    useEffect$4(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7811,7 +7811,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$f(MiniMap);
 
 const React$k = await importShared('react');
-const {memo: memo$e,useState: useState$b,useEffect: useEffect$2} = React$k;
+const {memo: memo$e,useState: useState$b,useEffect: useEffect$3} = React$k;
 
 function PlusIcon() {
     return (React$k.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7851,7 +7851,7 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
     const [isVisible, setIsVisible] = useState$b(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$2(() => {
+    useEffect$3(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0d1f21bcf7c00431d881f255a98b8085b5bc872c", "VITE_APP_BUILD_TIME": "2025-04-23T06:43:02.854Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.42"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1eb78085ac193104ad31b262d397588abdf7e8cc", "VITE_APP_BUILD_TIME": "2025-04-23T08:25:17.340Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.43"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9742,15 +9742,22 @@ class WorkflowAPIService {
   }
 }
 /**
- * LLM模型服務 - 處理與LLM模型相關的API請求
+ * LLM模型和知識檢索服務 - 處理與LLM模型和文件相關的API請求
  */
 class LLMService {
   constructor() {
     this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
+
+    // 模型相關緩存
     this.modelsCache = null;
     this.lastFetchTime = null;
     this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
     this.pendingRequest = null; // 用於追蹤進行中的請求
+
+    // 文件相關緩存
+    this.filesCache = null;
+    this.lastFilesFetchTime = null;
+    this.pendingFilesRequest = null; // 用於追蹤進行中的文件請求
   }
 
   /**
@@ -9816,6 +9823,84 @@ class LLMService {
   }
 
   /**
+   * 獲取所有已完成的文件
+   * @returns {Promise<Array>} 文件列表
+   */
+  async getCompletedFiles() {
+    try {
+      // 檢查是否有有效的快取
+      const now = Date.now();
+      if (
+        this.filesCache &&
+        this.lastFilesFetchTime &&
+        now - this.lastFilesFetchTime < this.cacheExpiryTime
+      ) {
+        console.log('使用快取的已完成文件列表');
+        return this.filesCache;
+      }
+
+      // 如果已經有一個請求在進行中，則返回該請求
+      if (this.pendingFilesRequest) {
+        console.log('已有進行中的文件列表請求，使用相同請求');
+        return this.pendingFilesRequest;
+      }
+
+      // 創建新請求
+      console.log('獲取已完成文件列表...');
+      this.pendingFilesRequest = fetch(`${this.baseUrl}/files/completed`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('成功獲取已完成文件:', data);
+
+          // 更新快取
+          this.filesCache = data;
+          this.lastFilesFetchTime = now;
+          this.pendingFilesRequest = null; // 清除進行中的請求
+
+          return data;
+        })
+        .catch((error) => {
+          console.error('獲取已完成文件失敗:', error);
+          this.pendingFilesRequest = null; // 清除進行中的請求，即使出錯
+          this.pendingFilesRequest = null;
+
+          // 檢查是否為 CORS 錯誤
+          if (
+            error.message &&
+            (error.message.includes('NetworkError') ||
+              error.message.includes('Failed to fetch'))
+          ) {
+            console.log('疑似 CORS 問題，返回預設檔案列表');
+            // 直接返回預設值而不是再次拋出錯誤
+            return [
+              { id: 1, filename: 'ICDCode.csv' },
+              { id: 2, filename: 'Cardiology_Diagnoses.csv' }
+            ];
+          }
+
+          throw error;
+        });
+
+      return this.pendingFilesRequest;
+    } catch (error) {
+      console.error('獲取已完成文件過程中出錯:', error);
+      this.pendingFilesRequest = null;
+      throw error;
+    }
+  }
+
+  /**
    * 獲取格式化後的模型選項，適用於下拉選單
    * @returns {Promise<Array>} 格式化的模型選項
    */
@@ -9843,12 +9928,54 @@ class LLMService {
   }
 
   /**
-   * 預加載模型數據，通常在應用啟動時呼叫
+   * 獲取格式化後的已完成文件選項，適用於下拉選單
+   * @returns {Promise<Array>} 格式化的文件選項
    */
-  preloadModels() {
-    console.log('預加載LLM模型列表');
+  async getFileOptions() {
+    try {
+      const files = await this.getCompletedFiles();
+
+      // 根據後端返回的格式 [{"filename": '123.csv', "id": 1}] 進行處理
+      return files.map((file) => ({
+        id: file.id.toString(), // 確保ID是字符串
+        value: file.id.toString(), // 用於選項值
+        name: file.filename, // 用於顯示名稱
+        label: file.filename // 用於顯示名稱 (替代)
+      }));
+    } catch (error) {
+      console.error('獲取文件選項失敗:', error);
+      // 返回一些默認選項，以防API失敗
+      return [
+        {
+          id: 'icdcode',
+          value: 'icdcode',
+          name: 'ICDCode.csv',
+          label: 'ICDCode.csv'
+        },
+        {
+          id: 'cardiology',
+          value: 'cardiology',
+          name: 'Cardiology_Diagnoses.csv',
+          label: 'Cardiology_Diagnoses.csv'
+        }
+      ];
+    }
+  }
+
+  /**
+   * 預加載模型與文件數據，通常在應用啟動時呼叫
+   */
+  preloadData() {
+    console.log('預加載LLM模型和文件列表');
+
+    // 預加載模型
     this.getModels().catch((err) => {
       console.log('預加載模型失敗:', err);
+    });
+
+    // 預加載文件
+    this.getCompletedFiles().catch((err) => {
+      console.log('預加載文件失敗:', err);
     });
   }
 }
@@ -10367,7 +10494,7 @@ const workflowAPIService = new WorkflowAPIService();
 const llmService = new LLMService();
 
 const React$d = await importShared('react');
-const {memo: memo$9,useState: useState$8,useEffect: useEffect$1,useRef: useRef$1} = React$d;
+const {memo: memo$9,useState: useState$8,useEffect: useEffect$2,useRef: useRef$1} = React$d;
 const AICustomInputNode = ({ data, isConnectable }) => {
   const nodeIdRef = useRef$1(
     `ai-node-${Math.random().toString(36).substr(2, 9)}`
@@ -10383,7 +10510,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   const [modelLoadError, setModelLoadError] = useState$8(null);
   const [localModel, setLocalModel] = useState$8("O3-mini");
   const [localSelectedOption, setLocalSelectedOption] = useState$8("prompt");
-  useEffect$1(() => {
+  useEffect$2(() => {
     if (data?.model) {
       setLocalModel(data.model);
     }
@@ -10416,7 +10543,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
       setIsLoadingModels(false);
     }
   };
-  useEffect$1(() => {
+  useEffect$2(() => {
     loadModels();
   }, []);
   const handleModelChange = (e) => {
@@ -11124,25 +11251,87 @@ const KnowledgeRetrievalIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsx(
 );
 
 const React$9 = await importShared('react');
-const {memo: memo$5,useState: useState$7} = React$9;
+const {memo: memo$5,useState: useState$7,useEffect: useEffect$1} = React$9;
 const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
   const [dropdownOpen, setDropdownOpen] = useState$7(false);
-  const dataFiles = data.availableFiles || [
-    { id: "icdcode", name: "ICDCode.csv" },
-    { id: "cardiology", name: "Cardiology_Diagnoses.csv" }
-  ];
+  const [isLoadingFiles, setIsLoadingFiles] = useState$7(false);
+  const [fileLoadError, setFileLoadError] = useState$7(null);
+  const [dataFiles, setDataFiles] = useState$7(
+    data.availableFiles || [
+      {
+        id: "icdcode",
+        value: "icdcode",
+        name: "ICDCode.csv",
+        label: "ICDCode.csv"
+      },
+      {
+        id: "cardiology",
+        value: "cardiology",
+        name: "Cardiology_Diagnoses.csv",
+        label: "Cardiology_Diagnoses.csv"
+      }
+    ]
+  );
+  const [localSelectedFile, setLocalSelectedFile] = useState$7(
+    data.selectedFile || ""
+  );
   const handleFileSelect = (fileId) => {
     setDropdownOpen(false);
-    if (data.updateNodeData) {
+    setLocalSelectedFile(fileId);
+    if (data && typeof data.updateNodeData === "function") {
       data.updateNodeData("selectedFile", fileId);
+    } else {
+      console.warn(
+        "updateNodeData 不是一個函數，無法更新 selectedFile。使用本地狀態代替。"
+      );
     }
   };
+  const loadFiles = async () => {
+    if (isLoadingFiles) return;
+    setIsLoadingFiles(true);
+    setFileLoadError(null);
+    try {
+      const options = await llmService.getFileOptions();
+      if (options && options.length > 0) {
+        console.log("已獲取文件選項:", options);
+        setDataFiles(options);
+        const currentFile = getCurrentSelectedFile();
+        if (!options.some(
+          (opt) => opt.id === currentFile || opt.value === currentFile
+        ) && options.length > 0) {
+          handleFileSelect(options[0].id || options[0].value);
+        }
+      }
+    } catch (error) {
+      console.error("加載文件失敗:", error);
+      if (error.message && (error.message.includes("已有進行中的") || error.message.includes("進行中的請求") || error.message.includes("使用相同請求"))) {
+        console.log("正在等待其他相同請求完成...");
+      } else {
+        setFileLoadError("無法載入文件列表，請稍後再試");
+      }
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  };
+  const getCurrentSelectedFile = () => {
+    return data?.selectedFile || localSelectedFile;
+  };
   const getSelectedFileName = () => {
-    if (!data.selectedFile) return "Select file...";
+    const currentFileId = getCurrentSelectedFile();
+    if (!currentFileId) return "選擇檔案...";
     const selectedFile = dataFiles.find(
-      (file) => file.id === data.selectedFile
+      (file) => file.id === currentFileId || file.value === currentFileId
     );
-    return selectedFile ? selectedFile.name : "Select file...";
+    return selectedFile ? selectedFile.name || selectedFile.label || selectedFile.filename : "選擇檔案...";
+  };
+  useEffect$1(() => {
+    loadFiles();
+  }, []);
+  const handleDropdownToggle = () => {
+    setDropdownOpen(!dropdownOpen);
+    if (dataFiles.length <= 2 || fileLoadError) {
+      loadFiles();
+    }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
@@ -11155,11 +11344,12 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
-            className: "w-full border border-gray-300 rounded-md p-2 text-sm text-left flex justify-between items-center bg-white",
-            onClick: () => setDropdownOpen(!dropdownOpen),
+            className: `w-full border ${fileLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm text-left flex justify-between items-center bg-white ${isLoadingFiles ? "opacity-70 cursor-wait" : ""}`,
+            onClick: handleDropdownToggle,
+            disabled: isLoadingFiles,
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: getSelectedFileName() }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
+              isLoadingFiles ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "svg",
                 {
                   xmlns: "http://www.w3.org/2000/svg",
@@ -11178,13 +11368,14 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
             ]
           }
         ),
-        dropdownOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg", children: dataFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        fileLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: fileLoadError }),
+        dropdownOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto", children: dataFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
             className: "p-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center",
-            onClick: () => handleFileSelect(file.id),
+            onClick: () => handleFileSelect(file.id || file.value),
             children: [
-              file.id === data.selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              (file.id || file.value) === getCurrentSelectedFile() && /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "svg",
                 {
                   xmlns: "http://www.w3.org/2000/svg",
@@ -11203,13 +11394,13 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "span",
                 {
-                  className: file.id === data.selectedFile ? "ml-0" : "ml-6",
-                  children: file.name
+                  className: (file.id || file.value) === getCurrentSelectedFile() ? "ml-0" : "ml-6",
+                  children: file.name || file.label || file.filename
                 }
               )
             ]
           },
-          file.id
+          file.id || file.value
         )) })
       ] })
     ] }) }),
