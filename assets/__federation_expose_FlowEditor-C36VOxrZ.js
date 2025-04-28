@@ -8648,7 +8648,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f02fa3fa54213a0e7074620d68052d3cc87ed10b", "VITE_APP_BUILD_TIME": "2025-04-28T03:58:33.812Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.48"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "ced804a5f689f4fb039f556ac98fc6dfa36d4a41", "VITE_APP_BUILD_TIME": "2025-04-28T04:59:33.237Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.49"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -10060,8 +10060,6 @@ class WorkflowDataConverter {
    * @param {Object} apiData - API 回傳的原始數據
    * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
    */
-  // WorkflowDataConverter.js 中需要修改的方法
-
   static transformToReactFlowFormat(apiData) {
     console.log('開始轉換 API 格式為 ReactFlow 格式');
 
@@ -10095,10 +10093,39 @@ class WorkflowDataConverter {
 
       nodes.push(reactFlowNode);
 
-      // 處理節點之間的連接
+      // 處理節點之間的連接 - 增強處理多輸入情況
       if (node.node_input) {
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          if (inputValue && inputValue.node_id) {
+          // 檢查是否為陣列（多個輸入連接到同一處理器）
+          if (Array.isArray(inputValue)) {
+            console.log(
+              `節點 ${node.id} 的 ${inputKey} 處理器有 ${inputValue.length} 個輸入連接`
+            );
+
+            // 處理每個連接
+            inputValue.forEach((connection, index) => {
+              if (connection && connection.node_id) {
+                const edgeId = `${connection.node_id}-${node.id}-${inputKey}-${index}`;
+
+                edges.push({
+                  id: edgeId,
+                  source: connection.node_id,
+                  sourceHandle: connection.output_name || null,
+                  target: node.id,
+                  targetHandle: inputKey,
+                  type: 'custom-edge'
+                });
+
+                console.log(
+                  `創建邊: ${connection.node_id} -> ${
+                    node.id
+                  }:${inputKey} (多輸入 #${index + 1})`
+                );
+              }
+            });
+          }
+          // 處理單個輸入連接的情況
+          else if (inputValue && inputValue.node_id) {
             const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}`;
 
             edges.push({
@@ -10109,6 +10136,10 @@ class WorkflowDataConverter {
               targetHandle: inputKey,
               type: 'custom-edge'
             });
+
+            console.log(
+              `創建邊: ${inputValue.node_id} -> ${node.id}:${inputKey}`
+            );
           }
         });
       }
@@ -10373,17 +10404,103 @@ class WorkflowDataConverter {
   static convertReactFlowToAPI(reactFlowData) {
     console.log('開始轉換 ReactFlow 格式為 API 格式');
 
+    // 創建一個函數來深度複製物件，避免引用問題
+    const deepCopy = (obj) => JSON.parse(JSON.stringify(obj));
+
+    // 為了正確處理多個輸入到同一個目標處理器的情況，首先建立輸入映射
+    const nodeInputsMap = {};
+
+    // 遍歷所有節點初始化映射
+    reactFlowData.nodes.forEach((node) => {
+      nodeInputsMap[node.id] = node.data?.node_input
+        ? deepCopy(node.data.node_input)
+        : {};
+    });
+
+    // 遍歷所有邊緣來構建完整的輸入連接圖
+    reactFlowData.edges.forEach((edge) => {
+      const targetId = edge.target;
+      const sourceId = edge.source;
+      const targetHandle = edge.targetHandle || 'input';
+      const sourceHandle = edge.sourceHandle || 'output';
+
+      // 檢查目標節點的輸入連接映射是否已經存在該處理器的連接
+      if (!nodeInputsMap[targetId]) {
+        nodeInputsMap[targetId] = {};
+      }
+
+      // 如果相同處理器已有連接，則創建一個陣列儲存多個輸入
+      // 這是關鍵修改：支持同一目標處理器的多個輸入連接
+      if (nodeInputsMap[targetId][targetHandle]) {
+        // 如果該處理器已經有連接，檢查是否為陣列
+        const existingInput = nodeInputsMap[targetId][targetHandle];
+
+        if (!Array.isArray(existingInput)) {
+          // 將單個連接轉換為陣列
+          nodeInputsMap[targetId][targetHandle] = [existingInput];
+        }
+
+        // 添加新的連接到陣列
+        nodeInputsMap[targetId][targetHandle].push({
+          node_id: sourceId,
+          output_name: sourceHandle,
+          type: 'string'
+        });
+
+        console.log(
+          `為節點 ${targetId} 添加多重輸入連接: ${sourceId} -> ${targetHandle} (總共 ${nodeInputsMap[targetId][targetHandle].length} 個連接)`
+        );
+      } else {
+        // 如果該處理器還沒有連接，直接設置
+        nodeInputsMap[targetId][targetHandle] = {
+          node_id: sourceId,
+          output_name: sourceHandle,
+          type: 'string'
+        };
+        console.log(
+          `為節點 ${targetId} 添加輸入連接: ${sourceId} -> ${targetHandle}`
+        );
+      }
+    });
+
+    // 創建流水線
     const flowPipeline = reactFlowData.nodes.map((node) => {
       console.log(`處理節點 ${node.id}, 類型: ${node.type}`);
 
-      // 提取節點輸入連接
-      const nodeInput = WorkflowMappingService.extractNodeInputForAPI(
-        node.id,
-        reactFlowData.edges
-      );
+      // 使用預先構建的輸入映射
+      const nodeInput = nodeInputsMap[node.id] || {};
 
-      // 提取節點輸出連接
-      const nodeOutput = WorkflowMappingService.extractNodeOutputForAPI(node);
+      // 詳細日誌輸出所有輸入連接
+      console.log(`節點 ${node.id} 的輸入連接詳情:`);
+      Object.entries(nodeInput).forEach(([handle, value]) => {
+        if (Array.isArray(value)) {
+          console.log(`  處理器 ${handle} 有 ${value.length} 個輸入連接:`);
+          value.forEach((conn, idx) => {
+            console.log(
+              `    ${idx + 1}. 從節點 ${conn.node_id} 的 ${
+                conn.output_name
+              } 輸出`
+            );
+          });
+        } else {
+          console.log(
+            `  處理器 ${handle} 連接到節點 ${value.node_id} 的 ${value.output_name} 輸出`
+          );
+        }
+      });
+
+      // ===== 輸出處理 =====
+      // 1. 首先保留節點原始輸出連接
+      let nodeOutput =
+        node.data && node.data.node_output
+          ? deepCopy(node.data.node_output)
+          : {};
+
+      // 2. 如果節點沒有輸出定義，則創建適當的默認輸出
+      if (Object.keys(nodeOutput).length === 0) {
+        nodeOutput = WorkflowMappingService.extractNodeOutputForAPI(node);
+      }
+      console.log(`節點 ${node.id} 的輸出連接:`, nodeOutput);
 
       // 轉換節點數據
       const parameters = this.transformNodeDataToAPI(node);
@@ -10401,12 +10518,33 @@ class WorkflowDataConverter {
       };
     });
 
+    // 在返回之前進行額外的調試檢查，確保所有連接都已正確處理
+    for (const node of flowPipeline) {
+      if (node.node_input && Object.keys(node.node_input).length > 0) {
+        console.log(
+          `最終檢查: 節點 ${node.id} 有 ${
+            Object.keys(node.node_input).length
+          } 個輸入處理器`
+        );
+        Object.entries(node.node_input).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            console.log(`  處理器 ${key} 有 ${value.length} 個輸入連接:`);
+            value.forEach((conn, idx) => {
+              console.log(
+                `    ${idx + 1}. ${conn.node_id} -> ${node.id}:${key}`
+              );
+            });
+          } else {
+            console.log(`  連接: ${value.node_id} -> ${node.id}:${key}`);
+          }
+        });
+      }
+    }
+
     const apiData = {
       flow_name: reactFlowData.title || '未命名流程',
       flow_id: reactFlowData.id || `flow_${Date.now()}`,
       content: {
-        // flow_id: reactFlowData.id || `flow_${Date.now()}`,
-        // user_id: reactFlowData.userId || '1',
         flow_type: 'NORMAL',
         headers: reactFlowData.headers || {
           Authorization: 'Bearer your-token-here',
@@ -10638,7 +10776,7 @@ class IconUploadService {
   /**
    * 檢查圖標 URL 是否有效
    * @param {string} iconValue - 圖標值，可能是 URL 或預設圖標名稱
-   * @returns {boolean} - 如果是有效的圖標 URL 返回 true
+   * @returns {boolean} - 如果是有效的圖標 URL返回 true
    */
   isIconUrl(iconValue) {
     return (
@@ -13159,7 +13297,7 @@ const {useState: useState$1} = React$1;
 
 const LoadWorkflowButton = ({ onLoad }) => {
   const [workflowId, setWorkflowId] = useState$1(
-    "1eb3f95e-373a-4c81-8c9c-27b4b35721aa"
+    "472c3fe4-bfdb-44fa-9b1d-28f87b2b3126"
   );
   const [showInput, setShowInput] = useState$1(false);
   const [loadState, setLoadState] = useState$1("");
