@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$m = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$5,useState: useState$c,useEffect: useEffect$5,forwardRef: forwardRef$1,useCallback: useCallback$4} = React$m;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$6,useState: useState$e,useEffect: useEffect$7,forwardRef: forwardRef$1,useCallback: useCallback$7} = React$m;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3917,10 +3917,10 @@ function Attribution({ proOptions, position = "bottom-right" }) {
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$5(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$c({ x: 0, y: 0, width: 0, height: 0 });
+  const edgeRef = useRef$6(null);
+  const [edgeTextBbox, setEdgeTextBbox] = useState$e({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$g(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$5(() => {
+  useEffect$7(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$5(() => {
+  useEffect$7(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5057,9 +5057,9 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$c(false);
-  const modifierPressed = useRef$5(false);
-  const pressedKeys = useRef$5(/* @__PURE__ */ new Set([]));
+  const [keyPressed, setKeyPressed] = useState$e(false);
+  const modifierPressed = useRef$6(false);
+  const pressedKeys = useRef$6(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$5(() => {
+  useEffect$7(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5350,21 +5350,21 @@ const useViewportHelper = () => {
 function useReactFlow() {
   const viewportHelper = useViewportHelper();
   const store = useStoreApi();
-  const getNodes = useCallback$4(() => {
+  const getNodes = useCallback$7(() => {
     return store.getState().getNodes().map((n) => ({ ...n }));
   }, []);
-  const getNode = useCallback$4((id) => {
+  const getNode = useCallback$7((id) => {
     return store.getState().nodeInternals.get(id);
   }, []);
-  const getEdges = useCallback$4(() => {
+  const getEdges = useCallback$7(() => {
     const { edges = [] } = store.getState();
     return edges.map((e) => ({ ...e }));
   }, []);
-  const getEdge = useCallback$4((id) => {
+  const getEdge = useCallback$7((id) => {
     const { edges = [] } = store.getState();
     return edges.find((e) => e.id === id);
   }, []);
-  const setNodes = useCallback$4((payload) => {
+  const setNodes = useCallback$7((payload) => {
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     const nodes = getNodes2();
     const nextNodes = typeof payload === "function" ? payload(nodes) : payload;
@@ -5375,7 +5375,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const setEdges = useCallback$4((payload) => {
+  const setEdges = useCallback$7((payload) => {
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     const nextEdges = typeof payload === "function" ? payload(edges) : payload;
     if (hasDefaultEdges) {
@@ -5385,7 +5385,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const addNodes = useCallback$4((payload) => {
+  const addNodes = useCallback$7((payload) => {
     const nodes = Array.isArray(payload) ? payload : [payload];
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     if (hasDefaultNodes) {
@@ -5397,7 +5397,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const addEdges = useCallback$4((payload) => {
+  const addEdges = useCallback$7((payload) => {
     const nextEdges = Array.isArray(payload) ? payload : [payload];
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     if (hasDefaultEdges) {
@@ -5407,7 +5407,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const toObject = useCallback$4(() => {
+  const toObject = useCallback$7(() => {
     const { getNodes: getNodes2, edges = [], transform } = store.getState();
     const [x, y, zoom2] = transform;
     return {
@@ -5420,7 +5420,7 @@ function useReactFlow() {
       }
     };
   }, []);
-  const deleteElements = useCallback$4(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
+  const deleteElements = useCallback$7(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
     const { nodeInternals, getNodes: getNodes2, edges, hasDefaultNodes, hasDefaultEdges, onNodesDelete, onEdgesDelete, onNodesChange, onEdgesChange } = store.getState();
     const nodeIds = (nodesDeleted || []).map((node) => node.id);
     const edgeIds = (edgesDeleted || []).map((edge) => edge.id);
@@ -5477,7 +5477,7 @@ function useReactFlow() {
       }
     }
   }, []);
-  const getNodeRect = useCallback$4((nodeOrRect) => {
+  const getNodeRect = useCallback$7((nodeOrRect) => {
     const isRect = isRectObject(nodeOrRect);
     const node = isRect ? null : store.getState().nodeInternals.get(nodeOrRect.id);
     if (!isRect && !node) {
@@ -5486,7 +5486,7 @@ function useReactFlow() {
     const nodeRect = isRect ? nodeOrRect : nodeToRect(node);
     return [nodeRect, node, isRect];
   }, []);
-  const getIntersectingNodes = useCallback$4((nodeOrRect, partially = true, nodes) => {
+  const getIntersectingNodes = useCallback$7((nodeOrRect, partially = true, nodes) => {
     const [nodeRect, node, isRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return [];
@@ -5501,7 +5501,7 @@ function useReactFlow() {
       return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
     });
   }, []);
-  const isNodeIntersecting = useCallback$4((nodeOrRect, area, partially = true) => {
+  const isNodeIntersecting = useCallback$7((nodeOrRect, area, partially = true) => {
     const [nodeRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return false;
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$5(() => {
+  useEffect$7(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$5(() => {
+  useEffect$7(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5615,19 +5615,19 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$5();
+  const timerId = useRef$6();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$5(false);
-  const zoomedWithRightMouseButton = useRef$5(false);
-  const zoomPane = useRef$5(null);
-  const prevTransform = useRef$5({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$6(false);
+  const zoomedWithRightMouseButton = useRef$6(false);
+  const zoomPane = useRef$6(null);
+  const prevTransform = useRef$6({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$5(0);
-  const isPanScrolling = useRef$5(false);
-  const panScrollTimeout = useRef$5();
+  const mouseButton = useRef$6(0);
+  const isPanScrolling = useRef$6(false);
+  const panScrollTimeout = useRef$6();
   useResizeHandler(zoomPane);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$g(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$5(null);
+  const container = useRef$6(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$5(0);
-  const prevSelectedEdgesCount = useRef$5(0);
-  const containerBounds = useRef$5();
+  const prevSelectedNodesCount = useRef$6(0);
+  const prevSelectedEdgesCount = useRef$6(0);
+  const containerBounds = useRef$6();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6247,7 +6247,7 @@ function handleNodeClick({ id, store, unselect = false, nodeRef }) {
 }
 function useGetPointerPosition() {
   const store = useStoreApi();
-  const getPointerPosition = useCallback$4(({ sourceEvent }) => {
+  const getPointerPosition = useCallback$7(({ sourceEvent }) => {
     const { transform, snapGrid, snapToGrid } = store.getState();
     const x = sourceEvent.touches ? sourceEvent.touches[0].clientX : sourceEvent.clientX;
     const y = sourceEvent.touches ? sourceEvent.touches[0].clientY : sourceEvent.clientY;
@@ -6268,18 +6268,18 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$c(false);
-  const dragItems = useRef$5([]);
-  const lastPos = useRef$5({ x: null, y: null });
-  const autoPanId = useRef$5(0);
-  const containerBounds = useRef$5(null);
-  const mousePosition = useRef$5({ x: 0, y: 0 });
-  const dragEvent = useRef$5(null);
-  const autoPanStarted = useRef$5(false);
-  const dragStarted = useRef$5(false);
-  const abortDrag = useRef$5(false);
+  const [dragging, setDragging] = useState$e(false);
+  const dragItems = useRef$6([]);
+  const lastPos = useRef$6({ x: null, y: null });
+  const autoPanId = useRef$6(0);
+  const containerBounds = useRef$6(null);
+  const mousePosition = useRef$6({ x: 0, y: 0 });
+  const dragEvent = useRef$6(null);
+  const autoPanStarted = useRef$6(false);
+  const dragStarted = useRef$6(false);
+  const abortDrag = useRef$6(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$5(() => {
+  useEffect$7(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6457,7 +6457,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
 }
 function useUpdateNodePositions() {
   const store = useStoreApi();
-  const updatePositions = useCallback$4((params) => {
+  const updatePositions = useCallback$7((params) => {
     const { nodeInternals, nodeExtent, updateNodePositions, getNodes, snapToGrid, snapGrid, onError, nodesDraggable } = store.getState();
     const selectedNodes = getNodes().filter((n) => n.selected && (n.draggable || nodesDraggable && typeof n.draggable === "undefined"));
     const xVelo = snapToGrid ? snapGrid[0] : 5;
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$5(null);
-    const prevNodeRef = useRef$5(null);
-    const prevSourcePosition = useRef$5(sourcePosition);
-    const prevTargetPosition = useRef$5(targetPosition);
-    const prevType = useRef$5(type);
+    const nodeRef = useRef$6(null);
+    const prevNodeRef = useRef$6(null);
+    const prevSourcePosition = useRef$6(sourcePosition);
+    const prevTargetPosition = useRef$6(targetPosition);
+    const prevType = useRef$6(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$5(() => {
+    useEffect$7(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$5(() => {
+    useEffect$7(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$5(() => {
+    useEffect$7(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6639,8 +6639,8 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$5(null);
-  useEffect$5(() => {
+  const nodeRef = useRef$6(null);
+  useEffect$7(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6703,7 +6703,7 @@ const FlowRenderer = ({ children, onPaneClick, onPaneMouseEnter, onPaneMouseMove
 FlowRenderer.displayName = "FlowRenderer";
 var FlowRenderer$1 = memo$g(FlowRenderer);
 function useVisibleNodes(onlyRenderVisible) {
-  const nodes = useStore(useCallback$4((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
+  const nodes = useStore(useCallback$7((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
   return nodes;
 }
 function createNodeTypes(nodeTypes) {
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$5();
+  const resizeObserverRef = useRef$6();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$5(() => {
+  useEffect$7(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -6812,9 +6812,9 @@ const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMo
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$5(null);
-    const [updateHover, setUpdateHover] = useState$c(false);
-    const [updating, setUpdating] = useState$c(false);
+    const edgeRef = useRef$6(null);
+    const [updateHover, setUpdateHover] = useState$e(false);
+    const [updating, setUpdating] = useState$e(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -7053,7 +7053,7 @@ function groupEdgesByZLevel(edges, nodeInternals, elevateEdgesOnSelect = false) 
   return edgeTree;
 }
 function useVisibleEdges(onlyRenderVisible, nodeInternals, elevateEdgesOnSelect) {
-  const edges = useStore(useCallback$4((s) => {
+  const edges = useStore(useCallback$7((s) => {
     if (!onlyRenderVisible) {
       return s.edges;
     }
@@ -7132,7 +7132,7 @@ const markerSelector = ({ defaultColor, rfId }) => (s) => {
 };
 const MarkerDefinitions = ({ defaultColor, rfId }) => {
   const markers = useStore(
-    useCallback$4(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
+    useCallback$7(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
     // the id includes all marker options, so we just need to look at that part of the marker
     (a, b) => !(a.length !== b.length || a.some((m, i) => m.id !== b[i].id))
   );
@@ -7204,8 +7204,8 @@ function Viewport({ children }) {
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$5(false);
-  useEffect$5(() => {
+  const isInitialized = useRef$6(false);
+  useEffect$7(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7219,7 +7219,7 @@ const oppositePosition = {
   [Position.Bottom]: Position.Top
 };
 const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLineType.Bezier, CustomComponent, connectionStatus }) => {
-  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$4((s) => ({
+  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$7((s) => ({
     fromNode: s.nodeInternals.get(nodeId),
     handleId: s.connectionHandleId,
     toX: (s.connectionPosition.x - s.transform[0]) / s.transform[2],
@@ -7298,7 +7298,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$5(null);
+  useRef$6(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7598,7 +7598,7 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$5(null);
+  const storeRef = useRef$6(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
@@ -7664,8 +7664,8 @@ function EdgeLabelRenderer({ children }) {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$c(initialItems);
-    const onItemsChange = useCallback$4((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
+    const [items, setItems] = useState$e(initialItems);
+    const onItemsChange = useCallback$7((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
 }
@@ -7673,7 +7673,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$l = await importShared('react');
-const {memo: memo$f,useRef: useRef$4,useEffect: useEffect$4} = React$l;
+const {memo: memo$f,useRef: useRef$5,useEffect: useEffect$6} = React$l;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7727,7 +7727,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$4(null);
+    const svg = useRef$5(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7742,9 +7742,9 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$4(0);
+    const viewScaleRef = useRef$5(0);
     viewScaleRef.current = viewScale;
-    useEffect$4(() => {
+    useEffect$6(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7811,7 +7811,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$f(MiniMap);
 
 const React$k = await importShared('react');
-const {memo: memo$e,useState: useState$b,useEffect: useEffect$3} = React$k;
+const {memo: memo$e,useState: useState$d,useEffect: useEffect$5} = React$k;
 
 function PlusIcon() {
     return (React$k.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7848,10 +7848,10 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$b(false);
+    const [isVisible, setIsVisible] = useState$d(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$3(() => {
+    useEffect$5(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7892,7 +7892,7 @@ Controls.displayName = 'Controls';
 var Controls$1 = memo$e(Controls);
 
 const React$j = await importShared('react');
-const {memo: memo$d,useRef: useRef$3} = React$j;
+const {memo: memo$d,useRef: useRef$4} = React$j;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7924,7 +7924,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$3(null);
+    const ref = useRef$4(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -7951,48 +7951,48 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
 Background.displayName = 'Background';
 var Background$1 = memo$d(Background);
 
-const {useRef: useRef$2,useCallback: useCallback$3} = await importShared('react');
+const {useRef: useRef$3,useCallback: useCallback$6} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$2([]);
-  const redoStack = useRef$2([]);
-  const nodeCallbacks = useRef$2({});
-  const isUpdatingNodes = useRef$2(false);
-  const handleNodesChange = useCallback$3(
+  const undoStack = useRef$3([]);
+  const redoStack = useRef$3([]);
+  const nodeCallbacks = useRef$3({});
+  const isUpdatingNodes = useRef$3(false);
+  const handleNodesChange = useCallback$6(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
     [setNodes]
   );
-  const handleEdgesChange = useCallback$3(
+  const handleEdgesChange = useCallback$6(
     (changes) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
     },
     [setEdges]
   );
-  const pushToUndoStack = useCallback$3(() => {
+  const pushToUndoStack = useCallback$6(() => {
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
       edges: JSON.parse(JSON.stringify(edges))
     });
     redoStack.current = [];
   }, [nodes, edges]);
-  const safeSetNodes = useCallback$3(
+  const safeSetNodes = useCallback$6(
     (updater) => {
       pushToUndoStack();
       setNodes(updater);
     },
     [pushToUndoStack, setNodes]
   );
-  const safeSetEdges = useCallback$3(
+  const safeSetEdges = useCallback$6(
     (updater) => {
       pushToUndoStack();
       setEdges(updater);
     },
     [pushToUndoStack, setEdges]
   );
-  const handleNodeSelection = useCallback$3(
+  const handleNodeSelection = useCallback$6(
     (nodeId) => {
       if (isUpdatingNodes.current) return;
       isUpdatingNodes.current = true;
@@ -8009,7 +8009,7 @@ function useFlowNodes() {
     },
     [setNodes]
   );
-  const getNodeCallbacks = useCallback$3(
+  const getNodeCallbacks = useCallback$6(
     (nodeId, nodeType) => {
       if (nodeCallbacks.current[nodeId]) {
         return nodeCallbacks.current[nodeId];
@@ -8176,7 +8176,7 @@ function useFlowNodes() {
     },
     [handleNodeSelection, safeSetNodes]
   );
-  const onNodesDelete = useCallback$3(
+  const onNodesDelete = useCallback$6(
     (nodesToDelete) => {
       if (!nodesToDelete || nodesToDelete.length === 0) return;
       nodesToDelete.forEach((nodeToDelete) => {
@@ -8223,14 +8223,14 @@ function useFlowNodes() {
     },
     [nodes, edges, safeSetEdges, safeSetNodes]
   );
-  const deleteSelectedNodes = useCallback$3(
+  const deleteSelectedNodes = useCallback$6(
     (selectedNodes) => {
       if (!selectedNodes || selectedNodes.length === 0) return;
       onNodesDelete(selectedNodes);
     },
     [onNodesDelete]
   );
-  const handleAddInputNode = useCallback$3(
+  const handleAddInputNode = useCallback$6(
     (position) => {
       const id = `input_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "customInput");
@@ -8254,7 +8254,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddAINode = useCallback$3(
+  const handleAddAINode = useCallback$6(
     (position) => {
       const id = `ai_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "aiCustomInput");
@@ -8275,7 +8275,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddBrowserExtensionOutput = useCallback$3(
+  const handleAddBrowserExtensionOutput = useCallback$6(
     (position) => {
       const id = `browserExtOut_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(
@@ -8297,7 +8297,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddBrowserExtensionInput = useCallback$3(
+  const handleAddBrowserExtensionInput = useCallback$6(
     (position) => {
       const id = `browserExtIn_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "browserExtensionInput");
@@ -8317,7 +8317,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddNode = useCallback$3(
+  const handleAddNode = useCallback$6(
     (position) => {
       const id = `default_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "default");
@@ -8337,7 +8337,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddIfElseNode = useCallback$3(
+  const handleAddIfElseNode = useCallback$6(
     (position) => {
       const id = `ifelse_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "ifElse");
@@ -8359,7 +8359,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddHTTPNode = useCallback$3(
+  const handleAddHTTPNode = useCallback$6(
     (position) => {
       const id = `http_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "http");
@@ -8382,7 +8382,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddLineNode = useCallback$3(
+  const handleAddLineNode = useCallback$6(
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "line");
@@ -8405,7 +8405,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddKnowledgeRetrievalNode = useCallback$3(
+  const handleAddKnowledgeRetrievalNode = useCallback$6(
     (position) => {
       const id = `knowledge_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "knowledgeRetrieval");
@@ -8430,7 +8430,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEndNode = useCallback$3(
+  const handleAddEndNode = useCallback$6(
     (position) => {
       const id = `end_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "end");
@@ -8451,7 +8451,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddWebhookNode = useCallback$3(
+  const handleAddWebhookNode = useCallback$6(
     (position) => {
       const id = `webhook_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "webhook");
@@ -8472,7 +8472,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddTimerNode = useCallback$3(
+  const handleAddTimerNode = useCallback$6(
     (position) => {
       const id = `timer_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "timer");
@@ -8494,7 +8494,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEventNode = useCallback$3(
+  const handleAddEventNode = useCallback$6(
     (position) => {
       const id = `event_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "event");
@@ -8516,7 +8516,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const onConnect = useCallback$3(
+  const onConnect = useCallback$6(
     (params) => {
       safeSetEdges(
         (eds) => addEdge(
@@ -8531,7 +8531,7 @@ function useFlowNodes() {
     },
     [safeSetEdges]
   );
-  const undo = useCallback$3(() => {
+  const undo = useCallback$6(() => {
     if (undoStack.current.length === 0) return;
     redoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -8541,7 +8541,7 @@ function useFlowNodes() {
     setNodes(prev.nodes);
     setEdges(prev.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const redo = useCallback$3(() => {
+  const redo = useCallback$6(() => {
     if (redoStack.current.length === 0) return;
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -8551,7 +8551,7 @@ function useFlowNodes() {
     setNodes(next.nodes);
     setEdges(next.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const updateNodeLabel = useCallback$3(
+  const updateNodeLabel = useCallback$6(
     (id, label) => {
       safeSetNodes(
         (nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, label } } : n)
@@ -8559,43 +8559,45 @@ function useFlowNodes() {
     },
     [safeSetNodes]
   );
-  const updateNodeFunctions = useCallback$3(() => {
-    const nodesToUpdate = [];
-    nodes.forEach((node) => {
+  const updateNodeFunctions = useCallback$6(() => {
+    const updatedNodes = [...nodes];
+    let hasChanges = false;
+    console.log("開始檢查並更新所有節點的回調函數...");
+    nodes.forEach((node, index) => {
       const nodeId = node.id;
       const nodeType = node.type;
       let missingCallbacks = false;
       switch (nodeType) {
         case "customInput":
-          missingCallbacks = !node.data.addField || !node.data.updateFieldInputName || !node.data.updateFieldDefaultValue;
+          missingCallbacks = !node.data.addField || !node.data.updateFieldInputName || !node.data.updateFieldDefaultValue || !node.data.onSelect;
           break;
         case "browserExtensionInput":
-          missingCallbacks = !node.data.addItem || !node.data.updateItemName;
+          missingCallbacks = !node.data.addItem || !node.data.updateItemName || !node.data.onSelect;
           break;
         default:
           missingCallbacks = !node.data.onSelect || !node.data.updateNodeData;
           break;
       }
       if (missingCallbacks) {
-        nodesToUpdate.push({ node, nodeId, nodeType });
+        console.log(
+          `節點 ${nodeId} (類型: ${nodeType}) 缺少必要回調，正在更新...`
+        );
+        const callbacks = getNodeCallbacks(nodeId, nodeType);
+        updatedNodes[index] = {
+          ...updatedNodes[index],
+          data: {
+            ...updatedNodes[index].data,
+            ...callbacks
+          }
+        };
+        hasChanges = true;
       }
     });
-    if (nodesToUpdate.length > 0) {
-      const updatedNodes = [...nodes];
-      nodesToUpdate.forEach(({ nodeId, nodeType }) => {
-        const callbacks = getNodeCallbacks(nodeId, nodeType);
-        const nodeIndex = updatedNodes.findIndex((n) => n.id === nodeId);
-        if (nodeIndex !== -1) {
-          updatedNodes[nodeIndex] = {
-            ...updatedNodes[nodeIndex],
-            data: {
-              ...updatedNodes[nodeIndex].data,
-              ...callbacks
-            }
-          };
-        }
-      });
+    if (hasChanges) {
+      console.log("有節點回調函數需要更新，正在應用變更...");
       setNodes(updatedNodes);
+    } else {
+      console.log("所有節點回調函數已經是最新，無需更新。");
     }
   }, [nodes, getNodeCallbacks, setNodes]);
   return {
@@ -8646,7 +8648,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1eb78085ac193104ad31b262d397588abdf7e8cc", "VITE_APP_BUILD_TIME": "2025-04-28T02:09:39.127Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f02fa3fa54213a0e7074620d68052d3cc87ed10b", "VITE_APP_BUILD_TIME": "2025-04-28T03:49:48.812Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -8707,9 +8709,9 @@ const VersionDisplay = ({ className = "" }) => {
 };
 
 const React$i = await importShared('react');
-const {useState: useState$a} = React$i;
+const {useState: useState$c} = React$i;
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
-  const [searchTerm, setSearchTerm] = useState$a("");
+  const [searchTerm, setSearchTerm] = useState$c("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -9047,10 +9049,10 @@ const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
 };
 
 const React$h = await importShared('react');
-const {useState: useState$9} = React$h;
+const {useState: useState$b} = React$h;
 
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$9(true);
+  const [isEditing, setIsEditing] = useState$b(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -9148,10 +9150,10 @@ const APAAssistant = ({ title, onTitleChange }) => {
 };
 
 const React$g = await importShared('react');
-const {memo: memo$c,useCallback: useCallback$2} = React$g;
+const {memo: memo$c,useCallback: useCallback$5} = React$g;
 
 const NodeWrapper = ({ children, selected, onClick }) => {
-  const handleClick = useCallback$2(
+  const handleClick = useCallback$5(
     (e) => {
       e.stopPropagation();
       if (typeof onClick === "function") {
@@ -9178,11 +9180,11 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 const NodeWrapper$1 = memo$c(NodeWrapper);
 
 const React$f = await importShared('react');
-const {memo: memo$b,useCallback: useCallback$1} = React$f;
+const {memo: memo$b,useCallback: useCallback$4} = React$f;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
-    const handleNodeClick = useCallback$1(
+    const handleNodeClick = useCallback$4(
       (e) => {
         e.stopPropagation();
         if (data && typeof data.onSelect === "function") {
@@ -9238,33 +9240,108 @@ const InputIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
 );
 
 const React$e = await importShared('react');
-const {memo: memo$a,useReducer} = React$e;
-const CustomInputNode = ({ data, isConnectable }) => {
-  const fields = data.fields || [];
-  const handleAddField = () => {
+const {memo: memo$a,useReducer,useCallback: useCallback$3,useState: useState$a,useEffect: useEffect$4} = React$e;
+const CustomInputNode = ({ data, isConnectable, id }) => {
+  const [localFields, setLocalFields] = useState$a([]);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  useEffect$4(() => {
+    if (Array.isArray(data.fields)) {
+      setLocalFields(data.fields);
+    } else {
+      setLocalFields([
+        {
+          inputName: "input_name",
+          defaultValue: "Summary the input text"
+        }
+      ]);
+    }
+  }, [data.fields]);
+  const handleAddField = useCallback$3(() => {
+    console.log("添加欄位", {
+      hasAddField: typeof data.addField === "function",
+      fieldsLength: localFields.length,
+      nodeId: id
+    });
     if (typeof data.addField === "function") {
       data.addField();
     } else {
-      console.warn("addField function is not defined");
+      console.warn(`節點 ${id}: addField 函數未定義，使用本地實現`);
       const newField = {
         inputName: "New Input",
         defaultValue: "Default value"
       };
-      if (Array.isArray(data.fields)) {
-        data.fields.push(newField);
-      } else {
-        data.fields = [newField];
+      const updatedFields = [...localFields, newField];
+      setLocalFields(updatedFields);
+      if (data.fields) {
+        data.fields = updatedFields;
       }
       forceUpdate();
     }
-  };
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  }, [data, localFields, id]);
+  const handleUpdateFieldInputName = useCallback$3(
+    (index, value) => {
+      console.log("更新欄位名稱", {
+        hasUpdateField: typeof data.updateFieldInputName === "function",
+        index,
+        value,
+        nodeId: id
+      });
+      if (typeof data.updateFieldInputName === "function") {
+        data.updateFieldInputName(index, value);
+      } else {
+        console.warn(
+          `節點 ${id}: updateFieldInputName 函數未定義，使用本地實現`
+        );
+        const updatedFields = [...localFields];
+        if (index >= 0 && index < updatedFields.length) {
+          updatedFields[index] = {
+            ...updatedFields[index],
+            inputName: value
+          };
+          setLocalFields(updatedFields);
+          if (data.fields) {
+            data.fields = updatedFields;
+          }
+          forceUpdate();
+        }
+      }
+    },
+    [data, localFields, id]
+  );
+  const handleUpdateFieldDefaultValue = useCallback$3(
+    (index, value) => {
+      console.log("更新欄位默認值", {
+        hasUpdateDefaultValue: typeof data.updateFieldDefaultValue === "function",
+        index,
+        value,
+        nodeId: id
+      });
+      if (typeof data.updateFieldDefaultValue === "function") {
+        data.updateFieldDefaultValue(index, value);
+      } else {
+        console.warn(
+          `節點 ${id}: updateFieldDefaultValue 函數未定義，使用本地實現`
+        );
+        const updatedFields = [...localFields];
+        if (index >= 0 && index < updatedFields.length) {
+          updatedFields[index] = {
+            ...updatedFields[index],
+            defaultValue: value
+          };
+          setLocalFields(updatedFields);
+          if (data.fields) {
+            data.fields = updatedFields;
+          }
+          forceUpdate();
+        }
+      }
+    },
+    [data, localFields, id]
+  );
+  const fields = Array.isArray(localFields) && localFields.length > 0 ? localFields : Array.isArray(data.fields) ? data.fields : [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-64 relative", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-blue-100 rounded-t-lg p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(InputIcon, {}),
-        " "
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(InputIcon, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Input" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
@@ -9284,11 +9361,7 @@ const CustomInputNode = ({ data, isConnectable }) => {
                   className: "w-full border border-gray-300 rounded p-2 text-sm",
                   placeholder: "AI node prompt",
                   value: field.inputName || "",
-                  onChange: (e) => {
-                    if (typeof data.updateFieldInputName === "function") {
-                      data.updateFieldInputName(idx, e.target.value);
-                    }
-                  }
+                  onChange: (e) => handleUpdateFieldInputName(idx, e.target.value)
                 }
               )
             ] }),
@@ -9301,11 +9374,7 @@ const CustomInputNode = ({ data, isConnectable }) => {
                   className: "w-full border border-gray-300 rounded p-2 text-sm",
                   placeholder: "Summary the input text",
                   value: field.defaultValue || "",
-                  onChange: (e) => {
-                    if (typeof data.updateFieldDefaultValue === "function") {
-                      data.updateFieldDefaultValue(idx, e.target.value);
-                    }
-                  }
+                  onChange: (e) => handleUpdateFieldDefaultValue(idx, e.target.value)
                 }
               )
             ] }),
@@ -9991,6 +10060,8 @@ class WorkflowDataConverter {
    * @param {Object} apiData - API 回傳的原始數據
    * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
    */
+  // WorkflowDataConverter.js 中需要修改的方法
+
   static transformToReactFlowFormat(apiData) {
     console.log('開始轉換 API 格式為 ReactFlow 格式');
 
@@ -10145,6 +10216,8 @@ class WorkflowDataConverter {
           console.log('添加一個默認欄位:', defaultField);
         }
 
+        // 返回完整的資料結構，不包含回調函數
+        // 回調函數將在 updateNodeFunctions 中添加
         return {
           ...baseData,
           fields
@@ -10491,32 +10564,137 @@ class WorkflowDataConverter {
   }
 }
 
+/**
+ * 圖標上傳服務 - 處理與圖標上傳相關的 API 請求
+ */
+class IconUploadService {
+  constructor() {
+    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
+    this.cache = {}; // 緩存上傳過的圖標
+  }
+
+  /**
+   * 上傳圖標文件到服務器
+   * @param {File} file - 要上傳的文件對象
+   * @returns {Promise<Object>} - 包含上傳結果的 Promise，成功時返回 {success: true, url: "圖標URL"}
+   */
+  async uploadIcon(file) {
+    if (!file) {
+      throw new Error('未提供文件');
+    }
+
+    // 檢查文件類型
+    if (!file.type.startsWith('image/')) {
+      throw new Error('僅支持圖片文件');
+    }
+
+    try {
+      console.log(`開始上傳圖標: ${file.name}`);
+
+      // 創建 FormData 對象
+      const formData = new FormData();
+      formData.append('file', file); // 使用正確的欄位名稱 'file'
+
+      // 發送 POST 請求
+      const response = await fetch(`${this.baseUrl}/agent_designer/icons/`, {
+        method: 'POST',
+        headers: {
+          accept: 'application/json'
+          // 注意：不要設置 'Content-Type': 'multipart/form-data'，
+          // fetch 會自動設置正確的 boundary
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error(`上傳失敗: ${response.status} ${response.statusText}`);
+      }
+
+      // 解析 API 回傳的資料
+      const data = await response.json();
+      console.log('圖標上傳成功:', data);
+
+      if (!data.url) {
+        throw new Error('API 未回傳圖標 URL');
+      }
+
+      // 將 URL 加入緩存
+      this.cache[file.name] = data.url;
+
+      return {
+        success: true,
+        url: data.url
+      };
+    } catch (error) {
+      console.error('上傳圖標時發生錯誤:', error);
+      return {
+        success: false,
+        error: error.message || '上傳圖標失敗',
+        details: error
+      };
+    }
+  }
+
+  /**
+   * 檢查圖標 URL 是否有效
+   * @param {string} iconValue - 圖標值，可能是 URL 或預設圖標名稱
+   * @returns {boolean} - 如果是有效的圖標 URL 返回 true
+   */
+  isIconUrl(iconValue) {
+    return (
+      typeof iconValue === 'string' &&
+      (iconValue.startsWith('http://') || iconValue.startsWith('https://'))
+    );
+  }
+
+  /**
+   * 從緩存中獲取圖標 URL
+   * @param {string} fileName - 文件名
+   * @returns {string|null} - 如果存在則返回 URL，否則返回 null
+   */
+  getCachedIconUrl(fileName) {
+    return this.cache[fileName] || null;
+  }
+}
+
 // 創建服務實例
 const workflowAPIService = new WorkflowAPIService();
 const llmService = new LLMService();
+// 將 IconUploadService 添加到導出
+const iconUploadService = new IconUploadService();
 
 const React$d = await importShared('react');
-const {memo: memo$9,useState: useState$8,useEffect: useEffect$2,useRef: useRef$1} = React$d;
+const {memo: memo$9,useState: useState$9,useEffect: useEffect$3,useRef: useRef$2} = React$d;
 const AICustomInputNode = ({ data, isConnectable }) => {
-  const nodeIdRef = useRef$1(
+  const nodeIdRef = useRef$2(
     `ai-node-${Math.random().toString(36).substr(2, 9)}`
   );
   const nodeId = nodeIdRef.current;
-  const [modelOptions, setModelOptions] = useState$8([
+  const [modelOptions, setModelOptions] = useState$9([
     { value: "O3-mini", label: "O3-mini" },
     { value: "O3-plus", label: "O3-plus" },
     { value: "O3-mega", label: "O3-mega" },
     { value: "O3-ultra", label: "O3-ultra" }
   ]);
-  const [isLoadingModels, setIsLoadingModels] = useState$8(false);
-  const [modelLoadError, setModelLoadError] = useState$8(null);
-  const [localModel, setLocalModel] = useState$8("O3-mini");
-  const [localSelectedOption, setLocalSelectedOption] = useState$8("prompt");
-  useEffect$2(() => {
-    if (data?.model) {
+  const [isLoadingModels, setIsLoadingModels] = useState$9(false);
+  const [modelLoadError, setModelLoadError] = useState$9(null);
+  const [localModel, setLocalModel] = useState$9(data?.model || "O3-mini");
+  const [localSelectedOption, setLocalSelectedOption] = useState$9(
+    data?.selectedOption || "prompt"
+  );
+  useEffect$3(() => {
+    console.log("AICustomInputNode 數據同步更新:", {
+      "data.model": data?.model,
+      "data.selectedOption": data?.selectedOption
+    });
+    if (data?.model && data.model !== localModel) {
+      console.log(`同步模型從 ${localModel} 到 ${data.model}`);
       setLocalModel(data.model);
     }
-    if (data?.selectedOption) {
+    if (data?.selectedOption && data.selectedOption !== localSelectedOption) {
+      console.log(
+        `同步選項從 ${localSelectedOption} 到 ${data.selectedOption}`
+      );
       setLocalSelectedOption(data.selectedOption);
     }
   }, [data?.model, data?.selectedOption]);
@@ -10531,9 +10709,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         if (!options.some((opt) => opt.value === localModel)) {
           const defaultModel = options.find((opt) => opt.isDefault)?.value || options[0].value;
           setLocalModel(defaultModel);
-          if (data && typeof data.updateNodeData === "function") {
-            data.updateNodeData("model", defaultModel);
-          }
+          updateParentState("model", defaultModel);
         }
       }
     } catch (error) {
@@ -10545,23 +10721,37 @@ const AICustomInputNode = ({ data, isConnectable }) => {
       setIsLoadingModels(false);
     }
   };
-  useEffect$2(() => {
+  useEffect$3(() => {
     loadModels();
   }, []);
+  const updateParentState = (key, value) => {
+    console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+    if (data && typeof data.updateNodeData === "function") {
+      data.updateNodeData(key, value);
+      console.log(`使用 updateNodeData 更新 ${key}`);
+      return true;
+    }
+    if (data) {
+      data[key] = value;
+      console.log(`直接修改 data.${key} = ${value}`);
+      return true;
+    }
+    console.warn(`無法更新父組件的 ${key}`);
+    return false;
+  };
   const handleModelChange = (e) => {
     const newModelValue = e.target.value;
+    console.log(`模型變更為: ${newModelValue}`);
     setLocalModel(newModelValue);
-    if (data && typeof data.updateNodeData === "function") {
-      data.updateNodeData("model", newModelValue);
-    }
+    updateParentState("model", newModelValue);
   };
   const handleOptionChange = (option) => {
     console.log(`節點 ${nodeId} 選項變更為: ${option}`);
     setLocalSelectedOption(option);
-    if (data && typeof data.updateNodeData === "function") {
-      data.updateNodeData("selectedOption", option);
-    }
+    updateParentState("selectedOption", option);
   };
+  const isPromptSelected = localSelectedOption === "prompt";
+  const isContextSelected = localSelectedOption === "context";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -10621,15 +10811,15 @@ const AICustomInputNode = ({ data, isConnectable }) => {
               {
                 type: "radio",
                 className: "hidden",
-                checked: localSelectedOption === "prompt",
+                checked: isPromptSelected,
                 onChange: () => handleOptionChange("prompt")
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: `w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${localSelectedOption === "prompt" ? "border-gray-500" : ""}`,
-                children: localSelectedOption === "prompt" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-gray-600" })
+                className: `w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${isPromptSelected ? "border-gray-500" : ""}`,
+                children: isPromptSelected && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-gray-600" })
               }
             )
           ] }),
@@ -10642,15 +10832,15 @@ const AICustomInputNode = ({ data, isConnectable }) => {
               {
                 type: "radio",
                 className: "hidden",
-                checked: localSelectedOption === "context",
+                checked: isContextSelected,
                 onChange: () => handleOptionChange("context")
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: `w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${localSelectedOption === "context" ? "border-gray-500" : ""}`,
-                children: localSelectedOption === "context" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-gray-600" })
+                className: `w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${isContextSelected ? "border-gray-500" : ""}`,
+                children: isContextSelected && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-gray-600" })
               }
             )
           ] }),
@@ -10792,60 +10982,6 @@ const BrowserExtensionOutputNode$1 = memo$8(BrowserExtensionOutputNode);
 
 await importShared('react');
 
-function UploadIcon({ className = "w-6 h-6 text-gray-800" }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "svg",
-    {
-      viewBox: "0 0 24 24",
-      fill: "none",
-      className,
-      xmlns: "http://www.w3.org/2000/svg",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "g",
-          {
-            id: "SVGRepo_bgCarrier",
-            strokeWidth: "0"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "g",
-          {
-            id: "SVGRepo_tracerCarrier",
-            "stroke-linecap": "round",
-            "stroke-linejoin": "round"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { id: "SVGRepo_iconCarrier", children: [
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
-            {
-              d: "M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487",
-              stroke: "#1C274C",
-              strokeWidth: "1.5",
-              "stroke-linecap": "round",
-              "stroke-linejoin": "round"
-            }
-          ),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
-            {
-              d: "M12 16V3M12 3L16 7.375M12 3L8 7.375",
-              stroke: "#1C274C",
-              strokeWidth: "1.5",
-              "stroke-linecap": "round",
-              "stroke-linejoin": "round"
-            }
-          ),
-          " "
-        ] })
-      ]
-    }
-  );
-}
-
 await importShared('react');
 
 const BrowserExtensionInputIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -10877,122 +11013,211 @@ const BrowserExtensionInputIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
 );
 
 const React$b = await importShared('react');
-const {memo: memo$7} = React$b;
-const BrowserExtensionInputNode = ({ data, isConnectable }) => {
-  const items = data.items || [];
-  const getIconComponent = (iconType) => {
-    switch (iconType) {
-      case "upload":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(UploadIcon, {});
-      case "document":
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "24",
-            height: "24",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "14 2 14 8 20 8" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "16",
-                  y1: "13",
-                  x2: "8",
-                  y2: "13"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "16",
-                  y1: "17",
-                  x2: "8",
-                  y2: "17"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "10 9 9 9 8 9" })
-            ]
-          }
-        );
-      case "edit":
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "24",
-            height: "24",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" })
-            ]
-          }
-        );
-      case "medical":
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "24",
-            height: "24",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M19 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "18 8 12 2 6 8" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "2",
-                  x2: "12",
-                  y2: "16"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M9 16a3 3 0 0 0 6 0" })
-            ]
-          }
-        );
-      default:
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(UploadIcon, {});
+const {memo: memo$7,useState: useState$8,useEffect: useEffect$2,useCallback: useCallback$2,useRef: useRef$1} = React$b;
+const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
+  const [localItems, setLocalItems] = useState$8(data?.items || []);
+  const [isUploading, setIsUploading] = useState$8(false);
+  const [uploadError, setUploadError] = useState$8(null);
+  const fileInputRef = useRef$1(null);
+  const activeItemRef = useRef$1(null);
+  useEffect$2(() => {
+    console.log("BrowserExtensionInputNode 數據同步檢查:", {
+      "data.items": data?.items,
+      localItems,
+      "node.id": id
+    });
+    if (Array.isArray(data?.items) && (!Array.isArray(localItems) || localItems.length === 0 || data.items.length !== localItems.length)) {
+      console.log("完全同步 items 數據到本地狀態");
+      setLocalItems(data.items);
     }
-  };
-  const handleNameChange = (index, value) => {
-    if (data.updateItemName) {
-      data.updateItemName(index, value);
+  }, [data?.items, localItems, id]);
+  const updateParentState = useCallback$2(
+    (key, value) => {
+      console.log(`嘗試更新父組件狀態 ${key}=`, value);
+      if (key === "items" && data && typeof data.updateItems === "function") {
+        data.updateItems(value);
+        return true;
+      }
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData(key, value);
+        return true;
+      }
+      if (data) {
+        data[key] = value;
+        return true;
+      }
+      console.warn(`無法更新父組件的 ${key}`);
+      return false;
+    },
+    [data]
+  );
+  const handleIconClick = useCallback$2((index) => {
+    console.log(`點擊項目 ${index} 的圖標，準備上傳新圖標`);
+    activeItemRef.current = index;
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
-  };
-  const handleAddItem = () => {
-    if (data.addItem) {
+  }, []);
+  const handleFileSelect = useCallback$2(
+    async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const itemIndex = activeItemRef.current;
+      if (itemIndex === null || itemIndex < 0 || itemIndex >= localItems.length) {
+        console.warn("沒有找到活動項目索引或索引超出範圍");
+        return;
+      }
+      setIsUploading(true);
+      setUploadError(null);
+      try {
+        const result = await iconUploadService.uploadIcon(file);
+        if (result.success && result.url) {
+          console.log("圖標上傳成功:", result.url);
+          handleIconChange(itemIndex, result.url);
+        } else {
+          throw new Error(result.error || "上傳失敗");
+        }
+      } catch (error) {
+        console.error("上傳或處理圖標時發生錯誤:", error);
+        setUploadError(error.message || "上傳圖標失敗");
+      } finally {
+        setIsUploading(false);
+        event.target.value = "";
+      }
+    },
+    [localItems]
+  );
+  const getIconComponent = useCallback$2(
+    (iconValue, index) => {
+      if (iconUploadService.isIconUrl(iconValue)) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "cursor-pointer",
+            onClick: () => handleIconClick(index),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "img",
+              {
+                src: iconValue,
+                alt: "Custom Icon",
+                className: "w-7 h-7 object-contain"
+              }
+            )
+          }
+        );
+      }
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "cursor-pointer",
+          onClick: () => handleIconClick(index),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "svg",
+            {
+              xmlns: "http://www.w3.org/2000/svg",
+              width: "24",
+              height: "24",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "17 8 12 3 7 8" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "line",
+                  {
+                    x1: "12",
+                    y1: "3",
+                    x2: "12",
+                    y2: "15"
+                  }
+                )
+              ]
+            }
+          )
+        }
+      );
+    },
+    [handleIconClick]
+  );
+  const handleIconChange = useCallback$2(
+    (index, iconValue) => {
+      console.log(`更新項目 ${index} 的圖標為`, iconValue);
+      if (index < 0 || index >= localItems.length) {
+        console.warn(`項目索引 ${index} 超出範圍`);
+        return;
+      }
+      const updatedItems = [...localItems];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        // 保留所有現有屬性
+        icon: iconValue
+        // 僅更新 icon 屬性
+      };
+      setLocalItems(updatedItems);
+      updateParentState("items", updatedItems);
+    },
+    [localItems, updateParentState]
+  );
+  const handleNameChange = useCallback$2(
+    (index, value) => {
+      console.log(`修改項目 ${index} 的名稱為 ${value}`);
+      if (index < 0 || index >= localItems.length) {
+        console.warn(`項目索引 ${index} 超出範圍`);
+        return;
+      }
+      if (typeof data?.updateItemName === "function") {
+        console.log("使用 updateItemName 回調函數");
+        data.updateItemName(index, value);
+        return;
+      }
+      console.log("使用自定義方法更新項目名稱");
+      const updatedItems = [...localItems];
+      updatedItems[index] = {
+        ...updatedItems[index],
+        // 保留所有現有屬性（包括 icon）
+        name: value
+        // 僅更新 name 屬性
+      };
+      setLocalItems(updatedItems);
+      updateParentState("items", updatedItems);
+    },
+    [data, localItems, updateParentState]
+  );
+  const handleAddItem = useCallback$2(() => {
+    console.log("添加新項目");
+    if (typeof data?.addItem === "function") {
+      console.log("使用 addItem 回調函數");
       data.addItem();
-    } else {
-      console.log("addItem 函數未定義");
+      return;
     }
-  };
-  const calculateHandlePosition = (index) => {
+    console.log("使用自定義方法添加項目");
+    const newItem = { name: "", icon: "upload" };
+    const updatedItems = [...localItems, newItem];
+    setLocalItems(updatedItems);
+    updateParentState("items", updatedItems);
+  }, [data, localItems, updateParentState]);
+  const calculateHandlePosition = useCallback$2((index) => {
     const headerHeight = 56;
     const contentPadding = 16;
     const itemHeight = 120;
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
-  };
+  }, []);
+  const items = Array.isArray(localItems) && localItems.length > 0 ? localItems : Array.isArray(data?.items) ? data.items : [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-64 relative", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        type: "file",
+        ref: fileInputRef,
+        style: { display: "none" },
+        accept: "image/*",
+        onChange: handleFileSelect
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg overflow-hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserExtensionInputIcon, {}) }),
@@ -11012,16 +11237,24 @@ const BrowserExtensionInputNode = ({ data, isConnectable }) => {
                   {
                     type: "text",
                     className: "w-full border border-gray-300 rounded p-2 text-sm",
-                    value: item.name,
+                    value: item.name || "",
                     onChange: (e) => handleNameChange(idx, e.target.value)
                   }
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center mb-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mr-4", children: "icon" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 flex justify-center items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10 h-10 flex justify-center items-center", children: getIconComponent(item.icon) }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 flex justify-center items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: `w-10 h-10 flex justify-center items-center ${isUploading && activeItemRef.current === idx ? "opacity-50" : ""}`,
+                    title: "點擊上傳自定義圖標",
+                    children: isUploading && activeItemRef.current === idx ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-6 w-6 border-b-2 border-gray-500" }) : getIconComponent(item.icon, idx)
+                  }
+                ) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-12 h-5" })
               ] }),
+              uploadError && activeItemRef.current === idx && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-500 mt-1 mb-2", children: uploadError }),
               idx < items.length - 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200 my-3" })
             ]
           },
@@ -11253,13 +11486,13 @@ const KnowledgeRetrievalIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsx(
 );
 
 const React$9 = await importShared('react');
-const {memo: memo$5,useState: useState$7,useEffect: useEffect$1} = React$9;
-const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
+const {memo: memo$5,useState: useState$7,useEffect: useEffect$1,useCallback: useCallback$1} = React$9;
+const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [dropdownOpen, setDropdownOpen] = useState$7(false);
   const [isLoadingFiles, setIsLoadingFiles] = useState$7(false);
   const [fileLoadError, setFileLoadError] = useState$7(null);
   const [dataFiles, setDataFiles] = useState$7(
-    data.availableFiles || [
+    data?.availableFiles || [
       {
         id: "icdcode",
         value: "icdcode",
@@ -11275,21 +11508,51 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
     ]
   );
   const [localSelectedFile, setLocalSelectedFile] = useState$7(
-    data.selectedFile || ""
+    data?.selectedFile || ""
   );
-  const handleFileSelect = (fileId) => {
-    setDropdownOpen(false);
-    setLocalSelectedFile(fileId);
-    if (data && typeof data.updateNodeData === "function") {
-      data.updateNodeData("selectedFile", fileId);
-    } else {
-      console.warn(
-        "updateNodeData 不是一個函數，無法更新 selectedFile。使用本地狀態代替。"
+  useEffect$1(() => {
+    console.log("監測 data.selectedFile 變更：", {
+      "data.selectedFile": data?.selectedFile,
+      localSelectedFile,
+      "node.id": id
+    });
+    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
+      console.log(
+        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
       );
+      setLocalSelectedFile(data.selectedFile);
     }
-  };
-  const loadFiles = async () => {
+  }, [data?.selectedFile, localSelectedFile, id]);
+  const updateParentState = useCallback$1(
+    (key, value) => {
+      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData(key, value);
+        console.log(`使用 updateNodeData 更新 ${key}`);
+        return true;
+      }
+      if (data) {
+        data[key] = value;
+        console.log(`直接修改 data.${key} = ${value}`);
+        return true;
+      }
+      console.warn(`無法更新父組件的 ${key}`);
+      return false;
+    },
+    [data]
+  );
+  const handleFileSelect = useCallback$1(
+    (fileId) => {
+      console.log(`選擇文件: ${fileId}`);
+      setDropdownOpen(false);
+      setLocalSelectedFile(fileId);
+      updateParentState("selectedFile", fileId);
+    },
+    [updateParentState]
+  );
+  const loadFiles = useCallback$1(async () => {
     if (isLoadingFiles) return;
+    console.log("開始加載文件列表...");
     setIsLoadingFiles(true);
     setFileLoadError(null);
     try {
@@ -11314,27 +11577,48 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
     } finally {
       setIsLoadingFiles(false);
     }
-  };
-  const getCurrentSelectedFile = () => {
+  }, [isLoadingFiles, handleFileSelect]);
+  const getCurrentSelectedFile = useCallback$1(() => {
     return data?.selectedFile || localSelectedFile;
-  };
-  const getSelectedFileName = () => {
+  }, [data?.selectedFile, localSelectedFile]);
+  const getSelectedFileName = useCallback$1(() => {
     const currentFileId = getCurrentSelectedFile();
     if (!currentFileId) return "選擇檔案...";
     const selectedFile = dataFiles.find(
       (file) => file.id === currentFileId || file.value === currentFileId
     );
     return selectedFile ? selectedFile.name || selectedFile.label || selectedFile.filename : "選擇檔案...";
-  };
+  }, [dataFiles, getCurrentSelectedFile]);
   useEffect$1(() => {
     loadFiles();
+    console.log("KnowledgeRetrievalNode 初始化狀態:", {
+      "node.id": id,
+      "data.selectedFile": data?.selectedFile,
+      localSelectedFile,
+      "dataFiles.length": dataFiles.length
+    });
   }, []);
-  const handleDropdownToggle = () => {
+  const handleDropdownToggle = useCallback$1(() => {
     setDropdownOpen(!dropdownOpen);
     if (dataFiles.length <= 2 || fileLoadError) {
       loadFiles();
     }
-  };
+  }, [dropdownOpen, dataFiles.length, fileLoadError, loadFiles]);
+  useEffect$1(() => {
+    console.log("KnowledgeRetrievalNode 狀態更新:", {
+      "node.id": id,
+      "data.selectedFile": data?.selectedFile,
+      localSelectedFile,
+      selectedFileName: getSelectedFileName(),
+      "dataFiles.length": dataFiles.length
+    });
+  }, [
+    id,
+    data?.selectedFile,
+    localSelectedFile,
+    dataFiles,
+    getSelectedFileName
+  ]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(KnowledgeRetrievalIcon, {}) }),
@@ -12206,11 +12490,30 @@ const enhancedNodeTypes = {
 const React$3 = await importShared('react');
 const {useState: useState$3} = React$3;
 
-const SaveButton = ({ onSave, className = "" }) => {
+const SaveButton = ({
+  onSave,
+  className = "",
+  title = "",
+  flowId = "",
+  disabled = false
+}) => {
   const [saveState, setSaveState] = useState$3("");
+  const [errorMessage, setErrorMessage] = useState$3("");
+  const isTitleValid = title && title.trim().length > 0;
+  const isCreateMode = !flowId || flowId === "new";
   const triggerSave = async () => {
+    if (!isTitleValid) {
+      setSaveState("error");
+      setErrorMessage("請先輸入標題");
+      setTimeout(() => {
+        setSaveState("");
+        setErrorMessage("");
+      }, 2e3);
+      return;
+    }
     if (saveState === "saving") return;
     setSaveState("saving");
+    setErrorMessage("");
     try {
       await onSave();
       setSaveState("saved");
@@ -12220,12 +12523,17 @@ const SaveButton = ({ onSave, className = "" }) => {
     } catch (error) {
       console.error("儲存按鈕：儲存作業期間發生錯誤：", error);
       setSaveState("error");
+      setErrorMessage("儲存失敗");
       setTimeout(() => {
         setSaveState("");
+        setErrorMessage("");
       }, 2e3);
     }
   };
   const getButtonStyles = () => {
+    if (disabled || !isTitleValid && !saveState) {
+      return "bg-gray-400 text-white cursor-not-allowed";
+    }
     switch (saveState) {
       case "saving":
         return "bg-[#00ced1] opacity-70 text-white";
@@ -12237,112 +12545,136 @@ const SaveButton = ({ onSave, className = "" }) => {
         return "bg-[#00ced1] text-white";
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      className: "inline-block bg-white rounded-full shadow-md",
-      style: {
-        padding: "10px 13px",
-        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
-      },
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          className: `rounded-full text-sm font-medium ${getButtonStyles()} ${className}`,
-          onClick: triggerSave,
-          disabled: saveState === "saving",
-          title: "儲存流程",
-          style: {
-            width: "85px",
-            height: "40px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          },
-          children: saveState === "saving" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "svg",
-              {
-                className: "animate-spin",
-                xmlns: "http://www.w3.org/2000/svg",
-                width: "16",
-                height: "16",
-                viewBox: "0 0 24 24",
-                fill: "none",
-                stroke: "currentColor",
-                strokeWidth: "2",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "儲存中..." })
-          ] }) : saveState === "saved" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "svg",
-              {
-                xmlns: "http://www.w3.org/2000/svg",
-                width: "16",
-                height: "16",
-                viewBox: "0 0 24 24",
-                fill: "none",
-                stroke: "currentColor",
-                strokeWidth: "2",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 6L9 17l-5-5" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "已儲存" })
-          ] }) : saveState === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "svg",
-              {
-                xmlns: "http://www.w3.org/2000/svg",
-                width: "16",
-                height: "16",
-                viewBox: "0 0 24 24",
-                fill: "none",
-                stroke: "currentColor",
-                strokeWidth: "2",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "circle",
-                    {
-                      cx: "12",
-                      cy: "12",
-                      r: "10"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "line",
-                    {
-                      x1: "12",
-                      y1: "8",
-                      x2: "12",
-                      y2: "12"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "line",
-                    {
-                      x1: "12",
-                      y1: "16",
-                      x2: "12.01",
-                      y2: "16"
-                    }
-                  )
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Save" })
-        }
-      )
+  const getButtonTitle = () => {
+    if (!isTitleValid && !saveState) {
+      return "請先輸入標題";
     }
-  );
+    if (disabled) {
+      return "目前無法儲存";
+    }
+    return isCreateMode ? "建立新流程" : "儲存現有流程";
+  };
+  const getButtonText = () => {
+    if (saveState === "saving") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "svg",
+          {
+            className: "animate-spin",
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "16",
+            height: "16",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isCreateMode ? "建立中..." : "儲存中..." })
+      ] });
+    } else if (saveState === "saved") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "svg",
+          {
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "16",
+            height: "16",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 6L9 17l-5-5" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isCreateMode ? "已建立" : "已儲存" })
+      ] });
+    } else if (saveState === "error") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "svg",
+          {
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "16",
+            height: "16",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "circle",
+                {
+                  cx: "12",
+                  cy: "12",
+                  r: "10"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "line",
+                {
+                  x1: "12",
+                  y1: "8",
+                  x2: "12",
+                  y2: "12"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "line",
+                {
+                  x1: "12",
+                  y1: "16",
+                  x2: "12.01",
+                  y2: "16"
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
+      ] });
+    } else {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isCreateMode ? "Create" : "Save" });
+    }
+  };
+  const buttonWidth = isCreateMode ? "92px" : "85px";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative inline-block", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "inline-block bg-white rounded-full shadow-md",
+        style: {
+          padding: "10px 13px",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: `rounded-full text-sm font-medium ${getButtonStyles()} ${className}`,
+            onClick: triggerSave,
+            disabled: saveState === "saving" || disabled || !isTitleValid && !saveState,
+            title: getButtonTitle(),
+            style: {
+              width: buttonWidth,
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            },
+            children: getButtonText()
+          }
+        )
+      }
+    ),
+    errorMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs whitespace-nowrap", children: errorMessage })
+  ] });
 };
 
 const React$2 = await importShared('react');
@@ -12830,7 +13162,9 @@ const React$1 = await importShared('react');
 const {useState: useState$1} = React$1;
 
 const LoadWorkflowButton = ({ onLoad }) => {
-  const [workflowId, setWorkflowId] = useState$1("");
+  const [workflowId, setWorkflowId] = useState$1(
+    "1eb3f95e-373a-4c81-8c9c-27b4b35721aa"
+  );
   const [showInput, setShowInput] = useState$1(false);
   const [loadState, setLoadState] = useState$1("");
   const handleClick = () => {
@@ -13028,6 +13362,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const isInitialized = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
   const nodeTypes = useMemo(() => enhancedNodeTypes, []);
   const edgeTypes = useMemo(() => ({ "custom-edge": CustomEdge }), []);
   const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
@@ -13097,8 +13432,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           title: apiData.flow_name || prev.flow_name,
           version: apiData.version || prev.version
         }));
+        console.log("載入工作流後立即更新節點函數...");
+        updateNodeFunctions();
         setTimeout(() => {
-          console.log("載入工作流後更新節點函數...");
+          console.log("載入工作流後再次確認節點函數...");
           updateNodeFunctions();
         }, 300);
         showNotification("工作流載入成功", "success");
@@ -13346,22 +13683,23 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     showNotification
   ]);
   const saveToServer = useCallback(async () => {
-    const flowData = {
-      id: flowMetadata.id || `flow_${Date.now()}`,
-      title: flowMetadata.title || "未命名流程",
-      version: flowMetadata.version || 1,
-      nodes,
-      edges,
-      metadata: {
-        lastModified: (/* @__PURE__ */ new Date()).toISOString(),
-        savedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        nodeCount: nodes.length,
-        edgeCount: edges.length
-      }
-    };
-    const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
-    console.log("FlowEditor: 將流程數據轉換為 API 格式:", apiData);
+    setIsSaving(true);
     try {
+      const flowData = {
+        id: flowMetadata.id || `flow_${Date.now()}`,
+        title: flowMetadata.title || "未命名流程",
+        version: flowMetadata.version || 1,
+        nodes,
+        edges,
+        metadata: {
+          lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+          savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+          nodeCount: nodes.length,
+          edgeCount: edges.length
+        }
+      };
+      const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+      console.log("FlowEditor: 將流程數據轉換為 API 格式:", apiData);
       let response;
       if (flowMetadata.id) {
         response = await workflowAPIService.updateWorkflow(apiData);
@@ -13387,8 +13725,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     } catch (error) {
       console.error("FlowEditor: 儲存流程時發生錯誤：", error);
       showNotification("儲存流程時發生錯誤", "error");
+      throw error;
+    } finally {
+      setIsSaving(false);
     }
-  });
+  }, [nodes, edges, flowMetadata, showNotification]);
   useCallback(async () => {
     try {
       const result = await FileIOService.readFromFile();
@@ -13548,7 +13889,15 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2 mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SaveButton, { onSave: saveToServer }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          SaveButton,
+          {
+            onSave: saveToServer,
+            title: flowMetadata.title,
+            flowId: flowMetadata.id,
+            disabled: isSaving
+          }
+        ) })
       ] }),
       flowMetadata.lastSaved && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 bg-white px-3 py-1 rounded-md shadow text-xs text-gray-500 z-10", children: [
         "Last saved: ",
