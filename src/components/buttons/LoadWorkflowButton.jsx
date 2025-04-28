@@ -7,7 +7,9 @@ import React, { useState } from 'react';
  * @param {Function} onLoad - 執行實際載入工作流作業的函數
  */
 const LoadWorkflowButton = ({ onLoad }) => {
-  const [workflowId, setWorkflowId] = useState('');
+  const [workflowId, setWorkflowId] = useState(
+    '472c3fe4-bfdb-44fa-9b1d-28f87b2b3126'
+  );
   const [showInput, setShowInput] = useState(false);
   const [loadState, setLoadState] = useState(''); // '', 'loading', 'loaded', 'error'
 

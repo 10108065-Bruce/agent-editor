@@ -599,6 +599,8 @@ class WorkflowDataConverter {
    * @param {Object} apiData - API 回傳的原始數據
    * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
    */
+  // WorkflowDataConverter.js 中需要修改的方法
+
   static transformToReactFlowFormat(apiData) {
     console.log('開始轉換 API 格式為 ReactFlow 格式');
 
@@ -753,6 +755,8 @@ class WorkflowDataConverter {
           console.log('添加一個默認欄位:', defaultField);
         }
 
+        // 返回完整的資料結構，不包含回調函數
+        // 回調函數將在 updateNodeFunctions 中添加
         return {
           ...baseData,
           fields
@@ -1099,14 +1103,110 @@ class WorkflowDataConverter {
   }
 }
 
+/**
+ * 圖標上傳服務 - 處理與圖標上傳相關的 API 請求
+ */
+class IconUploadService {
+  constructor() {
+    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
+    this.cache = {}; // 緩存上傳過的圖標
+  }
+
+  /**
+   * 上傳圖標文件到服務器
+   * @param {File} file - 要上傳的文件對象
+   * @returns {Promise<Object>} - 包含上傳結果的 Promise，成功時返回 {success: true, url: "圖標URL"}
+   */
+  async uploadIcon(file) {
+    if (!file) {
+      throw new Error('未提供文件');
+    }
+
+    // 檢查文件類型
+    if (!file.type.startsWith('image/')) {
+      throw new Error('僅支持圖片文件');
+    }
+
+    try {
+      console.log(`開始上傳圖標: ${file.name}`);
+
+      // 創建 FormData 對象
+      const formData = new FormData();
+      formData.append('file', file); // 使用正確的欄位名稱 'file'
+
+      // 發送 POST 請求
+      const response = await fetch(`${this.baseUrl}/agent_designer/icons/`, {
+        method: 'POST',
+        headers: {
+          accept: 'application/json'
+          // 注意：不要設置 'Content-Type': 'multipart/form-data'，
+          // fetch 會自動設置正確的 boundary
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error(`上傳失敗: ${response.status} ${response.statusText}`);
+      }
+
+      // 解析 API 回傳的資料
+      const data = await response.json();
+      console.log('圖標上傳成功:', data);
+
+      if (!data.url) {
+        throw new Error('API 未回傳圖標 URL');
+      }
+
+      // 將 URL 加入緩存
+      this.cache[file.name] = data.url;
+
+      return {
+        success: true,
+        url: data.url
+      };
+    } catch (error) {
+      console.error('上傳圖標時發生錯誤:', error);
+      return {
+        success: false,
+        error: error.message || '上傳圖標失敗',
+        details: error
+      };
+    }
+  }
+
+  /**
+   * 檢查圖標 URL 是否有效
+   * @param {string} iconValue - 圖標值，可能是 URL 或預設圖標名稱
+   * @returns {boolean} - 如果是有效的圖標 URL 返回 true
+   */
+  isIconUrl(iconValue) {
+    return (
+      typeof iconValue === 'string' &&
+      (iconValue.startsWith('http://') || iconValue.startsWith('https://'))
+    );
+  }
+
+  /**
+   * 從緩存中獲取圖標 URL
+   * @param {string} fileName - 文件名
+   * @returns {string|null} - 如果存在則返回 URL，否則返回 null
+   */
+  getCachedIconUrl(fileName) {
+    return this.cache[fileName] || null;
+  }
+}
+
 // 創建服務實例
 const workflowAPIService = new WorkflowAPIService();
 const llmService = new LLMService();
+// 將 IconUploadService 添加到導出
+const iconUploadService = new IconUploadService();
 
 // 導出各種服務和工具類
 export {
   WorkflowMappingService,
   WorkflowDataConverter,
   workflowAPIService,
-  llmService
+  llmService,
+  iconUploadService
 };

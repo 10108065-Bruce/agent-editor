@@ -1,35 +1,160 @@
-import React, { memo, useReducer } from 'react';
+import React, {
+  memo,
+  useReducer,
+  useCallback,
+  useState,
+  useEffect
+} from 'react';
 import { Handle, Position } from 'reactflow';
-import InputIcon from '../icons/InputIcon'; // Import the new InputIcon component
+import InputIcon from '../icons/InputIcon';
 
-const CustomInputNode = ({ data, isConnectable }) => {
-  // 安全訪問 fields，提供默認空陣列
-  const fields = data.fields || [];
+const CustomInputNode = ({ data, isConnectable, id }) => {
+  // 當前節點狀態管理
+  const [localFields, setLocalFields] = useState([]);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
-  // 處理按鈕點擊添加新字段，添加防護措施
-  const handleAddField = () => {
+  // 初始化和同步欄位
+  useEffect(() => {
+    // 如果 data.fields 存在，更新本地欄位
+    if (Array.isArray(data.fields)) {
+      setLocalFields(data.fields);
+    } else {
+      // 如果不存在，設置默認欄位
+      setLocalFields([
+        {
+          inputName: 'input_name',
+          defaultValue: 'Summary the input text'
+        }
+      ]);
+    }
+  }, [data.fields]); // 只有當 data.fields 變化時才重新同步
+
+  // 處理添加欄位功能
+  const handleAddField = useCallback(() => {
+    console.log('添加欄位', {
+      hasAddField: typeof data.addField === 'function',
+      fieldsLength: localFields.length,
+      nodeId: id
+    });
+
     if (typeof data.addField === 'function') {
+      // 使用原來的添加欄位函數
       data.addField();
     } else {
-      console.warn('addField function is not defined');
-      // 提供一個臨時解決方案，直接添加一個字段到當前節點
-      // 這裡只是臨時措施，不會保存到狀態
+      // 本地實現添加欄位功能
+      console.warn(`節點 ${id}: addField 函數未定義，使用本地實現`);
+
       const newField = {
         inputName: 'New Input',
         defaultValue: 'Default value'
       };
-      if (Array.isArray(data.fields)) {
-        data.fields.push(newField);
-      } else {
-        data.fields = [newField];
+
+      // 更新本地欄位狀態
+      const updatedFields = [...localFields, newField];
+      setLocalFields(updatedFields);
+
+      // 如果 data.fields 存在，也同步更新
+      if (data.fields) {
+        data.fields = updatedFields;
       }
+
       // 強制重新渲染
       forceUpdate();
     }
-  };
+  }, [data, localFields, id]);
 
-  // 使用 useReducer 來強制重新渲染
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  // 處理更新欄位名稱
+  const handleUpdateFieldInputName = useCallback(
+    (index, value) => {
+      console.log('更新欄位名稱', {
+        hasUpdateField: typeof data.updateFieldInputName === 'function',
+        index,
+        value,
+        nodeId: id
+      });
+
+      if (typeof data.updateFieldInputName === 'function') {
+        // 使用原來的更新函數
+        data.updateFieldInputName(index, value);
+      } else {
+        // 本地實現更新欄位名稱功能
+        console.warn(
+          `節點 ${id}: updateFieldInputName 函數未定義，使用本地實現`
+        );
+
+        const updatedFields = [...localFields];
+        if (index >= 0 && index < updatedFields.length) {
+          updatedFields[index] = {
+            ...updatedFields[index],
+            inputName: value
+          };
+
+          // 更新本地欄位狀態
+          setLocalFields(updatedFields);
+
+          // 如果 data.fields 存在，也同步更新
+          if (data.fields) {
+            data.fields = updatedFields;
+          }
+
+          // 強制重新渲染
+          forceUpdate();
+        }
+      }
+    },
+    [data, localFields, id]
+  );
+
+  // 處理更新欄位默認值
+  const handleUpdateFieldDefaultValue = useCallback(
+    (index, value) => {
+      console.log('更新欄位默認值', {
+        hasUpdateDefaultValue:
+          typeof data.updateFieldDefaultValue === 'function',
+        index,
+        value,
+        nodeId: id
+      });
+
+      if (typeof data.updateFieldDefaultValue === 'function') {
+        // 使用原來的更新函數
+        data.updateFieldDefaultValue(index, value);
+      } else {
+        // 本地實現更新欄位默認值功能
+        console.warn(
+          `節點 ${id}: updateFieldDefaultValue 函數未定義，使用本地實現`
+        );
+
+        const updatedFields = [...localFields];
+        if (index >= 0 && index < updatedFields.length) {
+          updatedFields[index] = {
+            ...updatedFields[index],
+            defaultValue: value
+          };
+
+          // 更新本地欄位狀態
+          setLocalFields(updatedFields);
+
+          // 如果 data.fields 存在，也同步更新
+          if (data.fields) {
+            data.fields = updatedFields;
+          }
+
+          // 強制重新渲染
+          forceUpdate();
+        }
+      }
+    },
+    [data, localFields, id]
+  );
+
+  // 使用本地欄位或 data.fields（如果存在）
+  const fields =
+    Array.isArray(localFields) && localFields.length > 0
+      ? localFields
+      : Array.isArray(data.fields)
+      ? data.fields
+      : [];
 
   return (
     <div className='shadow-md w-64 relative'>
@@ -37,7 +162,7 @@ const CustomInputNode = ({ data, isConnectable }) => {
       <div className='bg-blue-100 rounded-t-lg p-4 overflow-hidden'>
         <div className='flex items-center'>
           <div className='w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2'>
-            <InputIcon /> {/* Use the InputIcon component */}
+            <InputIcon />
           </div>
           <span className='font-medium'>Input</span>
         </div>
@@ -70,11 +195,9 @@ const CustomInputNode = ({ data, isConnectable }) => {
                   className='w-full border border-gray-300 rounded p-2 text-sm'
                   placeholder='AI node prompt'
                   value={field.inputName || ''}
-                  onChange={(e) => {
-                    if (typeof data.updateFieldInputName === 'function') {
-                      data.updateFieldInputName(idx, e.target.value);
-                    }
-                  }}
+                  onChange={(e) =>
+                    handleUpdateFieldInputName(idx, e.target.value)
+                  }
                 />
               </div>
 
@@ -87,11 +210,9 @@ const CustomInputNode = ({ data, isConnectable }) => {
                   className='w-full border border-gray-300 rounded p-2 text-sm'
                   placeholder='Summary the input text'
                   value={field.defaultValue || ''}
-                  onChange={(e) => {
-                    if (typeof data.updateFieldDefaultValue === 'function') {
-                      data.updateFieldDefaultValue(idx, e.target.value);
-                    }
-                  }}
+                  onChange={(e) =>
+                    handleUpdateFieldDefaultValue(idx, e.target.value)
+                  }
                 />
               </div>
 

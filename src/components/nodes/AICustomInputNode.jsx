@@ -23,15 +23,29 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   const [modelLoadError, setModelLoadError] = useState(null);
 
   // 本地狀態 - 確保初始化時有預設值
-  const [localModel, setLocalModel] = useState('O3-mini');
-  const [localSelectedOption, setLocalSelectedOption] = useState('prompt');
+  const [localModel, setLocalModel] = useState(data?.model || 'O3-mini');
+  const [localSelectedOption, setLocalSelectedOption] = useState(
+    data?.selectedOption || 'prompt'
+  );
 
-  // 使用useEffect來同步data和本地狀態
+  // 初始化和同步數據 - 增強版，能夠處理API數據加載的情況
   useEffect(() => {
-    if (data?.model) {
+    console.log('AICustomInputNode 數據同步更新:', {
+      'data.model': data?.model,
+      'data.selectedOption': data?.selectedOption
+    });
+
+    // 同步模型選擇
+    if (data?.model && data.model !== localModel) {
+      console.log(`同步模型從 ${localModel} 到 ${data.model}`);
       setLocalModel(data.model);
     }
-    if (data?.selectedOption) {
+
+    // 同步選項選擇
+    if (data?.selectedOption && data.selectedOption !== localSelectedOption) {
+      console.log(
+        `同步選項從 ${localSelectedOption} 到 ${data.selectedOption}`
+      );
       setLocalSelectedOption(data.selectedOption);
     }
   }, [data?.model, data?.selectedOption]);
@@ -51,14 +65,13 @@ const AICustomInputNode = ({ data, isConnectable }) => {
 
         // 檢查當前選擇的模型是否在新的選項中
         if (!options.some((opt) => opt.value === localModel)) {
+          // 如果當前模型不在選項中，選擇默認模型或第一個模型
           const defaultModel =
             options.find((opt) => opt.isDefault)?.value || options[0].value;
           setLocalModel(defaultModel);
 
-          // 嘗試更新父組件的狀態，但不依賴它
-          if (data && typeof data.updateNodeData === 'function') {
-            data.updateNodeData('model', defaultModel);
-          }
+          // 嘗試更新父組件的狀態
+          updateParentState('model', defaultModel);
         }
       }
     } catch (error) {
@@ -85,27 +98,46 @@ const AICustomInputNode = ({ data, isConnectable }) => {
     loadModels();
   }, []);
 
+  // 統一更新父組件狀態的輔助函數
+  const updateParentState = (key, value) => {
+    console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+
+    // 方法1：使用 updateNodeData 回調
+    if (data && typeof data.updateNodeData === 'function') {
+      data.updateNodeData(key, value);
+      console.log(`使用 updateNodeData 更新 ${key}`);
+      return true;
+    }
+
+    // 方法2：直接修改 data 對象（應急方案）
+    if (data) {
+      data[key] = value;
+      console.log(`直接修改 data.${key} = ${value}`);
+      return true;
+    }
+
+    console.warn(`無法更新父組件的 ${key}`);
+    return false;
+  };
+
   // 處理模型變更
   const handleModelChange = (e) => {
     const newModelValue = e.target.value;
+    console.log(`模型變更為: ${newModelValue}`);
     setLocalModel(newModelValue);
-
-    // 嘗試更新父組件的狀態，但不依賴它
-    if (data && typeof data.updateNodeData === 'function') {
-      data.updateNodeData('model', newModelValue);
-    }
+    updateParentState('model', newModelValue);
   };
 
   // 處理選項變更
   const handleOptionChange = (option) => {
     console.log(`節點 ${nodeId} 選項變更為: ${option}`);
     setLocalSelectedOption(option);
-
-    // 嘗試更新父組件的狀態，但不依賴它
-    if (data && typeof data.updateNodeData === 'function') {
-      data.updateNodeData('selectedOption', option);
-    }
+    updateParentState('selectedOption', option);
   };
+
+  // 對 radio button 進行特殊處理，確保正確顯示從 API 載入的值
+  const isPromptSelected = localSelectedOption === 'prompt';
+  const isContextSelected = localSelectedOption === 'context';
 
   return (
     <div className='rounded-lg shadow-md overflow-hidden w-64'>
@@ -137,6 +169,11 @@ const AICustomInputNode = ({ data, isConnectable }) => {
 
       {/* White content area */}
       <div className='bg-white p-4'>
+        {/* 隱藏的調試信息 */}
+        {/* <div className='mb-2 text-xs text-gray-400'>
+          localModel: {localModel}, data.model: {data?.model}
+        </div> */}
+
         {/* Model selection */}
         <div className='mb-4'>
           <label className='block text-sm text-gray-700 mb-1'>model</label>
@@ -178,14 +215,14 @@ const AICustomInputNode = ({ data, isConnectable }) => {
                 <input
                   type='radio'
                   className='hidden'
-                  checked={localSelectedOption === 'prompt'}
+                  checked={isPromptSelected}
                   onChange={() => handleOptionChange('prompt')}
                 />
                 <div
                   className={`w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${
-                    localSelectedOption === 'prompt' ? 'border-gray-500' : ''
+                    isPromptSelected ? 'border-gray-500' : ''
                   }`}>
-                  {localSelectedOption === 'prompt' && (
+                  {isPromptSelected && (
                     <div className='w-2 h-2 rounded-full bg-gray-600'></div>
                   )}
                 </div>
@@ -201,14 +238,14 @@ const AICustomInputNode = ({ data, isConnectable }) => {
                 <input
                   type='radio'
                   className='hidden'
-                  checked={localSelectedOption === 'context'}
+                  checked={isContextSelected}
                   onChange={() => handleOptionChange('context')}
                 />
                 <div
                   className={`w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${
-                    localSelectedOption === 'context' ? 'border-gray-500' : ''
+                    isContextSelected ? 'border-gray-500' : ''
                   }`}>
-                  {localSelectedOption === 'context' && (
+                  {isContextSelected && (
                     <div className='w-2 h-2 rounded-full bg-gray-600'></div>
                   )}
                 </div>

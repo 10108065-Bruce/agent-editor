@@ -1,45 +1,140 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 import UploadIcon from '../icons/Upload';
 import BrowserExtensionInputIcon from '../icons/BrowserExtensionInputIcon';
+import { iconUploadService } from '../../services/WorkflowServicesIntegration';
 
-const BrowserExtensionInputNode = ({ data, isConnectable }) => {
-  // Default items if not provided
-  const items = data.items || [];
+const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
+  // 本地狀態管理
+  const [localItems, setLocalItems] = useState(data?.items || []);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const fileInputRef = useRef(null);
+  const activeItemRef = useRef(null); // 追蹤當前正在上傳的項目索引
 
-  const getIconComponent = (iconType) => {
-    switch (iconType) {
-      case 'upload':
-        return <UploadIcon />;
-      case 'document':
+  // 同步外部數據到本地狀態 - 使用深度比較來決定是否更新
+  useEffect(() => {
+    console.log('BrowserExtensionInputNode 數據同步檢查:', {
+      'data.items': data?.items,
+      localItems,
+      'node.id': id
+    });
+
+    // 使用深度比較檢查數據是否真的變更
+    if (
+      Array.isArray(data?.items) &&
+      JSON.stringify(data.items) !== JSON.stringify(localItems)
+    ) {
+      console.log('同步 items 數據到本地狀態');
+      setLocalItems([...data.items]); // 確保深拷貝
+    }
+  }, [data?.items]);
+
+  // 統一更新父組件狀態的輔助函數
+  const updateParentState = useCallback(
+    (key, value) => {
+      console.log(`嘗試更新父組件狀態 ${key}=`, value);
+
+      // 方法1：使用特定回調函數
+      if (key === 'items' && data && typeof data.updateItems === 'function') {
+        data.updateItems(value);
+        return true;
+      }
+
+      // 方法2：使用通用回調函數
+      if (data && typeof data.updateNodeData === 'function') {
+        data.updateNodeData(key, value);
+        return true;
+      }
+
+      // 方法3：直接修改 data 對象（應急方案）
+      if (data) {
+        data[key] = value;
+        return true;
+      }
+
+      console.warn(`無法更新父組件的 ${key}`);
+      return false;
+    },
+    [data]
+  );
+
+  // 處理點擊圖標事件
+  const handleIconClick = useCallback((index) => {
+    console.log(`點擊項目 ${index} 的圖標，準備上傳新圖標`);
+    activeItemRef.current = index;
+
+    // 觸發隱藏的文件輸入元素
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }, []);
+
+  // 處理文件選擇
+  const handleFileSelect = useCallback(
+    async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const itemIndex = activeItemRef.current;
+      if (
+        itemIndex === null ||
+        itemIndex < 0 ||
+        itemIndex >= localItems.length
+      ) {
+        console.warn('沒有找到活動項目索引或索引超出範圍');
+        return;
+      }
+
+      setIsUploading(true);
+      setUploadError(null);
+
+      try {
+        // 使用 iconUploadService 上傳圖標
+        const result = await iconUploadService.uploadIcon(file);
+
+        if (result.success && result.url) {
+          console.log('圖標上傳成功:', result.url);
+          handleIconChange(itemIndex, result.url);
+        } else {
+          throw new Error(result.error || '上傳失敗');
+        }
+      } catch (error) {
+        console.error('上傳或處理圖標時發生錯誤:', error);
+        setUploadError(error.message || '上傳圖標失敗');
+      } finally {
+        setIsUploading(false);
+
+        // 清空文件選擇，以便於下次選擇相同文件也能觸發 onChange 事件
+        event.target.value = '';
+      }
+    },
+    [localItems]
+  );
+
+  // 渲染圖標 - 使用包裝 div 來確保點擊事件正常工作
+  const getIconComponent = useCallback(
+    (iconValue, index) => {
+      // 檢查是否為 URL
+      if (iconUploadService.isIconUrl(iconValue)) {
         return (
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'>
-            <path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'></path>
-            <polyline points='14 2 14 8 20 8'></polyline>
-            <line
-              x1='16'
-              y1='13'
-              x2='8'
-              y2='13'></line>
-            <line
-              x1='16'
-              y1='17'
-              x2='8'
-              y2='17'></line>
-            <polyline points='10 9 9 9 8 9'></polyline>
-          </svg>
+          <div
+            className='cursor-pointer'
+            onClick={() => handleIconClick(index)}>
+            <img
+              src={iconValue}
+              alt='Custom Icon'
+              className='w-7 h-7 object-contain'
+            />
+          </div>
         );
-      case 'edit':
-        return (
+      }
+
+      // 所有默認圖標都顯示為上傳圖標，使用內聯 SVG 確保點擊事件正確傳遞
+      return (
+        <div
+          className='cursor-pointer'
+          onClick={() => handleIconClick(index)}>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             width='24'
@@ -50,71 +145,137 @@ const BrowserExtensionInputNode = ({ data, isConnectable }) => {
             strokeWidth='2'
             strokeLinecap='round'
             strokeLinejoin='round'>
-            <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'></path>
-            <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'></path>
-          </svg>
-        );
-      case 'medical':
-        return (
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'>
-            <path d='M19 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3'></path>
-            <polyline points='18 8 12 2 6 8'></polyline>
+            <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'></path>
+            <polyline points='17 8 12 3 7 8'></polyline>
             <line
               x1='12'
-              y1='2'
+              y1='3'
               x2='12'
-              y2='16'></line>
-            <path d='M9 16a3 3 0 0 0 6 0'></path>
+              y2='15'></line>
           </svg>
-        );
-      default:
-        return <UploadIcon />;
-    }
-  };
+        </div>
+      );
+    },
+    [handleIconClick]
+  );
 
-  const handleNameChange = (index, value) => {
-    if (data.updateItemName) {
-      data.updateItemName(index, value);
-    }
-  };
+  // 處理圖標更新 - 僅更新指定項目的圖標屬性，保留其他所有屬性
+  const handleIconChange = useCallback(
+    (index, iconValue) => {
+      console.log(`更新項目 ${index} 的圖標為`, iconValue);
+
+      // 確保索引在有效範圍內
+      if (index < 0 || index >= localItems.length) {
+        console.warn(`項目索引 ${index} 超出範圍`);
+        return;
+      }
+
+      // 使用 map 創建新的陣列並只更新指定索引的項目
+      const updatedItems = localItems.map((item, idx) =>
+        idx === index ? { ...item, icon: iconValue } : item
+      );
+
+      // 更新本地狀態
+      setLocalItems(updatedItems);
+
+      // 更新父組件狀態
+      updateParentState('items', updatedItems);
+    },
+    [localItems, updateParentState]
+  );
+
+  // 處理名稱更新
+  const handleNameChange = useCallback(
+    (index, value) => {
+      console.log(`修改項目 ${index} 的名稱為 "${value}"`);
+      console.log('當前 items:', localItems);
+
+      // 確保索引在有效範圍內
+      if (index < 0 || index >= localItems.length) {
+        console.warn(`項目索引 ${index} 超出範圍`);
+        return;
+      }
+
+      // 首先，使用 updateItemName 回調（如果存在）
+      if (typeof data?.updateItemName === 'function') {
+        console.log('使用 updateItemName 回調函數');
+        data.updateItemName(index, value);
+      }
+
+      // 無論如何，都更新本地狀態
+      console.log('使用自定義方法更新項目名稱');
+
+      // 使用 map 創建新的陣列並只更新指定索引的項目
+      const updatedItems = localItems.map((item, idx) =>
+        idx === index ? { ...item, name: value } : item
+      );
+
+      console.log('更新後的 items:', updatedItems);
+
+      // 更新本地狀態
+      setLocalItems(updatedItems);
+
+      // 更新父組件狀態
+      updateParentState('items', updatedItems);
+    },
+    [data, localItems, updateParentState]
+  );
 
   // 添加新項目的函數
-  const handleAddItem = () => {
-    // 呼叫外部提供的添加項目函數
-    if (data.addItem) {
-      data.addItem();
-    } else {
-      console.log('addItem 函數未定義');
-    }
-  };
+  const handleAddItem = useCallback(() => {
+    console.log('添加新項目');
 
-  // 计算每个连接点的垂直位置
-  const calculateHandlePosition = (index) => {
-    // 标题区域高度
+    // 方法1：使用 data.addItem 回調
+    if (typeof data?.addItem === 'function') {
+      console.log('使用 addItem 回調函數');
+      data.addItem();
+      return;
+    }
+
+    // 方法2：自行更新本地狀態和父組件狀態
+    console.log('使用自定義方法添加項目');
+    const newItem = { name: '', icon: 'upload' }; // 預設圖標使用 'upload'
+    const updatedItems = [...localItems, newItem];
+
+    setLocalItems(updatedItems);
+    updateParentState('items', updatedItems);
+  }, [data, localItems, updateParentState]);
+
+  // 計算每個連接點的垂直位置
+  const calculateHandlePosition = useCallback((index) => {
+    // 標題區域高度
     const headerHeight = 56;
 
-    // 内容区域的上边距
+    // 內容區域的上邊距
     const contentPadding = 16;
 
-    // 每个项目的高度（包括名称输入、图标和分隔线）
+    // 每個項目的高度（包括名稱輸入、圖標和分隔線）
     const itemHeight = 120;
 
-    // 计算连接点的位置
+    // 計算連接點的位置
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
-  };
+  }, []);
+
+  // 使用本地項目或 data.items（如果存在）
+  const items =
+    Array.isArray(localItems) && localItems.length > 0
+      ? localItems
+      : Array.isArray(data?.items)
+      ? data.items
+      : [];
 
   return (
     <div className='shadow-md w-64 relative'>
-      {/* 实际内容容器 - 带圆角和overflow: hidden */}
+      {/* 隱藏的文件輸入元素 */}
+      <input
+        type='file'
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept='image/*'
+        onChange={handleFileSelect}
+      />
+
+      {/* 實際內容容器 - 帶圓角和overflow: hidden */}
       <div className='rounded-lg overflow-hidden'>
         {/* Header section with icon and title */}
         <div className='bg-gray-100 p-4'>
@@ -141,22 +302,42 @@ const BrowserExtensionInputNode = ({ data, isConnectable }) => {
                 <input
                   type='text'
                   className='w-full border border-gray-300 rounded p-2 text-sm'
-                  value={item.name}
-                  onChange={(e) => handleNameChange(idx, e.target.value)}
+                  value={item.name || ''}
+                  onChange={(e) => {
+                    console.log(`輸入框 ${idx} 值變更為:`, e.target.value);
+                    handleNameChange(idx, e.target.value);
+                  }}
                 />
               </div>
 
               <div className='flex items-center mb-2'>
                 <label className='block text-sm text-gray-700 mr-4'>icon</label>
                 <div className='flex-1 flex justify-center items-center'>
-                  <div className='w-10 h-10 flex justify-center items-center'>
-                    {getIconComponent(item.icon)}
+                  <div
+                    className={`w-10 h-10 flex justify-center items-center ${
+                      isUploading && activeItemRef.current === idx
+                        ? 'opacity-50'
+                        : ''
+                    }`}
+                    title='點擊上傳自定義圖標'>
+                    {isUploading && activeItemRef.current === idx ? (
+                      <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-gray-500'></div>
+                    ) : (
+                      getIconComponent(item.icon, idx)
+                    )}
                   </div>
                 </div>
 
                 {/* Empty space for alignment */}
                 <div className='w-12 h-5'></div>
               </div>
+
+              {/* 顯示上傳錯誤信息 */}
+              {uploadError && activeItemRef.current === idx && (
+                <div className='text-xs text-red-500 mt-1 mb-2'>
+                  {uploadError}
+                </div>
+              )}
 
               {/* Separator if not the last item */}
               {idx < items.length - 1 && (

@@ -1,16 +1,16 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
 import KnowledgeRetrievalIcon from '../icons/KnowledgeRetrievalIcon';
 import { llmService } from '../../services/WorkflowServicesIntegration';
 
-const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
+const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [fileLoadError, setFileLoadError] = useState(null);
 
-  // 保存文件選項
+  // 保存文件選項，使用默認值
   const [dataFiles, setDataFiles] = useState(
-    data.availableFiles || [
+    data?.availableFiles || [
       {
         id: 'icdcode',
         value: 'icdcode',
@@ -26,30 +26,69 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
     ]
   );
 
-  // 本地選擇的文件ID，作為備用
+  // 本地選擇的文件ID，從 data 中獲取初始值或為空
   const [localSelectedFile, setLocalSelectedFile] = useState(
-    data.selectedFile || ''
+    data?.selectedFile || ''
+  );
+
+  // 監聽並同步 data.selectedFile 變更
+  useEffect(() => {
+    console.log('監測 data.selectedFile 變更：', {
+      'data.selectedFile': data?.selectedFile,
+      localSelectedFile,
+      'node.id': id
+    });
+
+    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
+      console.log(
+        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
+      );
+      setLocalSelectedFile(data.selectedFile);
+    }
+  }, [data?.selectedFile, localSelectedFile, id]);
+
+  // 統一更新父組件狀態的輔助函數
+  const updateParentState = useCallback(
+    (key, value) => {
+      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+
+      // 方法1：使用 updateNodeData 回調
+      if (data && typeof data.updateNodeData === 'function') {
+        data.updateNodeData(key, value);
+        console.log(`使用 updateNodeData 更新 ${key}`);
+        return true;
+      }
+
+      // 方法2：直接修改 data 對象（應急方案）
+      if (data) {
+        data[key] = value;
+        console.log(`直接修改 data.${key} = ${value}`);
+        return true;
+      }
+
+      console.warn(`無法更新父組件的 ${key}`);
+      return false;
+    },
+    [data]
   );
 
   // 處理文件選擇
-  const handleFileSelect = (fileId) => {
-    setDropdownOpen(false);
-    setLocalSelectedFile(fileId);
-
-    if (data && typeof data.updateNodeData === 'function') {
-      data.updateNodeData('selectedFile', fileId);
-    } else {
-      console.warn(
-        'updateNodeData 不是一個函數，無法更新 selectedFile。使用本地狀態代替。'
-      );
-    }
-  };
+  const handleFileSelect = useCallback(
+    (fileId) => {
+      console.log(`選擇文件: ${fileId}`);
+      setDropdownOpen(false);
+      setLocalSelectedFile(fileId);
+      updateParentState('selectedFile', fileId);
+    },
+    [updateParentState]
+  );
 
   // 從API加載文件列表
-  const loadFiles = async () => {
+  const loadFiles = useCallback(async () => {
     // 避免重複載入
     if (isLoadingFiles) return;
 
+    console.log('開始加載文件列表...');
     setIsLoadingFiles(true);
     setFileLoadError(null);
 
@@ -91,15 +130,15 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
     } finally {
       setIsLoadingFiles(false);
     }
-  };
+  }, [isLoadingFiles, handleFileSelect]);
 
   // 獲取當前選擇的文件ID
-  const getCurrentSelectedFile = () => {
+  const getCurrentSelectedFile = useCallback(() => {
     return data?.selectedFile || localSelectedFile;
-  };
+  }, [data?.selectedFile, localSelectedFile]);
 
   // 獲取當前選擇的文件名
-  const getSelectedFileName = () => {
+  const getSelectedFileName = useCallback(() => {
     const currentFileId = getCurrentSelectedFile();
     if (!currentFileId) return '選擇檔案...';
 
@@ -109,15 +148,23 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
     return selectedFile
       ? selectedFile.name || selectedFile.label || selectedFile.filename
       : '選擇檔案...';
-  };
+  }, [dataFiles, getCurrentSelectedFile]);
 
   // 組件掛載時載入文件列表
   useEffect(() => {
     loadFiles();
+
+    // 調試信息
+    console.log('KnowledgeRetrievalNode 初始化狀態:', {
+      'node.id': id,
+      'data.selectedFile': data?.selectedFile,
+      localSelectedFile,
+      'dataFiles.length': dataFiles.length
+    });
   }, []);
 
   // 當點擊下拉菜單時，嘗試刷新文件列表
-  const handleDropdownToggle = () => {
+  const handleDropdownToggle = useCallback(() => {
     // 切換下拉菜單狀態
     setDropdownOpen(!dropdownOpen);
 
@@ -125,7 +172,24 @@ const KnowledgeRetrievalNode = ({ data, isConnectable }) => {
     if (dataFiles.length <= 2 || fileLoadError) {
       loadFiles();
     }
-  };
+  }, [dropdownOpen, dataFiles.length, fileLoadError, loadFiles]);
+
+  // 調試用 - 監視狀態變化
+  useEffect(() => {
+    console.log('KnowledgeRetrievalNode 狀態更新:', {
+      'node.id': id,
+      'data.selectedFile': data?.selectedFile,
+      localSelectedFile,
+      selectedFileName: getSelectedFileName(),
+      'dataFiles.length': dataFiles.length
+    });
+  }, [
+    id,
+    data?.selectedFile,
+    localSelectedFile,
+    dataFiles,
+    getSelectedFileName
+  ]);
 
   return (
     <div className='rounded-lg shadow-md overflow-visible w-64'>

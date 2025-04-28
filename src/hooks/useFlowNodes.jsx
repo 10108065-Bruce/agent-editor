@@ -739,14 +739,17 @@ export default function useFlowNodes() {
 
   // 優化的節點函數更新方法
   const updateNodeFunctions = useCallback(() => {
-    // 檢查需要更新的節點
-    const nodesToUpdate = [];
+    // 進行批次處理以提高效率
+    const updatedNodes = [...nodes];
+    let hasChanges = false;
 
-    nodes.forEach((node) => {
+    console.log('開始檢查並更新所有節點的回調函數...');
+
+    nodes.forEach((node, index) => {
       const nodeId = node.id;
       const nodeType = node.type;
 
-      // 檢查是否缺少回調
+      // 根據節點類型檢查是否缺少必要的回調
       let missingCallbacks = false;
 
       switch (nodeType) {
@@ -754,42 +757,46 @@ export default function useFlowNodes() {
           missingCallbacks =
             !node.data.addField ||
             !node.data.updateFieldInputName ||
-            !node.data.updateFieldDefaultValue;
+            !node.data.updateFieldDefaultValue ||
+            !node.data.onSelect;
           break;
         case 'browserExtensionInput':
-          missingCallbacks = !node.data.addItem || !node.data.updateItemName;
+          missingCallbacks =
+            !node.data.addItem ||
+            !node.data.updateItemName ||
+            !node.data.onSelect;
           break;
         default:
           missingCallbacks = !node.data.onSelect || !node.data.updateNodeData;
           break;
       }
 
+      // 如果節點缺少必要的回調，重新生成並設置
       if (missingCallbacks) {
-        nodesToUpdate.push({ node, nodeId, nodeType });
+        console.log(
+          `節點 ${nodeId} (類型: ${nodeType}) 缺少必要回調，正在更新...`
+        );
+        const callbacks = getNodeCallbacks(nodeId, nodeType);
+
+        // 更新當前節點的回調函數
+        updatedNodes[index] = {
+          ...updatedNodes[index],
+          data: {
+            ...updatedNodes[index].data,
+            ...callbacks
+          }
+        };
+
+        hasChanges = true;
       }
     });
 
-    // 如果有需要更新的節點，批量更新它們
-    if (nodesToUpdate.length > 0) {
-      const updatedNodes = [...nodes];
-
-      nodesToUpdate.forEach(({ nodeId, nodeType }) => {
-        const callbacks = getNodeCallbacks(nodeId, nodeType);
-        const nodeIndex = updatedNodes.findIndex((n) => n.id === nodeId);
-
-        if (nodeIndex !== -1) {
-          updatedNodes[nodeIndex] = {
-            ...updatedNodes[nodeIndex],
-            data: {
-              ...updatedNodes[nodeIndex].data,
-              ...callbacks
-            }
-          };
-        }
-      });
-
-      // 一次性更新所有節點
+    // 只有在有變更時才更新狀態，避免不必要的重新渲染
+    if (hasChanges) {
+      console.log('有節點回調函數需要更新，正在應用變更...');
       setNodes(updatedNodes);
+    } else {
+      console.log('所有節點回調函數已經是最新，無需更新。');
     }
   }, [nodes, getNodeCallbacks, setNodes]);
 

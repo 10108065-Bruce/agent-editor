@@ -42,6 +42,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const isInitialized = useRef(false);
+  const [isSaving, setIsSaving] = useState(false); // 添加保存狀態
 
   // 使用 useMemo 記憶化 nodeTypes 和 edgeTypes，這樣它們在每次渲染時保持穩定
   const nodeTypes = useMemo(() => enhancedNodeTypes, []);
@@ -134,9 +135,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           version: apiData.version || prev.version
         }));
 
-        // 確保在設置節點後再等待一個渲染周期，然後更新節點函數
+        // 重要：確保在設置節點後立即更新節點函數
+        console.log('載入工作流後立即更新節點函數...');
+        updateNodeFunctions();
+
+        // 再次確保函數更新，增加一個延遲的更新以捕獲任何同步更新可能錯過的節點
         setTimeout(() => {
-          console.log('載入工作流後更新節點函數...');
+          console.log('載入工作流後再次確認節點函數...');
           updateNodeFunctions();
         }, 300);
 
@@ -441,24 +446,29 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     showNotification
   ]);
 
+  // 修改保存函數來設置保存狀態
   const saveToServer = useCallback(async () => {
-    const flowData = {
-      id: flowMetadata.id || `flow_${Date.now()}`,
-      title: flowMetadata.title || '未命名流程',
-      version: flowMetadata.version || 1,
-      nodes,
-      edges,
-      metadata: {
-        lastModified: new Date().toISOString(),
-        savedAt: new Date().toISOString(),
-        nodeCount: nodes.length,
-        edgeCount: edges.length
-      }
-    };
+    // 設置保存中狀態
+    setIsSaving(true);
 
-    const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
-    console.log('FlowEditor: 將流程數據轉換為 API 格式:', apiData);
     try {
+      const flowData = {
+        id: flowMetadata.id || `flow_${Date.now()}`,
+        title: flowMetadata.title || '未命名流程',
+        version: flowMetadata.version || 1,
+        nodes,
+        edges,
+        metadata: {
+          lastModified: new Date().toISOString(),
+          savedAt: new Date().toISOString(),
+          nodeCount: nodes.length,
+          edgeCount: edges.length
+        }
+      };
+
+      const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+      console.log('FlowEditor: 將流程數據轉換為 API 格式:', apiData);
+
       // 根據是否有 flow_id 決定使用 POST 還是 PUT
       let response;
       if (flowMetadata.id) {
@@ -493,8 +503,12 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     } catch (error) {
       console.error('FlowEditor: 儲存流程時發生錯誤：', error);
       showNotification('儲存流程時發生錯誤', 'error');
+      throw error;
+    } finally {
+      // 無論成功或失敗，都重置保存狀態
+      setIsSaving(false);
     }
-  });
+  }, [nodes, edges, flowMetadata, showNotification]);
 
   /**
    * 從本地檔案載入流程資料
@@ -691,47 +705,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           {/* Separator */}
           <div className='h-10 w-px bg-gray-300'></div>
 
-          {/* Undo/Redo */}
-          {/* <button
-            className='bg-white p-2 rounded-md shadow-md border border-gray-200'
-            onClick={undo}
-            title='Undo'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'>
-              <path d='M3 7v6h6'></path>
-              <path d='M21 17a9 9 0 0 0-9-9H3'></path>
-            </svg>
-          </button>
-          <button
-            className='bg-white p-2 rounded-md shadow-md border border-gray-200'
-            onClick={redo}
-            title='Redo'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'>
-              <path d='M21 7v6h-6'></path>
-              <path d='M3 17a9 9 0 0 1 9-9h9'></path>
-            </svg>
-          </button> */}
-
           {/* Server save button */}
           <div className='ml-2'>
-            <SaveButton onSave={saveToServer} />
+            <SaveButton
+              onSave={saveToServer}
+              title={flowMetadata.title}
+              flowId={flowMetadata.id} // 傳入流程ID
+              disabled={isSaving}
+            />
           </div>
         </div>
         {/* Flow metadata info - now positioned below the action buttons */}
