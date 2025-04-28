@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$m = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$6,useState: useState$e,useEffect: useEffect$7,forwardRef: forwardRef$1,useCallback: useCallback$7} = React$m;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$5,useState: useState$e,useEffect: useEffect$7,forwardRef: forwardRef$1,useCallback: useCallback$7} = React$m;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3917,7 +3917,7 @@ function Attribution({ proOptions, position = "bottom-right" }) {
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$6(null);
+  const edgeRef = useRef$5(null);
   const [edgeTextBbox, setEdgeTextBbox] = useState$e({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
   useEffect$7(() => {
@@ -5058,8 +5058,8 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
   const [keyPressed, setKeyPressed] = useState$e(false);
-  const modifierPressed = useRef$6(false);
-  const pressedKeys = useRef$6(/* @__PURE__ */ new Set([]));
+  const modifierPressed = useRef$5(false);
+  const pressedKeys = useRef$5(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5615,17 +5615,17 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$6();
+  const timerId = useRef$5();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$6(false);
-  const zoomedWithRightMouseButton = useRef$6(false);
-  const zoomPane = useRef$6(null);
-  const prevTransform = useRef$6({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$5(false);
+  const zoomedWithRightMouseButton = useRef$5(false);
+  const zoomPane = useRef$5(null);
+  const prevTransform = useRef$5({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$6(0);
-  const isPanScrolling = useRef$6(false);
-  const panScrollTimeout = useRef$6();
+  const mouseButton = useRef$5(0);
+  const isPanScrolling = useRef$5(false);
+  const panScrollTimeout = useRef$5();
   useResizeHandler(zoomPane);
   useEffect$7(() => {
     if (zoomPane.current) {
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$g(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$6(null);
+  const container = useRef$5(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$6(0);
-  const prevSelectedEdgesCount = useRef$6(0);
-  const containerBounds = useRef$6();
+  const prevSelectedNodesCount = useRef$5(0);
+  const prevSelectedEdgesCount = useRef$5(0);
+  const containerBounds = useRef$5();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6269,15 +6269,15 @@ function wrapSelectionDragFunc(selectionFunc) {
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
   const [dragging, setDragging] = useState$e(false);
-  const dragItems = useRef$6([]);
-  const lastPos = useRef$6({ x: null, y: null });
-  const autoPanId = useRef$6(0);
-  const containerBounds = useRef$6(null);
-  const mousePosition = useRef$6({ x: 0, y: 0 });
-  const dragEvent = useRef$6(null);
-  const autoPanStarted = useRef$6(false);
-  const dragStarted = useRef$6(false);
-  const abortDrag = useRef$6(false);
+  const dragItems = useRef$5([]);
+  const lastPos = useRef$5({ x: null, y: null });
+  const autoPanId = useRef$5(0);
+  const containerBounds = useRef$5(null);
+  const mousePosition = useRef$5({ x: 0, y: 0 });
+  const dragEvent = useRef$5(null);
+  const autoPanStarted = useRef$5(false);
+  const dragStarted = useRef$5(false);
+  const abortDrag = useRef$5(false);
   const getPointerPosition = useGetPointerPosition();
   useEffect$7(() => {
     if (nodeRef?.current) {
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$6(null);
-    const prevNodeRef = useRef$6(null);
-    const prevSourcePosition = useRef$6(sourcePosition);
-    const prevTargetPosition = useRef$6(targetPosition);
-    const prevType = useRef$6(type);
+    const nodeRef = useRef$5(null);
+    const prevNodeRef = useRef$5(null);
+    const prevSourcePosition = useRef$5(sourcePosition);
+    const prevTargetPosition = useRef$5(targetPosition);
+    const prevType = useRef$5(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6639,7 +6639,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$6(null);
+  const nodeRef = useRef$5(null);
   useEffect$7(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$6();
+  const resizeObserverRef = useRef$5();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6812,7 +6812,7 @@ const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMo
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$6(null);
+    const edgeRef = useRef$5(null);
     const [updateHover, setUpdateHover] = useState$e(false);
     const [updating, setUpdating] = useState$e(false);
     const store = useStoreApi();
@@ -7204,7 +7204,7 @@ function Viewport({ children }) {
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$6(false);
+  const isInitialized = useRef$5(false);
   useEffect$7(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
@@ -7298,7 +7298,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$6(null);
+  useRef$5(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7598,7 +7598,7 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$6(null);
+  const storeRef = useRef$5(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
@@ -7673,7 +7673,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$l = await importShared('react');
-const {memo: memo$f,useRef: useRef$5,useEffect: useEffect$6} = React$l;
+const {memo: memo$f,useRef: useRef$4,useEffect: useEffect$6} = React$l;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7727,7 +7727,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$5(null);
+    const svg = useRef$4(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7742,7 +7742,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$5(0);
+    const viewScaleRef = useRef$4(0);
     viewScaleRef.current = viewScale;
     useEffect$6(() => {
         if (svg.current) {
@@ -7892,7 +7892,7 @@ Controls.displayName = 'Controls';
 var Controls$1 = memo$e(Controls);
 
 const React$j = await importShared('react');
-const {memo: memo$d,useRef: useRef$4} = React$j;
+const {memo: memo$d,useRef: useRef$3} = React$j;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7924,7 +7924,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$4(null);
+    const ref = useRef$3(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -7951,14 +7951,14 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
 Background.displayName = 'Background';
 var Background$1 = memo$d(Background);
 
-const {useRef: useRef$3,useCallback: useCallback$6} = await importShared('react');
+const {useRef: useRef$2,useCallback: useCallback$6} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$3([]);
-  const redoStack = useRef$3([]);
-  const nodeCallbacks = useRef$3({});
-  const isUpdatingNodes = useRef$3(false);
+  const undoStack = useRef$2([]);
+  const redoStack = useRef$2([]);
+  const nodeCallbacks = useRef$2({});
+  const isUpdatingNodes = useRef$2(false);
   const handleNodesChange = useCallback$6(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
@@ -8633,22 +8633,7 @@ function useFlowNodes() {
   };
 }
 
-await importShared('react');
-
-function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "svg",
-    {
-      xmlns: "http://www.w3.org/2000/svg",
-      viewBox: "0 0 24 24",
-      fill: "currentColor",
-      className,
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 10.6222C22 6.13836 17.4839 2.46094 12 2.46094C6.51613 2.46094 2 6.1061 2 10.6222C2 14.6222 5.54839 17.9771 10.3548 18.6222C10.6774 18.6545 11.129 18.848 11.2258 19.1061C11.3226 19.3319 11.2581 19.7513 11.2581 20.0093C11.2581 20.0093 11.129 20.7513 11.129 20.8803C11.0968 21.1061 10.9355 21.8803 12 21.3642C13.0323 20.9126 17.7419 17.9448 19.871 15.5577C21.3226 14.0093 22 12.3964 22 10.6222ZM8.45161 12.9771C8.45161 13.0738 8.35484 13.1706 8.25806 13.1706H5.45161C5.41935 13.1706 5.35484 13.1384 5.32258 13.1384C5.29032 13.1061 5.29032 13.0416 5.29032 13.0093V8.62223C5.29032 8.52546 5.3871 8.42868 5.48387 8.42868H6.16129C6.25806 8.42868 6.35484 8.52546 6.35484 8.62223V12.0738H8.25806C8.35484 12.0738 8.45161 12.1706 8.45161 12.2674V12.9771ZM10.129 12.9771C10.129 13.0738 10.0323 13.1706 9.93548 13.1706H9.25806C9.16129 13.1706 9.06452 13.0738 9.06452 12.9771V8.62223C9.06452 8.52546 9.16129 8.42868 9.25806 8.42868H9.93548C10.0323 8.42868 10.129 8.52546 10.129 8.62223V12.9771ZM15 12.9771C15 13.0738 14.9032 13.1706 14.8065 13.1706H14.129C14.0968 13.1706 14.0968 13.1706 14.0968 13.1706C14.0645 13.1706 14.0645 13.1384 14.0645 13.1384L12 10.4287V13.0093C12 13.1061 11.9032 13.2029 11.8065 13.2029H11.129C11.0323 13.2029 10.9355 13.1061 10.9355 13.0093V8.65449C10.9355 8.55772 11.0323 8.46094 11.129 8.46094H11.8065C11.8065 8.46094 11.8065 8.46094 11.8387 8.4932L13.8387 11.1706V8.58997C13.8387 8.4932 13.9355 8.39642 14.0323 8.39642H14.8065C14.9032 8.39642 15 8.4932 15 8.58997V12.9771ZM18.871 9.33191C18.871 9.42868 18.7742 9.52546 18.6774 9.52546H16.7742V10.2674H18.6774C18.7742 10.2674 18.871 10.3642 18.871 10.4609V11.1384C18.871 11.2351 18.7742 11.3319 18.6774 11.3319H16.7742V12.0093H18.6774C18.7742 12.0093 18.871 12.1061 18.871 12.2029V12.8803C18.871 12.9771 18.7742 13.0738 18.6774 13.0738H15.871C15.8387 13.0738 15.7742 13.0416 15.7419 13.0416C15.7097 13.0093 15.7097 12.9448 15.7097 12.9126V8.55772C15.7097 8.52546 15.7419 8.46094 15.7419 8.42868C15.7742 8.39642 15.8387 8.39642 15.871 8.39642H18.6774C18.7742 8.39642 18.871 8.4932 18.871 8.58997V9.33191Z" })
-    }
-  );
-}
-
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "dbad599d825f5813965dabc12ec88c9b0328125d", "VITE_APP_BUILD_TIME": "2025-04-28T05:50:21.669Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "dbad599d825f5813965dabc12ec88c9b0328125d", "VITE_APP_BUILD_TIME": "2025-04-28T06:47:47.368Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -8706,6 +8691,69 @@ const VersionDisplay = ({ className = "" }) => {
       ")"
     ] })
   ] });
+};
+
+const iconInputNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206a6%206%200%200%201%206-6h20a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6z'%20fill='%23DBEAFE'/%3e%3cpath%20d='M6%208h20v16H6V8z'%20stroke='%23E5E7EB'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M15.356%209.478c-3.82%200-6.915%203.144-6.915%207.022s3.096%207.022%206.915%207.022c3.82%200%206.915-3.144%206.915-7.022s-3.096-7.022-6.915-7.022zM6%2016.5C6%2011.253%2010.189%207%2015.356%207s9.356%204.253%209.356%209.5-4.189%209.5-9.356%209.5S6%2021.747%206%2016.5z'%20fill='%230075FF'/%3e%3cpath%20d='M18.61%2016.5c0%201.825-1.457%203.304-3.254%203.304s-3.254-1.479-3.254-3.304c0-1.825%201.457-3.304%203.254-3.304s3.254%201.48%203.254%203.304z'%20fill='%230075FF'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M14.136%2016.5c0-.684.546-1.24%201.22-1.24H28.78c.673%200%201.22.556%201.22%201.24a1.23%201.23%200%200%201-1.22%201.24H15.356a1.23%201.23%200%200%201-1.22-1.24z'%20fill='%230075FF'/%3e%3c/svg%3e";
+
+const iconAINode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206a6%206%200%200%201%206-6h20a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6z'%20fill='%23FEF3C7'/%3e%3cpath%20d='M0%206a6%206%200%200%201%206-6h20a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6z'%20stroke='%23FFEDD5'/%3e%3cpath%20d='M16%204a12%2012%200%200%200%2012%2012%2012%2012%200%200%200-12%2012A12%2012%200%200%200%204%2016%2012%2012%200%200%200%2016%204z'%20fill='%23FFAA1E'/%3e%3cpath%20d='m9.798%209.798-3.46-3.459M9.798%2020.413l-3.46%203.459M22.458%209.798l3.459-3.459M22.458%2020.413l3.459%203.459'%20stroke='%23FFAA1E'%20stroke-linecap='round'/%3e%3c/svg%3e";
+
+const browserNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206a6%206%200%200%201%206-6h20a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6z'%20fill='%231FC1B1'/%3e%3cmask%20id='qbkj6lvyla'%20style='mask-type:luminance'%20maskUnits='userSpaceOnUse'%20x='5'%20y='6'%20width='22'%20height='20'%3e%3cpath%20d='M26.479%206H5v20h21.479V6z'%20fill='%23fff'/%3e%3c/mask%3e%3cg%20mask='url(%23qbkj6lvyla)'%20fill='%23fff'%3e%3cpath%20d='M15.45%2016a5.399%205.399%200%200%201-4.951%200%205.399%205.399%200%200%201%204.95%200zM16.03%2016a5.396%205.396%200%200%201%204.95%200%205.394%205.394%200%200%201-4.95%200zM13.118%2011.46a5.398%205.398%200%200%201%202.477%204.287%205.416%205.416%200%200%201-2.477-4.286zM15.595%2016.253a5.4%205.4%200%200%201-2.477%204.287%205.418%205.418%200%200%201%202.477-4.287zM15.886%2016.253a5.416%205.416%200%200%201%202.477%204.287%205.399%205.399%200%200%201-2.477-4.287zM15.886%2015.747a5.394%205.394%200%200%201%202.477-4.286%205.416%205.416%200%200%201-2.477%204.286zM10.372%206.699a5.21%205.21%200%200%201%204.7-.254%205.893%205.893%200%200%200-2.41%204.228%205.844%205.844%200%200%200-4.862-.025%205.22%205.22%200%200%201%202.572-3.95zM23.707%2011.401a5.198%205.198%200%200%201-2.129%204.002%205.869%205.869%200%200%200-2.409-4.162%205.195%205.195%200%200%201%204.538.157M21.274%2021.203c-.725.001-1.443-.15-2.106-.444a5.87%205.87%200%200%200%202.41-4.162%205.196%205.196%200%200%201%202.127%204.002%205.176%205.176%200%200%201-2.431.604M7.777%2020.6a5.185%205.185%200%200%201%202.129-4.003%205.863%205.863%200%200%200%202.407%204.162%205.19%205.19%200%200%201-4.536-.157M10.205%2010.797a5.172%205.172%200%200%201%202.106.444%205.864%205.864%200%200%200-2.407%204.162%205.184%205.184%200%200%201-2.129-4.002%205.17%205.17%200%200%201%202.43-.604M18.144%2021.35a5.2%205.2%200%200%201-2.403%203.853%205.204%205.204%200%200%201-2.405-3.853%205.844%205.844%200%200%200%204.808%200z'/%3e%3cpath%20d='M13.336%2010.65a5.208%205.208%200%200%201%202.405-3.853%205.197%205.197%200%200%201%202.403%203.853%205.842%205.842%200%200%200-4.808%200zM5%2016a5.199%205.199%200%200%201%202.134-4.198A5.86%205.86%200%200%200%209.592%2016a5.86%205.86%200%200%200-2.458%204.197A5.197%205.197%200%200%201%205%2016zM14.319%2025.82a5.163%205.163%200%200%201-3.947-.52%205.22%205.22%200%200%201-2.57-3.95%205.841%205.841%200%200%200%204.862-.025%205.877%205.877%200%200%200%202.41%204.23%205.232%205.232%200%200%201-.755.265zM21.11%2025.3a5.162%205.162%200%200%201-3.95.52%205.322%205.322%200%200%201-.755-.265%205.883%205.883%200%200%200%202.414-4.23%205.84%205.84%200%200%200%204.862.026%205.222%205.222%200%200%201-2.57%203.95M26.479%2016a5.202%205.202%200%200%201-2.133%204.198A5.865%205.865%200%200%200%2021.89%2016a5.865%205.865%200%200%200%202.457-4.198A5.2%205.2%200%200%201%2026.48%2016z'/%3e%3cpath%20d='M21.11%206.699a5.217%205.217%200%200%201%202.568%203.95%205.85%205.85%200%200%200-4.861.025%205.878%205.878%200%200%200-2.412-4.23c.245-.107.498-.196.756-.265a5.166%205.166%200%200%201%203.948.52z'/%3e%3c/g%3e%3c/svg%3e";
+
+const knowledgeNode = "/agent-editor/assets/icn-knowledge-BSj19GCR.svg";
+
+await importShared('react');
+const iconMap = {
+  input: {
+    src: iconInputNode,
+    alt: "Input Icon"
+  },
+  ai: {
+    src: iconAINode,
+    alt: "AI Icon"
+  },
+  browser: {
+    src: browserNode,
+    alt: "Browser Icon"
+  },
+  knowledge: {
+    src: knowledgeNode,
+    alt: "Knowledge Icon"
+  }
+};
+const IconBase = ({ type, className = "" }) => {
+  if (!iconMap[type]) {
+    console.warn(`Icon type "${type}" not found`);
+    return null;
+  }
+  const { src, alt } = iconMap[type];
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: `flex items-center justify-center ${className}`,
+      style: {
+        width: "32px",
+        height: "32px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "img",
+        {
+          src,
+          alt,
+          width: 32,
+          height: 32,
+          className: "max-w-full max-h-full object-contain",
+          style: {
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain"
+          }
+        }
+      )
+    }
+  );
 };
 
 const React$i = await importShared('react');
@@ -8769,32 +8817,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
       filterNodes("Input") && /* @__PURE__ */ jsxRuntimeExports.jsx(
         NodeItem,
         {
-          color: "blue",
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "svg",
-            {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "16",
-              height: "16",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "circle",
-                  {
-                    cx: "12",
-                    cy: "12",
-                    r: "10"
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "12 6 12 12 16 14" })
-              ]
-            }
-          ),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "input" }) }),
           label: "Input",
           onClick: () => handleButtonClick("input"),
           nodeType: "input",
@@ -8804,26 +8827,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
       filterNodes("AI") && /* @__PURE__ */ jsxRuntimeExports.jsx(
         NodeItem,
         {
-          color: "orange",
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "svg",
-            {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "16",
-              height: "16",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 2L2 7l10 5 10-5-10-5z" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M2 17l10 5 10-5" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M2 12l10 5 10-5" })
-              ]
-            }
-          ),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
           label: "AI",
           onClick: () => handleButtonClick("ai"),
           nodeType: "ai",
@@ -8833,34 +8837,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
       filterNodes("Browser Extension input") && /* @__PURE__ */ jsxRuntimeExports.jsx(
         NodeItem,
         {
-          color: "teal",
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "svg",
-            {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "16",
-              height: "16",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 3 21 3 21 9" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "line",
-                  {
-                    x1: "10",
-                    y1: "14",
-                    x2: "21",
-                    y2: "3"
-                  }
-                )
-              ]
-            }
-          ),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
           label: "Browser Extension input",
           onClick: () => handleButtonClick("browser extension input"),
           nodeType: "browser extension input",
@@ -8870,34 +8847,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
       filterNodes("Browser Extension output") && /* @__PURE__ */ jsxRuntimeExports.jsx(
         NodeItem,
         {
-          color: "teal",
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "svg",
-            {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "16",
-              height: "16",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 3 21 3 21 9" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "line",
-                  {
-                    x1: "10",
-                    y1: "14",
-                    x2: "21",
-                    y2: "3"
-                  }
-                )
-              ]
-            }
-          ),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
           label: "Browser Extension output",
           onClick: () => handleButtonClick("browser extension output"),
           nodeType: "browser extension output",
@@ -8907,40 +8857,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
       filterNodes("Knowledge Retrieval") && /* @__PURE__ */ jsxRuntimeExports.jsx(
         NodeItem,
         {
-          color: "cyan",
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "svg",
-            {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "16",
-              height: "16",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "circle",
-                  {
-                    cx: "11",
-                    cy: "11",
-                    r: "8"
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "line",
-                  {
-                    x1: "21",
-                    y1: "21",
-                    x2: "16.65",
-                    y2: "16.65"
-                  }
-                )
-              ]
-            }
-          ),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
           label: "Knowledge Retrieval",
           onClick: () => handleButtonClick("knowledge retrieval"),
           nodeType: "knowledge retrieval",
@@ -8952,27 +8869,6 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   ] });
 };
 const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
-  const colorMap = {
-    blue: "bg-blue-100",
-    purple: "bg-purple-100",
-    orange: "bg-orange-100",
-    teal: "bg-teal-100",
-    cyan: "bg-cyan-100",
-    green: "bg-green-100",
-    red: "bg-red-50"
-  };
-  const iconColorMap = {
-    blue: "bg-blue-500",
-    purple: "bg-purple-500",
-    orange: "bg-orange-500",
-    teal: "bg-teal-500",
-    cyan: "bg-cyan-500",
-    green: "bg-green-500",
-    red: "bg-red-50"
-  };
-  const textColorMap = {
-    red: "text-red-500"
-  };
   const handleDragStart = (event) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
@@ -8986,7 +8882,7 @@ const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: `node-item flex items-center justify-between ${colorMap[color]} p-3 rounded-md cursor-grab`,
+      className: "node-item border flex items-center justify-between p-2 rounded-lg cursor-grab hover:bg-gray-50 transition-colors",
       onClick,
       draggable: true,
       onDragStart: handleDragStart,
@@ -8994,16 +8890,10 @@ const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
       "data-node-type": nodeType,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: `w-6 h-6 rounded-full ${iconColorMap[color]} flex items-center justify-center ${textColorMap[color] || "text-white"} mr-3`,
-              children: icon
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center", children: icon }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 leading-none", children: label })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "dots", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-400 hover:text-gray-600 ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "svg",
           {
             xmlns: "http://www.w3.org/2000/svg",
@@ -9211,34 +9101,6 @@ function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }
 
-await importShared('react');
-
-const InputIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-  "svg",
-  {
-    xmlns: "http://www.w3.org/2000/svg",
-    width: "16",
-    height: "16",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "circle",
-        {
-          cx: "12",
-          cy: "12",
-          r: "10"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "12 6 12 12 16 14" })
-    ]
-  }
-);
-
 const React$e = await importShared('react');
 const {memo: memo$a,useReducer,useCallback: useCallback$3,useState: useState$a,useEffect: useEffect$4} = React$e;
 const CustomInputNode = ({ data, isConnectable, id }) => {
@@ -9340,8 +9202,8 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   );
   const fields = Array.isArray(localFields) && localFields.length > 0 ? localFields : Array.isArray(data.fields) ? data.fields : [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-64 relative", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-blue-100 rounded-t-lg p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(InputIcon, {}) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 rounded-t-lg p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "input" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Input" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
@@ -10802,12 +10664,8 @@ const llmService = new LLMService();
 const iconUploadService = new IconUploadService();
 
 const React$d = await importShared('react');
-const {memo: memo$9,useState: useState$9,useEffect: useEffect$3,useRef: useRef$2} = React$d;
+const {memo: memo$9,useState: useState$9,useEffect: useEffect$3} = React$d;
 const AICustomInputNode = ({ data, isConnectable }) => {
-  const nodeIdRef = useRef$2(
-    `ai-node-${Math.random().toString(36).substr(2, 9)}`
-  );
-  nodeIdRef.current;
   const [modelOptions, setModelOptions] = useState$9([
     { value: "O3-mini", label: "O3-mini" },
     { value: "O3-plus", label: "O3-plus" },
@@ -10875,25 +10733,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "svg",
-        {
-          xmlns: "http://www.w3.org/2000/svg",
-          width: "16",
-          height: "16",
-          viewBox: "0 0 24 24",
-          fill: "none",
-          stroke: "currentColor",
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 2L2 7l10 5 10-5-10-5z" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M2 17l10 5 10-5" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M2 12l10 5 10-5" })
-          ]
-        }
-      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "AI" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
@@ -10987,33 +10827,7 @@ const {memo: memo$8} = React$c;
 const BrowserExtensionOutputNode = ({ data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "svg",
-        {
-          xmlns: "http://www.w3.org/2000/svg",
-          width: "16",
-          height: "16",
-          viewBox: "0 0 24 24",
-          fill: "none",
-          stroke: "currentColor",
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 3 21 3 21 9" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "line",
-              {
-                x1: "10",
-                y1: "14",
-                x2: "21",
-                y2: "3"
-              }
-            )
-          ]
-        }
-      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Browser Extension output" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
@@ -11083,34 +10897,6 @@ const BrowserExtensionOutputNode$1 = memo$8(BrowserExtensionOutputNode);
 await importShared('react');
 
 await importShared('react');
-
-const BrowserExtensionInputIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-  "svg",
-  {
-    xmlns: "http://www.w3.org/2000/svg",
-    width: "16",
-    height: "16",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 3 21 3 21 9" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "line",
-        {
-          x1: "10",
-          y1: "14",
-          x2: "21",
-          y2: "3"
-        }
-      )
-    ]
-  }
-);
 
 const React$b = await importShared('react');
 const {memo: memo$7,useState: useState$8,useEffect: useEffect$2,useCallback: useCallback$2,useRef: useRef$1} = React$b;
@@ -11313,7 +11099,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg overflow-hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrowserExtensionInputIcon, {}) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Browser Extension input" })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
@@ -11565,22 +11351,6 @@ const IfElseNode$1 = memo$6(IfElseNode);
 
 await importShared('react');
 
-const KnowledgeRetrievalIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  "svg",
-  {
-    xmlns: "http://www.w3.org/2000/svg",
-    width: "16",
-    height: "16",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" })
-  }
-);
-
 const React$9 = await importShared('react');
 const {memo: memo$5,useState: useState$7,useEffect: useEffect$1,useCallback: useCallback$1} = React$9;
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
@@ -11717,7 +11487,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   ]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(KnowledgeRetrievalIcon, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-white", children: "知識檢索" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white p-4 rounded-b-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
@@ -12221,6 +11991,21 @@ const HTTPNode = ({ data, isConnectable }) => {
   ] });
 };
 const HTTPNode$1 = memo$2(HTTPNode);
+
+await importShared('react');
+
+function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 24 24",
+      fill: "currentColor",
+      className,
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 10.6222C22 6.13836 17.4839 2.46094 12 2.46094C6.51613 2.46094 2 6.1061 2 10.6222C2 14.6222 5.54839 17.9771 10.3548 18.6222C10.6774 18.6545 11.129 18.848 11.2258 19.1061C11.3226 19.3319 11.2581 19.7513 11.2581 20.0093C11.2581 20.0093 11.129 20.7513 11.129 20.8803C11.0968 21.1061 10.9355 21.8803 12 21.3642C13.0323 20.9126 17.7419 17.9448 19.871 15.5577C21.3226 14.0093 22 12.3964 22 10.6222ZM8.45161 12.9771C8.45161 13.0738 8.35484 13.1706 8.25806 13.1706H5.45161C5.41935 13.1706 5.35484 13.1384 5.32258 13.1384C5.29032 13.1061 5.29032 13.0416 5.29032 13.0093V8.62223C5.29032 8.52546 5.3871 8.42868 5.48387 8.42868H6.16129C6.25806 8.42868 6.35484 8.52546 6.35484 8.62223V12.0738H8.25806C8.35484 12.0738 8.45161 12.1706 8.45161 12.2674V12.9771ZM10.129 12.9771C10.129 13.0738 10.0323 13.1706 9.93548 13.1706H9.25806C9.16129 13.1706 9.06452 13.0738 9.06452 12.9771V8.62223C9.06452 8.52546 9.16129 8.42868 9.25806 8.42868H9.93548C10.0323 8.42868 10.129 8.52546 10.129 8.62223V12.9771ZM15 12.9771C15 13.0738 14.9032 13.1706 14.8065 13.1706H14.129C14.0968 13.1706 14.0968 13.1706 14.0968 13.1706C14.0645 13.1706 14.0645 13.1384 14.0645 13.1384L12 10.4287V13.0093C12 13.1061 11.9032 13.2029 11.8065 13.2029H11.129C11.0323 13.2029 10.9355 13.1061 10.9355 13.0093V8.65449C10.9355 8.55772 11.0323 8.46094 11.129 8.46094H11.8065C11.8065 8.46094 11.8065 8.46094 11.8387 8.4932L13.8387 11.1706V8.58997C13.8387 8.4932 13.9355 8.39642 14.0323 8.39642H14.8065C14.9032 8.39642 15 8.4932 15 8.58997V12.9771ZM18.871 9.33191C18.871 9.42868 18.7742 9.52546 18.6774 9.52546H16.7742V10.2674H18.6774C18.7742 10.2674 18.871 10.3642 18.871 10.4609V11.1384C18.871 11.2351 18.7742 11.3319 18.6774 11.3319H16.7742V12.0093H18.6774C18.7742 12.0093 18.871 12.1061 18.871 12.2029V12.8803C18.871 12.9771 18.7742 13.0738 18.6774 13.0738H15.871C15.8387 13.0738 15.7742 13.0416 15.7419 13.0416C15.7097 13.0093 15.7097 12.9448 15.7097 12.9126V8.55772C15.7097 8.52546 15.7419 8.46094 15.7419 8.42868C15.7742 8.39642 15.8387 8.39642 15.871 8.39642H18.6774C18.7742 8.39642 18.871 8.4932 18.871 8.58997V9.33191Z" })
+    }
+  );
+}
 
 const React$5 = await importShared('react');
 const {memo: memo$1,useState: useState$5} = React$5;
