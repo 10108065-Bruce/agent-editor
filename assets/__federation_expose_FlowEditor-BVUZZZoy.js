@@ -8646,7 +8646,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1eb78085ac193104ad31b262d397588abdf7e8cc", "VITE_APP_BUILD_TIME": "2025-04-28T02:03:43.433Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.45"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1eb78085ac193104ad31b262d397588abdf7e8cc", "VITE_APP_BUILD_TIME": "2025-04-28T02:09:39.127Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9055,7 +9055,6 @@ const APAAssistant = ({ title, onTitleChange }) => {
     setIsEditing(true);
   };
   const handleSave = () => {
-    setIsEditing(false);
   };
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
