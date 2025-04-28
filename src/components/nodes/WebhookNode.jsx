@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import WebhookIcon from '../icons/WebhookIcon'; // Assuming you have a WebhookIcon component
+import IconBase from '../icons/IconBase';
 const WebhookNode = ({ data, isConnectable }) => {
   const [showInput, setShowInput] = useState(false);
   const [tempUrl, setTempUrl] = useState('');
@@ -59,7 +59,7 @@ const WebhookNode = ({ data, isConnectable }) => {
         <div className='bg-red-50 p-4 rounded-t-lg'>
           <div className='flex items-center'>
             <div className='w-6 h-6 bg-red-50 flex items-center justify-center mr-2'>
-              <WebhookIcon />
+              <IconBase />
             </div>
             <span className='font-medium'>Webhook</span>
           </div>

@@ -6,8 +6,8 @@ import React, {
   useEffect
 } from 'react';
 import { Handle, Position } from 'reactflow';
-import InputIcon from '../icons/InputIcon';
-
+import IconBase from '../icons/IconBase';
+import AutoResizeTextarea from '../text/AutoResizeText';
 const CustomInputNode = ({ data, isConnectable, id }) => {
   // 當前節點狀態管理
   const [localFields, setLocalFields] = useState([]);
@@ -27,7 +27,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
         }
       ]);
     }
-  }, [data.fields]); // 只有當 data.fields 變化時才重新同步
+  }, [data.fields]);
 
   // 處理添加欄位功能
   const handleAddField = useCallback(() => {
@@ -159,10 +159,10 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   return (
     <div className='shadow-md w-64 relative'>
       {/* Header section with icon and title */}
-      <div className='bg-blue-100 rounded-t-lg p-4 overflow-hidden'>
+      <div className='bg-gray-100 rounded-t-lg p-4 overflow-hidden'>
         <div className='flex items-center'>
-          <div className='w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2'>
-            <InputIcon />
+          <div className='w-6 h-6 flex items-center justify-center text-white mr-2'>
+            <IconBase type='input' />
           </div>
           <span className='font-medium'>Input</span>
         </div>
@@ -173,7 +173,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
 
       {/* White content area */}
       <div className='rounded-lg shadow-md rounded-lg w-64 relative'>
-        <div className='bg-white rounded-lg p-4'>
+        <div className='bg-white rounded-bl-xl rounded-br-xl p-4'>
           {/* Display a message if no fields */}
           {fields.length === 0 && (
             <div className='text-gray-500 text-sm mb-4'>
@@ -205,14 +205,12 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                 <label className='block text-sm text-gray-700 mb-1'>
                   default_value
                 </label>
-                <input
-                  type='text'
-                  className='w-full border border-gray-300 rounded p-2 text-sm'
-                  placeholder='Summary the input text'
+                <AutoResizeTextarea
                   value={field.defaultValue || ''}
                   onChange={(e) =>
                     handleUpdateFieldDefaultValue(idx, e.target.value)
                   }
+                  placeholder='Summary the input text'
                 />
               </div>
 

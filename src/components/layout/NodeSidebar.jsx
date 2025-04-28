@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import LineIcon from '../icons/LineIcon';
 import VersionDisplay from '../../components/VersionDisplay';
+import IconBase from '../icons/IconBase';
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -53,24 +53,10 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
       <div className='space-y-3'>
         {filterNodes('Input') && (
           <NodeItem
-            color='blue'
             icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <circle
-                  cx='12'
-                  cy='12'
-                  r='10'></circle>
-                <polyline points='12 6 12 12 16 14'></polyline>
-              </svg>
+              <div>
+                <IconBase type='input' />
+              </div>
             }
             label='Input'
             onClick={() => handleButtonClick('input')}
@@ -108,22 +94,10 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
 
         {filterNodes('AI') && (
           <NodeItem
-            color='orange'
             icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <path d='M12 2L2 7l10 5 10-5-10-5z'></path>
-                <path d='M2 17l10 5 10-5'></path>
-                <path d='M2 12l10 5 10-5'></path>
-              </svg>
+              <div>
+                <IconBase type='ai' />
+              </div>
             }
             label='AI'
             onClick={() => handleButtonClick('ai')}
@@ -134,26 +108,10 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
 
         {filterNodes('Browser Extension input') && (
           <NodeItem
-            color='teal'
             icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'></path>
-                <polyline points='15 3 21 3 21 9'></polyline>
-                <line
-                  x1='10'
-                  y1='14'
-                  x2='21'
-                  y2='3'></line>
-              </svg>
+              <div>
+                <IconBase type='browser' />
+              </div>
             }
             label='Browser Extension input'
             onClick={() => handleButtonClick('browser extension input')}
@@ -164,26 +122,10 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
 
         {filterNodes('Browser Extension output') && (
           <NodeItem
-            color='teal'
             icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'></path>
-                <polyline points='15 3 21 3 21 9'></polyline>
-                <line
-                  x1='10'
-                  y1='14'
-                  x2='21'
-                  y2='3'></line>
-              </svg>
+              <div>
+                <IconBase type='browser' />
+              </div>
             }
             label='Browser Extension output'
             onClick={() => handleButtonClick('browser extension output')}
@@ -194,28 +136,10 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
 
         {filterNodes('Knowledge Retrieval') && (
           <NodeItem
-            color='cyan'
             icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <circle
-                  cx='11'
-                  cy='11'
-                  r='8'></circle>
-                <line
-                  x1='21'
-                  y1='21'
-                  x2='16.65'
-                  y2='16.65'></line>
-              </svg>
+              <div>
+                <IconBase type='knowledge' />
+              </div>
             }
             label='Knowledge Retrieval'
             onClick={() => handleButtonClick('knowledge retrieval')}
@@ -368,38 +292,13 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   );
 };
 
-// 節點項目元件 - 增加拖曳功能
 const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
-  const colorMap = {
-    blue: 'bg-blue-100',
-    purple: 'bg-purple-100',
-    orange: 'bg-orange-100',
-    teal: 'bg-teal-100',
-    cyan: 'bg-cyan-100',
-    green: 'bg-green-100',
-    red: 'bg-red-50'
-  };
-
-  const iconColorMap = {
-    blue: 'bg-blue-500',
-    purple: 'bg-purple-500',
-    orange: 'bg-orange-500',
-    teal: 'bg-teal-500',
-    cyan: 'bg-cyan-500',
-    green: 'bg-green-500',
-    red: 'bg-red-50'
-  };
-
-  const textColorMap = {
-    red: 'text-red-500'
-  };
-
-  // 處理拖拽事件
+  // 处理拖拽事件
   const handleDragStart = (event) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
 
-    // 執行自定義拖拽開始處理器（如果有的話）
+    // 执行自定义拖拽开始处理器（如果有的话）
     if (onDragStart) {
       onDragStart(event, nodeType);
     }
@@ -412,24 +311,19 @@ const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
 
   return (
     <div
-      className={`node-item flex items-center justify-between ${colorMap[color]} p-3 rounded-md cursor-grab`}
+      className='node-item border flex items-center justify-between p-2 rounded-lg cursor-grab hover:bg-gray-50 transition-colors'
       onClick={onClick}
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       data-node-type={nodeType}>
       <div className='flex items-center'>
-        <div
-          className={`w-6 h-6 rounded-full ${
-            iconColorMap[color]
-          } flex items-center justify-center ${
-            textColorMap[color] || 'text-white'
-          } mr-3`}>
+        <div className='w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center'>
           {icon}
         </div>
-        <span>{label}</span>
+        <span className='text-sm text-gray-700 leading-none'>{label}</span>
       </div>
-      <div className='dots'>
+      <div className='text-gray-400 hover:text-gray-600 ml-2'>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           width='20'

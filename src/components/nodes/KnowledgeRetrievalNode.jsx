@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
-import KnowledgeRetrievalIcon from '../icons/KnowledgeRetrievalIcon';
 import { llmService } from '../../services/WorkflowServicesIntegration';
+import IconBase from '../icons/IconBase';
 
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -197,7 +197,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       <div className='bg-cyan-400 p-4 rounded-t-lg'>
         <div className='flex items-center'>
           <div className='w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2'>
-            <KnowledgeRetrievalIcon />
+            <IconBase type='knowledge' />
           </div>
           <span className='font-medium text-white'>知識檢索</span>
         </div>

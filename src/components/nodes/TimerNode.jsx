@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import TimerIcon from '../icons/TimerIcon'; // Import TimerIcon
+import IconBase from '../icons/IconBase';
 
 const TimerNode = ({ data, isConnectable }) => {
   const [hours, setHours] = useState(data.hours || 0);
@@ -98,7 +98,7 @@ const TimerNode = ({ data, isConnectable }) => {
       <div className='bg-purple-100 p-4'>
         <div className='flex items-center'>
           <div className='w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white mr-2'>
-            <TimerIcon /> {/* Use TimerIcon component */}
+            <IconBase /> {/* Use TimerIcon component */}
           </div>
           <span className='font-medium'>Timer</span>
         </div>

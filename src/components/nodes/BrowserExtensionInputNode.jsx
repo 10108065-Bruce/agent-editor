@@ -1,8 +1,7 @@
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
-import UploadIcon from '../icons/Upload';
-import BrowserExtensionInputIcon from '../icons/BrowserExtensionInputIcon';
 import { iconUploadService } from '../../services/WorkflowServicesIntegration';
+import IconBase from '../icons/IconBase';
 
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
   // 本地狀態管理
@@ -281,7 +280,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
         <div className='bg-gray-100 p-4'>
           <div className='flex items-center'>
             <div className='w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2'>
-              <BrowserExtensionInputIcon />
+              <IconBase type='browser' />
             </div>
             <span className='font-medium'>Browser Extension input</span>
           </div>

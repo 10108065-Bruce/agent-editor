@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
+import IconBase from '../icons/IconBase';
 
 const BrowserExtensionOutputNode = ({ data, isConnectable }) => {
   return (
@@ -8,24 +9,7 @@ const BrowserExtensionOutputNode = ({ data, isConnectable }) => {
       <div className='bg-gray-100 p-4'>
         <div className='flex items-center'>
           <div className='w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='16'
-              height='16'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'>
-              <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'></path>
-              <polyline points='15 3 21 3 21 9'></polyline>
-              <line
-                x1='10'
-                y1='14'
-                x2='21'
-                y2='3'></line>
-            </svg>
+            <IconBase type='browser' />
           </div>
           <span className='font-medium'>Browser Extension output</span>
         </div>

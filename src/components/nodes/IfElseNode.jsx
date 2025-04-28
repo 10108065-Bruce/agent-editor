@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
-import IfElseIcon from '../icons/IfElseIcon'; // Updated import
+import IconBase from '../icons/IconBase';
 
 const IfElseNode = ({ data, isConnectable }) => {
   // Condition operators
@@ -25,7 +25,7 @@ const IfElseNode = ({ data, isConnectable }) => {
       <div className='bg-purple-100 p-4'>
         <div className='flex items-center'>
           <div className='w-6 h-6 rounded-md bg-purple-500 flex items-center justify-center text-white mr-2'>
-            <IfElseIcon />
+            <IconBase />
           </div>
           <span className='font-medium'>If / Else</span>
         </div>

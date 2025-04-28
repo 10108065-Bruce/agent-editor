@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import LineIcon from '../icons/LineIcon'; // Assuming you have a LineIcon component
+import IconBase from '../icons/IconBase';
 const LineNode = ({ data, isConnectable }) => {
   const [mode, setMode] = useState(data.mode || 'reply'); // 'reply' or 'push'
 
@@ -23,7 +23,7 @@ const LineNode = ({ data, isConnectable }) => {
       <div className='bg-gray-100 p-4'>
         <div className='flex items-center'>
           <div className='w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2'>
-            <LineIcon className='w-8 h-8 text-white' />
+            <IconBase />
           </div>
           <span className='font-medium'>Line</span>
         </div>
