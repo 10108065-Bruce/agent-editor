@@ -1086,6 +1086,9 @@ video {
 .max-h-full {
   max-height: 100%;
 }
+.min-h-\[60px\] {
+  min-height: 60px;
+}
 .w-10 {
   width: 2.5rem;
 }
@@ -1177,6 +1180,9 @@ video {
 }
 .cursor-wait {
   cursor: wait;
+}
+.resize-none {
+  resize: none;
 }
 .flex-col {
   flex-direction: column;
