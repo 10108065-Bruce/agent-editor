@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$n = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$7,useState: useState$f,useEffect: useEffect$9,forwardRef: forwardRef$1,useCallback: useCallback$7} = React$n;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$6,useState: useState$e,useEffect: useEffect$8,forwardRef: forwardRef$1,useCallback: useCallback$7} = React$n;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3917,10 +3917,10 @@ function Attribution({ proOptions, position = "bottom-right" }) {
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$7(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$f({ x: 0, y: 0, width: 0, height: 0 });
+  const edgeRef = useRef$6(null);
+  const [edgeTextBbox, setEdgeTextBbox] = useState$e({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$g(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$9(() => {
+  useEffect$8(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$9(() => {
+  useEffect$8(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5057,9 +5057,9 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$f(false);
-  const modifierPressed = useRef$7(false);
-  const pressedKeys = useRef$7(/* @__PURE__ */ new Set([]));
+  const [keyPressed, setKeyPressed] = useState$e(false);
+  const modifierPressed = useRef$6(false);
+  const pressedKeys = useRef$6(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$9(() => {
+  useEffect$8(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5615,19 +5615,19 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$7();
+  const timerId = useRef$6();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$7(false);
-  const zoomedWithRightMouseButton = useRef$7(false);
-  const zoomPane = useRef$7(null);
-  const prevTransform = useRef$7({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$6(false);
+  const zoomedWithRightMouseButton = useRef$6(false);
+  const zoomPane = useRef$6(null);
+  const prevTransform = useRef$6({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$7(0);
-  const isPanScrolling = useRef$7(false);
-  const panScrollTimeout = useRef$7();
+  const mouseButton = useRef$6(0);
+  const isPanScrolling = useRef$6(false);
+  const panScrollTimeout = useRef$6();
   useResizeHandler(zoomPane);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$g(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$7(null);
+  const container = useRef$6(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$7(0);
-  const prevSelectedEdgesCount = useRef$7(0);
-  const containerBounds = useRef$7();
+  const prevSelectedNodesCount = useRef$6(0);
+  const prevSelectedEdgesCount = useRef$6(0);
+  const containerBounds = useRef$6();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6268,18 +6268,18 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$f(false);
-  const dragItems = useRef$7([]);
-  const lastPos = useRef$7({ x: null, y: null });
-  const autoPanId = useRef$7(0);
-  const containerBounds = useRef$7(null);
-  const mousePosition = useRef$7({ x: 0, y: 0 });
-  const dragEvent = useRef$7(null);
-  const autoPanStarted = useRef$7(false);
-  const dragStarted = useRef$7(false);
-  const abortDrag = useRef$7(false);
+  const [dragging, setDragging] = useState$e(false);
+  const dragItems = useRef$6([]);
+  const lastPos = useRef$6({ x: null, y: null });
+  const autoPanId = useRef$6(0);
+  const containerBounds = useRef$6(null);
+  const mousePosition = useRef$6({ x: 0, y: 0 });
+  const dragEvent = useRef$6(null);
+  const autoPanStarted = useRef$6(false);
+  const dragStarted = useRef$6(false);
+  const abortDrag = useRef$6(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$7(null);
-    const prevNodeRef = useRef$7(null);
-    const prevSourcePosition = useRef$7(sourcePosition);
-    const prevTargetPosition = useRef$7(targetPosition);
-    const prevType = useRef$7(type);
+    const nodeRef = useRef$6(null);
+    const prevNodeRef = useRef$6(null);
+    const prevSourcePosition = useRef$6(sourcePosition);
+    const prevTargetPosition = useRef$6(targetPosition);
+    const prevType = useRef$6(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$9(() => {
+    useEffect$8(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$9(() => {
+    useEffect$8(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$9(() => {
+    useEffect$8(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6639,8 +6639,8 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$7(null);
-  useEffect$9(() => {
+  const nodeRef = useRef$6(null);
+  useEffect$8(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$7();
+  const resizeObserverRef = useRef$6();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$9(() => {
+  useEffect$8(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -6812,9 +6812,9 @@ const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMo
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$7(null);
-    const [updateHover, setUpdateHover] = useState$f(false);
-    const [updating, setUpdating] = useState$f(false);
+    const edgeRef = useRef$6(null);
+    const [updateHover, setUpdateHover] = useState$e(false);
+    const [updating, setUpdating] = useState$e(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -7204,8 +7204,8 @@ function Viewport({ children }) {
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$7(false);
-  useEffect$9(() => {
+  const isInitialized = useRef$6(false);
+  useEffect$8(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7298,7 +7298,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$7(null);
+  useRef$6(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7598,7 +7598,7 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$7(null);
+  const storeRef = useRef$6(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
@@ -7664,7 +7664,7 @@ function EdgeLabelRenderer({ children }) {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$f(initialItems);
+    const [items, setItems] = useState$e(initialItems);
     const onItemsChange = useCallback$7((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
@@ -7673,7 +7673,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$m = await importShared('react');
-const {memo: memo$f,useRef: useRef$6,useEffect: useEffect$8} = React$m;
+const {memo: memo$f,useRef: useRef$5,useEffect: useEffect$7} = React$m;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7727,7 +7727,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$6(null);
+    const svg = useRef$5(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7742,9 +7742,9 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$6(0);
+    const viewScaleRef = useRef$5(0);
     viewScaleRef.current = viewScale;
-    useEffect$8(() => {
+    useEffect$7(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7811,7 +7811,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$f(MiniMap);
 
 const React$l = await importShared('react');
-const {memo: memo$e,useState: useState$e,useEffect: useEffect$7} = React$l;
+const {memo: memo$e,useState: useState$d,useEffect: useEffect$6} = React$l;
 
 function PlusIcon() {
     return (React$l.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7848,10 +7848,10 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$e(false);
+    const [isVisible, setIsVisible] = useState$d(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$7(() => {
+    useEffect$6(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7892,7 +7892,7 @@ Controls.displayName = 'Controls';
 var Controls$1 = memo$e(Controls);
 
 const React$k = await importShared('react');
-const {memo: memo$d,useRef: useRef$5} = React$k;
+const {memo: memo$d,useRef: useRef$4} = React$k;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7924,7 +7924,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$5(null);
+    const ref = useRef$4(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -7951,14 +7951,14 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
 Background.displayName = 'Background';
 var Background$1 = memo$d(Background);
 
-const {useRef: useRef$4,useCallback: useCallback$6} = await importShared('react');
+const {useRef: useRef$3,useCallback: useCallback$6} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$4([]);
-  const redoStack = useRef$4([]);
-  const nodeCallbacks = useRef$4({});
-  const isUpdatingNodes = useRef$4(false);
+  const undoStack = useRef$3([]);
+  const redoStack = useRef$3([]);
+  const nodeCallbacks = useRef$3({});
+  const isUpdatingNodes = useRef$3(false);
   const handleNodesChange = useCallback$6(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
@@ -8633,7 +8633,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "ba2c1e66e3f440eee099cc2b6114fd352fe6f871", "VITE_APP_BUILD_TIME": "2025-04-28T07:41:05.042Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2c564888cc8d34b8b4306b5eeb0ed725144d4117", "VITE_APP_BUILD_TIME": "2025-04-28T08:44:26.500Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -8757,9 +8757,9 @@ const IconBase = ({ type, className = "" }) => {
 };
 
 const React$j = await importShared('react');
-const {useState: useState$d} = React$j;
+const {useState: useState$c} = React$j;
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
-  const [searchTerm, setSearchTerm] = useState$d("");
+  const [searchTerm, setSearchTerm] = useState$c("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -8868,7 +8868,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
   ] });
 };
-const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
+const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
   const handleDragStart = (event) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
@@ -8939,10 +8939,10 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
 };
 
 const React$i = await importShared('react');
-const {useState: useState$c} = React$i;
+const {useState: useState$b} = React$i;
 
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$c(true);
+  const [isEditing, setIsEditing] = useState$b(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -9070,12 +9070,10 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 const NodeWrapper$1 = memo$c(NodeWrapper);
 
 const React$g = await importShared('react');
-const {memo: memo$b,useCallback: useCallback$4,useEffect: useEffect$6,useState: useState$b,useRef: useRef$3} = React$g;
+const {memo: memo$b,useCallback: useCallback$4} = React$g;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
-    const nodeRef = useRef$3(null);
-    const [isInputFocused, setIsInputFocused] = useState$b(false);
     const handleNodeClick = useCallback$4(
       (e) => {
         e.stopPropagation();
@@ -9085,70 +9083,14 @@ const withNodeSelection = (WrappedComponent) => {
       },
       [data]
     );
-    useEffect$6(() => {
-      const handleFocus = (e) => {
-        const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
-        if (isInput) {
-          setIsInputFocused(true);
-          const nodeElement = findReactFlowNode(e.target);
-          if (nodeElement) {
-            nodeElement._originalDraggable = nodeElement.draggable;
-            nodeElement.draggable = false;
-            nodeElement.classList.add("nodrag");
-          }
-        }
-      };
-      const handleBlur = (e) => {
-        const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
-        if (isInput) {
-          setIsInputFocused(false);
-          const nodeElement = findReactFlowNode(e.target);
-          if (nodeElement) {
-            if (nodeElement._originalDraggable !== void 0) {
-              nodeElement.draggable = nodeElement._originalDraggable;
-              delete nodeElement._originalDraggable;
-            }
-            nodeElement.classList.remove("nodrag");
-          }
-        }
-      };
-      const handleMouseDown = (e) => {
-        if (isInputFocused) {
-          e.stopPropagation();
-        }
-      };
-      document.addEventListener("focusin", handleFocus, true);
-      document.addEventListener("focusout", handleBlur, true);
-      if (nodeRef.current) {
-        nodeRef.current.addEventListener("mousedown", handleMouseDown, true);
-      }
-      return () => {
-        document.removeEventListener("focusin", handleFocus, true);
-        document.removeEventListener("focusout", handleBlur, true);
-        if (nodeRef.current) {
-          nodeRef.current.removeEventListener(
-            "mousedown",
-            handleMouseDown,
-            true
-          );
-        }
-      };
-    }, [isInputFocused]);
-    function findReactFlowNode(element) {
-      let current = element;
-      while (current && !current.classList?.contains("react-flow__node")) {
-        current = current.parentElement;
-      }
-      return current;
-    }
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: nodeRef, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
       NodeWrapper$1,
       {
         selected,
         onClick: handleNodeClick,
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(WrappedComponent, { ...props })
       }
-    ) });
+    );
   };
   WithNodeSelection.displayName = `withNodeSelection(${getDisplayName(
     WrappedComponent
@@ -10020,6 +9962,8 @@ class WorkflowDataConverter {
    * @param {Object} apiData - API 回傳的原始數據
    * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
    */
+  // WorkflowDataConverter.js 中需要修改的方法
+
   static transformToReactFlowFormat(apiData) {
     console.log('開始轉換 API 格式為 ReactFlow 格式');
 
@@ -10053,39 +9997,10 @@ class WorkflowDataConverter {
 
       nodes.push(reactFlowNode);
 
-      // 處理節點之間的連接 - 增強處理多輸入情況
+      // 處理節點之間的連接
       if (node.node_input) {
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          // 檢查是否為陣列（多個輸入連接到同一處理器）
-          if (Array.isArray(inputValue)) {
-            console.log(
-              `節點 ${node.id} 的 ${inputKey} 處理器有 ${inputValue.length} 個輸入連接`
-            );
-
-            // 處理每個連接
-            inputValue.forEach((connection, index) => {
-              if (connection && connection.node_id) {
-                const edgeId = `${connection.node_id}-${node.id}-${inputKey}-${index}`;
-
-                edges.push({
-                  id: edgeId,
-                  source: connection.node_id,
-                  sourceHandle: connection.output_name || null,
-                  target: node.id,
-                  targetHandle: inputKey,
-                  type: 'custom-edge'
-                });
-
-                console.log(
-                  `創建邊: ${connection.node_id} -> ${
-                    node.id
-                  }:${inputKey} (多輸入 #${index + 1})`
-                );
-              }
-            });
-          }
-          // 處理單個輸入連接的情況
-          else if (inputValue && inputValue.node_id) {
+          if (inputValue && inputValue.node_id) {
             const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}`;
 
             edges.push({
@@ -10096,10 +10011,6 @@ class WorkflowDataConverter {
               targetHandle: inputKey,
               type: 'custom-edge'
             });
-
-            console.log(
-              `創建邊: ${inputValue.node_id} -> ${node.id}:${inputKey}`
-            );
           }
         });
       }
@@ -10364,103 +10275,17 @@ class WorkflowDataConverter {
   static convertReactFlowToAPI(reactFlowData) {
     console.log('開始轉換 ReactFlow 格式為 API 格式');
 
-    // 創建一個函數來深度複製物件，避免引用問題
-    const deepCopy = (obj) => JSON.parse(JSON.stringify(obj));
-
-    // 為了正確處理多個輸入到同一個目標處理器的情況，首先建立輸入映射
-    const nodeInputsMap = {};
-
-    // 遍歷所有節點初始化映射
-    reactFlowData.nodes.forEach((node) => {
-      nodeInputsMap[node.id] = node.data?.node_input
-        ? deepCopy(node.data.node_input)
-        : {};
-    });
-
-    // 遍歷所有邊緣來構建完整的輸入連接圖
-    reactFlowData.edges.forEach((edge) => {
-      const targetId = edge.target;
-      const sourceId = edge.source;
-      const targetHandle = edge.targetHandle || 'input';
-      const sourceHandle = edge.sourceHandle || 'output';
-
-      // 檢查目標節點的輸入連接映射是否已經存在該處理器的連接
-      if (!nodeInputsMap[targetId]) {
-        nodeInputsMap[targetId] = {};
-      }
-
-      // 如果相同處理器已有連接，則創建一個陣列儲存多個輸入
-      // 這是關鍵修改：支持同一目標處理器的多個輸入連接
-      if (nodeInputsMap[targetId][targetHandle]) {
-        // 如果該處理器已經有連接，檢查是否為陣列
-        const existingInput = nodeInputsMap[targetId][targetHandle];
-
-        if (!Array.isArray(existingInput)) {
-          // 將單個連接轉換為陣列
-          nodeInputsMap[targetId][targetHandle] = [existingInput];
-        }
-
-        // 添加新的連接到陣列
-        nodeInputsMap[targetId][targetHandle].push({
-          node_id: sourceId,
-          output_name: sourceHandle,
-          type: 'string'
-        });
-
-        console.log(
-          `為節點 ${targetId} 添加多重輸入連接: ${sourceId} -> ${targetHandle} (總共 ${nodeInputsMap[targetId][targetHandle].length} 個連接)`
-        );
-      } else {
-        // 如果該處理器還沒有連接，直接設置
-        nodeInputsMap[targetId][targetHandle] = {
-          node_id: sourceId,
-          output_name: sourceHandle,
-          type: 'string'
-        };
-        console.log(
-          `為節點 ${targetId} 添加輸入連接: ${sourceId} -> ${targetHandle}`
-        );
-      }
-    });
-
-    // 創建流水線
     const flowPipeline = reactFlowData.nodes.map((node) => {
       console.log(`處理節點 ${node.id}, 類型: ${node.type}`);
 
-      // 使用預先構建的輸入映射
-      const nodeInput = nodeInputsMap[node.id] || {};
+      // 提取節點輸入連接
+      const nodeInput = WorkflowMappingService.extractNodeInputForAPI(
+        node.id,
+        reactFlowData.edges
+      );
 
-      // 詳細日誌輸出所有輸入連接
-      console.log(`節點 ${node.id} 的輸入連接詳情:`);
-      Object.entries(nodeInput).forEach(([handle, value]) => {
-        if (Array.isArray(value)) {
-          console.log(`  處理器 ${handle} 有 ${value.length} 個輸入連接:`);
-          value.forEach((conn, idx) => {
-            console.log(
-              `    ${idx + 1}. 從節點 ${conn.node_id} 的 ${
-                conn.output_name
-              } 輸出`
-            );
-          });
-        } else {
-          console.log(
-            `  處理器 ${handle} 連接到節點 ${value.node_id} 的 ${value.output_name} 輸出`
-          );
-        }
-      });
-
-      // ===== 輸出處理 =====
-      // 1. 首先保留節點原始輸出連接
-      let nodeOutput =
-        node.data && node.data.node_output
-          ? deepCopy(node.data.node_output)
-          : {};
-
-      // 2. 如果節點沒有輸出定義，則創建適當的默認輸出
-      if (Object.keys(nodeOutput).length === 0) {
-        nodeOutput = WorkflowMappingService.extractNodeOutputForAPI(node);
-      }
-      console.log(`節點 ${node.id} 的輸出連接:`, nodeOutput);
+      // 提取節點輸出連接
+      const nodeOutput = WorkflowMappingService.extractNodeOutputForAPI(node);
 
       // 轉換節點數據
       const parameters = this.transformNodeDataToAPI(node);
@@ -10478,33 +10303,12 @@ class WorkflowDataConverter {
       };
     });
 
-    // 在返回之前進行額外的調試檢查，確保所有連接都已正確處理
-    for (const node of flowPipeline) {
-      if (node.node_input && Object.keys(node.node_input).length > 0) {
-        console.log(
-          `最終檢查: 節點 ${node.id} 有 ${
-            Object.keys(node.node_input).length
-          } 個輸入處理器`
-        );
-        Object.entries(node.node_input).forEach(([key, value]) => {
-          if (Array.isArray(value)) {
-            console.log(`  處理器 ${key} 有 ${value.length} 個輸入連接:`);
-            value.forEach((conn, idx) => {
-              console.log(
-                `    ${idx + 1}. ${conn.node_id} -> ${node.id}:${key}`
-              );
-            });
-          } else {
-            console.log(`  連接: ${value.node_id} -> ${node.id}:${key}`);
-          }
-        });
-      }
-    }
-
     const apiData = {
       flow_name: reactFlowData.title || '未命名流程',
       flow_id: reactFlowData.id || `flow_${Date.now()}`,
       content: {
+        // flow_id: reactFlowData.id || `flow_${Date.now()}`,
+        // user_id: reactFlowData.userId || '1',
         flow_type: 'NORMAL',
         headers: reactFlowData.headers || {
           Authorization: 'Bearer your-token-here',
@@ -10736,7 +10540,7 @@ class IconUploadService {
   /**
    * 檢查圖標 URL 是否有效
    * @param {string} iconValue - 圖標值，可能是 URL 或預設圖標名稱
-   * @returns {boolean} - 如果是有效的圖標 URL返回 true
+   * @returns {boolean} - 如果是有效的圖標 URL 返回 true
    */
   isIconUrl(iconValue) {
     return (
