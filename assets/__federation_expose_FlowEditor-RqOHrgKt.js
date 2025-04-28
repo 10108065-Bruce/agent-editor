@@ -8648,7 +8648,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f02fa3fa54213a0e7074620d68052d3cc87ed10b", "VITE_APP_BUILD_TIME": "2025-04-28T03:49:48.812Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f02fa3fa54213a0e7074620d68052d3cc87ed10b", "VITE_APP_BUILD_TIME": "2025-04-28T03:58:33.812Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.48"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11026,11 +11026,11 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       localItems,
       "node.id": id
     });
-    if (Array.isArray(data?.items) && (!Array.isArray(localItems) || localItems.length === 0 || data.items.length !== localItems.length)) {
-      console.log("完全同步 items 數據到本地狀態");
-      setLocalItems(data.items);
+    if (Array.isArray(data?.items) && JSON.stringify(data.items) !== JSON.stringify(localItems)) {
+      console.log("同步 items 數據到本地狀態");
+      setLocalItems([...data.items]);
     }
-  }, [data?.items, localItems, id]);
+  }, [data?.items]);
   const updateParentState = useCallback$2(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=`, value);
@@ -11150,13 +11150,9 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
         console.warn(`項目索引 ${index} 超出範圍`);
         return;
       }
-      const updatedItems = [...localItems];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        // 保留所有現有屬性
-        icon: iconValue
-        // 僅更新 icon 屬性
-      };
+      const updatedItems = localItems.map(
+        (item, idx) => idx === index ? { ...item, icon: iconValue } : item
+      );
       setLocalItems(updatedItems);
       updateParentState("items", updatedItems);
     },
@@ -11164,7 +11160,8 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
   );
   const handleNameChange = useCallback$2(
     (index, value) => {
-      console.log(`修改項目 ${index} 的名稱為 ${value}`);
+      console.log(`修改項目 ${index} 的名稱為 "${value}"`);
+      console.log("當前 items:", localItems);
       if (index < 0 || index >= localItems.length) {
         console.warn(`項目索引 ${index} 超出範圍`);
         return;
@@ -11172,16 +11169,12 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       if (typeof data?.updateItemName === "function") {
         console.log("使用 updateItemName 回調函數");
         data.updateItemName(index, value);
-        return;
       }
       console.log("使用自定義方法更新項目名稱");
-      const updatedItems = [...localItems];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        // 保留所有現有屬性（包括 icon）
-        name: value
-        // 僅更新 name 屬性
-      };
+      const updatedItems = localItems.map(
+        (item, idx) => idx === index ? { ...item, name: value } : item
+      );
+      console.log("更新後的 items:", updatedItems);
       setLocalItems(updatedItems);
       updateParentState("items", updatedItems);
     },
@@ -11238,7 +11231,10 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
                     type: "text",
                     className: "w-full border border-gray-300 rounded p-2 text-sm",
                     value: item.name || "",
-                    onChange: (e) => handleNameChange(idx, e.target.value)
+                    onChange: (e) => {
+                      console.log(`輸入框 ${idx} 值變更為:`, e.target.value);
+                      handleNameChange(idx, e.target.value);
+                    }
                   }
                 )
               ] }),
