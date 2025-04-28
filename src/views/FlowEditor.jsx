@@ -116,34 +116,37 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
   // 實現 loadWorkflow 的邏輯，這將在 useImperativeHandle 中被引用
   const loadWorkflowImpl = async (flowId) => {
-    try {
-      const apiData = await workflowAPIService.loadWorkflow(flowId);
+    // 先判斷flowId是否為new
+    if (flowId !== 'new') {
+      try {
+        const apiData = await workflowAPIService.loadWorkflow(flowId);
 
-      const { nodes: transformedNodes, edges: transformedEdges } =
-        WorkflowDataConverter.transformToReactFlowFormat(apiData);
+        const { nodes: transformedNodes, edges: transformedEdges } =
+          WorkflowDataConverter.transformToReactFlowFormat(apiData);
 
-      setFlowNodes(transformedNodes);
-      setFlowEdges(transformedEdges);
+        setFlowNodes(transformedNodes);
+        setFlowEdges(transformedEdges);
 
-      setFlowMetadata((prev) => ({
-        ...prev,
-        id: apiData.flow_id,
-        title: apiData.flow_name || prev.flow_name,
-        version: apiData.version || prev.version
-      }));
+        setFlowMetadata((prev) => ({
+          ...prev,
+          id: apiData.flow_id,
+          title: apiData.flow_name || prev.flow_name,
+          version: apiData.version || prev.version
+        }));
 
-      // 確保在設置節點後再等待一個渲染周期，然後更新節點函數
-      setTimeout(() => {
-        console.log('載入工作流後更新節點函數...');
-        updateNodeFunctions();
-      }, 300);
+        // 確保在設置節點後再等待一個渲染周期，然後更新節點函數
+        setTimeout(() => {
+          console.log('載入工作流後更新節點函數...');
+          updateNodeFunctions();
+        }, 300);
 
-      showNotification('工作流載入成功', 'success');
-      return true;
-    } catch (error) {
-      console.error('載入工作流失敗:', error);
-      showNotification('載入工作流失敗', 'error');
-      return false;
+        showNotification('工作流載入成功', 'success');
+        return true;
+      } catch (error) {
+        console.error('載入工作流失敗:', error);
+        showNotification('載入工作流失敗', 'error');
+        return false;
+      }
     }
   };
 

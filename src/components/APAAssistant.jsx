@@ -9,10 +9,12 @@ const APAAssistant = ({ title, onTitleChange }) => {
   };
 
   const handleSave = () => {
-    setIsEditing(false);
+    // console.log('handleSave');
+    // setIsEditing(false);
   };
 
   const handleKeyDown = (e) => {
+    // console.log('handleKeyDown', e);
     if (e.key === 'Enter') {
       setIsEditing(false);
     }

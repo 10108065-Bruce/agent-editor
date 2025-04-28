@@ -349,15 +349,22 @@ class WorkflowAPIService {
   }
 }
 /**
- * LLM模型服務 - 處理與LLM模型相關的API請求
+ * LLM模型和知識檢索服務 - 處理與LLM模型和文件相關的API請求
  */
 class LLMService {
   constructor() {
     this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
+
+    // 模型相關緩存
     this.modelsCache = null;
     this.lastFetchTime = null;
     this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
     this.pendingRequest = null; // 用於追蹤進行中的請求
+
+    // 文件相關緩存
+    this.filesCache = null;
+    this.lastFilesFetchTime = null;
+    this.pendingFilesRequest = null; // 用於追蹤進行中的文件請求
   }
 
   /**
@@ -423,6 +430,87 @@ class LLMService {
   }
 
   /**
+   * 獲取所有已完成的文件
+   * @returns {Promise<Array>} 文件列表
+   */
+  async getCompletedFiles() {
+    try {
+      // 檢查是否有有效的快取
+      const now = Date.now();
+      if (
+        this.filesCache &&
+        this.lastFilesFetchTime &&
+        now - this.lastFilesFetchTime < this.cacheExpiryTime
+      ) {
+        console.log('使用快取的已完成文件列表');
+        return this.filesCache;
+      }
+
+      // 如果已經有一個請求在進行中，則返回該請求
+      if (this.pendingFilesRequest) {
+        console.log('已有進行中的文件列表請求，使用相同請求');
+        return this.pendingFilesRequest;
+      }
+
+      // 創建新請求
+      console.log('獲取已完成文件列表...');
+      this.pendingFilesRequest = fetch(
+        `${this.baseUrl}/agent_designer/files/completed`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          }
+        }
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('成功獲取已完成文件:', data);
+
+          // 更新快取
+          this.filesCache = data;
+          this.lastFilesFetchTime = now;
+          this.pendingFilesRequest = null; // 清除進行中的請求
+
+          return data;
+        })
+        .catch((error) => {
+          console.error('獲取已完成文件失敗:', error);
+          this.pendingFilesRequest = null; // 清除進行中的請求，即使出錯
+          this.pendingFilesRequest = null;
+
+          // 檢查是否為 CORS 錯誤
+          if (
+            error.message &&
+            (error.message.includes('NetworkError') ||
+              error.message.includes('Failed to fetch'))
+          ) {
+            console.log('疑似 CORS 問題，返回預設檔案列表');
+            // 直接返回預設值而不是再次拋出錯誤
+            return [
+              { id: 1, filename: 'ICDCode.csv' },
+              { id: 2, filename: 'Cardiology_Diagnoses.csv' }
+            ];
+          }
+
+          throw error;
+        });
+
+      return this.pendingFilesRequest;
+    } catch (error) {
+      console.error('獲取已完成文件過程中出錯:', error);
+      this.pendingFilesRequest = null;
+      throw error;
+    }
+  }
+
+  /**
    * 獲取格式化後的模型選項，適用於下拉選單
    * @returns {Promise<Array>} 格式化的模型選項
    */
@@ -450,12 +538,54 @@ class LLMService {
   }
 
   /**
-   * 預加載模型數據，通常在應用啟動時呼叫
+   * 獲取格式化後的已完成文件選項，適用於下拉選單
+   * @returns {Promise<Array>} 格式化的文件選項
    */
-  preloadModels() {
-    console.log('預加載LLM模型列表');
+  async getFileOptions() {
+    try {
+      const files = await this.getCompletedFiles();
+
+      // 根據後端返回的格式 [{"filename": '123.csv', "id": 1}] 進行處理
+      return files.map((file) => ({
+        id: file.id.toString(), // 確保ID是字符串
+        value: file.id.toString(), // 用於選項值
+        name: file.filename, // 用於顯示名稱
+        label: file.filename // 用於顯示名稱 (替代)
+      }));
+    } catch (error) {
+      console.error('獲取文件選項失敗:', error);
+      // 返回一些默認選項，以防API失敗
+      return [
+        {
+          id: 'icdcode',
+          value: 'icdcode',
+          name: 'ICDCode.csv',
+          label: 'ICDCode.csv'
+        },
+        {
+          id: 'cardiology',
+          value: 'cardiology',
+          name: 'Cardiology_Diagnoses.csv',
+          label: 'Cardiology_Diagnoses.csv'
+        }
+      ];
+    }
+  }
+
+  /**
+   * 預加載模型與文件數據，通常在應用啟動時呼叫
+   */
+  preloadData() {
+    console.log('預加載LLM模型和文件列表');
+
+    // 預加載模型
     this.getModels().catch((err) => {
       console.log('預加載模型失敗:', err);
+    });
+
+    // 預加載文件
+    this.getCompletedFiles().catch((err) => {
+      console.log('預加載文件失敗:', err);
     });
   }
 }
