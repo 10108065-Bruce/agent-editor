@@ -8648,7 +8648,7 @@ function LineIcon({ className = "w-6 h-6 text-gray-800" }) {
   );
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "ced804a5f689f4fb039f556ac98fc6dfa36d4a41", "VITE_APP_BUILD_TIME": "2025-04-28T04:59:33.237Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.49"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "dbad599d825f5813965dabc12ec88c9b0328125d", "VITE_APP_BUILD_TIME": "2025-04-28T05:50:21.669Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -10807,7 +10807,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   const nodeIdRef = useRef$2(
     `ai-node-${Math.random().toString(36).substr(2, 9)}`
   );
-  const nodeId = nodeIdRef.current;
+  nodeIdRef.current;
   const [modelOptions, setModelOptions] = useState$9([
     { value: "O3-mini", label: "O3-mini" },
     { value: "O3-plus", label: "O3-plus" },
@@ -10817,25 +10817,15 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   const [isLoadingModels, setIsLoadingModels] = useState$9(false);
   const [modelLoadError, setModelLoadError] = useState$9(null);
   const [localModel, setLocalModel] = useState$9(data?.model || "O3-mini");
-  const [localSelectedOption, setLocalSelectedOption] = useState$9(
-    data?.selectedOption || "prompt"
-  );
   useEffect$3(() => {
     console.log("AICustomInputNode 數據同步更新:", {
-      "data.model": data?.model,
-      "data.selectedOption": data?.selectedOption
+      "data.model": data?.model
     });
     if (data?.model && data.model !== localModel) {
       console.log(`同步模型從 ${localModel} 到 ${data.model}`);
       setLocalModel(data.model);
     }
-    if (data?.selectedOption && data.selectedOption !== localSelectedOption) {
-      console.log(
-        `同步選項從 ${localSelectedOption} 到 ${data.selectedOption}`
-      );
-      setLocalSelectedOption(data.selectedOption);
-    }
-  }, [data?.model, data?.selectedOption]);
+  }, [data?.model]);
   const loadModels = async () => {
     if (isLoadingModels) return;
     setIsLoadingModels(true);
@@ -10883,13 +10873,6 @@ const AICustomInputNode = ({ data, isConnectable }) => {
     setLocalModel(newModelValue);
     updateParentState("model", newModelValue);
   };
-  const handleOptionChange = (option) => {
-    console.log(`節點 ${nodeId} 選項變更為: ${option}`);
-    setLocalSelectedOption(option);
-    updateParentState("selectedOption", option);
-  };
-  const isPromptSelected = localSelectedOption === "prompt";
-  const isContextSelected = localSelectedOption === "context";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -10941,49 +10924,9 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         ] }),
         modelLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: modelLoadError })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center space-x-2 cursor-pointer", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "radio",
-                className: "hidden",
-                checked: isPromptSelected,
-                onChange: () => handleOptionChange("prompt")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: `w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${isPromptSelected ? "border-gray-500" : ""}`,
-                children: isPromptSelected && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-gray-600" })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700", children: "prompt" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center space-x-2 cursor-pointer", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "radio",
-                className: "hidden",
-                checked: isContextSelected,
-                onChange: () => handleOptionChange("context")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: `w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center ${isContextSelected ? "border-gray-500" : ""}`,
-                children: isContextSelected && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-gray-600" })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700", children: "context" })
-        ] }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2", children: "Prompt" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2", children: "Context" }) })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -10991,12 +10934,31 @@ const AICustomInputNode = ({ data, isConnectable }) => {
       {
         type: "target",
         position: Position.Left,
-        id: "input",
+        id: "prompt-input",
         style: {
           background: "#555",
           width: "8px",
           height: "8px",
-          left: "-4px"
+          left: "-4px",
+          top: "82%",
+          transform: "translateY(-250%)"
+        },
+        isConnectable
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Handle$1,
+      {
+        type: "target",
+        position: Position.Left,
+        id: "context-input",
+        style: {
+          background: "#555",
+          width: "8px",
+          height: "8px",
+          left: "-4px",
+          top: "80%",
+          transform: "translateY(150%)"
         },
         isConnectable
       }
