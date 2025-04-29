@@ -507,6 +507,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     } finally {
       // 無論成功或失敗，都重置保存狀態
       setIsSaving(false);
+      // handleLoadWorkflow(flowMetadata.id);
     }
   }, [nodes, edges, flowMetadata, showNotification]);
 

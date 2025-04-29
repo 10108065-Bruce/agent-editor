@@ -406,26 +406,103 @@ class LLMService {
           return response.json();
         })
         .then((data) => {
-          console.log('成功獲取LLM模型:', data);
+          console.log('API返回原始模型數據:', data);
+
+          // 檢查數據是否為數組
+          if (!Array.isArray(data)) {
+            console.warn('API返回的模型數據不是陣列');
+            // 嘗試從可能的非數組格式中提取數據
+            if (
+              data &&
+              typeof data === 'object' &&
+              data.models &&
+              Array.isArray(data.models)
+            ) {
+              data = data.models;
+              console.log('從API回應中提取models陣列:', data);
+            } else {
+              // 如果無法提取合理的數據，則返回預設模型
+              console.warn('無法從API回應中提取合理的模型數據，使用預設模型');
+              data = [
+                {
+                  id: 1,
+                  name: 'O3-mini',
+                  display_name: 'O3-mini',
+                  is_default: true
+                },
+                { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
+                { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
+                { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+              ];
+            }
+          }
+
+          // 檢查每個模型對象，確保結構正確
+          const processedData = data.map((model, index) => {
+            if (!model || typeof model !== 'object') {
+              console.warn(`模型 ${index} 無效，使用替代數據`);
+              return {
+                id: index + 1,
+                name: `Model ${index + 1}`,
+                display_name: `Model ${index + 1}`,
+                is_default: index === 0
+              };
+            }
+
+            // 確保模型有ID
+            if (model.id === undefined || model.id === null) {
+              console.warn(`模型 ${index} 缺少ID，使用索引作為ID`);
+              model.id = index + 1;
+            }
+
+            // 確保模型有名稱
+            if (!model.name && !model.display_name) {
+              console.warn(`模型 ${index} 缺少名稱，使用索引作為名稱`);
+              model.name = `Model ${model.id}`;
+            }
+
+            return model;
+          });
+
+          console.log('處理後的模型數據:', processedData);
 
           // 更新快取
-          this.modelsCache = data;
+          this.modelsCache = processedData;
           this.lastFetchTime = now;
           this.pendingRequest = null; // 清除進行中的請求
 
-          return data;
+          return processedData;
         })
         .catch((error) => {
           console.error('獲取LLM模型失敗:', error);
           this.pendingRequest = null; // 清除進行中的請求，即使出錯
-          throw error;
+
+          // 返回預設模型，而不是拋出錯誤
+          return [
+            {
+              id: 1,
+              name: 'O3-mini',
+              display_name: 'O3-mini',
+              is_default: true
+            },
+            { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
+            { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
+            { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+          ];
         });
 
       return this.pendingRequest;
     } catch (error) {
       console.error('獲取LLM模型過程中出錯:', error);
       this.pendingRequest = null;
-      throw error;
+
+      // 返回預設模型，而不是拋出錯誤
+      return [
+        { id: 1, name: 'O3-mini', display_name: 'O3-mini', is_default: true },
+        { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
+        { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
+        { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+      ];
     }
   }
 
@@ -517,22 +594,81 @@ class LLMService {
   async getModelOptions() {
     try {
       const models = await this.getModels();
+      console.log('API返回的模型數據:', models);
+
+      // 檢查模型數據是否有效
+      if (!models || !Array.isArray(models)) {
+        console.warn('模型數據無效或不是陣列，使用默認選項');
+        return [
+          { value: '1', label: 'O3-mini' },
+          { value: '2', label: 'O3-plus' },
+          { value: '3', label: 'O3-mega' },
+          { value: '4', label: 'O3-ultra' }
+        ];
+      }
+
+      if (models.length === 0) {
+        console.warn('API返回的模型陣列為空，使用默認選項');
+        return [
+          { value: '1', label: 'O3-mini' },
+          { value: '2', label: 'O3-plus' },
+          { value: '3', label: 'O3-mega' },
+          { value: '4', label: 'O3-ultra' }
+        ];
+      }
+
+      // 檢查第一個模型的結構，確認關鍵屬性
+      const sampleModel = models[0];
+      console.log('模型數據結構示例:', sampleModel);
 
       // 將API返回的模型數據轉換為select選項格式
-      return models.map((model) => ({
-        value: model.name,
-        label: model.display_name || model.name,
-        description: model.description,
-        isDefault: model.is_default
-      }));
+      const options = models.map((model, index) => {
+        // 確保模型對象存在
+        if (!model) {
+          console.warn(`遇到無效的模型數據，索引: ${index}`);
+          return { value: `${index + 1}`, label: `Model ${index + 1}` };
+        }
+
+        // 記錄每個模型的關鍵屬性，幫助診斷
+        console.log(`處理模型 ${index}:`, {
+          id: model.id,
+          name: model.name,
+          display_name: model.display_name,
+          is_default: model.is_default
+        });
+
+        // 取得 ID，確保是字串型別
+        let modelId = '1'; // 預設 ID
+        if (model.id !== undefined && model.id !== null) {
+          modelId = model.id.toString();
+        } else {
+          modelId = `${index + 1}`; // 使用索引+1作為ID
+        }
+
+        // 取得顯示名稱
+        const modelLabel = model.display_name || model.name;
+
+        // 如果連名稱也沒有，則使用模型ID作為顯示名稱
+        const displayLabel = modelLabel || `Model ${modelId}`;
+
+        return {
+          value: modelId,
+          label: displayLabel,
+          description: model.description || '',
+          isDefault: !!model.is_default
+        };
+      });
+
+      console.log('最終格式化的選項:', options);
+      return options;
     } catch (error) {
       console.error('獲取模型選項失敗:', error);
       // 返回一些默認選項，以防API失敗
       return [
-        { value: 'O3-mini', label: 'O3-mini' },
-        { value: 'O3-plus', label: 'O3-plus' },
-        { value: 'O3-mega', label: 'O3-mega' },
-        { value: 'O3-ultra', label: 'O3-ultra' }
+        { value: '1', label: 'O3-mini' },
+        { value: '2', label: 'O3-plus' },
+        { value: '3', label: 'O3-mega' },
+        { value: '4', label: 'O3-ultra' }
       ];
     }
   }
@@ -702,12 +838,26 @@ class WorkflowDataConverter {
           webhookUrl: node.parameters?.webhook_url?.data || ''
         };
 
-      case 'ask_ai':
+      case 'ask_ai': { // 獲取模型ID，確保處理可能的undefined或null值 // 優先使用 llm_id，如果不存在則使用 model
+        const rawModelId =
+          node.parameters?.llm_id?.data !== undefined
+            ? node.parameters.llm_id.data
+            : node.parameters?.model?.data !== undefined
+            ? node.parameters.model.data
+            : '1';
+
+        // 確保模型ID是字符串類型
+        const modelId =
+          rawModelId !== null && rawModelId !== undefined
+            ? rawModelId.toString()
+            : '1';
+
         return {
           ...baseData,
-          model: node.parameters?.model?.data || 'O3-mini',
+          model: modelId,
           selectedOption: node.parameters?.selected_option?.data || 'prompt'
         };
+      }
 
       case 'basic_input': {
         // 提取參數中的欄位
@@ -985,12 +1135,27 @@ class WorkflowDataConverter {
         break;
 
       case 'aiCustomInput':
-      case 'ai':
-        parameters.model = { data: node.data.model || 'O3-mini' };
+      case 'ai': {
+        // 處理可能的無效model值
+        const modelValue = node.data.model || '1';
+
+        // 確保值為字符串
+        const safeModelValue =
+          modelValue && typeof modelValue !== 'string'
+            ? modelValue.toString()
+            : modelValue || '1';
+
+        // 使用model作為llm_id - 現在存的是ID值而非名稱
+        parameters.llm_id = { data: safeModelValue };
+
+        // 保留model參數，以兼容舊版API
+        parameters.model = { data: safeModelValue };
+
         if (node.data.selectedOption) {
           parameters.selected_option = { data: node.data.selectedOption };
         }
         break;
+      }
 
       case 'browserExtensionInput':
       case 'browserExtInput':
@@ -1020,7 +1185,6 @@ class WorkflowDataConverter {
           parameters.data_source = { data: node.data.selectedFile };
         }
         break;
-
       case 'ifElse':
         if (node.data.variableName) {
           parameters.variable = { data: node.data.variableName };

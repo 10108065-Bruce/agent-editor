@@ -4,12 +4,12 @@ import { llmService } from '../../services/WorkflowServicesIntegration';
 import IconBase from '../icons/IconBase';
 
 const AICustomInputNode = ({ data, isConnectable }) => {
-  // 保存LLM模型選項
+  // 保存LLM模型選項 - 使用id作為value
   const [modelOptions, setModelOptions] = useState([
-    { value: 'O3-mini', label: 'O3-mini' },
-    { value: 'O3-plus', label: 'O3-plus' },
-    { value: 'O3-mega', label: 'O3-mega' },
-    { value: 'O3-ultra', label: 'O3-ultra' }
+    { value: '1', label: 'O3-mini' },
+    { value: '2', label: 'O3-plus' },
+    { value: '3', label: 'O3-mega' },
+    { value: '4', label: 'O3-ultra' }
   ]);
 
   // 加載狀態
@@ -17,8 +17,8 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   // 錯誤狀態
   const [modelLoadError, setModelLoadError] = useState(null);
 
-  // 本地狀態 - 確保初始化時有預設值
-  const [localModel, setLocalModel] = useState(data?.model || 'O3-mini');
+  // 本地狀態 - 確保初始化時有預設值，使用模型ID
+  const [localModel, setLocalModel] = useState(data?.model || '1');
 
   // 初始化和同步數據 - 增強版，能夠處理API數據加載的情況
   useEffect(() => {
@@ -41,21 +41,39 @@ const AICustomInputNode = ({ data, isConnectable }) => {
     setModelLoadError(null);
 
     try {
+      console.log('開始加載模型列表');
       const options = await llmService.getModelOptions();
+      console.log('llmService.getModelOptions 返回結果:', options);
 
       if (options && options.length > 0) {
+        console.log('設置模型選項:', options);
         setModelOptions(options);
 
         // 檢查當前選擇的模型是否在新的選項中
-        if (!options.some((opt) => opt.value === localModel)) {
+        const isCurrentModelValid = options.some(
+          (opt) => opt.value === localModel
+        );
+        console.log(`當前模型 ${localModel} 是否有效:`, isCurrentModelValid);
+
+        if (!isCurrentModelValid) {
           // 如果當前模型不在選項中，選擇默認模型或第一個模型
-          const defaultModel =
-            options.find((opt) => opt.isDefault)?.value || options[0].value;
+          let defaultModel = options[0].value;
+
+          // 嘗試找到默認模型
+          const defaultOption = options.find((opt) => opt.isDefault);
+          if (defaultOption) {
+            defaultModel = defaultOption.value;
+            console.log('找到默認模型:', defaultOption);
+          }
+
+          console.log(`將模型從 ${localModel} 更新為 ${defaultModel}`);
           setLocalModel(defaultModel);
 
           // 嘗試更新父組件的狀態
           updateParentState('model', defaultModel);
         }
+      } else {
+        console.warn('API未返回有效的模型選項或返回了空陣列');
       }
     } catch (error) {
       console.error('加載模型失敗:', error);
@@ -106,7 +124,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   // 處理模型變更
   const handleModelChange = (e) => {
     const newModelValue = e.target.value;
-    console.log(`模型變更為: ${newModelValue}`);
+    console.log(`模型變更為ID: ${newModelValue}`);
     setLocalModel(newModelValue);
     updateParentState('model', newModelValue);
   };

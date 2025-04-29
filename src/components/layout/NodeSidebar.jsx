@@ -292,7 +292,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   );
 };
 
-const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
+const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
   // 处理拖拽事件
   const handleDragStart = (event) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
