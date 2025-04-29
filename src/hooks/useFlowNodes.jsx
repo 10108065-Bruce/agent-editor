@@ -28,7 +28,7 @@ export default function useFlowNodes() {
     [setNodes]
   );
 
-  // 優化過的邊緣變更處理函數
+  // 先定義一個基本的邊緣變更處理函數，後面會被增強版本替換
   const handleEdgesChange = useCallback(
     (changes) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
@@ -59,6 +59,138 @@ export default function useFlowNodes() {
       setEdges(updater);
     },
     [pushToUndoStack, setEdges]
+  );
+
+  // 現在可以定義增強版的 handleEdgesChange，因為 safeSetNodes 已經初始化
+  const enhancedHandleEdgesChange = useCallback(
+    (changes) => {
+      // 檢查是否有邊緣被刪除
+      const removedEdges = changes.filter((change) => change.type === 'remove');
+
+      if (removedEdges.length > 0) {
+        console.log('檢測到邊緣刪除操作:', removedEdges);
+
+        // 對於每個被刪除的邊緣，查找相關的瀏覽器擴展輸出節點
+        removedEdges.forEach((removedEdge) => {
+          // 從當前邊緣中找到完整的邊緣數據
+          const fullEdge = edges.find((edge) => edge.id === removedEdge.id);
+
+          if (fullEdge) {
+            console.log('找到被刪除的邊緣:', fullEdge);
+
+            // 檢查目標節點是否為瀏覽器擴展輸出節點
+            const targetNode = nodes.find(
+              (node) =>
+                node.id === fullEdge.target &&
+                node.type === 'browserExtensionOutput'
+            );
+
+            if (targetNode) {
+              console.log('目標節點是瀏覽器擴展輸出節點:', targetNode.id);
+
+              // 獲取目標 handle ID
+              const targetHandleId = fullEdge.targetHandle;
+
+              // 檢查是否是默認 handle ('input')
+              if (targetHandleId && targetHandleId !== 'input') {
+                console.log(`準備刪除非默認 handle: ${targetHandleId}`);
+
+                // 檢查是否還有其他邊緣連接到此 handle
+                const otherEdgesToSameHandle = edges.filter(
+                  (e) =>
+                    e.id !== fullEdge.id &&
+                    e.target === targetNode.id &&
+                    e.targetHandle === targetHandleId
+                );
+
+                // 只有當沒有其他邊緣連接到此 handle 時才刪除
+                if (otherEdgesToSameHandle.length === 0) {
+                  console.log(
+                    `沒有其他邊緣連接到 handle ${targetHandleId}，將其刪除`
+                  );
+
+                  // 更新節點，移除對應的 handle
+                  safeSetNodes((nds) =>
+                    nds.map((node) => {
+                      if (node.id === targetNode.id) {
+                        // 獲取現有的 inputHandles
+                        const currentHandles = node.data.inputHandles || [];
+
+                        // 過濾掉要刪除的 handle
+                        const updatedHandles = currentHandles.filter(
+                          (handle) => handle.id !== targetHandleId
+                        );
+
+                        // 確保至少保留默認 'input' handle
+                        if (!updatedHandles.some((h) => h.id === 'input')) {
+                          updatedHandles.unshift({ id: 'input' });
+                        }
+
+                        console.log(
+                          `節點 ${node.id} 更新後的 handles:`,
+                          updatedHandles
+                        );
+
+                        // 返回更新後的節點
+                        return {
+                          ...node,
+                          data: {
+                            ...node.data,
+                            inputHandles: updatedHandles
+                          }
+                        };
+                      }
+                      return node;
+                    })
+                  );
+
+                  // 同時更新節點的 node_input 數據
+                  if (
+                    targetNode.data.node_input &&
+                    targetNode.data.node_input[targetHandleId]
+                  ) {
+                    safeSetNodes((nds) =>
+                      nds.map((node) => {
+                        if (node.id === targetNode.id) {
+                          // 創建 node_input 的副本
+                          const updatedNodeInput = { ...node.data.node_input };
+
+                          // 刪除對應 handle 的輸入關聯
+                          delete updatedNodeInput[targetHandleId];
+
+                          console.log(
+                            `從節點 ${node.id} 的 node_input 中刪除 ${targetHandleId}`
+                          );
+
+                          return {
+                            ...node,
+                            data: {
+                              ...node.data,
+                              node_input: updatedNodeInput
+                            }
+                          };
+                        }
+                        return node;
+                      })
+                    );
+                  }
+                } else {
+                  console.log(
+                    `還有 ${otherEdgesToSameHandle.length} 個邊緣連接到 handle ${targetHandleId}，保留此 handle`
+                  );
+                }
+              } else {
+                console.log('不刪除默認 handle (input)');
+              }
+            }
+          }
+        });
+      }
+
+      // 調用原始的邊緣變更處理函數
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+    },
+    [edges, nodes, safeSetNodes, setEdges]
   );
 
   // 高效的節點選擇處理程序
@@ -272,76 +404,118 @@ export default function useFlowNodes() {
     [handleNodeSelection, safeSetNodes]
   );
 
-  // 刪除中間節點功能
+  // 對於 onNodesDelete 函數，也需要進行對應修改
   const onNodesDelete = useCallback(
     (nodesToDelete) => {
       if (!nodesToDelete || nodesToDelete.length === 0) return;
 
-      // 對每個要刪除的節點，收集所有連接
+      // 收集刪除前的所有節點和邊緣
+      const nodeIdsToDelete = nodesToDelete.map((node) => node.id);
+      const edgesBeforeUpdate = [...edges];
+
+      // 創建瀏覽器擴展輸出節點輸入 handle 的映射
+      const browserExtensionOutputNodes = nodes.filter(
+        (node) => node.type === 'browserExtensionOutput'
+      );
+
+      // 對於每個要刪除的節點，查找受影響的連接
       nodesToDelete.forEach((nodeToDelete) => {
-        // 獲取所有連接到這個節點的邊
+        // 獲取所有連接到該節點的邊緣
         const connectedEdges = getConnectedEdges([nodeToDelete], edges);
 
-        // 找到有邊進入此節點的節點（前置節點）
+        // 找到有邊緣進入此節點的節點（前置節點）
         const incomers = getIncomers(nodeToDelete, nodes, edges);
 
-        // 找到有邊從此節點出去的節點（後續節點）
+        // 找到有邊緣從此節點出去的節點（後續節點）
         const outgoers = getOutgoers(nodeToDelete, nodes, edges);
 
-        // 在所有前置和後續節點之間創建新連接
-        const newEdges = [];
-
+        // 處理常規節點的連接
+        // 對於每個前置節點，創建與所有後續節點的新連接
         incomers.forEach((incomer) => {
           outgoers.forEach((outgoer) => {
-            // 找到從前置節點到要刪除的節點的邊
+            // 找到從前置節點到要刪除的節點的邊緣
             const incomerEdge = connectedEdges.find(
               (edge) =>
                 edge.source === incomer.id && edge.target === nodeToDelete.id
             );
 
-            // 找到從要刪除的節點到後續節點的邊
+            // 找到從要刪除的節點到後續節點的邊緣
             const outgoerEdge = connectedEdges.find(
               (edge) =>
                 edge.source === nodeToDelete.id && edge.target === outgoer.id
             );
 
             if (incomerEdge && outgoerEdge) {
-              // 創建一個直接連接前置節點和後續節點的新邊
-              newEdges.push({
-                id: `${incomer.id}-${outgoer.id}`,
-                source: incomer.id,
-                target: outgoer.id,
-                // 可選：保留原始邊的特殊屬性
-                sourceHandle: incomerEdge.sourceHandle,
-                targetHandle: outgoerEdge.targetHandle,
-                // 對於 if/else 節點，保留句柄類型（true/false）
-                type: outgoerEdge.type
-              });
+              // 對瀏覽器擴展輸出節點進行特殊處理
+              if (outgoer.type === 'browserExtensionOutput') {
+                console.log(
+                  `處理刪除後的連接重建: ${incomer.id} -> ${outgoer.id}:${outgoerEdge.targetHandle}`
+                );
+
+                // 創建一個新的邊緣 ID，包含目標 handle 信息
+                const newEdgeId = `${incomer.id}-${outgoer.id}-${
+                  outgoerEdge.targetHandle
+                }-${incomerEdge.sourceHandle || 'output'}`;
+
+                // 為瀏覽器擴展輸出節點保留目標 handle ID
+                const newEdge = {
+                  id: newEdgeId,
+                  source: incomer.id,
+                  target: outgoer.id,
+                  sourceHandle: incomerEdge.sourceHandle || 'output',
+                  targetHandle: outgoerEdge.targetHandle,
+                  type: outgoerEdge.type || 'custom-edge'
+                };
+
+                // 添加新邊緣以直接連接前置節點和瀏覽器擴展輸出節點
+                safeSetEdges((eds) => [...eds, newEdge]);
+              } else {
+                // 標準節點的邊緣
+                const newEdge = {
+                  id: `${incomer.id}-${outgoer.id}`,
+                  source: incomer.id,
+                  target: outgoer.id,
+                  sourceHandle: incomerEdge.sourceHandle || 'output',
+                  targetHandle: outgoerEdge.targetHandle || 'input',
+                  type: outgoerEdge.type || 'custom-edge'
+                };
+
+                // 添加新邊緣
+                safeSetEdges((eds) => [...eds, newEdge]);
+              }
             }
           });
         });
-
-        // 添加新邊並移除連接到已刪除節點的邊
-        if (newEdges.length > 0) {
-          safeSetEdges((eds) => [
-            ...eds.filter(
-              (edge) => !connectedEdges.some((ce) => ce.id === edge.id)
-            ),
-            ...newEdges
-          ]);
-        }
       });
+
+      // 移除所有連接到已刪除節點的邊緣
+      safeSetEdges((eds) =>
+        eds.filter(
+          (edge) =>
+            !nodeIdsToDelete.includes(edge.source) &&
+            !nodeIdsToDelete.includes(edge.target)
+        )
+      );
 
       // 清理已刪除節點的回調
-      nodesToDelete.forEach((node) => {
-        delete nodeCallbacks.current[node.id];
+      nodeIdsToDelete.forEach((nodeId) => {
+        delete nodeCallbacks.current[nodeId];
       });
 
-      // 實際從狀態中移除節點
-      const idsToDelete = nodesToDelete.map((n) => n.id);
-      safeSetNodes((nds) => nds.filter((n) => !idsToDelete.includes(n.id)));
+      // 從狀態中移除已刪除的節點
+      safeSetNodes((nds) =>
+        nds.filter((node) => !nodeIdsToDelete.includes(node.id))
+      );
     },
-    [nodes, edges, safeSetEdges, safeSetNodes]
+    [
+      nodes,
+      edges,
+      safeSetEdges,
+      safeSetNodes,
+      getConnectedEdges,
+      getIncomers,
+      getOutgoers
+    ]
   );
 
   const deleteSelectedNodes = useCallback(
@@ -409,6 +583,8 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 更新 useFlowNodes.jsx 中的 handleAddBrowserExtensionOutput 函數
+
   const handleAddBrowserExtensionOutput = useCallback(
     (position) => {
       const id = `browserExtOut_${Date.now()}`;
@@ -417,10 +593,90 @@ export default function useFlowNodes() {
         'browserExtensionOutput'
       );
 
+      // 初始化一個有默認 handle 的輸入節點
       const newNode = {
         id,
         type: 'browserExtensionOutput',
         data: {
+          // 確保默認有一個 input handle
+          inputHandles: [{ id: 'input' }],
+          // 儲存節點輸入連接關聯
+          node_input: {},
+          onAddOutput: (newInputHandles) => {
+            console.log(`更新節點 ${id} 的 handle：`, newInputHandles);
+
+            // 檢查是否已經有相同的 handle
+            const currentNode = nodes.find((node) => node.id === id);
+            if (
+              currentNode &&
+              currentNode.data &&
+              JSON.stringify(currentNode.data.inputHandles) ===
+                JSON.stringify(newInputHandles)
+            ) {
+              console.log('handles 沒有變化，跳過更新');
+              return;
+            }
+
+            // 更新節點時保留現有的 node_input 數據
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === id) {
+                  // 保留原有數據，只更新 inputHandles
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      inputHandles: newInputHandles
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          },
+          // 添加一個可以移除 handle 的函數
+          onRemoveHandle: (handleId) => {
+            console.log(`準備移除節點 ${id} 的 handle：${handleId}`);
+
+            // 禁止移除默認 input handle
+            if (handleId === 'input') {
+              console.log('不能移除默認 input handle');
+              return;
+            }
+
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === id) {
+                  // 獲取現有的 handles
+                  const currentHandles = node.data.inputHandles || [];
+
+                  // 過濾掉要移除的 handle
+                  const updatedHandles = currentHandles.filter(
+                    (handle) => handle.id !== handleId
+                  );
+
+                  // 獲取現有的 node_input
+                  const currentNodeInput = node.data.node_input || {};
+
+                  // 創建一個新的 node_input，移除對應的輸入關聯
+                  const updatedNodeInput = { ...currentNodeInput };
+                  delete updatedNodeInput[handleId];
+
+                  console.log(`已從節點 ${id} 移除 handle ${handleId}`);
+
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      inputHandles: updatedHandles,
+                      node_input: updatedNodeInput
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          },
           ...nodeCallbacksObject
         },
         position: position || {
@@ -431,7 +687,7 @@ export default function useFlowNodes() {
 
       safeSetNodes((nds) => [...nds, newNode]);
     },
-    [safeSetNodes, getNodeCallbacks]
+    [safeSetNodes, getNodeCallbacks, nodes]
   );
 
   const handleAddBrowserExtensionInput = useCallback(
@@ -690,55 +946,97 @@ export default function useFlowNodes() {
   const onConnect = useCallback(
     (params) => {
       safeSetEdges((eds) => {
-        // 提取连接参数
+        // 提取連接參數
         const sourceHandle = params.sourceHandle || 'output';
         const targetHandle = params.targetHandle || 'input';
 
-        // 查找连接到同一目标节点同一句柄的所有边缘
-        const existingEdges = eds.filter(
-          (edge) =>
-            edge.target === params.target && edge.targetHandle === targetHandle
+        console.log(
+          `創建新連接: 從 ${params.source}:${sourceHandle} 到 ${params.target}:${targetHandle}`
         );
 
-        // 检查是否已经存在完全相同的连接
-        const exactConnectionExists = existingEdges.some(
-          (edge) =>
-            edge.source === params.source && edge.sourceHandle === sourceHandle
-        );
+        // 檢查目標節點是否為瀏覽器擴展輸出節點
+        const targetNode = nodes.find((node) => node.id === params.target);
+        const isBrowserExtensionOutput =
+          targetNode && targetNode.type === 'browserExtensionOutput';
 
-        // 如果已存在完全相同的连接，不要重复添加
-        if (exactConnectionExists) {
-          console.log(
-            `连接已存在，跳过: ${params.source} -> ${params.target}:${targetHandle}`
+        // 對於瀏覽器擴展輸出節點，我們需要確保每個 handle 可以有多個連接
+        if (isBrowserExtensionOutput) {
+          console.log(`目標是瀏覽器擴展輸出節點，使用特殊處理`);
+
+          // 創建一個包含目標 handle 的唯一 ID，以確保正確追蹤
+          const edgeId = `${params.source}-${params.target}-${targetHandle}-${sourceHandle}`;
+
+          // 檢查是否已存在完全相同的連接
+          const connectionExists = eds.some(
+            (edge) =>
+              edge.source === params.source &&
+              edge.target === params.target &&
+              edge.targetHandle === targetHandle &&
+              edge.sourceHandle === sourceHandle
           );
-          return eds;
+
+          if (connectionExists) {
+            console.log(
+              `連接已存在: ${params.source} -> ${params.target}:${targetHandle}`
+            );
+            return eds;
+          }
+
+          // 創建新連接
+          const newEdge = {
+            id: edgeId,
+            source: params.source,
+            target: params.target,
+            sourceHandle: sourceHandle,
+            targetHandle: targetHandle,
+            type: 'custom-edge'
+          };
+
+          console.log(`新增瀏覽器擴展輸出節點的連接:`, newEdge);
+
+          return [...eds, newEdge];
+        } else {
+          // 對於其他節點，使用現有邏輯
+          const existingEdges = eds.filter(
+            (edge) =>
+              edge.target === params.target &&
+              edge.targetHandle === targetHandle
+          );
+
+          const exactConnectionExists = existingEdges.some(
+            (edge) =>
+              edge.source === params.source &&
+              edge.sourceHandle === sourceHandle
+          );
+
+          if (exactConnectionExists) {
+            console.log(
+              `連接已存在: ${params.source} -> ${params.target}:${targetHandle}`
+            );
+            return eds;
+          }
+
+          const targetHandleIndex =
+            existingEdges.length > 0 ? existingEdges.length + 1 : 1;
+          const edgeId = `${params.source}-${params.target}-${targetHandle}_${targetHandleIndex}-${sourceHandle}`;
+
+          const newEdge = {
+            id: edgeId,
+            source: params.source,
+            target: params.target,
+            sourceHandle: sourceHandle,
+            targetHandle: targetHandle,
+            type: 'custom-edge',
+            label: `Connection ${targetHandleIndex}`
+          };
+
+          console.log(`新增標準節點的連接:`, newEdge);
+
+          return [...eds, newEdge];
         }
-
-        // 为新连接创建唯一的边缘ID
-        // 包含目标句柄的索引信息，以确保唯一性
-        const targetHandleIndex =
-          existingEdges.length > 0 ? existingEdges.length + 1 : 1;
-        const edgeId = `${params.source}-${params.target}-${targetHandle}_${targetHandleIndex}-${sourceHandle}`;
-
-        // 创建新边缘
-        const newEdge = {
-          id: edgeId,
-          source: params.source,
-          target: params.target,
-          sourceHandle: sourceHandle,
-          // 如果是第一个连接，使用原始句柄；否则，添加索引
-          targetHandle: targetHandle,
-          type: 'custom-edge',
-          label: `Connection ${targetHandleIndex}`
-        };
-
-        console.log(`添加新连接: ${edgeId}`);
-
-        // 保留所有现有边缘，添加新边缘
-        return [...eds, newEdge];
       });
     },
-    [safeSetEdges]
+    [safeSetEdges, nodes]
   );
 
   // 撤銷功能
