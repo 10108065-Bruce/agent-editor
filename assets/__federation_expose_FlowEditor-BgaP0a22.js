@@ -8906,7 +8906,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "e050fc1517dcf44a07b03333ccc6f08828e4ed8c", "VITE_APP_BUILD_TIME": "2025-04-29T07:06:59.063Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "cf7104ca507e7ebfba82b80ef10d080f7c5a2621", "VITE_APP_BUILD_TIME": "2025-04-29T08:39:16.300Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.56"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9630,8 +9630,9 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                     position: Position.Right,
                     id: `output-${idx}`,
                     style: {
-                      width: "10px",
-                      height: "10px",
+                      width: "15px",
+                      height: "15px",
+                      right: "-6px",
                       background: "#000",
                       border: "2px solid white",
                       zIndex: 5
@@ -11468,11 +11469,12 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         position: Position.Left,
         id: "prompt-input",
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          left: "-4px",
-          top: "82%",
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          left: "-6px",
+          top: "89%",
           transform: "translateY(-250%)"
         },
         isConnectable
@@ -11485,11 +11487,12 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         position: Position.Left,
         id: "context-input",
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          left: "-4px",
-          top: "80%",
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          left: "-6px",
+          top: "74%",
           transform: "translateY(150%)"
         },
         isConnectable
@@ -11502,10 +11505,11 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         position: Position.Right,
         id: "output",
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          right: "-4px"
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          right: "-6px"
         },
         isConnectable
       }
@@ -11636,34 +11640,18 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         position: Position.Left,
         id: String(input.id),
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          left: "-4px",
-          top: `${40 + (index + 1) * 25}px`
+          background: "#e5e7eb",
+          borderColor: "#D3D3D3",
+          width: "12px",
+          height: "12px",
+          left: "-6px",
+          top: `${45 + (index + 1) * 20}px`
           // 每個 handle 之間適當間隔
         },
         isConnectable
       },
       `handle-${input.id}`
-    )),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Handle$1,
-      {
-        type: "target",
-        position: Position.Left,
-        id: "new-connection",
-        style: {
-          opacity: 0.1,
-          background: "#999",
-          width: "10px",
-          height: "10px",
-          left: "-5px",
-          top: inputs.length > 0 ? `${(inputs.length + 1) * 25}px` : "25px"
-        },
-        isConnectable
-      }
-    )
+    ))
   ] });
 };
 const BrowserExtensionOutputNode$1 = memo$8(BrowserExtensionOutputNode);
@@ -11850,9 +11838,9 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     updateParentState("items", updatedItems);
   }, [data, localItems, updateParentState]);
   const calculateHandlePosition = useCallback$2((index) => {
-    const headerHeight = 56;
+    const headerHeight = 46;
     const contentPadding = 16;
-    const itemHeight = 120;
+    const itemHeight = 140;
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
   }, []);
   const items = Array.isArray(localItems) && localItems.length > 0 ? localItems : Array.isArray(data?.items) ? data.items : [];
@@ -11962,15 +11950,15 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
         position: Position.Right,
         id: `output-${idx}`,
         style: {
-          background: "#000",
-          width: "10px",
-          height: "10px",
-          right: "-5px",
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          right: "-7px",
           top: calculateHandlePosition(idx),
           transform: "translateY(-50%)",
           // Only center vertically
-          zIndex: 1e3,
-          border: "2px solid white"
+          zIndex: 1e3
         },
         isConnectable
       },
@@ -12308,10 +12296,11 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         position: Position.Left,
         id: "input",
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          left: "-4px"
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          left: "-6px"
         },
         isConnectable
       }
@@ -12323,10 +12312,11 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         position: Position.Right,
         id: "output",
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          right: "-4px"
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          right: "-6px"
         },
         isConnectable
       }
