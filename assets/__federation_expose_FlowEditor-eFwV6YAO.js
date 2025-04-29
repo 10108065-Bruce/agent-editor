@@ -8906,7 +8906,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "cf7104ca507e7ebfba82b80ef10d080f7c5a2621", "VITE_APP_BUILD_TIME": "2025-04-29T08:39:16.300Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.56"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "cf7104ca507e7ebfba82b80ef10d080f7c5a2621", "VITE_APP_BUILD_TIME": "2025-04-29T08:41:20.769Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.57"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11121,7 +11121,7 @@ class WorkflowDataConverter {
             : modelValue;
 
         // 使用model作為llm_id - 現在存的是ID值而非名稱
-        parameters.llm_id = { data: safeModelValue };
+        parameters.llm_id = { data: Number(safeModelValue) };
 
         // 保留model參數，以兼容舊版API
         parameters.model = { data: safeModelValue };
