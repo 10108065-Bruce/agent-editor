@@ -120,53 +120,239 @@ class WorkflowMappingService {
   }
 
   /**
-   * 提取节点输入以供 API 格式使用 - 改进版本，确保多个连接到同一目标的情况正确处理
-   * @param {string} nodeId - 节点 ID
-   * @param {Array} edges - 所有边缘
-   * @returns {Object} - API 格式的节点输入
+   * 修正 extractNodeInputForAPI 方法，確保多個連線到同一 handle 不會丟失
+   * 修復 'nodes is not defined' 錯誤
    */
-  static extractNodeInputForAPI(nodeId, edges) {
+  static extractNodeInputForAPI(nodeId, edges, allNodes) {
     const nodeInput = {};
-    console.log(`Extracting node ${nodeId} input connections`);
+    console.log(`提取節點 ${nodeId} 的輸入連接`);
 
-    // Get all edges targeting this node
+    // 獲取所有以該節點為目標的邊緣
     const relevantEdges = edges.filter((edge) => edge.target === nodeId);
-    console.log(`Found ${relevantEdges.length} input connections`);
+    console.log(`找到 ${relevantEdges.length} 個輸入連接`);
 
-    // Group edges by targetHandle
+    // 如果沒有連接，直接返回空對象
+    if (relevantEdges.length === 0) {
+      return nodeInput;
+    }
+
+    // 檢查節點類型 - 現在使用傳入的 allNodes 而不是外部的 nodes 變數
+    const node = allNodes.find((n) => n.id === nodeId);
+    const isBrowserExtensionOutput =
+      node && node.type === 'browserExtensionOutput';
+
+    // 按 targetHandle 分組邊緣
     const handleGroups = {};
 
-    // First, group all edges
-    relevantEdges.forEach((edge) => {
+    // 首先，分組所有邊緣
+    relevantEdges.forEach((edge, index) => {
       const targetHandle = edge.targetHandle || 'input';
 
-      // Initialize group
+      // 初始化組
       if (!handleGroups[targetHandle]) {
         handleGroups[targetHandle] = [];
       }
 
-      // Add edge to group
+      // 添加邊緣到組
       handleGroups[targetHandle].push(edge);
     });
 
-    // Process each handle group
+    // 處理每個句柄組
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
-      // For browser extension output nodes, we directly map each handle
-      // Use the handle ID as is without appending _1, _2, etc.
-      targetEdges.forEach((edge) => {
-        nodeInput[targetHandle] = {
-          node_id: edge.source,
-          output_name: edge.sourceHandle || 'output',
-          type: 'string'
-        };
+      // 對於瀏覽器擴展輸出節點，特殊處理多個連線
+      if (isBrowserExtensionOutput) {
+        // 處理多個連接到同一 handle 的情況
+        targetEdges.forEach((edge, index) => {
+          // 創建唯一的輸入鍵，使用原始 targetHandle 加索引
+          const inputKey =
+            targetEdges.length > 1 ? `${targetHandle}_${index}` : targetHandle;
 
-        console.log(
-          `Input connection: ${edge.source} -> ${nodeId}:${targetHandle}`
-        );
-      });
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+
+          console.log(
+            `瀏覽器擴展輸出節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
+          );
+        });
+      } else {
+        // 其他節點類型的處理...
+        if (targetEdges.length > 1) {
+          targetEdges.forEach((edge, index) => {
+            // 創建唯一的輸入鍵
+            const inputKey = `${targetHandle}_${index + 1}`;
+
+            // 添加到 nodeInput
+            nodeInput[inputKey] = {
+              node_id: edge.source,
+              output_name: edge.sourceHandle || 'output',
+              type: 'string'
+            };
+
+            console.log(
+              `多重輸入連接: ${edge.source} -> ${nodeId}:${inputKey}`
+            );
+          });
+        } else if (targetEdges.length === 1) {
+          // 單一連接，直接使用原始句柄
+          const edge = targetEdges[0];
+
+          nodeInput[targetHandle] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+
+          console.log(`輸入連接: ${edge.source} -> ${nodeId}:${targetHandle}`);
+        }
+      }
     });
 
     return nodeInput;
+  }
+
+  /**
+   * 修正 transformToReactFlowFormat 方法，確保載入時能正確處理多個連線到同一 handle
+   */
+  static transformToReactFlowFormat(apiData) {
+    console.log('開始轉換 API 格式為 ReactFlow 格式');
+
+    // 處理 API 數據結構差異
+    const flowPipeline =
+      apiData.flow_pipeline ||
+      (apiData.content ? apiData.content.flow_pipeline : []);
+
+    if (!flowPipeline || !Array.isArray(flowPipeline)) {
+      console.error('找不到有效的 flow_pipeline 數組');
+      return { nodes: [], edges: [] };
+    }
+
+    const nodes = [];
+    const edges = [];
+
+    // 首先處理所有節點，確保在創建邊緣之前節點已存在
+    flowPipeline.forEach((node) => {
+      console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
+
+      // 轉換為 ReactFlow 節點格式
+      const reactFlowNode = {
+        id: node.id,
+        type: WorkflowMappingService.getTypeFromOperator(node.operator),
+        position: {
+          x: typeof node.position_x === 'number' ? node.position_x : 0,
+          y: typeof node.position_y === 'number' ? node.position_y : 0
+        },
+        data: this.transformNodeDataToReactFlow(node)
+      };
+
+      nodes.push(reactFlowNode);
+    });
+
+    // 對於瀏覽器擴展輸出節點，特殊處理 node_input
+    flowPipeline.forEach((node) => {
+      // 檢查節點類型是否為瀏覽器擴展輸出
+      const isBrowserExtOutput = node.operator === 'browser_extension_output';
+
+      if (isBrowserExtOutput && node.node_input) {
+        console.log(
+          `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
+          node.node_input
+        );
+
+        // 查找對應的 ReactFlow 節點
+        const reactFlowNode = nodes.find((n) => n.id === node.id);
+        if (!reactFlowNode) return;
+
+        // 從 node_input 識別所有的 handle
+        const handlePattern = /^(.+?)(?:_\d+)?$/;
+        const handleMap = new Map();
+
+        // 分析 node_input，提取真正的 handle ID
+        Object.keys(node.node_input).forEach((key) => {
+          const match = key.match(handlePattern);
+          if (match && match[1]) {
+            const baseHandle = match[1];
+            if (!handleMap.has(baseHandle)) {
+              handleMap.set(baseHandle, []);
+            }
+
+            handleMap.get(baseHandle).push({
+              fullKey: key,
+              sourceNodeId: node.node_input[key].node_id,
+              outputName: node.node_input[key].output_name || 'output'
+            });
+          }
+        });
+
+        // 確保 inputHandles 包含所有真正的 handle
+        const inputHandles = [...(reactFlowNode.data.inputHandles || [])];
+        const existingHandleIds = inputHandles.map((h) => h.id);
+
+        // 添加缺失的 handle
+        handleMap.forEach((connections, handleId) => {
+          if (!existingHandleIds.includes(handleId)) {
+            inputHandles.push({ id: handleId });
+            console.log(`為節點 ${node.id} 添加缺失的 handle: ${handleId}`);
+          }
+        });
+
+        // 更新節點的 inputHandles
+        reactFlowNode.data.inputHandles = inputHandles;
+
+        // 創建所有連接
+        handleMap.forEach((connections, handleId) => {
+          connections.forEach((connection, index) => {
+            // 創建邊緣 ID
+            const edgeId = `${connection.sourceNodeId}-${node.id}-${handleId}-${connection.outputName}`;
+
+            // 創建連接
+            const edge = {
+              id: edgeId,
+              source: connection.sourceNodeId,
+              sourceHandle: connection.outputName,
+              target: node.id,
+              targetHandle: handleId,
+              type: 'custom-edge'
+            };
+
+            edges.push(edge);
+            console.log(`創建連接: ${edgeId}`);
+          });
+        });
+      } else if (node.node_input) {
+        // 處理其他節點類型的連接
+        Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
+          if (inputValue && inputValue.node_id) {
+            // 創建邊緣 ID
+            const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
+              inputValue.output_name || 'output'
+            }`;
+
+            // 創建連接
+            const edge = {
+              id: edgeId,
+              source: inputValue.node_id,
+              sourceHandle: inputValue.output_name || 'output',
+              target: node.id,
+              targetHandle: inputKey,
+              type: 'custom-edge'
+            };
+
+            edges.push(edge);
+            console.log(`創建標準連接: ${edgeId}`);
+          }
+        });
+      }
+    });
+
+    // 自動布局（如果位置都是 0,0）
+    this.autoLayout(nodes);
+
+    console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
+    return { nodes, edges };
   }
   /**
    * 提取節點輸出以供 API 格式使用
@@ -882,7 +1068,8 @@ class WorkflowDataConverter {
             })) || []
         };
 
-      case 'browser_extension_output': { // 從 node_input 提取 handle，但只有在有連線時才提取
+      case 'browser_extension_output': {
+        // 從 node_input 提取 handle，但只有在有連線時才提取
         let inputHandles = [];
 
         // 檢查是否有 node_input 數據
@@ -1141,20 +1328,28 @@ class WorkflowDataConverter {
   }
 
   /**
-   * 將 ReactFlow 格式轉換為 API 格式
-   * @param {Object} reactFlowData - ReactFlow 格式數據
-   * @returns {Object} - API 格式數據
+   * 修改 WorkflowDataConverter 中的 convertReactFlowToAPI 方法，修復 'nodes is not defined' 錯誤
    */
   static convertReactFlowToAPI(reactFlowData) {
     console.log('開始轉換 ReactFlow 格式為 API 格式');
 
-    const flowPipeline = reactFlowData.nodes.map((node) => {
+    // 從 reactFlowData 中提取節點和邊緣
+    const { nodes, edges } = reactFlowData;
+
+    if (!nodes || !Array.isArray(nodes)) {
+      console.error('缺少有效的節點數據');
+      return null;
+    }
+
+    // 轉換節點
+    const flowPipeline = nodes.map((node) => {
       console.log(`處理節點 ${node.id}, 類型: ${node.type}`);
 
-      // 提取節點輸入連接
+      // 提取節點輸入連接 - 現在傳遞所有節點作為參數
       const nodeInput = WorkflowMappingService.extractNodeInputForAPI(
         node.id,
-        reactFlowData.edges
+        edges,
+        nodes
       );
 
       // 提取節點輸出連接
@@ -1176,12 +1371,11 @@ class WorkflowDataConverter {
       };
     });
 
+    // 創建最終 API 數據結構
     const apiData = {
       flow_name: reactFlowData.title || '未命名流程',
       flow_id: reactFlowData.id || `flow_${Date.now()}`,
       content: {
-        // flow_id: reactFlowData.id || `flow_${Date.now()}`,
-        // user_id: reactFlowData.userId || '1',
         flow_type: 'NORMAL',
         headers: reactFlowData.headers || {
           Authorization: 'Bearer your-token-here',
