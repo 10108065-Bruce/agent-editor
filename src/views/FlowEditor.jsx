@@ -452,6 +452,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     setIsSaving(true);
 
     try {
+      // 检查保存前的连接
+      debugConnections(edges, '保存前');
       const flowData = {
         id: flowMetadata.id || `flow_${Date.now()}`,
         title: flowMetadata.title || '未命名流程',
@@ -499,6 +501,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         lastSaved: new Date().toISOString()
       }));
 
+      // 保存后再次检查连接
+      await handleLoadWorkflow(flowMetadata.id);
+      debugConnections(edges, '保存后重新加载');
+
       return response;
     } catch (error) {
       console.error('FlowEditor: 儲存流程時發生錯誤：', error);
@@ -507,7 +513,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     } finally {
       // 無論成功或失敗，都重置保存狀態
       setIsSaving(false);
-      // handleLoadWorkflow(flowMetadata.id);
     }
   }, [nodes, edges, flowMetadata, showNotification]);
 
@@ -749,5 +754,44 @@ function WorkflowBuilder() {
     />
   );
 }
+const debugConnections = (edges, message) => {
+  console.group(`调试连接 - ${message}`);
+
+  // 按目标节点分组所有边缘
+  const edgesByTarget = {};
+  edges.forEach((edge) => {
+    if (!edgesByTarget[edge.target]) {
+      edgesByTarget[edge.target] = [];
+    }
+    edgesByTarget[edge.target].push(edge);
+  });
+
+  // 输出每个目标节点的所有输入连接
+  Object.entries(edgesByTarget).forEach(([targetId, targetEdges]) => {
+    console.log(`节点 ${targetId} 的输入连接 (${targetEdges.length}):`);
+
+    // 按目标句柄分组
+    const byHandle = {};
+    targetEdges.forEach((edge) => {
+      const handle = edge.targetHandle || 'input';
+      if (!byHandle[handle]) {
+        byHandle[handle] = [];
+      }
+      byHandle[handle].push(edge);
+    });
+
+    // 输出每个句柄的连接数量
+    Object.entries(byHandle).forEach(([handle, handleEdges]) => {
+      console.log(`  句柄 ${handle}: ${handleEdges.length} 个连接`);
+      handleEdges.forEach((edge) => {
+        console.log(
+          `    来源: ${edge.source}, 句柄: ${edge.sourceHandle || 'output'}`
+        );
+      });
+    });
+  });
+
+  console.groupEnd();
+};
 
 export default FlowEditor;

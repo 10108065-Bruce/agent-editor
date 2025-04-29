@@ -684,19 +684,59 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
-  // 連接處理
+  /**
+   * 改进的连接处理方法，确保多个节点可以连接到同一目标的同一句柄
+   */
   const onConnect = useCallback(
     (params) => {
-      safeSetEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            type: 'custom-edge',
-            label: 'Connection'
-          },
-          eds
-        )
-      );
+      safeSetEdges((eds) => {
+        // 提取连接参数
+        const sourceHandle = params.sourceHandle || 'output';
+        const targetHandle = params.targetHandle || 'input';
+
+        // 查找连接到同一目标节点同一句柄的所有边缘
+        const existingEdges = eds.filter(
+          (edge) =>
+            edge.target === params.target && edge.targetHandle === targetHandle
+        );
+
+        // 检查是否已经存在完全相同的连接
+        const exactConnectionExists = existingEdges.some(
+          (edge) =>
+            edge.source === params.source && edge.sourceHandle === sourceHandle
+        );
+
+        // 如果已存在完全相同的连接，不要重复添加
+        if (exactConnectionExists) {
+          console.log(
+            `连接已存在，跳过: ${params.source} -> ${params.target}:${targetHandle}`
+          );
+          return eds;
+        }
+
+        // 为新连接创建唯一的边缘ID
+        // 包含目标句柄的索引信息，以确保唯一性
+        const targetHandleIndex =
+          existingEdges.length > 0 ? existingEdges.length + 1 : 1;
+        const edgeId = `${params.source}-${params.target}-${targetHandle}_${targetHandleIndex}-${sourceHandle}`;
+
+        // 创建新边缘
+        const newEdge = {
+          id: edgeId,
+          source: params.source,
+          target: params.target,
+          sourceHandle: sourceHandle,
+          // 如果是第一个连接，使用原始句柄；否则，添加索引
+          targetHandle: targetHandle,
+          type: 'custom-edge',
+          label: `Connection ${targetHandleIndex}`
+        };
+
+        console.log(`添加新连接: ${edgeId}`);
+
+        // 保留所有现有边缘，添加新边缘
+        return [...eds, newEdge];
+      });
     },
     [safeSetEdges]
   );
