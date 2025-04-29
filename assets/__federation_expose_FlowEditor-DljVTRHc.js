@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$n = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$6,useState: useState$e,useEffect: useEffect$8,forwardRef: forwardRef$1,useCallback: useCallback$7} = React$n;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$7,useState: useState$f,useEffect: useEffect$9,forwardRef: forwardRef$1,useCallback: useCallback$7} = React$n;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3917,10 +3917,10 @@ function Attribution({ proOptions, position = "bottom-right" }) {
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$6(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$e({ x: 0, y: 0, width: 0, height: 0 });
+  const edgeRef = useRef$7(null);
+  const [edgeTextBbox, setEdgeTextBbox] = useState$f({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$g(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$8(() => {
+  useEffect$9(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$8(() => {
+  useEffect$9(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5057,9 +5057,9 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$e(false);
-  const modifierPressed = useRef$6(false);
-  const pressedKeys = useRef$6(/* @__PURE__ */ new Set([]));
+  const [keyPressed, setKeyPressed] = useState$f(false);
+  const modifierPressed = useRef$7(false);
+  const pressedKeys = useRef$7(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$8(() => {
+  useEffect$9(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$8(() => {
+  useEffect$9(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$8(() => {
+  useEffect$9(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5615,19 +5615,19 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$6();
+  const timerId = useRef$7();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$6(false);
-  const zoomedWithRightMouseButton = useRef$6(false);
-  const zoomPane = useRef$6(null);
-  const prevTransform = useRef$6({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$7(false);
+  const zoomedWithRightMouseButton = useRef$7(false);
+  const zoomPane = useRef$7(null);
+  const prevTransform = useRef$7({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$6(0);
-  const isPanScrolling = useRef$6(false);
-  const panScrollTimeout = useRef$6();
+  const mouseButton = useRef$7(0);
+  const isPanScrolling = useRef$7(false);
+  const panScrollTimeout = useRef$7();
   useResizeHandler(zoomPane);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$g(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$6(null);
+  const container = useRef$7(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$6(0);
-  const prevSelectedEdgesCount = useRef$6(0);
-  const containerBounds = useRef$6();
+  const prevSelectedNodesCount = useRef$7(0);
+  const prevSelectedEdgesCount = useRef$7(0);
+  const containerBounds = useRef$7();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6268,18 +6268,18 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$e(false);
-  const dragItems = useRef$6([]);
-  const lastPos = useRef$6({ x: null, y: null });
-  const autoPanId = useRef$6(0);
-  const containerBounds = useRef$6(null);
-  const mousePosition = useRef$6({ x: 0, y: 0 });
-  const dragEvent = useRef$6(null);
-  const autoPanStarted = useRef$6(false);
-  const dragStarted = useRef$6(false);
-  const abortDrag = useRef$6(false);
+  const [dragging, setDragging] = useState$f(false);
+  const dragItems = useRef$7([]);
+  const lastPos = useRef$7({ x: null, y: null });
+  const autoPanId = useRef$7(0);
+  const containerBounds = useRef$7(null);
+  const mousePosition = useRef$7({ x: 0, y: 0 });
+  const dragEvent = useRef$7(null);
+  const autoPanStarted = useRef$7(false);
+  const dragStarted = useRef$7(false);
+  const abortDrag = useRef$7(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$8(() => {
+  useEffect$9(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$6(null);
-    const prevNodeRef = useRef$6(null);
-    const prevSourcePosition = useRef$6(sourcePosition);
-    const prevTargetPosition = useRef$6(targetPosition);
-    const prevType = useRef$6(type);
+    const nodeRef = useRef$7(null);
+    const prevNodeRef = useRef$7(null);
+    const prevSourcePosition = useRef$7(sourcePosition);
+    const prevTargetPosition = useRef$7(targetPosition);
+    const prevType = useRef$7(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$8(() => {
+    useEffect$9(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$8(() => {
+    useEffect$9(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$8(() => {
+    useEffect$9(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6639,8 +6639,8 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$6(null);
-  useEffect$8(() => {
+  const nodeRef = useRef$7(null);
+  useEffect$9(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$6();
+  const resizeObserverRef = useRef$7();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$8(() => {
+  useEffect$9(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -6812,9 +6812,9 @@ const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMo
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$6(null);
-    const [updateHover, setUpdateHover] = useState$e(false);
-    const [updating, setUpdating] = useState$e(false);
+    const edgeRef = useRef$7(null);
+    const [updateHover, setUpdateHover] = useState$f(false);
+    const [updating, setUpdating] = useState$f(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -7204,8 +7204,8 @@ function Viewport({ children }) {
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$6(false);
-  useEffect$8(() => {
+  const isInitialized = useRef$7(false);
+  useEffect$9(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7298,7 +7298,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$6(null);
+  useRef$7(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7598,7 +7598,7 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$6(null);
+  const storeRef = useRef$7(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
@@ -7664,7 +7664,7 @@ function EdgeLabelRenderer({ children }) {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$e(initialItems);
+    const [items, setItems] = useState$f(initialItems);
     const onItemsChange = useCallback$7((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
@@ -7673,7 +7673,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$m = await importShared('react');
-const {memo: memo$f,useRef: useRef$5,useEffect: useEffect$7} = React$m;
+const {memo: memo$f,useRef: useRef$6,useEffect: useEffect$8} = React$m;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7727,7 +7727,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$5(null);
+    const svg = useRef$6(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7742,9 +7742,9 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$5(0);
+    const viewScaleRef = useRef$6(0);
     viewScaleRef.current = viewScale;
-    useEffect$7(() => {
+    useEffect$8(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7811,7 +7811,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$f(MiniMap);
 
 const React$l = await importShared('react');
-const {memo: memo$e,useState: useState$d,useEffect: useEffect$6} = React$l;
+const {memo: memo$e,useState: useState$e,useEffect: useEffect$7} = React$l;
 
 function PlusIcon() {
     return (React$l.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7848,10 +7848,10 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$d(false);
+    const [isVisible, setIsVisible] = useState$e(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$6(() => {
+    useEffect$7(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7892,7 +7892,7 @@ Controls.displayName = 'Controls';
 var Controls$1 = memo$e(Controls);
 
 const React$k = await importShared('react');
-const {memo: memo$d,useRef: useRef$4} = React$k;
+const {memo: memo$d,useRef: useRef$5} = React$k;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7924,7 +7924,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$4(null);
+    const ref = useRef$5(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -7951,14 +7951,14 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
 Background.displayName = 'Background';
 var Background$1 = memo$d(Background);
 
-const {useRef: useRef$3,useCallback: useCallback$6} = await importShared('react');
+const {useRef: useRef$4,useCallback: useCallback$6} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$3([]);
-  const redoStack = useRef$3([]);
-  const nodeCallbacks = useRef$3({});
-  const isUpdatingNodes = useRef$3(false);
+  const undoStack = useRef$4([]);
+  const redoStack = useRef$4([]);
+  const nodeCallbacks = useRef$4({});
+  const isUpdatingNodes = useRef$4(false);
   const handleNodesChange = useCallback$6(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
@@ -8518,16 +8518,36 @@ function useFlowNodes() {
   );
   const onConnect = useCallback$6(
     (params) => {
-      safeSetEdges(
-        (eds) => addEdge(
-          {
-            ...params,
-            type: "custom-edge",
-            label: "Connection"
-          },
-          eds
-        )
-      );
+      safeSetEdges((eds) => {
+        const sourceHandle = params.sourceHandle || "output";
+        const targetHandle = params.targetHandle || "input";
+        const existingEdges = eds.filter(
+          (edge) => edge.target === params.target && edge.targetHandle === targetHandle
+        );
+        const exactConnectionExists = existingEdges.some(
+          (edge) => edge.source === params.source && edge.sourceHandle === sourceHandle
+        );
+        if (exactConnectionExists) {
+          console.log(
+            `连接已存在，跳过: ${params.source} -> ${params.target}:${targetHandle}`
+          );
+          return eds;
+        }
+        const targetHandleIndex = existingEdges.length > 0 ? existingEdges.length + 1 : 1;
+        const edgeId = `${params.source}-${params.target}-${targetHandle}_${targetHandleIndex}-${sourceHandle}`;
+        const newEdge = {
+          id: edgeId,
+          source: params.source,
+          target: params.target,
+          sourceHandle,
+          // 如果是第一个连接，使用原始句柄；否则，添加索引
+          targetHandle,
+          type: "custom-edge",
+          label: `Connection ${targetHandleIndex}`
+        };
+        console.log(`添加新连接: ${edgeId}`);
+        return [...eds, newEdge];
+      });
     },
     [safeSetEdges]
   );
@@ -8633,7 +8653,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2c564888cc8d34b8b4306b5eeb0ed725144d4117", "VITE_APP_BUILD_TIME": "2025-04-28T08:44:26.500Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6cea8e2a592be7b1957ab94e534229c062ecb556", "VITE_APP_BUILD_TIME": "2025-04-29T01:15:05.397Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -8757,9 +8777,9 @@ const IconBase = ({ type, className = "" }) => {
 };
 
 const React$j = await importShared('react');
-const {useState: useState$c} = React$j;
+const {useState: useState$d} = React$j;
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
-  const [searchTerm, setSearchTerm] = useState$c("");
+  const [searchTerm, setSearchTerm] = useState$d("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -8868,7 +8888,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
   ] });
 };
-const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
+const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
   const handleDragStart = (event) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
@@ -8939,10 +8959,10 @@ const NodeItem = ({ color, icon, label, onClick, nodeType, onDragStart }) => {
 };
 
 const React$i = await importShared('react');
-const {useState: useState$b} = React$i;
+const {useState: useState$c} = React$i;
 
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$b(true);
+  const [isEditing, setIsEditing] = useState$c(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -9070,10 +9090,12 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 const NodeWrapper$1 = memo$c(NodeWrapper);
 
 const React$g = await importShared('react');
-const {memo: memo$b,useCallback: useCallback$4} = React$g;
+const {memo: memo$b,useCallback: useCallback$4,useEffect: useEffect$6,useState: useState$b,useRef: useRef$3} = React$g;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
+    const nodeRef = useRef$3(null);
+    const [isInputFocused, setIsInputFocused] = useState$b(false);
     const handleNodeClick = useCallback$4(
       (e) => {
         e.stopPropagation();
@@ -9083,14 +9105,70 @@ const withNodeSelection = (WrappedComponent) => {
       },
       [data]
     );
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    useEffect$6(() => {
+      const handleFocus = (e) => {
+        const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
+        if (isInput) {
+          setIsInputFocused(true);
+          const nodeElement = findReactFlowNode(e.target);
+          if (nodeElement) {
+            nodeElement._originalDraggable = nodeElement.draggable;
+            nodeElement.draggable = false;
+            nodeElement.classList.add("nodrag");
+          }
+        }
+      };
+      const handleBlur = (e) => {
+        const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
+        if (isInput) {
+          setIsInputFocused(false);
+          const nodeElement = findReactFlowNode(e.target);
+          if (nodeElement) {
+            if (nodeElement._originalDraggable !== void 0) {
+              nodeElement.draggable = nodeElement._originalDraggable;
+              delete nodeElement._originalDraggable;
+            }
+            nodeElement.classList.remove("nodrag");
+          }
+        }
+      };
+      const handleMouseDown = (e) => {
+        if (isInputFocused) {
+          e.stopPropagation();
+        }
+      };
+      document.addEventListener("focusin", handleFocus, true);
+      document.addEventListener("focusout", handleBlur, true);
+      if (nodeRef.current) {
+        nodeRef.current.addEventListener("mousedown", handleMouseDown, true);
+      }
+      return () => {
+        document.removeEventListener("focusin", handleFocus, true);
+        document.removeEventListener("focusout", handleBlur, true);
+        if (nodeRef.current) {
+          nodeRef.current.removeEventListener(
+            "mousedown",
+            handleMouseDown,
+            true
+          );
+        }
+      };
+    }, [isInputFocused]);
+    function findReactFlowNode(element) {
+      let current = element;
+      while (current && !current.classList?.contains("react-flow__node")) {
+        current = current.parentElement;
+      }
+      return current;
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: nodeRef, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       NodeWrapper$1,
       {
         selected,
         onClick: handleNodeClick,
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(WrappedComponent, { ...props })
       }
-    );
+    ) });
   };
   WithNodeSelection.displayName = `withNodeSelection(${getDisplayName(
     WrappedComponent
@@ -9483,31 +9561,70 @@ class WorkflowMappingService {
   }
 
   /**
-   * 提取節點輸入以供 API 格式使用
-   * @param {string} nodeId - 節點 ID
-   * @param {Array} edges - 所有邊緣
-   * @returns {Object} - API 格式的節點輸入
+   * 提取节点输入以供 API 格式使用 - 改进版本，确保多个连接到同一目标的情况正确处理
+   * @param {string} nodeId - 节点 ID
+   * @param {Array} edges - 所有边缘
+   * @returns {Object} - API 格式的节点输入
    */
   static extractNodeInputForAPI(nodeId, edges) {
     const nodeInput = {};
-    console.log(`提取節點 ${nodeId} 的輸入連接`);
+    console.log(`提取节点 ${nodeId} 的输入连接`);
 
+    // 获取所有以该节点为目标的边缘
     const relevantEdges = edges.filter((edge) => edge.target === nodeId);
-    console.log(`找到 ${relevantEdges.length} 個輸入連接`);
+    console.log(`找到 ${relevantEdges.length} 个输入连接`);
 
+    // 按 targetHandle 分组边缘
+    const handleGroups = {};
+
+    // 首先，分组所有边缘
     relevantEdges.forEach((edge) => {
       const targetHandle = edge.targetHandle || 'input';
-      nodeInput[targetHandle] = {
-        node_id: edge.source,
-        output_name: edge.sourceHandle || 'output',
-        type: 'string' // 預設類型
-      };
-      console.log(`輸入連接: ${edge.source} -> ${nodeId}:${targetHandle}`);
+
+      // 初始化组
+      if (!handleGroups[targetHandle]) {
+        handleGroups[targetHandle] = [];
+      }
+
+      // 添加边缘到组
+      handleGroups[targetHandle].push(edge);
+    });
+
+    // 处理每个句柄组
+    Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
+      // 当一个句柄有多个连接时，使用索引
+      if (targetEdges.length > 1) {
+        targetEdges.forEach((edge, index) => {
+          // 创建唯一的输入键
+          const inputKey = `${targetHandle}_${index + 1}`;
+
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+
+          console.log(
+            `多重输入连接: ${edge.source} -> ${nodeId}:${inputKey} (原始句柄: ${targetHandle})`
+          );
+        });
+      } else if (targetEdges.length === 1) {
+        // 单一连接，直接使用原始句柄
+        const edge = targetEdges[0];
+
+        nodeInput[targetHandle] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string'
+        };
+
+        console.log(`输入连接: ${edge.source} -> ${nodeId}:${targetHandle}`);
+      }
     });
 
     return nodeInput;
   }
-
   /**
    * 提取節點輸出以供 API 格式使用
    * @param {Object} node - ReactFlow 節點
@@ -9769,26 +9886,103 @@ class LLMService {
           return response.json();
         })
         .then((data) => {
-          console.log('成功獲取LLM模型:', data);
+          console.log('API返回原始模型數據:', data);
+
+          // 檢查數據是否為數組
+          if (!Array.isArray(data)) {
+            console.warn('API返回的模型數據不是陣列');
+            // 嘗試從可能的非數組格式中提取數據
+            if (
+              data &&
+              typeof data === 'object' &&
+              data.models &&
+              Array.isArray(data.models)
+            ) {
+              data = data.models;
+              console.log('從API回應中提取models陣列:', data);
+            } else {
+              // 如果無法提取合理的數據，則返回預設模型
+              console.warn('無法從API回應中提取合理的模型數據，使用預設模型');
+              data = [
+                {
+                  id: 1,
+                  name: 'O3-mini',
+                  display_name: 'O3-mini',
+                  is_default: true
+                },
+                { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
+                { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
+                { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+              ];
+            }
+          }
+
+          // 檢查每個模型對象，確保結構正確
+          const processedData = data.map((model, index) => {
+            if (!model || typeof model !== 'object') {
+              console.warn(`模型 ${index} 無效，使用替代數據`);
+              return {
+                id: index + 1,
+                name: `Model ${index + 1}`,
+                display_name: `Model ${index + 1}`,
+                is_default: index === 0
+              };
+            }
+
+            // 確保模型有ID
+            if (model.id === undefined || model.id === null) {
+              console.warn(`模型 ${index} 缺少ID，使用索引作為ID`);
+              model.id = index + 1;
+            }
+
+            // 確保模型有名稱
+            if (!model.name && !model.display_name) {
+              console.warn(`模型 ${index} 缺少名稱，使用索引作為名稱`);
+              model.name = `Model ${model.id}`;
+            }
+
+            return model;
+          });
+
+          console.log('處理後的模型數據:', processedData);
 
           // 更新快取
-          this.modelsCache = data;
+          this.modelsCache = processedData;
           this.lastFetchTime = now;
           this.pendingRequest = null; // 清除進行中的請求
 
-          return data;
+          return processedData;
         })
         .catch((error) => {
           console.error('獲取LLM模型失敗:', error);
           this.pendingRequest = null; // 清除進行中的請求，即使出錯
-          throw error;
+
+          // 返回預設模型，而不是拋出錯誤
+          return [
+            {
+              id: 1,
+              name: 'O3-mini',
+              display_name: 'O3-mini',
+              is_default: true
+            },
+            { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
+            { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
+            { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+          ];
         });
 
       return this.pendingRequest;
     } catch (error) {
       console.error('獲取LLM模型過程中出錯:', error);
       this.pendingRequest = null;
-      throw error;
+
+      // 返回預設模型，而不是拋出錯誤
+      return [
+        { id: 1, name: 'O3-mini', display_name: 'O3-mini', is_default: true },
+        { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
+        { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
+        { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+      ];
     }
   }
 
@@ -9880,22 +10074,81 @@ class LLMService {
   async getModelOptions() {
     try {
       const models = await this.getModels();
+      console.log('API返回的模型數據:', models);
+
+      // 檢查模型數據是否有效
+      if (!models || !Array.isArray(models)) {
+        console.warn('模型數據無效或不是陣列，使用默認選項');
+        return [
+          { value: '1', label: 'O3-mini' },
+          { value: '2', label: 'O3-plus' },
+          { value: '3', label: 'O3-mega' },
+          { value: '4', label: 'O3-ultra' }
+        ];
+      }
+
+      if (models.length === 0) {
+        console.warn('API返回的模型陣列為空，使用默認選項');
+        return [
+          { value: '1', label: 'O3-mini' },
+          { value: '2', label: 'O3-plus' },
+          { value: '3', label: 'O3-mega' },
+          { value: '4', label: 'O3-ultra' }
+        ];
+      }
+
+      // 檢查第一個模型的結構，確認關鍵屬性
+      const sampleModel = models[0];
+      console.log('模型數據結構示例:', sampleModel);
 
       // 將API返回的模型數據轉換為select選項格式
-      return models.map((model) => ({
-        value: model.name,
-        label: model.display_name || model.name,
-        description: model.description,
-        isDefault: model.is_default
-      }));
+      const options = models.map((model, index) => {
+        // 確保模型對象存在
+        if (!model) {
+          console.warn(`遇到無效的模型數據，索引: ${index}`);
+          return { value: `${index + 1}`, label: `Model ${index + 1}` };
+        }
+
+        // 記錄每個模型的關鍵屬性，幫助診斷
+        console.log(`處理模型 ${index}:`, {
+          id: model.id,
+          name: model.name,
+          display_name: model.display_name,
+          is_default: model.is_default
+        });
+
+        // 取得 ID，確保是字串型別
+        let modelId = '1'; // 預設 ID
+        if (model.id !== undefined && model.id !== null) {
+          modelId = model.id.toString();
+        } else {
+          modelId = `${index + 1}`; // 使用索引+1作為ID
+        }
+
+        // 取得顯示名稱
+        const modelLabel = model.display_name || model.name;
+
+        // 如果連名稱也沒有，則使用模型ID作為顯示名稱
+        const displayLabel = modelLabel || `Model ${modelId}`;
+
+        return {
+          value: modelId,
+          label: displayLabel,
+          description: model.description || '',
+          isDefault: !!model.is_default
+        };
+      });
+
+      console.log('最終格式化的選項:', options);
+      return options;
     } catch (error) {
       console.error('獲取模型選項失敗:', error);
       // 返回一些默認選項，以防API失敗
       return [
-        { value: 'O3-mini', label: 'O3-mini' },
-        { value: 'O3-plus', label: 'O3-plus' },
-        { value: 'O3-mega', label: 'O3-mega' },
-        { value: 'O3-ultra', label: 'O3-ultra' }
+        { value: '1', label: 'O3-mini' },
+        { value: '2', label: 'O3-plus' },
+        { value: '3', label: 'O3-mega' },
+        { value: '4', label: 'O3-ultra' }
       ];
     }
   }
@@ -9958,33 +10211,31 @@ class LLMService {
  */
 class WorkflowDataConverter {
   /**
-   * 轉換 API 數據為 ReactFlow 格式
-   * @param {Object} apiData - API 回傳的原始數據
-   * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式數據
+   * 转换 API 数据为 ReactFlow 格式 - 改进版，解决同名输入句柄的冲突问题
+   * @param {Object} apiData - API 回传的原始数据
+   * @returns {Object} - 包含 nodes 和 edges 的 ReactFlow 格式数据
    */
-  // WorkflowDataConverter.js 中需要修改的方法
-
   static transformToReactFlowFormat(apiData) {
-    console.log('開始轉換 API 格式為 ReactFlow 格式');
+    console.log('开始转换 API 格式为 ReactFlow 格式');
 
-    // 處理 API 數據結構差異
+    // 处理 API 数据结构差异
     const flowPipeline =
       apiData.flow_pipeline ||
       (apiData.content ? apiData.content.flow_pipeline : []);
 
     if (!flowPipeline || !Array.isArray(flowPipeline)) {
-      console.error('找不到有效的 flow_pipeline 陣列');
+      console.error('找不到有效的 flow_pipeline 数组');
       return { nodes: [], edges: [] };
     }
 
     const nodes = [];
     const edges = [];
 
-    // 處理每個節點
+    // 处理每个节点
     flowPipeline.forEach((node) => {
-      console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
+      console.log(`处理节点 ${node.id}, 操作符: ${node.operator}`);
 
-      // 轉換為 ReactFlow 節點格式
+      // 转换为 ReactFlow 节点格式
       const reactFlowNode = {
         id: node.id,
         type: WorkflowMappingService.getTypeFromOperator(node.operator),
@@ -9997,29 +10248,76 @@ class WorkflowDataConverter {
 
       nodes.push(reactFlowNode);
 
-      // 處理節點之間的連接
+      // 改进处理节点之间连接的逻辑
       if (node.node_input) {
+        // 创建一个映射以识别和处理相同句柄名称的情况
+        const handleMap = {};
+
+        // 辅助函数：检查字符串是否为数字
+        function isNumeric(str) {
+          return /^\d+$/.test(str);
+        }
+
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
           if (inputValue && inputValue.node_id) {
-            const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}`;
+            // 从 inputKey 提取基本句柄名称 (移除可能的 _1, _2 等后缀)
+            const baseHandleName = inputKey
+              .split('_')
+              .filter((part) => !isNumeric(part))
+              .join('_');
+
+            // 如果使用了同一个基本句柄名称，需要创建唯一的ReactFlow句柄
+
+            // 存储所有使用相同基本句柄名称的输入键，以便后续处理
+            if (!handleMap[baseHandleName]) {
+              handleMap[baseHandleName] = [];
+            }
+            handleMap[baseHandleName].push({
+              inputKey,
+              sourceNodeId: inputValue.node_id,
+              outputName: inputValue.output_name || 'output'
+            });
+
+            // 记录这个连接的输入键
+            console.log(
+              `发现连接: ${inputValue.node_id} -> ${node.id}:${inputKey} (基本句柄: ${baseHandleName})`
+            );
+          }
+        });
+
+        // 创建所有边缘，确保每个输入连接都能被正确创建
+        Object.entries(handleMap).forEach(([baseHandleName, connections]) => {
+          connections.forEach((connection, index) => {
+            // 为多个使用相同基本句柄的连接创建唯一的句柄名称
+            const targetHandle =
+              connections.length > 1
+                ? `${baseHandleName}_${index + 1}`
+                : baseHandleName;
+
+            // 创建唯一的边缘ID
+            const edgeId = `${connection.sourceNodeId}-${node.id}-${targetHandle}-${connection.outputName}`;
 
             edges.push({
               id: edgeId,
-              source: inputValue.node_id,
-              sourceHandle: inputValue.output_name || null,
+              source: connection.sourceNodeId,
+              sourceHandle: connection.outputName,
               target: node.id,
-              targetHandle: inputKey,
+              targetHandle: targetHandle,
               type: 'custom-edge'
             });
-          }
+
+            console.log(
+              `创建边缘: ${edgeId}, 从 ${connection.sourceNodeId} 到 ${node.id}:${targetHandle}`
+            );
+          });
         });
       }
     });
 
-    // 自動布局（如果位置都是 0,0）
+    // 自动布局（如果位置都是 0,0）
     this.autoLayout(nodes);
 
-    console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
+    console.log(`转换完成: ${nodes.length} 个节点, ${edges.length} 个连接`);
     return { nodes, edges };
   }
 
@@ -10065,12 +10363,27 @@ class WorkflowDataConverter {
           webhookUrl: node.parameters?.webhook_url?.data || ''
         };
 
-      case 'ask_ai':
+      case 'ask_ai': {
+        // 獲取模型ID，確保處理可能的undefined或null值 // 優先使用 llm_id，如果不存在則使用 model
+        const rawModelId =
+          node.parameters?.llm_id?.data !== undefined
+            ? node.parameters.llm_id.data
+            : node.parameters?.model?.data !== undefined
+            ? node.parameters.model.data
+            : '1';
+
+        // 確保模型ID是字符串類型
+        const modelId =
+          rawModelId !== null && rawModelId !== undefined
+            ? rawModelId.toString()
+            : '1';
+
         return {
           ...baseData,
-          model: node.parameters?.model?.data || 'O3-mini',
+          model: modelId,
           selectedOption: node.parameters?.selected_option?.data || 'prompt'
         };
+      }
 
       case 'basic_input': {
         // 提取參數中的欄位
@@ -10348,12 +10661,27 @@ class WorkflowDataConverter {
         break;
 
       case 'aiCustomInput':
-      case 'ai':
-        parameters.model = { data: node.data.model || 'O3-mini' };
+      case 'ai': {
+        // 處理可能的無效model值
+        const modelValue = node.data.model || '1';
+
+        // 確保值為字符串
+        const safeModelValue =
+          typeof modelValue !== 'string'
+            ? modelValue.toString()
+            : modelValue;
+
+        // 使用model作為llm_id - 現在存的是ID值而非名稱
+        parameters.llm_id = { data: safeModelValue };
+
+        // 保留model參數，以兼容舊版API
+        parameters.model = { data: safeModelValue };
+
         if (node.data.selectedOption) {
           parameters.selected_option = { data: node.data.selectedOption };
         }
         break;
+      }
 
       case 'browserExtensionInput':
       case 'browserExtInput':
@@ -10383,7 +10711,6 @@ class WorkflowDataConverter {
           parameters.data_source = { data: node.data.selectedFile };
         }
         break;
-
       case 'ifElse':
         if (node.data.variableName) {
           parameters.variable = { data: node.data.variableName };
@@ -10569,14 +10896,14 @@ const React$d = await importShared('react');
 const {memo: memo$9,useState: useState$9,useEffect: useEffect$3} = React$d;
 const AICustomInputNode = ({ data, isConnectable }) => {
   const [modelOptions, setModelOptions] = useState$9([
-    { value: "O3-mini", label: "O3-mini" },
-    { value: "O3-plus", label: "O3-plus" },
-    { value: "O3-mega", label: "O3-mega" },
-    { value: "O3-ultra", label: "O3-ultra" }
+    { value: "1", label: "O3-mini" },
+    { value: "2", label: "O3-plus" },
+    { value: "3", label: "O3-mega" },
+    { value: "4", label: "O3-ultra" }
   ]);
   const [isLoadingModels, setIsLoadingModels] = useState$9(false);
   const [modelLoadError, setModelLoadError] = useState$9(null);
-  const [localModel, setLocalModel] = useState$9(data?.model || "O3-mini");
+  const [localModel, setLocalModel] = useState$9(data?.model || "1");
   useEffect$3(() => {
     console.log("AICustomInputNode 數據同步更新:", {
       "data.model": data?.model
@@ -10591,14 +10918,29 @@ const AICustomInputNode = ({ data, isConnectable }) => {
     setIsLoadingModels(true);
     setModelLoadError(null);
     try {
+      console.log("開始加載模型列表");
       const options = await llmService.getModelOptions();
+      console.log("llmService.getModelOptions 返回結果:", options);
       if (options && options.length > 0) {
+        console.log("設置模型選項:", options);
         setModelOptions(options);
-        if (!options.some((opt) => opt.value === localModel)) {
-          const defaultModel = options.find((opt) => opt.isDefault)?.value || options[0].value;
+        const isCurrentModelValid = options.some(
+          (opt) => opt.value === localModel
+        );
+        console.log(`當前模型 ${localModel} 是否有效:`, isCurrentModelValid);
+        if (!isCurrentModelValid) {
+          let defaultModel = options[0].value;
+          const defaultOption = options.find((opt) => opt.isDefault);
+          if (defaultOption) {
+            defaultModel = defaultOption.value;
+            console.log("找到默認模型:", defaultOption);
+          }
+          console.log(`將模型從 ${localModel} 更新為 ${defaultModel}`);
           setLocalModel(defaultModel);
           updateParentState("model", defaultModel);
         }
+      } else {
+        console.warn("API未返回有效的模型選項或返回了空陣列");
       }
     } catch (error) {
       console.error("加載模型失敗:", error);
@@ -10629,7 +10971,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
   };
   const handleModelChange = (e) => {
     const newModelValue = e.target.value;
-    console.log(`模型變更為: ${newModelValue}`);
+    console.log(`模型變更為ID: ${newModelValue}`);
     setLocalModel(newModelValue);
     updateParentState("model", newModelValue);
   };
@@ -13374,6 +13716,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const saveToServer = useCallback(async () => {
     setIsSaving(true);
     try {
+      debugConnections(edges, "保存前");
       const flowData = {
         id: flowMetadata.id || `flow_${Date.now()}`,
         title: flowMetadata.title || "未命名流程",
@@ -13410,6 +13753,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         ...prev,
         lastSaved: (/* @__PURE__ */ new Date()).toISOString()
       }));
+      await handleLoadWorkflow(flowMetadata.id);
+      debugConnections(edges, "保存后重新加载");
       return response;
     } catch (error) {
       console.error("FlowEditor: 儲存流程時發生錯誤：", error);
@@ -13599,5 +13944,35 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   ] });
 });
 FlowEditor.displayName = "FlowEditor";
+const debugConnections = (edges, message) => {
+  console.group(`调试连接 - ${message}`);
+  const edgesByTarget = {};
+  edges.forEach((edge) => {
+    if (!edgesByTarget[edge.target]) {
+      edgesByTarget[edge.target] = [];
+    }
+    edgesByTarget[edge.target].push(edge);
+  });
+  Object.entries(edgesByTarget).forEach(([targetId, targetEdges]) => {
+    console.log(`节点 ${targetId} 的输入连接 (${targetEdges.length}):`);
+    const byHandle = {};
+    targetEdges.forEach((edge) => {
+      const handle = edge.targetHandle || "input";
+      if (!byHandle[handle]) {
+        byHandle[handle] = [];
+      }
+      byHandle[handle].push(edge);
+    });
+    Object.entries(byHandle).forEach(([handle, handleEdges]) => {
+      console.log(`  句柄 ${handle}: ${handleEdges.length} 个连接`);
+      handleEdges.forEach((edge) => {
+        console.log(
+          `    来源: ${edge.source}, 句柄: ${edge.sourceHandle || "output"}`
+        );
+      });
+    });
+  });
+  console.groupEnd();
+};
 
 export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j };
