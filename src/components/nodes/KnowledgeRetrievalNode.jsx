@@ -290,10 +290,11 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         position={Position.Left}
         id='input'
         style={{
-          background: '#555',
-          width: '8px',
-          height: '8px',
-          left: '-4px'
+          background: '#e5e7eb',
+          border: '1px solid #D3D3D3',
+          width: '12px',
+          height: '12px',
+          left: '-6px'
         }}
         isConnectable={isConnectable}
       />
@@ -304,10 +305,11 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         position={Position.Right}
         id='output'
         style={{
-          background: '#555',
-          width: '8px',
-          height: '8px',
-          right: '-4px'
+          background: '#e5e7eb',
+          border: '1px solid #D3D3D3',
+          width: '12px',
+          height: '12px',
+          right: '-6px'
         }}
         isConnectable={isConnectable}
       />

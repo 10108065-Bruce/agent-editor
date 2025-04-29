@@ -243,13 +243,13 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
   // 計算每個連接點的垂直位置
   const calculateHandlePosition = useCallback((index) => {
     // 標題區域高度
-    const headerHeight = 56;
+    const headerHeight = 46;
 
     // 內容區域的上邊距
     const contentPadding = 16;
 
     // 每個項目的高度（包括名稱輸入、圖標和分隔線）
-    const itemHeight = 120;
+    const itemHeight = 140;
 
     // 計算連接點的位置
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
@@ -382,17 +382,16 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
           position={Position.Right}
           id={`output-${idx}`}
           style={{
-            background: '#000',
-            width: '10px',
-            height: '10px',
-            right: '-5px',
+            background: '#e5e7eb',
+            border: '1px solid #D3D3D3',
+            width: '12px',
+            height: '12px',
+            right: '-7px',
             top: calculateHandlePosition(idx),
             transform: 'translateY(-50%)', // Only center vertically
-            zIndex: 1000,
-            border: '2px solid white'
+            zIndex: 1000
           }}
-          isConnectable={isConnectable}
-        />
+          isConnectable={isConnectable}></Handle>
       ))}
     </div>
   );

@@ -158,31 +158,32 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           position={Position.Left}
           id={String(input.id)}
           style={{
-            background: '#555',
-            width: '8px',
-            height: '8px',
-            left: '-4px',
-            top: `${40 + (index + 1) * 25}px` // 每個 handle 之間適當間隔
+            background: '#e5e7eb',
+            borderColor: '#D3D3D3',
+            width: '12px',
+            height: '12px',
+            left: '-6px',
+            top: `${45 + (index + 1) * 20}px` // 每個 handle 之間適當間隔
           }}
           isConnectable={isConnectable}
         />
       ))}
 
       {/* 添加一個透明的 handle 用於新連線 */}
-      <Handle
+      {/* <Handle
         type='target'
         position={Position.Left}
         id='new-connection'
         style={{
           opacity: 0.1,
           background: '#999',
-          width: '10px',
-          height: '10px',
-          left: '-5px',
+          width: '15px',
+          height: '15px',
+          left: '-7px',
           top: inputs.length > 0 ? `${(inputs.length + 1) * 25}px` : '25px'
         }}
         isConnectable={isConnectable}
-      />
+      /> */}
     </div>
   );
 };

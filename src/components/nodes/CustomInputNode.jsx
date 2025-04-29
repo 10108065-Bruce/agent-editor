@@ -230,8 +230,9 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                   position={Position.Right}
                   id={`output-${idx}`}
                   style={{
-                    width: '10px',
-                    height: '10px',
+                    width: '15px',
+                    height: '15px',
+                    right: '-6px',
                     background: '#000',
                     border: '2px solid white',
                     zIndex: 5

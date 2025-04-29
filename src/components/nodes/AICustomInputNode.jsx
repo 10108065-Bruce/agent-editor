@@ -195,11 +195,12 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         position={Position.Left}
         id='prompt-input'
         style={{
-          background: '#555',
-          width: '8px',
-          height: '8px',
-          left: '-4px',
-          top: '82%',
+          background: '#e5e7eb',
+          border: '1px solid #D3D3D3',
+          width: '12px',
+          height: '12px',
+          left: '-6px',
+          top: '89%',
           transform: 'translateY(-250%)'
         }}
         isConnectable={isConnectable}
@@ -211,11 +212,12 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         position={Position.Left}
         id='context-input'
         style={{
-          background: '#555',
-          width: '8px',
-          height: '8px',
-          left: '-4px',
-          top: '80%',
+          background: '#e5e7eb',
+          border: '1px solid #D3D3D3',
+          width: '12px',
+          height: '12px',
+          left: '-6px',
+          top: '74%',
           transform: 'translateY(150%)'
         }}
         isConnectable={isConnectable}
@@ -227,10 +229,11 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         position={Position.Right}
         id='output'
         style={{
-          background: '#555',
-          width: '8px',
-          height: '8px',
-          right: '-4px'
+          background: '#e5e7eb',
+          border: '1px solid #D3D3D3',
+          width: '12px',
+          height: '12px',
+          right: '-6px'
         }}
         isConnectable={isConnectable}
       />
