@@ -1283,7 +1283,7 @@ class WorkflowDataConverter {
       case 'knowledge_retrieval':
         return {
           ...baseData,
-          selectedFile: node.parameters?.data_source?.data || '',
+          selectedFile: node.parameters?.file_id?.data || '',
           availableFiles: [
             { id: 'icdcode', name: 'ICDCode.csv' },
             { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
@@ -1548,7 +1548,9 @@ class WorkflowDataConverter {
       case 'knowledgeRetrieval':
       case 'knowledge_retrieval':
         if (node.data.selectedFile) {
-          parameters.data_source = { data: node.data.selectedFile };
+          // parameters.data_source = { data: node.data.selectedFile };
+          // 使用model作為llm_id - 現在存的是ID值而非名稱
+          parameters.file_id = { data: node.data.selectedFile };
         }
         break;
       case 'ifElse':
