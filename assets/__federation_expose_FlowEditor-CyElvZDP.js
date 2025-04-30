@@ -8863,7 +8863,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "dd0d164fa2de24d740d605e456993435cc9802b7", "VITE_APP_BUILD_TIME": "2025-04-30T08:44:54.452Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.62"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2b97a49c3f4884334479c0fc26280019b59864de", "VITE_APP_BUILD_TIME": "2025-04-30T08:48:42.789Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.63"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9587,11 +9587,11 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                     position: Position.Right,
                     id: `output-${idx}`,
                     style: {
-                      width: "15px",
-                      height: "15px",
+                      background: "#e5e7eb",
+                      border: "1px solid #D3D3D3",
+                      width: "12px",
+                      height: "12px",
                       right: "-6px",
-                      background: "#000",
-                      border: "2px solid white",
                       zIndex: 5
                     },
                     isConnectable
