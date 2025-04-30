@@ -8906,7 +8906,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bc4eb51cd96c762621fb024f58cb686b835cb9e7", "VITE_APP_BUILD_TIME": "2025-04-30T01:16:59.173Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.59"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bc4eb51cd96c762621fb024f58cb686b835cb9e7", "VITE_APP_BUILD_TIME": "2025-04-30T04:14:40.931Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.60"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -10978,7 +10978,7 @@ class WorkflowDataConverter {
       case 'knowledge_retrieval':
         return {
           ...baseData,
-          selectedFile: node.parameters?.data_source?.data || '',
+          selectedFile: node.parameters?.file_id?.data || '',
           availableFiles: [
             { id: 'icdcode', name: 'ICDCode.csv' },
             { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
@@ -11243,7 +11243,9 @@ class WorkflowDataConverter {
       case 'knowledgeRetrieval':
       case 'knowledge_retrieval':
         if (node.data.selectedFile) {
-          parameters.data_source = { data: node.data.selectedFile };
+          // parameters.data_source = { data: node.data.selectedFile };
+          // 使用model作為llm_id - 現在存的是ID值而非名稱
+          parameters.file_id = { data: node.data.selectedFile };
         }
         break;
       case 'ifElse':
