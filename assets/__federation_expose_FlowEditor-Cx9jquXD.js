@@ -8906,7 +8906,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "afd6a2918cf9379397f30f58f00b7ea3203782fc", "VITE_APP_BUILD_TIME": "2025-04-30T00:50:23.620Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.58"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bc4eb51cd96c762621fb024f58cb686b835cb9e7", "VITE_APP_BUILD_TIME": "2025-04-30T01:16:59.173Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.59"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -13995,6 +13995,108 @@ const LoadWorkflowButton = ({ onLoad }) => {
 
 const React = await importShared('react');
 const {useState,useEffect,useCallback,useRef,useMemo,forwardRef,useImperativeHandle} = React;
+const ReactFlowWithControls = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodesDelete,
+  nodeTypes,
+  edgeTypes,
+  defaultViewport,
+  onSelectionChange,
+  onInit,
+  onDrop,
+  onDragOver
+}) => {
+  const reactFlowInstance = useReactFlow();
+  const fitViewToNodes = useCallback(
+    (padding = 0.1, maxZoom = 1.85, duration = 800) => {
+      if (!reactFlowInstance) {
+        console.warn("ReactFlow 實例尚未初始化，無法自動縮放畫布");
+        return;
+      }
+      console.log("自動縮放畫布以顯示所有節點...");
+      try {
+        reactFlowInstance.fitView({
+          padding,
+          // 邊緣留白，值越大顯示的節點佔比越小
+          maxZoom,
+          // 限制最大縮放，防止縮放過大
+          duration,
+          // 動畫持續時間（毫秒）
+          includeHiddenNodes: false
+          // 不包含隱藏節點
+        });
+        console.log("畫布縮放完成");
+      } catch (error) {
+        console.error("自動縮放畫布時發生錯誤：", error);
+      }
+    },
+    [reactFlowInstance]
+  );
+  useEffect(() => {
+    if (nodes.length > 0 && reactFlowInstance) {
+      const timeoutId = setTimeout(() => {
+        fitViewToNodes();
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [nodes.length, reactFlowInstance, fitViewToNodes]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    ReactFlow,
+    {
+      nodes,
+      edges,
+      onNodesChange,
+      onEdgesChange,
+      onConnect,
+      onNodesDelete,
+      nodeTypes,
+      edgeTypes,
+      defaultViewport,
+      onSelectionChange,
+      deleteKeyCode: ["Backspace", "Delete"],
+      onInit,
+      onDrop,
+      onDragOver,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MiniMap$1, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Controls$1, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Background$1, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Panel, { position: "bottom-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "bg-white p-2 rounded-md shadow-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300",
+            onClick: () => fitViewToNodes(0.1),
+            title: "縮放視圖以顯示所有節點",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "svg",
+              {
+                xmlns: "http://www.w3.org/2000/svg",
+                width: "20",
+                height: "20",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M15 3h6v6" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M9 21H3v-6" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 3l-7 7" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M3 21l7-7" })
+                ]
+              }
+            )
+          }
+        ) })
+      ]
+    }
+  ) });
+};
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -14373,7 +14475,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     } finally {
       setIsSaving(false);
     }
-  }, [nodes, edges, flowMetadata, showNotification]);
+  }, [nodes, edges, flowMetadata, showNotification, handleLoadWorkflow]);
   useCallback(async () => {
     try {
       const result = await FileIOService.readFromFile();
@@ -14452,8 +14554,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       {
         className: "w-full h-full",
         ref: reactFlowWrapper,
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          ReactFlow,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ReactFlowWithControls,
           {
             nodes,
             edges,
@@ -14465,15 +14567,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             edgeTypes,
             defaultViewport,
             onSelectionChange: handleSelectionChange,
-            deleteKeyCode: ["Backspace", "Delete"],
             onInit: setReactFlowInstance,
             onDrop,
-            onDragOver,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MiniMap$1, {}),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Controls$1, {}),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Background$1, {})
-            ]
+            onDragOver
           }
         )
       }
