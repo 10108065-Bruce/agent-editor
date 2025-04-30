@@ -8906,7 +8906,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bc4eb51cd96c762621fb024f58cb686b835cb9e7", "VITE_APP_BUILD_TIME": "2025-04-30T04:14:40.931Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.60"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "7439a7b89209916cd5c3f7d57fd363f6d415d121", "VITE_APP_BUILD_TIME": "2025-04-30T05:55:36.236Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.61"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -12175,7 +12175,6 @@ const IfElseNode$1 = memo$6(IfElseNode);
 const React$9 = await importShared('react');
 const {memo: memo$5,useState: useState$7,useEffect: useEffect$1,useCallback: useCallback$1} = React$9;
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [dropdownOpen, setDropdownOpen] = useState$7(false);
   const [isLoadingFiles, setIsLoadingFiles] = useState$7(false);
   const [fileLoadError, setFileLoadError] = useState$7(null);
   const [dataFiles, setDataFiles] = useState$7(
@@ -12197,19 +12196,6 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [localSelectedFile, setLocalSelectedFile] = useState$7(
     data?.selectedFile || ""
   );
-  useEffect$1(() => {
-    console.log("監測 data.selectedFile 變更：", {
-      "data.selectedFile": data?.selectedFile,
-      localSelectedFile,
-      "node.id": id
-    });
-    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
-      console.log(
-        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
-      );
-      setLocalSelectedFile(data.selectedFile);
-    }
-  }, [data?.selectedFile, localSelectedFile, id]);
   const updateParentState = useCallback$1(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=${value}`);
@@ -12229,14 +12215,17 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     [data]
   );
   const handleFileSelect = useCallback$1(
-    (fileId) => {
+    (event) => {
+      const fileId = event.target.value;
       console.log(`選擇文件: ${fileId}`);
-      setDropdownOpen(false);
       setLocalSelectedFile(fileId);
       updateParentState("selectedFile", fileId);
     },
     [updateParentState]
   );
+  const getCurrentSelectedFile = useCallback$1(() => {
+    return data?.selectedFile || localSelectedFile;
+  }, [data?.selectedFile, localSelectedFile]);
   const loadFiles = useCallback$1(async () => {
     if (isLoadingFiles) return;
     console.log("開始加載文件列表...");
@@ -12251,7 +12240,8 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         if (!options.some(
           (opt) => opt.id === currentFile || opt.value === currentFile
         ) && options.length > 0) {
-          handleFileSelect(options[0].id || options[0].value);
+          setLocalSelectedFile(options[0].id || options[0].value);
+          updateParentState("selectedFile", options[0].id || options[0].value);
         }
       }
     } catch (error) {
@@ -12264,18 +12254,20 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     } finally {
       setIsLoadingFiles(false);
     }
-  }, [isLoadingFiles, handleFileSelect]);
-  const getCurrentSelectedFile = useCallback$1(() => {
-    return data?.selectedFile || localSelectedFile;
-  }, [data?.selectedFile, localSelectedFile]);
-  const getSelectedFileName = useCallback$1(() => {
-    const currentFileId = getCurrentSelectedFile();
-    if (!currentFileId) return "選擇檔案...";
-    const selectedFile = dataFiles.find(
-      (file) => file.id === currentFileId || file.value === currentFileId
-    );
-    return selectedFile ? selectedFile.name || selectedFile.label || selectedFile.filename : "選擇檔案...";
-  }, [dataFiles, getCurrentSelectedFile]);
+  }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
+  useEffect$1(() => {
+    console.log("監測 data.selectedFile 變更：", {
+      "data.selectedFile": data?.selectedFile,
+      localSelectedFile,
+      "node.id": id
+    });
+    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
+      console.log(
+        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
+      );
+      setLocalSelectedFile(data.selectedFile);
+    }
+  }, [data?.selectedFile, localSelectedFile, id]);
   useEffect$1(() => {
     loadFiles();
     console.log("KnowledgeRetrievalNode 初始化狀態:", {
@@ -12284,28 +12276,20 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       localSelectedFile,
       "dataFiles.length": dataFiles.length
     });
-  }, []);
-  const handleDropdownToggle = useCallback$1(() => {
-    setDropdownOpen(!dropdownOpen);
+  }, [id, data?.selectedFile, localSelectedFile, dataFiles.length, loadFiles]);
+  const handleReloadFiles = useCallback$1(() => {
     if (dataFiles.length <= 2 || fileLoadError) {
       loadFiles();
     }
-  }, [dropdownOpen, dataFiles.length, fileLoadError, loadFiles]);
+  }, [dataFiles.length, fileLoadError, loadFiles]);
   useEffect$1(() => {
     console.log("KnowledgeRetrievalNode 狀態更新:", {
       "node.id": id,
       "data.selectedFile": data?.selectedFile,
       localSelectedFile,
-      selectedFileName: getSelectedFileName(),
       "dataFiles.length": dataFiles.length
     });
-  }, [
-    id,
-    data?.selectedFile,
-    localSelectedFile,
-    dataFiles,
-    getSelectedFileName
-  ]);
+  }, [id, data?.selectedFile, localSelectedFile, dataFiles]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
@@ -12314,67 +12298,56 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white p-4 rounded-b-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "Data Source" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            className: `w-full border ${fileLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm text-left flex justify-between items-center bg-white ${isLoadingFiles ? "opacity-70 cursor-wait" : ""}`,
-            onClick: handleDropdownToggle,
-            disabled: isLoadingFiles,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: getSelectedFileName() }),
-              isLoadingFiles ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "svg",
-                {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  className: `ml-2 transform ${dropdownOpen ? "rotate-180" : ""}`,
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
-                }
-              )
-            ]
-          }
-        ),
-        fileLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: fileLoadError }),
-        dropdownOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto", children: dataFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            className: "p-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center",
-            onClick: () => handleFileSelect(file.id || file.value),
-            children: [
-              (file.id || file.value) === getCurrentSelectedFile() && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "svg",
-                {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  className: "mr-2",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "20 6 9 17 4 12" })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "span",
-                {
-                  className: (file.id || file.value) === getCurrentSelectedFile() ? "ml-0" : "ml-6",
-                  children: file.name || file.label || file.filename
-                }
-              )
-            ]
-          },
-          file.id || file.value
-        )) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              className: `w-full border ${fileLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm bg-white appearance-none ${isLoadingFiles ? "opacity-70 cursor-wait" : ""}`,
+              value: getCurrentSelectedFile(),
+              onChange: handleFileSelect,
+              disabled: isLoadingFiles,
+              onClick: handleReloadFiles,
+              style: {
+                paddingRight: "2rem",
+                textOverflow: "ellipsis"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "option",
+                  {
+                    value: "",
+                    disabled: true,
+                    children: "選擇檔案..."
+                  }
+                ),
+                dataFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "option",
+                  {
+                    value: file.id || file.value,
+                    children: file.name || file.label || file.filename
+                  },
+                  file.id || file.value
+                ))
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none", children: isLoadingFiles ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              xmlns: "http://www.w3.org/2000/svg",
+              width: "16",
+              height: "16",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+            }
+          ) })
+        ] }),
+        fileLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: fileLoadError })
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
