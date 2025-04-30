@@ -13,7 +13,9 @@ import ReactFlow, {
   MiniMap,
   Controls,
   Background,
-  ReactFlowProvider
+  ReactFlowProvider,
+  useReactFlow,
+  Panel
 } from 'reactflow';
 import useFlowNodes from '../hooks/useFlowNodes';
 import NodeSidebar from '../components/layout/NodeSidebar';
@@ -36,6 +38,112 @@ import {
 } from '../services/WorkflowServicesIntegration';
 
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
+
+// 內部 ReactFlow 組件，使用 useReactFlow hook
+const ReactFlowWithControls = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodesDelete,
+  nodeTypes,
+  edgeTypes,
+  defaultViewport,
+  onSelectionChange,
+  onInit,
+  onDrop,
+  onDragOver
+}) => {
+  const reactFlowInstance = useReactFlow();
+
+  // 自動縮放畫布以顯示所有節點
+  const fitViewToNodes = useCallback(
+    (padding = 0.1, maxZoom = 1.85, duration = 800) => {
+      if (!reactFlowInstance) {
+        console.warn('ReactFlow 實例尚未初始化，無法自動縮放畫布');
+        return;
+      }
+
+      console.log('自動縮放畫布以顯示所有節點...');
+
+      try {
+        // 使用 ReactFlow 的 fitView 方法自動縮放畫布
+        reactFlowInstance.fitView({
+          padding, // 邊緣留白，值越大顯示的節點佔比越小
+          maxZoom, // 限制最大縮放，防止縮放過大
+          duration, // 動畫持續時間（毫秒）
+          includeHiddenNodes: false // 不包含隱藏節點
+        });
+
+        console.log('畫布縮放完成');
+      } catch (error) {
+        console.error('自動縮放畫布時發生錯誤：', error);
+      }
+    },
+    [reactFlowInstance]
+  );
+
+  // 節點變更時自動縮放
+  useEffect(() => {
+    if (nodes.length > 0 && reactFlowInstance) {
+      // 延遲縮放，確保節點已完全渲染
+      const timeoutId = setTimeout(() => {
+        fitViewToNodes();
+      }, 300);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [nodes.length, reactFlowInstance, fitViewToNodes]);
+
+  return (
+    <>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodesDelete={onNodesDelete}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        defaultViewport={defaultViewport}
+        onSelectionChange={onSelectionChange}
+        deleteKeyCode={['Backspace', 'Delete']}
+        onInit={onInit}
+        onDrop={onDrop}
+        onDragOver={onDragOver}>
+        <MiniMap />
+        <Controls />
+        <Background />
+
+        {/* 添加縮放視圖按鈕 */}
+        <Panel position='bottom-right'>
+          <button
+            className='bg-white p-2 rounded-md shadow-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300'
+            onClick={() => fitViewToNodes(0.1)}
+            title='縮放視圖以顯示所有節點'>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='20'
+              height='20'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'>
+              <path d='M15 3h6v6'></path>
+              <path d='M9 21H3v-6'></path>
+              <path d='M21 3l-7 7'></path>
+              <path d='M3 21l7-7'></path>
+            </svg>
+          </button>
+        </Panel>
+      </ReactFlow>
+    </>
+  );
+};
 
 // 使用 forwardRef 將 FlowEditor 包裝起來，使其可以接收 ref
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
@@ -520,7 +628,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       // 無論成功或失敗，都重置保存狀態
       setIsSaving(false);
     }
-  }, [nodes, edges, flowMetadata, showNotification]);
+  }, [nodes, edges, flowMetadata, showNotification, handleLoadWorkflow]);
 
   /**
    * 從本地檔案載入流程資料
@@ -632,7 +740,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         <div
           className='w-full h-full'
           ref={reactFlowWrapper}>
-          <ReactFlow
+          <ReactFlowWithControls
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -643,14 +751,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             edgeTypes={edgeTypes}
             defaultViewport={defaultViewport}
             onSelectionChange={handleSelectionChange}
-            deleteKeyCode={['Backspace', 'Delete']}
             onInit={setReactFlowInstance}
             onDrop={onDrop}
-            onDragOver={onDragOver}>
-            <MiniMap />
-            <Controls />
-            <Background />
-          </ReactFlow>
+            onDragOver={onDragOver}
+          />
         </div>
       </ReactFlowProvider>
 
@@ -760,6 +864,8 @@ function WorkflowBuilder() {
     />
   );
 }
+
+// 調試連接
 const debugConnections = (edges, message) => {
   console.group(`调试连接 - ${message}`);
 
@@ -799,6 +905,8 @@ const debugConnections = (edges, message) => {
 
   console.groupEnd();
 };
+
+// 調試瀏覽器擴展輸出節點
 const debugBrowserExtensionOutput = (nodes, edges) => {
   console.group('瀏覽器擴展輸出節點調試');
 
