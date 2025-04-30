@@ -4,7 +4,6 @@ import { llmService } from '../../services/WorkflowServicesIntegration';
 import IconBase from '../icons/IconBase';
 
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [fileLoadError, setFileLoadError] = useState(null);
 
@@ -30,22 +29,6 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [localSelectedFile, setLocalSelectedFile] = useState(
     data?.selectedFile || ''
   );
-
-  // 監聽並同步 data.selectedFile 變更
-  useEffect(() => {
-    console.log('監測 data.selectedFile 變更：', {
-      'data.selectedFile': data?.selectedFile,
-      localSelectedFile,
-      'node.id': id
-    });
-
-    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
-      console.log(
-        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
-      );
-      setLocalSelectedFile(data.selectedFile);
-    }
-  }, [data?.selectedFile, localSelectedFile, id]);
 
   // 統一更新父組件狀態的輔助函數
   const updateParentState = useCallback(
@@ -74,14 +57,19 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
 
   // 處理文件選擇
   const handleFileSelect = useCallback(
-    (fileId) => {
+    (event) => {
+      const fileId = event.target.value;
       console.log(`選擇文件: ${fileId}`);
-      setDropdownOpen(false);
       setLocalSelectedFile(fileId);
       updateParentState('selectedFile', fileId);
     },
     [updateParentState]
   );
+
+  // 獲取當前選擇的文件ID
+  const getCurrentSelectedFile = useCallback(() => {
+    return data?.selectedFile || localSelectedFile;
+  }, [data?.selectedFile, localSelectedFile]);
 
   // 從API加載文件列表
   const loadFiles = useCallback(async () => {
@@ -108,7 +96,9 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
           ) &&
           options.length > 0
         ) {
-          handleFileSelect(options[0].id || options[0].value);
+          // 使用新的 select 處理方式
+          setLocalSelectedFile(options[0].id || options[0].value);
+          updateParentState('selectedFile', options[0].id || options[0].value);
         }
       }
     } catch (error) {
@@ -130,25 +120,23 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     } finally {
       setIsLoadingFiles(false);
     }
-  }, [isLoadingFiles, handleFileSelect]);
+  }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
 
-  // 獲取當前選擇的文件ID
-  const getCurrentSelectedFile = useCallback(() => {
-    return data?.selectedFile || localSelectedFile;
-  }, [data?.selectedFile, localSelectedFile]);
+  // 監聽並同步 data.selectedFile 變更
+  useEffect(() => {
+    console.log('監測 data.selectedFile 變更：', {
+      'data.selectedFile': data?.selectedFile,
+      localSelectedFile,
+      'node.id': id
+    });
 
-  // 獲取當前選擇的文件名
-  const getSelectedFileName = useCallback(() => {
-    const currentFileId = getCurrentSelectedFile();
-    if (!currentFileId) return '選擇檔案...';
-
-    const selectedFile = dataFiles.find(
-      (file) => file.id === currentFileId || file.value === currentFileId
-    );
-    return selectedFile
-      ? selectedFile.name || selectedFile.label || selectedFile.filename
-      : '選擇檔案...';
-  }, [dataFiles, getCurrentSelectedFile]);
+    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
+      console.log(
+        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
+      );
+      setLocalSelectedFile(data.selectedFile);
+    }
+  }, [data?.selectedFile, localSelectedFile, id]);
 
   // 組件掛載時載入文件列表
   useEffect(() => {
@@ -161,18 +149,14 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       localSelectedFile,
       'dataFiles.length': dataFiles.length
     });
-  }, []);
+  }, [id, data?.selectedFile, localSelectedFile, dataFiles.length, loadFiles]);
 
-  // 當點擊下拉菜單時，嘗試刷新文件列表
-  const handleDropdownToggle = useCallback(() => {
-    // 切換下拉菜單狀態
-    setDropdownOpen(!dropdownOpen);
-
-    // 如果文件列表為空或者存在錯誤，嘗試重新加載
+  // 當文件列表為空或錯誤時重新加載
+  const handleReloadFiles = useCallback(() => {
     if (dataFiles.length <= 2 || fileLoadError) {
       loadFiles();
     }
-  }, [dropdownOpen, dataFiles.length, fileLoadError, loadFiles]);
+  }, [dataFiles.length, fileLoadError, loadFiles]);
 
   // 調試用 - 監視狀態變化
   useEffect(() => {
@@ -180,16 +164,9 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       'node.id': id,
       'data.selectedFile': data?.selectedFile,
       localSelectedFile,
-      selectedFileName: getSelectedFileName(),
       'dataFiles.length': dataFiles.length
     });
-  }, [
-    id,
-    data?.selectedFile,
-    localSelectedFile,
-    dataFiles,
-    getSelectedFileName
-  ]);
+  }, [id, data?.selectedFile, localSelectedFile, dataFiles]);
 
   return (
     <div className='rounded-lg shadow-md overflow-visible w-64'>
@@ -210,75 +187,57 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
             Data Source
           </label>
           <div className='relative'>
-            <button
-              className={`w-full border ${
-                fileLoadError ? 'border-red-300' : 'border-gray-300'
-              } rounded-md p-2 text-sm text-left flex justify-between items-center bg-white ${
-                isLoadingFiles ? 'opacity-70 cursor-wait' : ''
-              }`}
-              onClick={handleDropdownToggle}
-              disabled={isLoadingFiles}>
-              <span>{getSelectedFileName()}</span>
+            <div className='flex'>
+              <select
+                className={`w-full border ${
+                  fileLoadError ? 'border-red-300' : 'border-gray-300'
+                } rounded-md p-2 text-sm bg-white appearance-none ${
+                  isLoadingFiles ? 'opacity-70 cursor-wait' : ''
+                }`}
+                value={getCurrentSelectedFile()}
+                onChange={handleFileSelect}
+                disabled={isLoadingFiles}
+                onClick={handleReloadFiles}
+                style={{
+                  paddingRight: '2rem',
+                  textOverflow: 'ellipsis'
+                }}>
+                <option
+                  value=''
+                  disabled>
+                  選擇檔案...
+                </option>
+                {dataFiles.map((file) => (
+                  <option
+                    key={file.id || file.value}
+                    value={file.id || file.value}>
+                    {file.name || file.label || file.filename}
+                  </option>
+                ))}
+              </select>
 
-              {isLoadingFiles ? (
-                <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500'></div>
-              ) : (
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='16'
-                  height='16'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  className={`ml-2 transform ${
-                    dropdownOpen ? 'rotate-180' : ''
-                  }`}>
-                  <polyline points='6 9 12 15 18 9'></polyline>
-                </svg>
-              )}
-            </button>
+              <div className='absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
+                {isLoadingFiles ? (
+                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500'></div>
+                ) : (
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'>
+                    <polyline points='6 9 12 15 18 9'></polyline>
+                  </svg>
+                )}
+              </div>
+            </div>
 
             {fileLoadError && (
               <p className='text-xs text-red-500 mt-1'>{fileLoadError}</p>
-            )}
-
-            {/* Dropdown menu */}
-            {dropdownOpen && (
-              <div className='absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto'>
-                {dataFiles.map((file) => (
-                  <div
-                    key={file.id || file.value}
-                    className='p-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center'
-                    onClick={() => handleFileSelect(file.id || file.value)}>
-                    {(file.id || file.value) === getCurrentSelectedFile() && (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        width='16'
-                        height='16'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='2'
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        className='mr-2'>
-                        <polyline points='20 6 9 17 4 12'></polyline>
-                      </svg>
-                    )}
-                    <span
-                      className={
-                        (file.id || file.value) === getCurrentSelectedFile()
-                          ? 'ml-0'
-                          : 'ml-6'
-                      }>
-                      {file.name || file.label || file.filename}
-                    </span>
-                  </div>
-                ))}
-              </div>
             )}
           </div>
         </div>
