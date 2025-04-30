@@ -1,3 +1,5 @@
+// 修改 AICustomInputNode.jsx，不使用 useStoreState
+
 import React, { memo, useState, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { llmService } from '../../services/WorkflowServicesIntegration';
@@ -35,6 +37,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
 
   // 從API加載模型列表
   const loadModels = async () => {
+    // 原有的模型加載邏輯保持不變
     if (isLoadingModels) return;
 
     setIsLoadingModels(true);
@@ -178,18 +181,18 @@ const AICustomInputNode = ({ data, isConnectable }) => {
           )}
         </div>
 
-        {/* Input type labels */}
+        {/* Input type labels with connection status */}
         <div className='space-y-2'>
-          <div className='flex items-center'>
+          <div className='flex items-center justify-between'>
             <span className='text-sm text-gray-700 mr-2'>Prompt</span>
           </div>
-          <div className='flex items-center'>
+          <div className='flex items-center justify-between'>
             <span className='text-sm text-gray-700 mr-2'>Context</span>
           </div>
         </div>
       </div>
 
-      {/* Prompt input handle */}
+      {/* Prompt input handle - with conditional styling */}
       <Handle
         type='target'
         position={Position.Left}
@@ -206,7 +209,6 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         isConnectable={isConnectable}
       />
 
-      {/* Context input handle */}
       <Handle
         type='target'
         position={Position.Left}
@@ -223,7 +225,6 @@ const AICustomInputNode = ({ data, isConnectable }) => {
         isConnectable={isConnectable}
       />
 
-      {/* Output handle - right side */}
       <Handle
         type='source'
         position={Position.Right}

@@ -61,138 +61,6 @@ export default function useFlowNodes() {
     [pushToUndoStack, setEdges]
   );
 
-  // 現在可以定義增強版的 handleEdgesChange，因為 safeSetNodes 已經初始化
-  const enhancedHandleEdgesChange = useCallback(
-    (changes) => {
-      // 檢查是否有邊緣被刪除
-      const removedEdges = changes.filter((change) => change.type === 'remove');
-
-      if (removedEdges.length > 0) {
-        console.log('檢測到邊緣刪除操作:', removedEdges);
-
-        // 對於每個被刪除的邊緣，查找相關的瀏覽器擴展輸出節點
-        removedEdges.forEach((removedEdge) => {
-          // 從當前邊緣中找到完整的邊緣數據
-          const fullEdge = edges.find((edge) => edge.id === removedEdge.id);
-
-          if (fullEdge) {
-            console.log('找到被刪除的邊緣:', fullEdge);
-
-            // 檢查目標節點是否為瀏覽器擴展輸出節點
-            const targetNode = nodes.find(
-              (node) =>
-                node.id === fullEdge.target &&
-                node.type === 'browserExtensionOutput'
-            );
-
-            if (targetNode) {
-              console.log('目標節點是瀏覽器擴展輸出節點:', targetNode.id);
-
-              // 獲取目標 handle ID
-              const targetHandleId = fullEdge.targetHandle;
-
-              // 檢查是否是默認 handle ('input')
-              if (targetHandleId && targetHandleId !== 'input') {
-                console.log(`準備刪除非默認 handle: ${targetHandleId}`);
-
-                // 檢查是否還有其他邊緣連接到此 handle
-                const otherEdgesToSameHandle = edges.filter(
-                  (e) =>
-                    e.id !== fullEdge.id &&
-                    e.target === targetNode.id &&
-                    e.targetHandle === targetHandleId
-                );
-
-                // 只有當沒有其他邊緣連接到此 handle 時才刪除
-                if (otherEdgesToSameHandle.length === 0) {
-                  console.log(
-                    `沒有其他邊緣連接到 handle ${targetHandleId}，將其刪除`
-                  );
-
-                  // 更新節點，移除對應的 handle
-                  safeSetNodes((nds) =>
-                    nds.map((node) => {
-                      if (node.id === targetNode.id) {
-                        // 獲取現有的 inputHandles
-                        const currentHandles = node.data.inputHandles || [];
-
-                        // 過濾掉要刪除的 handle
-                        const updatedHandles = currentHandles.filter(
-                          (handle) => handle.id !== targetHandleId
-                        );
-
-                        // 確保至少保留默認 'input' handle
-                        if (!updatedHandles.some((h) => h.id === 'input')) {
-                          updatedHandles.unshift({ id: 'input' });
-                        }
-
-                        console.log(
-                          `節點 ${node.id} 更新後的 handles:`,
-                          updatedHandles
-                        );
-
-                        // 返回更新後的節點
-                        return {
-                          ...node,
-                          data: {
-                            ...node.data,
-                            inputHandles: updatedHandles
-                          }
-                        };
-                      }
-                      return node;
-                    })
-                  );
-
-                  // 同時更新節點的 node_input 數據
-                  if (
-                    targetNode.data.node_input &&
-                    targetNode.data.node_input[targetHandleId]
-                  ) {
-                    safeSetNodes((nds) =>
-                      nds.map((node) => {
-                        if (node.id === targetNode.id) {
-                          // 創建 node_input 的副本
-                          const updatedNodeInput = { ...node.data.node_input };
-
-                          // 刪除對應 handle 的輸入關聯
-                          delete updatedNodeInput[targetHandleId];
-
-                          console.log(
-                            `從節點 ${node.id} 的 node_input 中刪除 ${targetHandleId}`
-                          );
-
-                          return {
-                            ...node,
-                            data: {
-                              ...node.data,
-                              node_input: updatedNodeInput
-                            }
-                          };
-                        }
-                        return node;
-                      })
-                    );
-                  }
-                } else {
-                  console.log(
-                    `還有 ${otherEdgesToSameHandle.length} 個邊緣連接到 handle ${targetHandleId}，保留此 handle`
-                  );
-                }
-              } else {
-                console.log('不刪除默認 handle (input)');
-              }
-            }
-          }
-        });
-      }
-
-      // 調用原始的邊緣變更處理函數
-      setEdges((eds) => applyEdgeChanges(changes, eds));
-    },
-    [edges, nodes, safeSetNodes, setEdges]
-  );
-
   // 高效的節點選擇處理程序
   const handleNodeSelection = useCallback(
     (nodeId) => {
@@ -414,12 +282,6 @@ export default function useFlowNodes() {
 
       // 收集刪除前的所有節點和邊緣
       const nodeIdsToDelete = nodesToDelete.map((node) => node.id);
-      const edgesBeforeUpdate = [...edges];
-
-      // 創建瀏覽器擴展輸出節點輸入 handle 的映射
-      const browserExtensionOutputNodes = nodes.filter(
-        (node) => node.type === 'browserExtensionOutput'
-      );
 
       // 對於每個要刪除的節點，查找受影響的連接
       nodesToDelete.forEach((nodeToDelete) => {
@@ -432,6 +294,10 @@ export default function useFlowNodes() {
         // 找到有邊緣從此節點出去的節點（後續節點）
         const outgoers = getOutgoers(nodeToDelete, nodes, edges);
 
+        // 處理常規節點的連接
+        // 修改 useFlowNodes.jsx 的 onNodesDelete 函數中對 AI 節點的處理部分
+
+        // 在 onNodesDelete 函數中，找到處理連接重建的代碼段落，進行修改
         // 處理常規節點的連接
         // 對於每個前置節點，創建與所有後續節點的新連接
         incomers.forEach((incomer) => {
@@ -449,6 +315,27 @@ export default function useFlowNodes() {
             );
 
             if (incomerEdge && outgoerEdge) {
+              // 檢查後續節點是否為AI節點
+              const isAIOutgoer =
+                outgoer.type === 'aiCustomInput' || outgoer.type === 'ai';
+
+              if (isAIOutgoer) {
+                // 檢查目標 handle 是否已經有其他連線
+                const existingEdges = edges.filter(
+                  (edge) =>
+                    edge.source !== nodeToDelete.id && // 不計算將被刪除的節點
+                    edge.target === outgoer.id &&
+                    edge.targetHandle === outgoerEdge.targetHandle
+                );
+
+                if (existingEdges.length > 0) {
+                  console.log(
+                    `AI節點 ${outgoer.id} 的 ${outgoerEdge.targetHandle} 已有其他連線，不建立新連接`
+                  );
+                  return; // 跳過此連接的重建
+                }
+              }
+
               // 對瀏覽器擴展輸出節點進行特殊處理
               if (outgoer.type === 'browserExtensionOutput') {
                 console.log(
@@ -944,9 +831,8 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
-  /**
-   * 修復 onConnect 函數中的 "edges.some is not a function" 錯誤，並支援 outputKey 格式
-   */
+  // 修改 useFlowNodes.jsx 中的 onConnect 函數，添加通知系統整合
+
   const onConnect = useCallback(
     (params) => {
       // 提取連接參數
@@ -963,13 +849,47 @@ export default function useFlowNodes() {
       const isBrowserExtensionOutput =
         targetNode && targetNode.type === 'browserExtensionOutput';
 
+      // 檢查目標節點是否為AI節點
+      const isAINode =
+        targetNode &&
+        (targetNode.type === 'aiCustomInput' || targetNode.type === 'ai');
+
       // 檢查源節點類型
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput =
         sourceNode && sourceNode.type === 'browserExtensionInput';
 
+      // 處理AI節點的連線限制
+      if (isAINode) {
+        console.log('目標是AI節點，檢查連線限制');
+
+        // 檢查目標 handle 是否已經有連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === targetHandle
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`AI節點的 ${targetHandle} 已有連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          const inputType =
+            targetHandle === 'prompt-input' ? 'Prompt' : 'Context';
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `AI節點的 ${inputType} 已有連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
+
       // 處理瀏覽器擴展輸出節點
       if (isBrowserExtensionOutput) {
+        // 原有的處理邏輯...
         console.log('目標是瀏覽器擴展輸出節點');
 
         // 處理特殊的 'new-connection' handle，或目標 handle 不存在的情況
@@ -1123,7 +1043,7 @@ export default function useFlowNodes() {
         }
       }
     },
-    [nodes, safeSetNodes, safeSetEdges]
+    [nodes, safeSetNodes, safeSetEdges, edges]
   );
 
   // 撤銷功能

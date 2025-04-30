@@ -38,7 +38,7 @@ import {
 } from '../services/WorkflowServicesIntegration';
 
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
-
+import Notification from '../components/common/Notification';
 // 內部 ReactFlow 組件，使用 useReactFlow hook
 const ReactFlowWithControls = forwardRef(
   (
@@ -749,6 +749,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         title={flowMetadata.title}
         onTitleChange={handleTitleChange}
       />
+
+      {/* 添加通知系統 */}
+      <Notification />
 
       {/* Notification */}
       {notification.show && (
