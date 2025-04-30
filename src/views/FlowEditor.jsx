@@ -40,115 +40,116 @@ import {
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
 
 // 內部 ReactFlow 組件，使用 useReactFlow hook
-const ReactFlowWithControls = ({
-  nodes,
-  edges,
-  onNodesChange,
-  onEdgesChange,
-  onConnect,
-  onNodesDelete,
-  nodeTypes,
-  edgeTypes,
-  defaultViewport,
-  onSelectionChange,
-  onInit,
-  onDrop,
-  onDragOver
-}) => {
-  const reactFlowInstance = useReactFlow();
-
-  // 自動縮放畫布以顯示所有節點
-  const fitViewToNodes = useCallback(
-    (padding = 0.1, maxZoom = 1.85, duration = 800) => {
-      if (!reactFlowInstance) {
-        console.warn('ReactFlow 實例尚未初始化，無法自動縮放畫布');
-        return;
-      }
-
-      console.log('自動縮放畫布以顯示所有節點...');
-
-      try {
-        // 使用 ReactFlow 的 fitView 方法自動縮放畫布
-        reactFlowInstance.fitView({
-          padding, // 邊緣留白，值越大顯示的節點佔比越小
-          maxZoom, // 限制最大縮放，防止縮放過大
-          duration, // 動畫持續時間（毫秒）
-          includeHiddenNodes: false // 不包含隱藏節點
-        });
-
-        console.log('畫布縮放完成');
-      } catch (error) {
-        console.error('自動縮放畫布時發生錯誤：', error);
-      }
+const ReactFlowWithControls = forwardRef(
+  (
+    {
+      nodes,
+      edges,
+      onNodesChange,
+      onEdgesChange,
+      onConnect,
+      onNodesDelete,
+      nodeTypes,
+      edgeTypes,
+      defaultViewport,
+      onSelectionChange,
+      onInit,
+      onDrop,
+      onDragOver
     },
-    [reactFlowInstance]
-  );
+    ref
+  ) => {
+    const reactFlowInstance = useReactFlow();
 
-  // 節點變更時自動縮放
-  useEffect(() => {
-    if (nodes.length > 0 && reactFlowInstance) {
-      // 延遲縮放，確保節點已完全渲染
-      const timeoutId = setTimeout(() => {
-        fitViewToNodes();
-      }, 300);
+    // 自動縮放畫布以顯示所有節點
+    const fitViewToNodes = useCallback(
+      (padding = 0.1, maxZoom = 1.85, duration = 800) => {
+        if (!reactFlowInstance) {
+          console.warn('ReactFlow 實例尚未初始化，無法自動縮放畫布');
+          return;
+        }
 
-      return () => clearTimeout(timeoutId);
-    }
-  }, [nodes.length, reactFlowInstance, fitViewToNodes]);
+        console.log('自動縮放畫布以顯示所有節點...');
 
-  return (
-    <>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodesDelete={onNodesDelete}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        defaultViewport={defaultViewport}
-        onSelectionChange={onSelectionChange}
-        deleteKeyCode={['Backspace', 'Delete']}
-        onInit={onInit}
-        onDrop={onDrop}
-        onDragOver={onDragOver}>
-        <MiniMap />
-        <Controls />
-        <Background />
+        try {
+          // 使用 ReactFlow 的 fitView 方法自動縮放畫布
+          reactFlowInstance.fitView({
+            padding, // 邊緣留白，值越大顯示的節點佔比越小
+            maxZoom, // 限制最大縮放，防止縮放過大
+            duration, // 動畫持續時間（毫秒）
+            includeHiddenNodes: false // 不包含隱藏節點
+          });
 
-        {/* 添加縮放視圖按鈕 */}
-        <Panel position='bottom-right'>
-          <button
-            className='bg-white p-2 rounded-md shadow-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300'
-            onClick={() => fitViewToNodes(0.1)}
-            title='縮放視圖以顯示所有節點'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'>
-              <path d='M15 3h6v6'></path>
-              <path d='M9 21H3v-6'></path>
-              <path d='M21 3l-7 7'></path>
-              <path d='M3 21l7-7'></path>
-            </svg>
-          </button>
-        </Panel>
-      </ReactFlow>
-    </>
-  );
-};
+          console.log('畫布縮放完成');
+        } catch (error) {
+          console.error('自動縮放畫布時發生錯誤：', error);
+        }
+      },
+      [reactFlowInstance]
+    );
+
+    // 重要：將 fitViewToNodes 方法暴露給父組件
+    useImperativeHandle(ref, () => ({
+      fitViewToNodes
+    }));
+
+    // 注意：移除了自動縮放的 useEffect
+
+    return (
+      <>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodesDelete={onNodesDelete}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          defaultViewport={defaultViewport}
+          onSelectionChange={onSelectionChange}
+          deleteKeyCode={['Backspace', 'Delete']}
+          onInit={onInit}
+          onDrop={onDrop}
+          onDragOver={onDragOver}>
+          <MiniMap />
+          <Controls />
+          <Background />
+
+          {/* 添加縮放視圖按鈕 */}
+          <Panel position='bottom-right'>
+            <button
+              className='bg-white p-2 rounded-md shadow-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300'
+              onClick={() => fitViewToNodes(0.1)}
+              title='縮放視圖以顯示所有節點'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='20'
+                height='20'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'>
+                <path d='M15 3h6v6'></path>
+                <path d='M9 21H3v-6'></path>
+                <path d='M21 3l-7 7'></path>
+                <path d='M3 21l7-7'></path>
+              </svg>
+            </button>
+          </Panel>
+        </ReactFlow>
+      </>
+    );
+  }
+);
 
 // 使用 forwardRef 將 FlowEditor 包裝起來，使其可以接收 ref
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const reactFlowControlsRef = useRef(null);
   const isInitialized = useRef(false);
   const [isSaving, setIsSaving] = useState(false); // 添加保存狀態
 
@@ -253,6 +254,15 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         setTimeout(() => {
           console.log('載入工作流後再次確認節點函數...');
           updateNodeFunctions();
+
+          // 載入完成後，執行一次畫布縮放以顯示所有節點
+          if (
+            reactFlowControlsRef.current &&
+            reactFlowControlsRef.current.fitViewToNodes
+          ) {
+            console.log('載入工作流後，執行一次畫布縮放以顯示所有節點...');
+            reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+          }
         }, 300);
 
         showNotification('工作流載入成功', 'success');
@@ -298,7 +308,16 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       }
       return false;
     },
-    loadWorkflow: loadWorkflowImpl
+    loadWorkflow: loadWorkflowImpl,
+    // 暴露 fitViewToNodes 方法給父組件
+    fitViewToNodes: () => {
+      if (
+        reactFlowControlsRef.current &&
+        reactFlowControlsRef.current.fitViewToNodes
+      ) {
+        reactFlowControlsRef.current.fitViewToNodes();
+      }
+    }
   }));
 
   // 在首次渲染時初始化節點函數
@@ -666,6 +685,16 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         if (isInIframe && onTitleChange) {
           onTitleChange(result.data.title || '匯入的流程');
         }
+
+        // 載入完成後，執行一次畫布縮放以顯示所有節點
+        setTimeout(() => {
+          if (
+            reactFlowControlsRef.current &&
+            reactFlowControlsRef.current.fitViewToNodes
+          ) {
+            reactFlowControlsRef.current.fitViewToNodes();
+          }
+        }, 300);
       }
 
       return result;
@@ -741,6 +770,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           className='w-full h-full'
           ref={reactFlowWrapper}>
           <ReactFlowWithControls
+            ref={reactFlowControlsRef}
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
