@@ -128,6 +128,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         setFlowNodes(transformedNodes);
         setFlowEdges(transformedEdges);
 
+        debugBrowserExtensionOutput(transformedNodes, transformedEdges);
+
         setFlowMetadata((prev) => ({
           ...prev,
           id: apiData.flow_id,
@@ -469,6 +471,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       };
 
       const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+      // 添加調試代碼
+      if (apiData && apiData.flow_pipeline) {
+        debugNodeInputsBeforeSave(apiData.flow_pipeline);
+      }
       console.log('FlowEditor: 將流程數據轉換為 API 格式:', apiData);
 
       // 根據是否有 flow_id 決定使用 POST 還是 PUT
@@ -792,6 +798,98 @@ const debugConnections = (edges, message) => {
   });
 
   console.groupEnd();
+};
+const debugBrowserExtensionOutput = (nodes, edges) => {
+  console.group('瀏覽器擴展輸出節點調試');
+
+  // 找出所有的 browserExtensionOutput 節點
+  const outputNodes = nodes.filter(
+    (node) => node.type === 'browserExtensionOutput'
+  );
+  console.log(`找到 ${outputNodes.length} 個瀏覽器擴展輸出節點`);
+
+  // 對每個輸出節點進行檢查
+  outputNodes.forEach((node) => {
+    console.group(`節點: ${node.id}`);
+
+    // 獲取所有連接到該節點的邊緣
+    const nodeEdges = edges.filter((edge) => edge.target === node.id);
+    console.log(`找到 ${nodeEdges.length} 個連接到該節點的邊緣`);
+
+    // 檢查每個邊緣的標籤（潛在的 return_name）
+    nodeEdges.forEach((edge) => {
+      const sourceNode = nodes.find((n) => n.id === edge.source);
+      console.log(`連接 ${edge.id}:`, {
+        source: edge.source,
+        sourceType: sourceNode?.type,
+        sourceHandle: edge.sourceHandle,
+        targetHandle: edge.targetHandle,
+        returnName: edge.label || '(未設置)',
+        sourceNodeData: sourceNode?.data
+          ? Object.keys(sourceNode.data)
+          : '(無數據)'
+      });
+
+      // 詳細檢查源節點的數據，以便找出正確的 return_name
+      if (sourceNode) {
+        if (sourceNode.type === 'customInput' && sourceNode.data?.fields) {
+          const outputIndex = edge.sourceHandle
+            ? parseInt(edge.sourceHandle.split('-')[1] || 0)
+            : 0;
+          const field = sourceNode.data.fields[outputIndex];
+          console.log(`源節點 ${sourceNode.id} 的欄位 ${outputIndex}:`, {
+            inputName: field?.inputName,
+            defaultValue: field?.defaultValue
+          });
+        } else if (
+          sourceNode.type === 'browserExtensionInput' &&
+          sourceNode.data?.items
+        ) {
+          const outputIndex = edge.sourceHandle
+            ? parseInt(edge.sourceHandle.split('-')[1] || 0)
+            : 0;
+          const item = sourceNode.data.items[outputIndex];
+          console.log(`源節點 ${sourceNode.id} 的項目 ${outputIndex}:`, {
+            name: item?.name,
+            icon: item?.icon
+          });
+        }
+      }
+    });
+
+    console.groupEnd(); // 結束節點調試組
+  });
+
+  console.groupEnd(); // 結束整體調試組
+};
+
+/**
+ * 在 API 數據發送前調試節點輸入數據
+ */
+const debugNodeInputsBeforeSave = (flowPipeline) => {
+  console.group('保存前節點輸入調試');
+
+  // 遍歷所有節點
+  flowPipeline.forEach((node) => {
+    // 只檢查瀏覽器擴展輸出節點
+    if (node.operator === 'browser_extension_output' && node.node_input) {
+      console.group(`節點 ${node.id} (${node.operator}) 的輸入:`);
+
+      // 檢查每個輸入連接
+      Object.entries(node.node_input).forEach(([key, input]) => {
+        console.log(`輸入 ${key}:`, {
+          node_id: input.node_id,
+          output_name: input.output_name,
+          type: input.type,
+          return_name: input.return_name || '(未設置)'
+        });
+      });
+
+      console.groupEnd(); // 結束節點調試組
+    }
+  });
+
+  console.groupEnd(); // 結束整體調試組
 };
 
 export default FlowEditor;
