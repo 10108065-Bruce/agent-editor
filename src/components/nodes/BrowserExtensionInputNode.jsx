@@ -255,6 +255,12 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
   }, []);
 
+  // 為每個item生成outputKey
+  const getOutputKey = useCallback((item, index) => {
+    // 使用項目的id或生成格式為 'a{index+1}' 的ID
+    return item.id || `a${index + 1}`;
+  }, []);
+
   // 使用本地項目或 data.items（如果存在）
   const items =
     Array.isArray(localItems) && localItems.length > 0
@@ -375,24 +381,27 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       </div>
 
       {/* Place all handles outside the overflow:hidden container */}
-      {items.map((item, idx) => (
-        <Handle
-          key={`handle-${idx}`}
-          type='source'
-          position={Position.Right}
-          id={`output-${idx}`}
-          style={{
-            background: '#e5e7eb',
-            border: '1px solid #D3D3D3',
-            width: '12px',
-            height: '12px',
-            right: '-7px',
-            top: calculateHandlePosition(idx),
-            transform: 'translateY(-50%)', // Only center vertically
-            zIndex: 1000
-          }}
-          isConnectable={isConnectable}></Handle>
-      ))}
+      {items.map((item, idx) => {
+        const outputKey = getOutputKey(item, idx);
+        return (
+          <Handle
+            key={`handle-${idx}`}
+            type='source'
+            position={Position.Right}
+            id={outputKey} // 改用 outputKey 作為 handle ID
+            style={{
+              background: '#e5e7eb',
+              border: '1px solid #D3D3D3',
+              width: '12px',
+              height: '12px',
+              right: '-7px',
+              top: calculateHandlePosition(idx),
+              transform: 'translateY(-50%)', // Only center vertically
+              zIndex: 1000
+            }}
+            isConnectable={isConnectable}></Handle>
+        );
+      })}
     </div>
   );
 };

@@ -317,13 +317,16 @@ export default function useFlowNodes() {
             safeSetNodes((nds) =>
               nds.map((node) => {
                 if (node.id === nodeId) {
+                  const currentItems = node.data.items || [];
+                  // 為新項目生成ID，格式為 'a{當前項目數量+1}'
+                  const newItemId = `a${currentItems.length + 1}`;
                   return {
                     ...node,
                     data: {
                       ...node.data,
                       items: [
-                        ...node.data.items,
-                        { name: 'New Item', icon: 'document' }
+                        ...currentItems,
+                        { id: newItemId, name: 'New Item', icon: 'document' }
                       ]
                     }
                   };
@@ -699,7 +702,8 @@ export default function useFlowNodes() {
         id,
         type: 'browserExtensionInput',
         data: {
-          items: [{ name: '', icon: 'upload' }],
+          // 初始化時為每個項目添加對應的ID
+          items: [{ id: 'a1', name: '', icon: 'upload' }],
           ...nodeCallbacksObject
         },
         position: position || {
@@ -941,7 +945,7 @@ export default function useFlowNodes() {
   );
 
   /**
-   * 修復 onConnect 函數中的 "edges.some is not a function" 錯誤
+   * 修復 onConnect 函數中的 "edges.some is not a function" 錯誤，並支援 outputKey 格式
    */
   const onConnect = useCallback(
     (params) => {
@@ -958,6 +962,11 @@ export default function useFlowNodes() {
       const targetNode = nodes.find((node) => node.id === targetNodeId);
       const isBrowserExtensionOutput =
         targetNode && targetNode.type === 'browserExtensionOutput';
+
+      // 檢查源節點類型
+      const sourceNode = nodes.find((node) => node.id === params.source);
+      const isBrowserExtensionInput =
+        sourceNode && sourceNode.type === 'browserExtensionInput';
 
       // 處理瀏覽器擴展輸出節點
       if (isBrowserExtensionOutput) {
@@ -1054,12 +1063,27 @@ export default function useFlowNodes() {
             targetHandle || 'input'
           }-${sourceHandle}-${Date.now()}`;
 
-          // 創建新的邊緣配置
-          const edgeConfig = {
+          // 創建新的邊緣配置，處理來自 browserExtensionInput 的連接
+          let edgeConfig = {
             ...params,
             id: edgeId,
             type: 'custom-edge'
           };
+
+          // 如果源節點是瀏覽器擴展輸入節點，設置邊的標籤為對應項目的名稱
+          if (isBrowserExtensionInput && sourceNode?.data?.items) {
+            // 從 sourceHandle 獲取正確的項目
+            // sourceHandle 現在可能是 'a1', 'a2' 等格式
+            const itemIndex = sourceNode.data.items.findIndex((item, idx) => {
+              const outputKey = item.id || `a${idx + 1}`;
+              return outputKey === sourceHandle;
+            });
+
+            if (itemIndex !== -1 && sourceNode.data.items[itemIndex]) {
+              edgeConfig.label = sourceNode.data.items[itemIndex].name || '';
+              console.log(`設置連接標籤為項目名稱: ${edgeConfig.label}`);
+            }
+          }
 
           // 使用 addEdge 函數添加邊緣
           safeSetEdges((currentEdges) => {
