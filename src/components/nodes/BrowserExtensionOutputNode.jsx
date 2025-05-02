@@ -2,12 +2,37 @@ import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
+
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 用來追蹤輸入 handle 的狀態
   const [inputs, setInputs] = useState([]);
   const updateNodeInternals = useUpdateNodeInternals(); // 用於通知 ReactFlow 更新節點內部結構
   const initAttempts = useRef(0);
   const nodeId = id || 'unknown'; // 防止 id 為 undefined
+
+  // 計算節點的動態高度
+  const getNodeHeight = useCallback(() => {
+    // 標題區域高度
+    const headerHeight = 50;
+    // 按鈕區域高度
+    const buttonAreaHeight = 48;
+    // 文字提示區域高度 + 間距
+    const textAreaHeight = 22;
+    // 額外的底部間距
+    const bottomPadding = 10;
+    // 每個 handle 之間的間距
+    const handleSpacing = 20;
+
+    // 計算總高度:
+    // 固定部分 + (handle數量) * 間距
+    return (
+      headerHeight +
+      buttonAreaHeight +
+      textAreaHeight +
+      bottomPadding +
+      inputs.length * handleSpacing
+    );
+  }, [inputs.length]);
 
   // 初始化節點 - 確保 handle 正確載入並初始化
   useEffect(() => {
@@ -95,75 +120,75 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
   }, [inputs, data.onAddOutput, nodeId]);
 
+  // 計算節點樣式，包括動態高度
+  const nodeStyle = {
+    height: `${getNodeHeight()}px`,
+    transition: 'height 0.3s ease' // 添加平滑過渡效果
+  };
+
   return (
-    <div className='rounded-lg shadow-md overflow-hidden w-64'>
-      {/* 標題部分，帶有圖標 */}
-      <div className='bg-gray-100 p-4'>
+    <div
+      className='rounded-lg shadow-md overflow-visible w-64 bg-white'
+      style={nodeStyle}>
+      {/* 標題部分，帶有圖标 - 使用固定的淺灰色背景 */}
+      <div
+        className='p-3 rounded-t-lg'
+        style={{ backgroundColor: '#f3f4f6' }}>
         <div className='flex items-center'>
-          <div className='w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2'>
+          <div className='w-8 h-8 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2'>
             <IconBase type='browser' />
           </div>
-          <span className='font-medium'>Browser Extension output</span>
+          <span className='font-medium text-base'>
+            Browser Extension output
+          </span>
         </div>
       </div>
 
-      {/* 分隔線 */}
-      <div className='border-t border-gray-200'></div>
-
-      {/* 白色內容區域 */}
-      <div className='bg-white p-4'>
+      {/* 白色內容區域 - 明確設置背景為白色 */}
+      <div
+        className='p-4'
+        style={{ backgroundColor: 'white' }}>
         {/* 添加按鈕 - 青色 */}
         <button
-          className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mb-3'
+          className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center'
           onClick={handleAddOutput}>
           <AddIcon />
         </button>
 
-        {/* 輸出文字標籤 */}
-        {/* <div className='text-sm text-gray-700'>輸出文字</div> */}
-
-        {/* 當沒有連接點時顯示提示 */}
-        {inputs.length === 0 && (
-          <div className='text-xs text-gray-500 mt-2 italic'>
-            點擊 + 添加輸入點或連線到此節點
+        {/* 顯示輸入點的數量 */}
+        {inputs.length > 0 && (
+          <div className='text-xs text-gray-600 mt-2'>
+            已有 {inputs.length} 個輸入點
           </div>
         )}
       </div>
 
       {/* 動態渲染 handle */}
-      {inputs.map((input, index) => (
-        <Handle
-          key={`handle-${input.id}`}
-          type='target'
-          position={Position.Left}
-          id={String(input.id)}
-          style={{
-            background: '#e5e7eb',
-            borderColor: '#D3D3D3',
-            width: '12px',
-            height: '12px',
-            left: '-6px',
-            top: `${45 + (index + 1) * 20}px` // 每個 handle 之間適當間隔
-          }}
-          isConnectable={isConnectable}
-        />
-      ))}
+      {inputs.map((input, index) => {
+        // 計算 handle 的位置
+        // 從標準起始位置開始，每個間隔 25px
+        const startY = 65; // 白色部分開始的位置
+        const spacing = 25; // handle 之間的間距
+        const topPosition = startY + index * spacing;
 
-      {/* 添加一個透明的 handle 用於新連線 */}
-      {/* <Handle
-        type='target'
-        position={Position.Left}
-        id='new-connection'
-        style={{
-          opacity: 0.1,
-          background: '#999',
-          width: '15px',
-          height: '15px',
-          left: '-7px',
-          top: inputs.length > 0 ? `${(inputs.length + 1) * 25}px` : '25px'
-        }}
-        isConnectable={isConnectable}
-      /> */}
+        return (
+          <Handle
+            key={`handle-${input.id}`}
+            type='target'
+            position={Position.Left}
+            id={String(input.id)}
+            style={{
+              background: '#e5e7eb',
+              borderColor: '#D3D3D3',
+              width: '12px',
+              height: '12px',
+              left: '-6px',
+              top: `${topPosition}px`
+            }}
+            isConnectable={isConnectable}
+          />
+        );
+      })}
     </div>
   );
 };
