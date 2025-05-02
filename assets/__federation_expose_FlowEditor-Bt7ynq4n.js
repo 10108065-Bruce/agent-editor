@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "abdf8386c290e3cc81374e289085d19aef097651", "VITE_APP_BUILD_TIME": "2025-05-02T08:21:34.523Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.71"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "7d1983e419c390eac3725ad54324eb3478e316f1", "VITE_APP_BUILD_TIME": "2025-05-02T08:37:35.859Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.72"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11660,13 +11660,13 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "prompt" }),
-          hasPromptConnection && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: "已連線" })
+          hasPromptConnection && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: "已有輸入點" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "context" }),
           contextConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: [
             contextConnectionCount,
-            " 個連線"
+            " 個輸入點"
           ] })
         ] })
       ] })
