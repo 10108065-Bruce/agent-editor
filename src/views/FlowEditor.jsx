@@ -1032,7 +1032,9 @@ const debugAINodeConnections = (nodes, edges) => {
       (edge) => edge.targetHandle === 'prompt-input'
     );
     const contextEdges = nodeEdges.filter(
-      (edge) => edge.targetHandle === 'context-input'
+      (edge) =>
+        edge.targetHandle.includes('context-input') ||
+        edge.targetHandle.startsWith('context_')
     );
 
     console.log(`Prompt 連線: ${promptEdges.length}`);
@@ -1076,7 +1078,7 @@ const debugAINodeAPIData = (apiData) => {
       if (node.node_input) {
         // 檢查 context 輸入
         const contextInputs = Object.keys(node.node_input).filter(
-          (key) => key === 'context-input' || key.startsWith('context_')
+          (key) => key.includes('context-input') || key.startsWith('context_')
         );
 
         console.log(`Context 輸入數量: ${contextInputs.length}`);

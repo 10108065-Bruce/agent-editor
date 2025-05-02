@@ -174,12 +174,12 @@ class WorkflowMappingService {
     // 處理每個句柄組
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
       // 特殊處理 AI 節點的 context-input
-      if (isAINode && targetHandle === 'context-input') {
+      if (isAINode && targetHandle.startsWith('context')) {
         // 對於 context-input，我們需要處理多個連接
         targetEdges.forEach((edge, index) => {
           // 創建唯一的輸入鍵
           const inputKey =
-            targetEdges.length > 1 ? `context_${index}` : 'context-input';
+            targetEdges.length > 1 ? `context-input_${index}` : 'context-input';
 
           // 查找源節點以獲取 return_name
           const sourceNode = allNodes.find((n) => n.id === edge.source);
@@ -499,7 +499,7 @@ class WorkflowMappingService {
 
         // 從 node_input 識別所有的 context handle
         const contextHandles = Object.keys(node.node_input).filter(
-          (key) => key === 'context-input' || key.startsWith('context_')
+          (key) => key === 'context-input' || key.startsWith('context')
         );
 
         // 處理每個 context 連接
@@ -1222,7 +1222,7 @@ class WorkflowDataConverter {
           if (inputValue && inputValue.node_id) {
             // 如果是 AI 節點且輸入鍵是 context_N 格式，使用 context-input 作為 targetHandle
             let targetHandle = inputKey;
-            if (isAINode && inputKey.startsWith('context_')) {
+            if (isAINode && inputKey.startsWith('context')) {
               targetHandle = 'context-input';
             }
 
