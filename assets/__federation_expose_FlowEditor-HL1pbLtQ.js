@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2b97a49c3f4884334479c0fc26280019b59864de", "VITE_APP_BUILD_TIME": "2025-05-02T00:37:04.500Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.64"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2b97a49c3f4884334479c0fc26280019b59864de", "VITE_APP_BUILD_TIME": "2025-05-02T01:02:47.519Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.65"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11694,7 +11694,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: "12px",
           height: "12px",
           left: "-6px",
-          top: "89%",
+          top: "85%",
           transform: "translateY(-250%)"
         },
         isConnectable
@@ -11712,7 +11712,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: "12px",
           height: "12px",
           left: "-6px",
-          top: "74%",
+          top: "76%",
           transform: "translateY(150%)"
         },
         isConnectable
