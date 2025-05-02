@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bd25a701c69ab6d018ce688413f2e2b25888d135", "VITE_APP_BUILD_TIME": "2025-05-02T02:02:15.490Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.67"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c0295fc0c98104b3d497962fe6d6fc7978c0a384", "VITE_APP_BUILD_TIME": "2025-05-02T06:24:54.911Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.68"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11553,6 +11553,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const contextConnectionCount = edges.filter(
     (edge) => edge.target === id && edge.targetHandle === "context-input"
   ).length;
+  const hasPromptConnection = edges.some(
+    (edge) => edge.target === id && edge.targetHandle === "prompt-input"
+  );
   const [isLoadingModels, setIsLoadingModels] = useState$b(false);
   const [modelLoadError, setModelLoadError] = useState$b(null);
   const [localModel, setLocalModel] = useState$b(data?.model || "1");
@@ -11661,7 +11664,10 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         modelLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: modelLoadError })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2", children: "Prompt" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2", children: "Prompt" }),
+          hasPromptConnection && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: "已連線" })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2", children: "Context" }),
           contextConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: [
@@ -11734,6 +11740,14 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const updateNodeInternals = useUpdateNodeInternals();
   const initAttempts = useRef$2(0);
   const nodeId = id || "unknown";
+  const getNodeHeight = useCallback$3(() => {
+    const headerHeight = 50;
+    const buttonAreaHeight = 48;
+    const textAreaHeight = 22;
+    const bottomPadding = 10;
+    const handleSpacing = 20;
+    return headerHeight + buttonAreaHeight + textAreaHeight + bottomPadding + inputs.length * handleSpacing;
+  }, [inputs.length]);
   useEffect$4(() => {
     initAttempts.current += 1;
     console.log(
@@ -11792,43 +11806,76 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       data.onAddOutput(newInputs);
     }
   }, [inputs, data.onAddOutput, nodeId]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Browser Extension output" })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mb-3",
-          onClick: handleAddOutput,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
-        }
-      ),
-      inputs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mt-2 italic", children: "點擊 + 添加輸入點或連線到此節點" })
-    ] }),
-    inputs.map((input, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Handle$1,
-      {
-        type: "target",
-        position: Position.Left,
-        id: String(input.id),
-        style: {
-          background: "#e5e7eb",
-          borderColor: "#D3D3D3",
-          width: "12px",
-          height: "12px",
-          left: "-6px",
-          top: `${45 + (index + 1) * 20}px`
-          // 每個 handle 之間適當間隔
-        },
-        isConnectable
-      },
-      `handle-${input.id}`
-    ))
-  ] });
+  const nodeStyle = {
+    height: `${getNodeHeight()}px`,
+    transition: "height 0.3s ease"
+    // 添加平滑過渡效果
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "rounded-lg shadow-md overflow-visible w-64 bg-white",
+      style: nodeStyle,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "p-3 rounded-t-lg",
+            style: { backgroundColor: "#f3f4f6" },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-base", children: "Browser Extension output" })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "p-4",
+            style: { backgroundColor: "white" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center",
+                  onClick: handleAddOutput,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
+                }
+              ),
+              inputs.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-gray-600 mt-2", children: [
+                "已有 ",
+                inputs.length,
+                " 個輸入點"
+              ] })
+            ]
+          }
+        ),
+        inputs.map((input, index) => {
+          const startY = 65;
+          const spacing = 25;
+          const topPosition = startY + index * spacing;
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Handle$1,
+            {
+              type: "target",
+              position: Position.Left,
+              id: String(input.id),
+              style: {
+                background: "#e5e7eb",
+                borderColor: "#D3D3D3",
+                width: "12px",
+                height: "12px",
+                left: "-6px",
+                top: `${topPosition}px`
+              },
+              isConnectable
+            },
+            `handle-${input.id}`
+          );
+        })
+      ]
+    }
+  );
 };
 const BrowserExtensionOutputNode$1 = memo$8(BrowserExtensionOutputNode);
 

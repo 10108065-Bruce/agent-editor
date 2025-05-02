@@ -1529,6 +1529,10 @@ video {
 .text-\[8px\] {
   font-size: 8px;
 }
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
@@ -1553,9 +1557,6 @@ video {
 }
 .font-semibold {
   font-weight: 600;
-}
-.italic {
-  font-style: italic;
 }
 .leading-none {
   line-height: 1;
