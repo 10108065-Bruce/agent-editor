@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bd25a701c69ab6d018ce688413f2e2b25888d135", "VITE_APP_BUILD_TIME": "2025-05-02T01:35:11.522Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.66"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bd25a701c69ab6d018ce688413f2e2b25888d135", "VITE_APP_BUILD_TIME": "2025-05-02T02:02:15.490Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.67"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9426,6 +9426,39 @@ const AutoResizeTextarea = ({
   );
 };
 
+const add = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23l9ob8qnlxa)'%3e%3cpath%20d='M8%200a8%208%200%200%200-8%208%208%208%200%200%200%208%208%208%208%200%200%200%208-8%208%208%200%200%200-8-8zm4.666%208.666A.664.664%200%200%201%2012%209.33H9.334V12a.664.664%200%200%201-.665.666H7.334A.666.666%200%200%201%206.67%2012V9.334H4a.666.666%200%200%201-.666-.665V7.334c0-.368.297-.665.666-.665h2.666V4c0-.369.296-.666.665-.666h1.335c.368%200%20.665.3.665.666v2.666H12c.369%200%20.666.3.666.665v1.335z'%20fill='%23fff'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='l9ob8qnlxa'%3e%3cpath%20fill='%23fff'%20d='M0%200h16v16H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
+
+await importShared('react');
+const Add = () => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: `flex items-center justify-center`,
+      style: {
+        width: "14px",
+        height: "14px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "img",
+        {
+          src: add,
+          width: 32,
+          height: 32,
+          className: "max-w-full max-h-full object-contain",
+          style: {
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain"
+          }
+        }
+      )
+    }
+  );
+};
+
 const React$f = await importShared('react');
 const {memo: memo$a,useReducer,useCallback: useCallback$4,useState: useState$c,useEffect: useEffect$6} = React$f;
 const CustomInputNode = ({ data, isConnectable, id }) => {
@@ -9604,40 +9637,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
         {
           className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mt-4",
           onClick: handleAddField,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "svg",
-            {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "20",
-              height: "20",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "line",
-                  {
-                    x1: "12",
-                    y1: "5",
-                    x2: "12",
-                    y2: "19"
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "line",
-                  {
-                    x1: "5",
-                    y1: "12",
-                    x2: "19",
-                    y2: "12"
-                  }
-                )
-              ]
-            }
-          )
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
         }
       )
     ] }) })
@@ -11804,40 +11804,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         {
           className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mb-3",
           onClick: handleAddOutput,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "svg",
-            {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "20",
-              height: "20",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "line",
-                  {
-                    x1: "12",
-                    y1: "5",
-                    x2: "12",
-                    y2: "19"
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "line",
-                  {
-                    x1: "5",
-                    y1: "12",
-                    x2: "19",
-                    y2: "12"
-                  }
-                )
-              ]
-            }
-          )
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
         }
       ),
       inputs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mt-2 italic", children: "點擊 + 添加輸入點或連線到此節點" })
@@ -12117,40 +12084,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
           {
             className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mt-4",
             onClick: handleAddItem,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "svg",
-              {
-                xmlns: "http://www.w3.org/2000/svg",
-                width: "20",
-                height: "20",
-                viewBox: "0 0 24 24",
-                fill: "none",
-                stroke: "currentColor",
-                strokeWidth: "2",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "line",
-                    {
-                      x1: "12",
-                      y1: "5",
-                      x2: "12",
-                      y2: "19"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "line",
-                    {
-                      x1: "5",
-                      y1: "12",
-                      x2: "19",
-                      y2: "12"
-                    }
-                  )
-                ]
-              }
-            )
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
           }
         )
       ] })
