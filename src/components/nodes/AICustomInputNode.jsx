@@ -1,11 +1,11 @@
 // 修改 AICustomInputNode.jsx，不使用 useStoreState
 
 import React, { memo, useState, useEffect } from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, useEdges } from 'reactflow';
 import { llmService } from '../../services/WorkflowServicesIntegration';
 import IconBase from '../icons/IconBase';
 
-const AICustomInputNode = ({ data, isConnectable }) => {
+const AICustomInputNode = ({ data, isConnectable, id }) => {
   // 保存LLM模型選項 - 使用id作為value
   const [modelOptions, setModelOptions] = useState([
     { value: '1', label: 'O3-mini' },
@@ -13,6 +13,14 @@ const AICustomInputNode = ({ data, isConnectable }) => {
     { value: '3', label: 'O3-mega' },
     { value: '4', label: 'O3-ultra' }
   ]);
+
+  // 使用 useEdges 獲取所有邊緣
+  const edges = useEdges();
+
+  // 計算連接到 context handle 的連線數量
+  const contextConnectionCount = edges.filter(
+    (edge) => edge.target === id && edge.targetHandle === 'context-input'
+  ).length;
 
   // 加載狀態
   const [isLoadingModels, setIsLoadingModels] = useState(false);
@@ -188,6 +196,11 @@ const AICustomInputNode = ({ data, isConnectable }) => {
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm text-gray-700 mr-2'>Context</span>
+            {contextConnectionCount > 0 && (
+              <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
+                {contextConnectionCount} 個連線
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -203,7 +216,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
           width: '12px',
           height: '12px',
           left: '-6px',
-          top: '89%',
+          top: '85%',
           transform: 'translateY(-250%)'
         }}
         isConnectable={isConnectable}
@@ -219,7 +232,7 @@ const AICustomInputNode = ({ data, isConnectable }) => {
           width: '12px',
           height: '12px',
           left: '-6px',
-          top: '74%',
+          top: '76%',
           transform: 'translateY(150%)'
         }}
         isConnectable={isConnectable}

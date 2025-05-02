@@ -598,6 +598,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       };
 
       const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+      debugAINodeConnections(nodes, edges);
+      debugAINodeAPIData(apiData);
       // 添加調試代碼
       if (apiData && apiData.flow_pipeline) {
         debugNodeInputsBeforeSave(apiData.flow_pipeline);
@@ -637,6 +639,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       // 保存后再次检查连接
       await handleLoadWorkflow(flowMetadata.id);
       debugConnections(edges, '保存后重新加载');
+      debugAINodeConnections(nodes, edges);
 
       return response;
     } catch (error) {
@@ -1003,6 +1006,113 @@ const debugBrowserExtensionOutput = (nodes, edges) => {
 
   console.groupEnd(); // 結束整體調試組
 };
+
+/**
+ * 調試 AI 節點的連線情況
+ */
+const debugAINodeConnections = (nodes, edges) => {
+  console.group('AI節點連線調試');
+
+  // 找出所有的 AI 節點
+  const aiNodes = nodes.filter(
+    (node) => node.type === 'aiCustomInput' || node.type === 'ai'
+  );
+  console.log(`找到 ${aiNodes.length} 個 AI 節點`);
+
+  // 對每個 AI 節點進行檢查
+  aiNodes.forEach((node) => {
+    console.group(`節點: ${node.id}`);
+
+    // 獲取所有連接到該節點的邊緣
+    const nodeEdges = edges.filter((edge) => edge.target === node.id);
+    console.log(`找到 ${nodeEdges.length} 個連接到該節點的邊緣`);
+
+    // 分類邊緣
+    const promptEdges = nodeEdges.filter(
+      (edge) => edge.targetHandle === 'prompt-input'
+    );
+    const contextEdges = nodeEdges.filter(
+      (edge) => edge.targetHandle === 'context-input'
+    );
+
+    console.log(`Prompt 連線: ${promptEdges.length}`);
+    console.log(`Context 連線: ${contextEdges.length}`);
+
+    // 檢查每個邊緣的詳細信息
+    contextEdges.forEach((edge, index) => {
+      const sourceNode = nodes.find((n) => n.id === edge.source);
+      console.log(`Context 連線 ${index + 1}:`, {
+        source: edge.source,
+        sourceType: sourceNode?.type,
+        sourceHandle: edge.sourceHandle,
+        label: edge.label,
+        sourceData:
+          sourceNode?.data?.length || Object.keys(sourceNode?.data || {}).length
+      });
+    });
+
+    console.groupEnd(); // 結束節點調試組
+  });
+
+  console.groupEnd(); // 結束整體調試組
+};
+
+/**
+ * 調試 AI 節點的 API 數據
+ */
+const debugAINodeAPIData = (apiData) => {
+  console.group('AI節點 API 數據調試');
+
+  if (apiData.flow_pipeline) {
+    const aiNodes = apiData.flow_pipeline.filter(
+      (node) => node.operator === 'ask_ai'
+    );
+
+    console.log(`找到 ${aiNodes.length} 個 AI 節點`);
+
+    aiNodes.forEach((node) => {
+      console.group(`節點 ${node.id}`);
+
+      if (node.node_input) {
+        // 檢查 context 輸入
+        const contextInputs = Object.keys(node.node_input).filter(
+          (key) => key === 'context-input' || key.startsWith('context_')
+        );
+
+        console.log(`Context 輸入數量: ${contextInputs.length}`);
+
+        contextInputs.forEach((key) => {
+          const input = node.node_input[key];
+          console.log(`輸入 ${key}:`, {
+            node_id: input.node_id,
+            output_name: input.output_name,
+            return_name: input.return_name
+          });
+        });
+
+        // 檢查 prompt 輸入
+        if (node.node_input['prompt-input']) {
+          const promptInput = node.node_input['prompt-input'];
+          console.log('Prompt 輸入:', {
+            node_id: promptInput.node_id,
+            output_name: promptInput.output_name,
+            return_name: promptInput.return_name
+          });
+        }
+      }
+
+      console.groupEnd();
+    });
+  }
+
+  console.groupEnd();
+};
+
+// 將調試函數暴露到 window 對象，方便在開發時使用
+if (typeof window !== 'undefined') {
+  window.debugAINodeConnections = debugAINodeConnections;
+  window.debugAINodeAPIData = debugAINodeAPIData;
+}
 
 /**
  * 在 API 數據發送前調試節點輸入數據

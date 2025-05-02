@@ -831,8 +831,7 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
-  // 修改 useFlowNodes.jsx 中的 onConnect 函數，添加通知系統整合
-
+  // 1. 修改 useFlowNodes.jsx 中的 onConnect 函數
   const onConnect = useCallback(
     (params) => {
       // 提取連接參數
@@ -863,28 +862,31 @@ export default function useFlowNodes() {
       if (isAINode) {
         console.log('目標是AI節點，檢查連線限制');
 
-        // 檢查目標 handle 是否已經有連線
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.target === targetNodeId && edge.targetHandle === targetHandle
-        );
+        // 修改：允許多個連接到 context-input，但仍限制 prompt-input 只能有一個連線
+        if (targetHandle === 'prompt-input') {
+          // 檢查 prompt-input 是否已經有連線
+          const existingEdges = edges.filter(
+            (edge) =>
+              edge.target === targetNodeId &&
+              edge.targetHandle === 'prompt-input'
+          );
 
-        if (existingEdges.length > 0) {
-          console.log(`AI節點的 ${targetHandle} 已有連線，拒絕新連線`);
+          if (existingEdges.length > 0) {
+            console.log(`AI節點的 Prompt 已有連線，拒絕新連線`);
 
-          // 使用通知系統提示用戶
-          const inputType =
-            targetHandle === 'prompt-input' ? 'Prompt' : 'Context';
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `AI節點的 ${inputType} 已有連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
+            // 使用通知系統提示用戶
+            if (typeof window !== 'undefined' && window.notify) {
+              window.notify({
+                message: `AI節點的 Prompt 已有連線，請先刪除現有連線`,
+                type: 'error',
+                duration: 3000
+              });
+            }
+
+            return; // 不創建新連線
           }
-
-          return; // 不創建新連線
         }
+        // context-input 允許多個連線，所以不進行檢查
       }
 
       // 處理瀏覽器擴展輸出節點

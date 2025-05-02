@@ -127,6 +127,8 @@ class WorkflowMappingService {
    * @param {Array} allNodes - 所有節點數據
    * @returns {Object} - API 格式的節點輸入
    */
+  // 3. 修改 WorkflowDataConverter 類中的 extractNodeInputForAPI 方法
+
   static extractNodeInputForAPI(nodeId, edges, allNodes) {
     const nodeInput = {};
     console.log(`提取節點 ${nodeId} 的輸入連接`);
@@ -150,6 +152,8 @@ class WorkflowMappingService {
     // 檢查節點類型
     const isBrowserExtensionOutput =
       targetNode.type === 'browserExtensionOutput';
+    const isAINode =
+      targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
 
     // 按 targetHandle 分組邊緣
     const handleGroups = {};
@@ -169,8 +173,91 @@ class WorkflowMappingService {
 
     // 處理每個句柄組
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
+      // 特殊處理 AI 節點的 context-input
+      if (isAINode && targetHandle === 'context-input') {
+        // 對於 context-input，我們需要處理多個連接
+        targetEdges.forEach((edge, index) => {
+          // 創建唯一的輸入鍵
+          const inputKey =
+            targetEdges.length > 1 ? `context_${index}` : 'context-input';
+
+          // 查找源節點以獲取 return_name
+          const sourceNode = allNodes.find((n) => n.id === edge.source);
+          let returnName = edge.label || 'output';
+
+          // 根據源節點類型獲取適當的 return_name
+          if (sourceNode) {
+            if (
+              sourceNode.type === 'customInput' ||
+              sourceNode.type === 'input'
+            ) {
+              // 從自定義輸入節點獲取欄位名稱
+              if (
+                sourceNode.data &&
+                sourceNode.data.fields &&
+                Array.isArray(sourceNode.data.fields)
+              ) {
+                // 從 sourceHandle 中提取索引（如 output-0）
+                const outputIndex = edge.sourceHandle
+                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
+                  : 0;
+
+                // 獲取對應的欄位名稱
+                if (sourceNode.data.fields[outputIndex]) {
+                  returnName =
+                    sourceNode.data.fields[outputIndex].inputName || returnName;
+                }
+              }
+            } else if (sourceNode.type === 'browserExtensionInput') {
+              // 從瀏覽器擴展輸入節點獲取項目名稱
+              if (
+                sourceNode.data &&
+                sourceNode.data.items &&
+                Array.isArray(sourceNode.data.items)
+              ) {
+                // 從 sourceHandle 中提取索引（如 output-0）
+                const outputIndex = edge.sourceHandle
+                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
+                  : 0;
+
+                // 獲取對應的項目名稱
+                if (sourceNode.data.items[outputIndex]) {
+                  returnName =
+                    sourceNode.data.items[outputIndex].name || returnName;
+                }
+              }
+            } else if (
+              sourceNode.type === 'aiCustomInput' ||
+              sourceNode.type === 'ai'
+            ) {
+              // AI 節點通常使用默認的 output
+              returnName = 'output';
+            } else if (sourceNode.type === 'knowledgeRetrieval') {
+              // 知識檢索節點
+              returnName = 'output';
+            } else {
+              // 對於其他節點類型，使用 sourceHandle 或默認為 'output'
+              returnName = edge.sourceHandle || 'output';
+            }
+          }
+
+          console.log(`源節點 ${edge.source} 的 return_name: ${returnName}`);
+
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string',
+            return_name: returnName
+          };
+
+          console.log(
+            `AI節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
+          );
+        });
+      }
       // 對於瀏覽器擴展輸出節點，特殊處理多個連線
-      if (isBrowserExtensionOutput) {
+      else if (isBrowserExtensionOutput) {
         // 處理多個連接到同一 handle 的情況
         targetEdges.forEach((edge, index) => {
           // 創建唯一的輸入鍵，使用原始 targetHandle 加索引
@@ -329,6 +416,9 @@ class WorkflowMappingService {
       // 檢查節點類型是否為瀏覽器擴展輸出
       const isBrowserExtOutput = node.operator === 'browser_extension_output';
 
+      // 檢查節點類型是否為 AI 節點
+      const isAINode = node.operator === 'ask_ai';
+
       if (isBrowserExtOutput && node.node_input) {
         console.log(
           `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
@@ -399,6 +489,66 @@ class WorkflowMappingService {
             );
           });
         });
+      } // 新增 AI 節點特殊處理
+      else if (isAINode && node.node_input) {
+        console.log(`處理AI節點 ${node.id} 的輸入:`, node.node_input);
+
+        // 查找對應的 ReactFlow 節點
+        const reactFlowNode = nodes.find((n) => n.id === node.id);
+        if (!reactFlowNode) return;
+
+        // 從 node_input 識別所有的 context handle
+        const contextHandles = Object.keys(node.node_input).filter(
+          (key) => key === 'context-input' || key.startsWith('context_')
+        );
+
+        // 處理每個 context 連接
+        contextHandles.forEach((key) => {
+          const inputValue = node.node_input[key];
+          if (inputValue && inputValue.node_id) {
+            // 創建邊緣 ID
+            const edgeId = `${inputValue.node_id}-${node.id}-${key}-${
+              inputValue.output_name || 'output'
+            }-${Date.now()}`;
+
+            // 創建連接，統一使用 'context-input' 作為 targetHandle
+            const edge = {
+              id: edgeId,
+              source: inputValue.node_id,
+              sourceHandle: inputValue.output_name || 'output',
+              target: node.id,
+              targetHandle: 'context-input',
+              type: 'custom-edge',
+              label: inputValue.return_name || undefined
+            };
+
+            edges.push(edge);
+            console.log(`創建AI節點連接: ${edgeId}`);
+          }
+        });
+
+        // 處理 prompt 連接
+        if (node.node_input['prompt-input']) {
+          const promptInput = node.node_input['prompt-input'];
+          if (promptInput && promptInput.node_id) {
+            const edgeId = `${promptInput.node_id}-${node.id}-prompt-input-${
+              promptInput.output_name || 'output'
+            }`;
+
+            const edge = {
+              id: edgeId,
+              source: promptInput.node_id,
+              sourceHandle: promptInput.output_name || 'output',
+              target: node.id,
+              targetHandle: 'prompt-input',
+              type: 'custom-edge',
+              label: promptInput.return_name || undefined
+            };
+
+            edges.push(edge);
+            console.log(`創建AI節點Prompt連接: ${edgeId}`);
+          }
+        }
       } else if (node.node_input) {
         // 處理其他節點類型的連接
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
@@ -1058,8 +1208,11 @@ class WorkflowDataConverter {
       nodes.push(reactFlowNode);
     });
 
-    // 先處理定義節點，再處理連線關係
+    // 處理連接關係
     flowPipeline.forEach((node) => {
+      // 檢查節點是否為 AI 節點
+      const isAINode = node.operator === 'ask_ai';
+
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
@@ -1067,13 +1220,19 @@ class WorkflowDataConverter {
         // 創建連接
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
           if (inputValue && inputValue.node_id) {
+            // 如果是 AI 節點且輸入鍵是 context_N 格式，使用 context-input 作為 targetHandle
+            let targetHandle = inputKey;
+            if (isAINode && inputKey.startsWith('context_')) {
+              targetHandle = 'context-input';
+            }
+
             // 為每個邊緣創建一個唯一的 ID
             const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
               inputValue.output_name || 'output'
             }`;
 
             console.log(
-              `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${inputKey}`
+              `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${targetHandle}`
             );
 
             // 確認目標節點存在
@@ -1089,7 +1248,7 @@ class WorkflowDataConverter {
               source: inputValue.node_id,
               sourceHandle: inputValue.output_name || 'output',
               target: node.id,
-              targetHandle: inputKey,
+              targetHandle: targetHandle,
               type: 'custom-edge'
             };
 
