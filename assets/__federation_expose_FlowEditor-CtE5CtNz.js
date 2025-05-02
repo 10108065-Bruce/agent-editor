@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "abdf8386c290e3cc81374e289085d19aef097651", "VITE_APP_BUILD_TIME": "2025-05-02T08:04:47.065Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.70"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "abdf8386c290e3cc81374e289085d19aef097651", "VITE_APP_BUILD_TIME": "2025-05-02T08:21:34.523Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.71"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14776,8 +14776,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2 mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           SaveButton,
           {
