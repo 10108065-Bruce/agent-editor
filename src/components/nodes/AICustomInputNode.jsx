@@ -1,4 +1,4 @@
-// 修改 AICustomInputNode.jsx，不使用 useStoreState
+// Modified AICustomInputNode.jsx - Changed handle ID from "prompt-input" to "prompt"
 
 import React, { memo, useState, useEffect } from 'react';
 import { Handle, Position, useEdges } from 'reactflow';
@@ -21,6 +21,11 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const contextConnectionCount = edges.filter(
     (edge) => edge.target === id && edge.targetHandle === 'context-input'
   ).length;
+
+  // 檢查是否有prompt連線
+  const hasPromptConnection = edges.some(
+    (edge) => edge.target === id && edge.targetHandle === 'prompt-input'
+  );
 
   // 加載狀態
   const [isLoadingModels, setIsLoadingModels] = useState(false);
@@ -193,6 +198,11 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         <div className='space-y-2'>
           <div className='flex items-center justify-between'>
             <span className='text-sm text-gray-700 mr-2'>Prompt</span>
+            {hasPromptConnection && (
+              <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
+                已連線
+              </span>
+            )}
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm text-gray-700 mr-2'>Context</span>
@@ -205,7 +215,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         </div>
       </div>
 
-      {/* Prompt input handle - with conditional styling */}
+      {/* Prompt input handle - with conditional styling and renamed to just 'prompt' */}
       <Handle
         type='target'
         position={Position.Left}
