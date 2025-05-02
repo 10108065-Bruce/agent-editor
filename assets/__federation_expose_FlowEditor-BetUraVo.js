@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c0295fc0c98104b3d497962fe6d6fc7978c0a384", "VITE_APP_BUILD_TIME": "2025-05-02T06:24:54.911Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.68"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "abdf8386c290e3cc81374e289085d19aef097651", "VITE_APP_BUILD_TIME": "2025-05-02T07:46:12.856Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.69"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9821,12 +9821,12 @@ class WorkflowMappingService {
     // 處理每個句柄組
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
       // 特殊處理 AI 節點的 context-input
-      if (isAINode && targetHandle === 'context-input') {
+      if (isAINode && targetHandle.startsWith('context')) {
         // 對於 context-input，我們需要處理多個連接
         targetEdges.forEach((edge, index) => {
           // 創建唯一的輸入鍵
           const inputKey =
-            targetEdges.length > 1 ? `context_${index}` : 'context-input';
+            targetEdges.length > 1 ? `context-input_${index}` : 'context-input';
 
           // 查找源節點以獲取 return_name
           const sourceNode = allNodes.find((n) => n.id === edge.source);
@@ -10146,7 +10146,7 @@ class WorkflowMappingService {
 
         // 從 node_input 識別所有的 context handle
         const contextHandles = Object.keys(node.node_input).filter(
-          (key) => key === 'context-input' || key.startsWith('context_')
+          (key) => key === 'context-input' || key.startsWith('context')
         );
 
         // 處理每個 context 連接
@@ -10869,7 +10869,7 @@ class WorkflowDataConverter {
           if (inputValue && inputValue.node_id) {
             // 如果是 AI 節點且輸入鍵是 context_N 格式，使用 context-input 作為 targetHandle
             let targetHandle = inputKey;
-            if (isAINode && inputKey.startsWith('context_')) {
+            if (isAINode && inputKey.startsWith('context')) {
               targetHandle = 'context-input';
             }
 
@@ -14891,7 +14891,7 @@ const debugAINodeConnections = (nodes, edges) => {
       (edge) => edge.targetHandle === "prompt-input"
     );
     const contextEdges = nodeEdges.filter(
-      (edge) => edge.targetHandle === "context-input"
+      (edge) => edge.targetHandle.includes("context-input") || edge.targetHandle.startsWith("context_")
     );
     console.log(`Prompt 連線: ${promptEdges.length}`);
     console.log(`Context 連線: ${contextEdges.length}`);
@@ -14920,7 +14920,7 @@ const debugAINodeAPIData = (apiData) => {
       console.group(`節點 ${node.id}`);
       if (node.node_input) {
         const contextInputs = Object.keys(node.node_input).filter(
-          (key) => key === "context-input" || key.startsWith("context_")
+          (key) => key.includes("context-input") || key.startsWith("context_")
         );
         console.log(`Context 輸入數量: ${contextInputs.length}`);
         contextInputs.forEach((key) => {
