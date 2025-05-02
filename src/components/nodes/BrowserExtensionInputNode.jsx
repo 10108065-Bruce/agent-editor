@@ -303,7 +303,9 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
               key={idx}
               className='mb-4 last:mb-2 relative'>
               <div className='mb-2'>
-                <label className='block text-sm text-gray-700 mb-1'>name</label>
+                <label className='block text-sm text-gray-700 mb-1 font-bold'>
+                  name
+                </label>
                 <input
                   type='text'
                   className='w-full border border-gray-300 rounded p-2 text-sm'
@@ -316,7 +318,9 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
               </div>
 
               <div className='flex items-center mb-2'>
-                <label className='block text-sm text-gray-700 mr-4'>icon</label>
+                <label className='block text-sm text-gray-700 mr-4 font-bold'>
+                  icon
+                </label>
                 <div className='flex-1 flex justify-center items-center'>
                   <div
                     className={`w-10 h-10 flex justify-center items-center ${

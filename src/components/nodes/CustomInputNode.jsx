@@ -188,7 +188,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
               key={idx}
               className='mb-4 last:mb-2 relative'>
               <div className='mb-2'>
-                <label className='block text-sm text-gray-700 mb-1'>
+                <label className='block text-sm text-gray-700 mb-1 font-bold'>
                   input_name
                 </label>
                 <input
@@ -203,7 +203,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
               </div>
 
               <div className='mb-2'>
-                <label className='block text-sm text-gray-700 mb-1'>
+                <label className='block text-sm text-gray-700 mb-1 font-bold'>
                   default_value
                 </label>
                 <AutoResizeTextarea

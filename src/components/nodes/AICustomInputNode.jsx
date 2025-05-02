@@ -164,7 +164,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       <div className='bg-white p-4'>
         {/* Model selection */}
         <div className='mb-4'>
-          <label className='block text-sm text-gray-700 mb-1'>model</label>
+          <label className='block text-sm text-gray-700 mb-1 font-bold'>
+            model
+          </label>
           <div className='relative'>
             <select
               className={`w-full border border-gray-300 rounded p-2 text-sm bg-white 
@@ -197,7 +199,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         {/* Input type labels with connection status */}
         <div className='space-y-2'>
           <div className='flex items-center justify-between'>
-            <span className='text-sm text-gray-700 mr-2'>Prompt</span>
+            <span className='text-sm text-gray-700 mr-2 font-bold'>prompt</span>
             {hasPromptConnection && (
               <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
                 已連線
@@ -205,7 +207,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
             )}
           </div>
           <div className='flex items-center justify-between'>
-            <span className='text-sm text-gray-700 mr-2'>Context</span>
+            <span className='text-sm text-gray-700 mr-2 font-bold'>
+              context
+            </span>
             {contextConnectionCount > 0 && (
               <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
                 {contextConnectionCount} 個連線

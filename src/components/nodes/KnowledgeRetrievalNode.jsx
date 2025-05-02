@@ -183,8 +183,8 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       {/* White content area */}
       <div className='bg-white p-4 rounded-b-lg'>
         <div className='mb-3'>
-          <label className='block text-sm text-gray-700 mb-1'>
-            Data Source
+          <label className='block text-sm text-gray-700 mb-1 font-bold'>
+            Knowledge
           </label>
           <div className='relative'>
             <div className='flex'>

@@ -842,7 +842,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       <div className='absolute top-4 right-4 z-10 flex flex-col items-end'>
         <div className='flex space-x-2'>
           {/* File operations */}
-          <div className='flex space-x-2 mr-2'>
+          <div className='flex space-x-2'>
             <LoadWorkflowButton onLoad={handleLoadWorkflow} />
             {/* <LoadFileButton onLoad={loadFromLocalFile} />
             <LoadFileButton onLoad={loadFromServer} /> */}
@@ -855,7 +855,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           </div>
 
           {/* Separator */}
-          <div className='h-10 w-px bg-gray-300'></div>
+          <div className='h-10 w-px bg-gray-300 self-center'></div>
 
           {/* Server save button */}
           <div className='ml-2'>

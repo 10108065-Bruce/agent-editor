@@ -21,7 +21,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
       <div className='relative mb-3'>
         <input
           type='text'
-          placeholder='搜尋節點...'
+          placeholder='Search nodes...'
           className='w-full p-2 pl-3 pr-10 border rounded-md'
           onChange={handleSearch}
           value={searchTerm}
@@ -322,7 +322,9 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
         <div className='w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center'>
           {icon}
         </div>
-        <span className='text-sm text-gray-700 leading-none'>{label}</span>
+        <span className='text-sm text-gray-700 leading-none font-bold'>
+          {label}
+        </span>
       </div>
       <div className='text-gray-400 hover:text-gray-600 ml-2'>
         <div

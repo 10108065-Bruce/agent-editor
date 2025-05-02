@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import workflowIcon from '../assets/icn-workflow.svg';
+import pencilIcon from '../assets/objects-pencil-1.svg';
 // This version uses a fully controlled pattern with no internal state for the title
 const APAAssistant = ({ title, onTitleChange }) => {
   const [isEditing, setIsEditing] = useState(true);
@@ -26,34 +27,27 @@ const APAAssistant = ({ title, onTitleChange }) => {
       <div className='rounded-full shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]'>
         <div className='bg-white border border-gray-200 rounded-full px-4 py-2 flex items-center w-64 md:w-80'>
           <div className='mr-2 text-gray-700 flex-shrink-0'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'>
-              <rect
-                x='3'
-                y='3'
-                width='18'
-                height='18'
-                rx='2'
-                ry='2'></rect>
-              <line
-                x1='3'
-                y1='9'
-                x2='21'
-                y2='9'></line>
-              <line
-                x1='9'
-                y1='21'
-                x2='9'
-                y2='9'></line>
-            </svg>
+            <div
+              className={'flex items-center justify-center'}
+              style={{
+                width: '16px',
+                height: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+              <img
+                src={workflowIcon}
+                width={16}
+                height={16}
+                className='max-w-full max-h-full object-contain'
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
           </div>
           <div className='flex-1 relative min-w-0'>
             {isEditing ? (
@@ -75,19 +69,27 @@ const APAAssistant = ({ title, onTitleChange }) => {
             )}
           </div>
           <div className='ml-2 text-gray-500 flex-shrink-0'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='18'
-              height='18'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'>
-              <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'></path>
-              <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'></path>
-            </svg>
+            <div
+              className={'flex items-center justify-center'}
+              style={{
+                width: '16px',
+                height: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+              <img
+                src={pencilIcon}
+                width={16}
+                height={16}
+                className='max-w-full max-h-full object-contain'
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
