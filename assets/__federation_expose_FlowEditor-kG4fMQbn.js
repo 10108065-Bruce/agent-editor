@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "abdf8386c290e3cc81374e289085d19aef097651", "VITE_APP_BUILD_TIME": "2025-05-02T07:46:12.856Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.69"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "abdf8386c290e3cc81374e289085d19aef097651", "VITE_APP_BUILD_TIME": "2025-05-02T08:04:47.065Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.70"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9011,7 +9011,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
         "input",
         {
           type: "text",
-          placeholder: "搜尋節點...",
+          placeholder: "Search nodes...",
           className: "w-full p-2 pl-3 pr-10 border rounded-md",
           onChange: handleSearch,
           value: searchTerm
@@ -9129,7 +9129,7 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center", children: icon }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 leading-none", children: label })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 leading-none font-bold", children: label })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-400 hover:text-gray-600 ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
@@ -9163,9 +9163,12 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
   );
 };
 
+const workflowIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20viewBox='0%200%2018%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23nujox52vfa)'%20fill='%233F3F46'%3e%3cpath%20d='M5.143%205.143H0V0h5.143v5.143zM1.286%203.857h2.572V1.286H1.286v2.57zM18%2018h-5.143v-5.143H18V18zm-3.857-1.286h2.572v-2.572h-2.572v2.572zM11.571%2016.072H3.857a3.857%203.857%200%200%201%200-7.715v1.286a2.572%202.572%200%201%200%200%205.143h7.714v1.286zM14.143%209.643V8.357a2.572%202.572%200%200%200%200-5.143H6.43V1.928h7.714a3.857%203.857%200%200%201%200%207.715z'/%3e%3cpath%20d='M10.926%205.786H7.07L5.143%208.358l3.856%203.857%203.857-3.857-1.93-2.572z'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='nujox52vfa'%3e%3cpath%20fill='%23fff'%20d='M0%200h18v18H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
+
+const pencilIcon = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23fff'%20fill-opacity='.01'%20d='M0%200h16v16H0z'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M12.644%201.223a.533.533%200%200%200-.754%200L3.962%209.15c-.096.096-.173.21-.226.334l-1.56%203.64a.533.533%200%200%200%20.7.7l3.64-1.56c.124-.053.238-.13.334-.226l7.927-7.928a.533.533%200%200%200%200-.754l-2.133-2.133zM4.716%209.904l7.55-7.55%201.38%201.38-7.55%207.55-1.596.683-.467-.468.683-1.595z'%20fill='%231C2024'/%3e%3c/svg%3e";
+
 const React$j = await importShared('react');
 const {useState: useState$e} = React$j;
-
 const APAAssistant = ({ title, onTitleChange }) => {
   const [isEditing, setIsEditing] = useState$e(true);
   const handleEditClick = () => {
@@ -9179,49 +9182,31 @@ const APAAssistant = ({ title, onTitleChange }) => {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-4 left-1/2 transform -translate-x-1/2 z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-full shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-200 rounded-full px-4 py-2 flex items-center w-64 md:w-80", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "svg",
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
       {
-        xmlns: "http://www.w3.org/2000/svg",
-        width: "20",
-        height: "20",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        stroke: "currentColor",
-        strokeWidth: "2",
-        strokeLinecap: "round",
-        strokeLinejoin: "round",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "rect",
-            {
-              x: "3",
-              y: "3",
-              width: "18",
-              height: "18",
-              rx: "2",
-              ry: "2"
+        className: "flex items-center justify-center",
+        style: {
+          width: "16px",
+          height: "16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "img",
+          {
+            src: workflowIcon,
+            width: 16,
+            height: 16,
+            className: "max-w-full max-h-full object-contain",
+            style: {
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain"
             }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "line",
-            {
-              x1: "3",
-              y1: "9",
-              x2: "21",
-              y2: "9"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "line",
-            {
-              x1: "9",
-              y1: "21",
-              x2: "9",
-              y2: "9"
-            }
-          )
-        ]
+          }
+        )
       }
     ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative min-w-0", children: isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -9243,22 +9228,31 @@ const APAAssistant = ({ title, onTitleChange }) => {
         children: title || ""
       }
     ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2 text-gray-500 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "svg",
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2 text-gray-500 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
       {
-        xmlns: "http://www.w3.org/2000/svg",
-        width: "18",
-        height: "18",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        stroke: "currentColor",
-        strokeWidth: "2",
-        strokeLinecap: "round",
-        strokeLinejoin: "round",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" })
-        ]
+        className: "flex items-center justify-center",
+        style: {
+          width: "16px",
+          height: "16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "img",
+          {
+            src: pencilIcon,
+            width: 16,
+            height: 16,
+            className: "max-w-full max-h-full object-contain",
+            style: {
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain"
+            }
+          }
+        )
       }
     ) })
   ] }) }) });
@@ -9573,7 +9567,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
           className: "mb-4 last:mb-2 relative",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "input_name" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "input_name" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
@@ -9586,7 +9580,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
               )
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "default_value" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "default_value" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 AutoResizeTextarea,
                 {
@@ -11638,7 +11632,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "model" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "model" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "select",
@@ -11665,11 +11659,11 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2", children: "Prompt" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "prompt" }),
           hasPromptConnection && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: "已連線" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2", children: "Context" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "context" }),
           contextConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: [
             contextConnectionCount,
             " 個連線"
@@ -12094,7 +12088,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
             className: "mb-4 last:mb-2 relative",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "name" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "name" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
@@ -12109,7 +12103,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center mb-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mr-4", children: "icon" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mr-4 font-bold", children: "icon" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 flex justify-center items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "div",
                   {
@@ -12404,7 +12398,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-white", children: "知識檢索" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white p-4 rounded-b-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "Data Source" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Knowledge" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
