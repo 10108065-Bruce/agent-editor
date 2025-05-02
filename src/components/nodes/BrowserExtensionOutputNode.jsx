@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
-import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
+import { Handle, Position, useEdges, useUpdateNodeInternals } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 
@@ -16,8 +16,8 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     const headerHeight = 50;
     // 按鈕區域高度
     const buttonAreaHeight = 48;
-    // 文字提示區域高度 + 間距
-    const textAreaHeight = 22;
+    // 文字提示區域高度 + 間距 (增加高度以容納兩行文字)
+    const textAreaHeight = 40;
     // 額外的底部間距
     const bottomPadding = 10;
     // 每個 handle 之間的間距
@@ -103,6 +103,12 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
   }, [inputs, nodeId, updateNodeInternals]);
 
+  // 使用 useEdges 獲取所有邊緣
+  const edges = useEdges();
+
+  // 計算連接到 context handle 的連線數量
+  const connectionCount = edges.filter((edge) => edge.target === id).length;
+
   // 處理新增輸出按鈕點擊
   const handleAddOutput = useCallback(() => {
     // 創建帶有時間戳的新 handle ID
@@ -155,10 +161,11 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           <AddIcon />
         </button>
 
-        {/* 顯示輸入點的數量 */}
+        {/* 顯示輸入點的數量和連線數量 */}
         {inputs.length > 0 && (
           <div className='text-xs text-gray-600 mt-2'>
-            已有 {inputs.length} 個輸入點
+            <div>已有 {inputs.length} 個輸入點</div>
+            <div>共連線 {connectionCount} 個</div>
           </div>
         )}
       </div>
