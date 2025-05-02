@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
 import IconBase from '../icons/IconBase';
-
+import AddIcon from '../icons/AddIcon';
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 用來追蹤輸入 handle 的狀態
   const [inputs, setInputs] = useState([]);
@@ -116,27 +116,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         <button
           className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mb-3'
           onClick={handleAddOutput}>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='20'
-            height='20'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'>
-            <line
-              x1='12'
-              y1='5'
-              x2='12'
-              y2='19'></line>
-            <line
-              x1='5'
-              y1='12'
-              x2='19'
-              y2='12'></line>
-          </svg>
+          <AddIcon />
         </button>
 
         {/* 輸出文字標籤 */}

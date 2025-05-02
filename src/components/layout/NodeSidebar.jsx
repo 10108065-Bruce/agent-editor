@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import VersionDisplay from '../../components/VersionDisplay';
 import IconBase from '../icons/IconBase';
+import dragIcon from '../../assets/icon-drag-handle-line.svg';
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -324,29 +325,27 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
         <span className='text-sm text-gray-700 leading-none'>{label}</span>
       </div>
       <div className='text-gray-400 hover:text-gray-600 ml-2'>
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          width='20'
-          height='20'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'
-          strokeLinecap='round'
-          strokeLinejoin='round'>
-          <circle
-            cx='12'
-            cy='12'
-            r='1'></circle>
-          <circle
-            cx='12'
-            cy='5'
-            r='1'></circle>
-          <circle
-            cx='12'
-            cy='19'
-            r='1'></circle>
-        </svg>
+        <div
+          className={'flex items-center justify-center'}
+          style={{
+            width: '16px',
+            height: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+          <img
+            src={dragIcon}
+            width={16}
+            height={16}
+            className='max-w-full max-h-full object-contain'
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain'
+            }}
+          />
+        </div>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import React, {
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
+import AddIcon from '../icons/AddIcon';
 const CustomInputNode = ({ data, isConnectable, id }) => {
   // 當前節點狀態管理
   const [localFields, setLocalFields] = useState([]);
@@ -252,27 +253,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
           <button
             className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mt-4'
             onClick={handleAddField}>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'>
-              <line
-                x1='12'
-                y1='5'
-                x2='12'
-                y2='19'></line>
-              <line
-                x1='5'
-                y1='12'
-                x2='19'
-                y2='12'></line>
-            </svg>
+            <AddIcon />
           </button>
         </div>
       </div>
