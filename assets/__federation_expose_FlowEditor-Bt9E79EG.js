@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2b97a49c3f4884334479c0fc26280019b59864de", "VITE_APP_BUILD_TIME": "2025-05-02T01:02:47.519Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.65"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bd25a701c69ab6d018ce688413f2e2b25888d135", "VITE_APP_BUILD_TIME": "2025-05-02T01:35:11.522Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.66"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -8991,6 +8991,8 @@ const IconBase = ({ type, className = "" }) => {
     }
   );
 };
+
+const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
 const React$k = await importShared('react');
 const {useState: useState$f} = React$k;
@@ -9129,44 +9131,31 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center", children: icon }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 leading-none", children: label })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-400 hover:text-gray-600 ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-400 hover:text-gray-600 ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
           {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "20",
-            height: "20",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "circle",
-                {
-                  cx: "12",
-                  cy: "12",
-                  r: "1"
+            className: "flex items-center justify-center",
+            style: {
+              width: "16px",
+              height: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "img",
+              {
+                src: dragIcon,
+                width: 16,
+                height: 16,
+                className: "max-w-full max-h-full object-contain",
+                style: {
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  objectFit: "contain"
                 }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "circle",
-                {
-                  cx: "12",
-                  cy: "5",
-                  r: "1"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "circle",
-                {
-                  cx: "12",
-                  cy: "19",
-                  r: "1"
-                }
-              )
-            ]
+              }
+            )
           }
         ) })
       ]
