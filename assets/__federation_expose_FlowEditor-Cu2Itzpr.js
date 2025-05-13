@@ -8887,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T06:57:34.984Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.77"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T07:00:13.184Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.78"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14643,18 +14643,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             lastSaved: (/* @__PURE__ */ new Date()).toISOString()
           }));
         }
-        const currentPath = window.location.pathname;
-        let newPath;
-        const flowIdPattern = /\/flow_[a-zA-Z0-9_-]+$/;
-        if (flowIdPattern.test(currentPath)) {
-          newPath = currentPath.replace(flowIdPattern, `/${flowIdToUse}`);
-        } else if (currentPath.endsWith("/new")) {
-          newPath = currentPath.replace("/new", `/${flowIdToUse}`);
-        } else {
-          newPath = currentPath.endsWith("/") ? `${currentPath}${flowIdToUse}` : `${currentPath}/${flowIdToUse}`;
-        }
-        window.history.pushState({ flowId: flowIdToUse }, "", newPath);
-        console.log(`URL 已更新: ${currentPath} -> ${newPath}`);
         showNotification("流程創建成功", "success");
       }
       setFlowMetadata((prev) => ({
