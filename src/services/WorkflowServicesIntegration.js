@@ -90,7 +90,7 @@ class WorkflowMappingService {
       case 'browser_extension_output':
         return '瀏覽器擴充輸出';
       case 'ask_ai':
-        return `AI (${node.parameters?.model?.data || 'GPT-4o'})`;
+        return `AI (${node.parameters?.llm_id?.data || 'GPT-4o'})`;
       case 'basic_input': {
         // 嘗試獲取第一個輸入欄位的名稱
         const inputName =
@@ -1377,8 +1377,8 @@ class WorkflowDataConverter {
 
         return {
           ...baseData,
-          model: modelId,
-          selectedOption: node.parameters?.selected_option?.data || 'prompt'
+          model: modelId
+          // selectedOption: node.parameters?.selected_option?.data || 'prompt'
         };
       }
 
@@ -1704,11 +1704,11 @@ class WorkflowDataConverter {
         parameters.llm_id = { data: Number(safeModelValue) };
 
         // 保留model參數，以兼容舊版API
-        parameters.model = { data: safeModelValue };
+        // parameters.model = { data: safeModelValue };
 
-        if (node.data.selectedOption) {
-          parameters.selected_option = { data: node.data.selectedOption };
-        }
+        // if (node.data.selectedOption) {
+        //   parameters.selected_option = { data: node.data.selectedOption };
+        // }
         break;
       }
 

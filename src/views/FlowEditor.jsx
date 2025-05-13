@@ -620,7 +620,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
       // 根據是否有 flow_id 決定使用 POST 還是 PUT
       let response;
-      let flowIdToUse; // 新增變數來捕獲要使用的 flow_id
+      let flowIdToUse = flowMetadata.id || null; // 新增變數來捕獲要使用的 flow_id
       if (flowMetadata.id) {
         // 更新現有流程
         response = await workflowAPIService.updateWorkflow(apiData);
@@ -658,6 +658,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             iframeBridge.sendToParent({
               type: 'FLOW_SAVED',
               flowId: flowIdToUse,
+              success: true,
               title: flowMetadata.title || '未命名流程',
               isNewFlow: true,
               currentPath: window.location.pathname,
