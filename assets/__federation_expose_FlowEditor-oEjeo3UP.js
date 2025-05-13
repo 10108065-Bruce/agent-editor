@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a4d33235aef19531049315b49678d22eef5f0c0c", "VITE_APP_BUILD_TIME": "2025-05-13T03:24:38.247Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.74"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4f326e3c1b65fd8ca862974437e8ae86abdfeacd", "VITE_APP_BUILD_TIME": "2025-05-13T03:37:47.000Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.75"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9277,9 +9277,10 @@ const NodeWrapper = ({ children, selected, onClick }) => {
       className: `node-wrapper ${selected ? "selected-node" : ""}`,
       onClick: handleClick,
       style: {
-        border: selected ? "1px solid #F57DBD" : "none",
+        border: selected ? "1px solid #00CED1" : "none",
         borderRadius: "8px",
-        transition: "border 0.2s ease",
+        boxShadow: selected ? "0 0 8px 1px rgba(0, 206, 209, 0.5), 0 0 12px 4px rgba(0, 206, 209, 0.1)" : "none",
+        transition: "border 0.2s ease, box-shadow 0.3s ease",
         cursor: "pointer"
       },
       children
