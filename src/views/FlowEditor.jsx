@@ -593,7 +593,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     setIsSaving(true);
 
     try {
-      // 检查保存前的连接
+      // 檢查保存前的連線
       debugConnections(edges, '保存前');
       const flowData = {
         id: flowMetadata.id || `flow_${Date.now()}`,
@@ -620,38 +620,70 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
       // 根據是否有 flow_id 決定使用 POST 還是 PUT
       let response;
+      let flowIdToUse; // 新增變數來捕獲要使用的 flow_id
       if (flowMetadata.id) {
         // 更新現有流程
         response = await workflowAPIService.updateWorkflow(apiData);
         console.log('FlowEditor: 更新流程成功', response);
         showNotification('流程更新成功', 'success');
+
+        setFlowMetadata((prev) => ({
+          ...prev,
+          lastSaved: new Date().toISOString()
+        }));
       } else {
         // 創建新流程
         response = await workflowAPIService.createWorkflow(apiData);
         console.log('FlowEditor: 創建流程成功', response);
-
+        // 捕獲從後端回傳的 flow_id
+        flowIdToUse = response?.flow_id;
         // 如果後端回傳了 flow_id，更新流程元數據
-        if (response && response.flow_id) {
+        if (flowIdToUse) {
           setFlowMetadata((prev) => ({
             ...prev,
-            id: response.flow_id,
+            id: flowIdToUse,
             lastSaved: new Date().toISOString()
           }));
+        }
+
+        // 檢查是否在 iframe 中運行
+        const isInIframe = window.self !== window.top;
+
+        // 如果在 iframe 中，觸發事件通知父頁面
+        if (isInIframe) {
+          console.log('在 iframe 中檢測到新創建的流程，發送事件到父窗口');
+
+          try {
+            // 使用 iframeBridge 發送 flowSaved 事件
+            iframeBridge.sendToParent({
+              type: 'FLOW_SAVED',
+              flowId: flowIdToUse,
+              title: flowMetadata.title || '未命名流程',
+              isNewFlow: true,
+              currentPath: window.location.pathname,
+              isNewPath: window.location.pathname.includes('/new'),
+              timestamp: new Date().toISOString()
+            });
+          } catch (error) {
+            console.error('向父頁面發送事件失敗：', error);
+          }
         }
 
         showNotification('流程創建成功', 'success');
       }
 
-      // 無論創建還是更新，都更新最後儲存時間
-      setFlowMetadata((prev) => ({
-        ...prev,
-        lastSaved: new Date().toISOString()
-      }));
-
-      // 保存后再次检查连接
-      await handleLoadWorkflow(flowMetadata.id);
-      debugConnections(edges, '保存后重新加载');
-      debugAINodeConnections(nodes, edges);
+      // 使用捕獲的 flowIdToUse 而不是 flowMetadata.id
+      if (flowIdToUse) {
+        setTimeout(async () => {
+          // 保存後再次檢查連線
+          console.log('使用 flow_id 重新加載工作流:', flowIdToUse);
+          await handleLoadWorkflow(flowIdToUse);
+          debugConnections(edges, '保存後重新加載');
+          debugAINodeConnections(nodes, edges);
+        }, 1000);
+      } else {
+        console.warn('沒有可用的 flow_id，無法重新加載工作流');
+      }
 
       return response;
     } catch (error) {

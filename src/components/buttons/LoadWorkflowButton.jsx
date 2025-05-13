@@ -8,7 +8,7 @@ import React, { useState } from 'react';
  */
 const LoadWorkflowButton = ({ onLoad }) => {
   const [workflowId, setWorkflowId] = useState(
-    '472c3fe4-bfdb-44fa-9b1d-28f87b2b3126'
+    '8a97a194-0358-4375-ae07-283144197894'
   );
   const [showInput, setShowInput] = useState(false);
   const [loadState, setLoadState] = useState(''); // '', 'loading', 'loaded', 'error'
