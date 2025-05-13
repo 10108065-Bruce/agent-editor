@@ -55,7 +55,8 @@ const ReactFlowWithControls = forwardRef(
       onSelectionChange,
       onInit,
       onDrop,
-      onDragOver
+      onDragOver,
+      sidebarVisible // 添加sidebar狀態參數
     },
     ref
   ) => {
@@ -93,7 +94,13 @@ const ReactFlowWithControls = forwardRef(
       fitViewToNodes
     }));
 
-    // 注意：移除了自動縮放的 useEffect
+    // 根據sidebar狀態計算controls的樣式
+    const controlsStyle = useMemo(() => {
+      return {
+        left: sidebarVisible ? '17rem' : '10px', // 如果sidebar顯示，將controls向右移動
+        transition: 'left 0.3s ease' // 添加過渡效果使移動更平滑
+      };
+    }, [sidebarVisible]);
 
     return (
       <>
@@ -113,9 +120,8 @@ const ReactFlowWithControls = forwardRef(
           onDrop={onDrop}
           onDragOver={onDragOver}>
           <MiniMap />
-          <Controls />
+          <Controls style={controlsStyle} /> {/* 使用動態樣式控制位置 */}
           <Background />
-
           {/* 添加縮放視圖按鈕 */}
           <Panel position='bottom-right'>
             <button
@@ -152,6 +158,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowControlsRef = useRef(null);
   const isInitialized = useRef(false);
   const [isSaving, setIsSaving] = useState(false); // 添加保存狀態
+  const [sidebarVisible, setSidebarVisible] = useState(true);
 
   // 使用 useMemo 記憶化 nodeTypes 和 edgeTypes，這樣它們在每次渲染時保持穩定
   const nodeTypes = useMemo(() => enhancedNodeTypes, []);
@@ -209,6 +216,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     } catch {
       return true;
     }
+  }, []);
+
+  // 切換側邊欄顯示狀態
+  const toggleSidebar = useCallback(() => {
+    setSidebarVisible((prev) => !prev);
   }, []);
 
   // 添加一個內部方法來處理工作流加載
@@ -715,12 +727,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     onTitleChange
   ]);
 
-  const [sidebarVisible, setSidebarVisible] = useState(true);
-
-  const toggleSidebar = useCallback(() => {
-    setSidebarVisible((prev) => !prev);
-  }, []);
-
   // 處理來自 ReactFlow 的節點選擇
   const handleSelectionChange = useCallback(
     ({ nodes: selectedNodes }) => {
@@ -790,6 +796,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            sidebarVisible={sidebarVisible} // 將sidebar狀態傳遞給子組件
           />
         </div>
       </ReactFlowProvider>
