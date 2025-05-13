@@ -8643,6 +8643,24 @@ function useFlowNodes() {
       const isAINode = targetNode && (targetNode.type === "aiCustomInput" || targetNode.type === "ai");
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput = sourceNode && sourceNode.type === "browserExtensionInput";
+      const isCustomInputNode = sourceNode && sourceNode.type === "customInput";
+      if (isCustomInputNode) {
+        console.log("源節點是CustomInputNode，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.source === params.source && edge.sourceHandle === sourceHandle
+        );
+        if (existingEdges.length > 0) {
+          console.log(`Input的輸出已有連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `Input已有連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
       if (isAINode) {
         console.log("目標是AI節點，檢查連線限制");
         if (targetHandle === "prompt-input") {
@@ -8869,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4f326e3c1b65fd8ca862974437e8ae86abdfeacd", "VITE_APP_BUILD_TIME": "2025-05-13T03:37:47.000Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.75"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T06:37:23.279Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.76"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9421,39 +9439,6 @@ const AutoResizeTextarea = ({
   );
 };
 
-const add = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23l9ob8qnlxa)'%3e%3cpath%20d='M8%200a8%208%200%200%200-8%208%208%208%200%200%200%208%208%208%208%200%200%200%208-8%208%208%200%200%200-8-8zm4.666%208.666A.664.664%200%200%201%2012%209.33H9.334V12a.664.664%200%200%201-.665.666H7.334A.666.666%200%200%201%206.67%2012V9.334H4a.666.666%200%200%201-.666-.665V7.334c0-.368.297-.665.666-.665h2.666V4c0-.369.296-.666.665-.666h1.335c.368%200%20.665.3.665.666v2.666H12c.369%200%20.666.3.666.665v1.335z'%20fill='%23fff'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='l9ob8qnlxa'%3e%3cpath%20fill='%23fff'%20d='M0%200h16v16H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
-
-await importShared('react');
-const Add = () => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      className: `flex items-center justify-center`,
-      style: {
-        width: "14px",
-        height: "14px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      },
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "img",
-        {
-          src: add,
-          width: 32,
-          height: 32,
-          className: "max-w-full max-h-full object-contain",
-          style: {
-            maxWidth: "100%",
-            maxHeight: "100%",
-            objectFit: "contain"
-          }
-        }
-      )
-    }
-  );
-};
-
 const React$f = await importShared('react');
 const {memo: memo$a,useReducer,useCallback: useCallback$4,useState: useState$c,useEffect: useEffect$6} = React$f;
 const CustomInputNode = ({ data, isConnectable, id }) => {
@@ -9461,7 +9446,13 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   useEffect$6(() => {
     if (Array.isArray(data.fields)) {
-      setLocalFields(data.fields);
+      const fieldToUse = data.fields.length > 0 ? [data.fields[0]] : [
+        {
+          inputName: "input_name",
+          defaultValue: "Summary the input text"
+        }
+      ];
+      setLocalFields(fieldToUse);
     } else {
       setLocalFields([
         {
@@ -9471,28 +9462,6 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       ]);
     }
   }, [data.fields]);
-  const handleAddField = useCallback$4(() => {
-    console.log("添加欄位", {
-      hasAddField: typeof data.addField === "function",
-      fieldsLength: localFields.length,
-      nodeId: id
-    });
-    if (typeof data.addField === "function") {
-      data.addField();
-    } else {
-      console.warn(`節點 ${id}: addField 函數未定義，使用本地實現`);
-      const newField = {
-        inputName: "New Input",
-        defaultValue: "Default value"
-      };
-      const updatedFields = [...localFields, newField];
-      setLocalFields(updatedFields);
-      if (data.fields) {
-        data.fields = updatedFields;
-      }
-      forceUpdate();
-    }
-  }, [data, localFields, id]);
   const handleUpdateFieldInputName = useCallback$4(
     (index, value) => {
       console.log("更新欄位名稱", {
@@ -9561,80 +9530,64 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-lg shadow-md rounded-lg w-64 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-bl-xl rounded-br-xl p-4", children: [
-      fields.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-500 text-sm mb-4", children: "Click the + button below to add an input field" }),
-      fields.map((field, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          className: "mb-4 last:mb-2 relative",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "input_name" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  className: "w-full border border-gray-300 rounded p-2 text-sm",
-                  placeholder: "AI node prompt",
-                  value: field.inputName || "",
-                  onChange: (e) => handleUpdateFieldInputName(idx, e.target.value)
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "default_value" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                AutoResizeTextarea,
-                {
-                  value: field.defaultValue || "",
-                  onChange: (e) => handleUpdateFieldDefaultValue(idx, e.target.value),
-                  placeholder: "Summary the input text"
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
+      fields.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-500 text-sm mb-4", children: "No input field found" }),
+      fields.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 last:mb-2 relative", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "input_name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              className: "w-full border border-gray-300 rounded p-2 text-sm",
+              placeholder: "AI node prompt",
+              value: fields[0].inputName || "",
+              onChange: (e) => handleUpdateFieldInputName(0, e.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "default_value" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AutoResizeTextarea,
+            {
+              value: fields[0].defaultValue || "",
+              onChange: (e) => handleUpdateFieldDefaultValue(0, e.target.value),
+              placeholder: "Summary the input text"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              right: "-18px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "10px",
+              height: "10px",
+              background: "transparent"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Handle$1,
               {
+                type: "source",
+                position: Position.Right,
+                id: `output`,
                 style: {
-                  position: "absolute",
-                  right: "-18px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: "10px",
-                  height: "10px",
-                  background: "transparent"
+                  background: "#e5e7eb",
+                  border: "1px solid #D3D3D3",
+                  width: "12px",
+                  height: "12px",
+                  right: "-6px",
+                  zIndex: 5
                 },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Handle$1,
-                  {
-                    type: "source",
-                    position: Position.Right,
-                    id: `output-${idx}`,
-                    style: {
-                      background: "#e5e7eb",
-                      border: "1px solid #D3D3D3",
-                      width: "12px",
-                      height: "12px",
-                      right: "-6px",
-                      zIndex: 5
-                    },
-                    isConnectable
-                  }
-                )
+                isConnectable
               }
-            ),
-            idx < fields.length - 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200 my-3" })
-          ]
-        },
-        idx
-      )),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mt-4",
-          onClick: handleAddField,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
-        }
-      )
+            )
+          }
+        )
+      ] })
     ] }) })
   ] });
 };
@@ -9839,15 +9792,28 @@ class WorkflowMappingService {
                 sourceNode.data.fields &&
                 Array.isArray(sourceNode.data.fields)
               ) {
-                // 從 sourceHandle 中提取索引（如 output-0）
-                const outputIndex = edge.sourceHandle
-                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                  : 0;
-
-                // 獲取對應的欄位名稱
-                if (sourceNode.data.fields[outputIndex]) {
+                // 修改: 不再從 sourceHandle 提取索引，而是直接使用第一個欄位
+                // 如果 sourceHandle 是 'output'，使用第一個欄位的 inputName
+                if (
+                  edge.sourceHandle === 'output' &&
+                  sourceNode.data.fields[0]
+                ) {
                   returnName =
-                    sourceNode.data.fields[outputIndex].inputName || returnName;
+                    sourceNode.data.fields[0].inputName || returnName;
+                }
+                // 保留舊版處理方式，處理 'output-N' 格式的 sourceHandle
+                else if (
+                  edge.sourceHandle &&
+                  edge.sourceHandle.startsWith('output-')
+                ) {
+                  const outputIndex = parseInt(
+                    edge.sourceHandle.split('-')[1] || 0
+                  );
+                  if (sourceNode.data.fields[outputIndex]) {
+                    returnName =
+                      sourceNode.data.fields[outputIndex].inputName ||
+                      returnName;
+                  }
                 }
               }
             } else if (sourceNode.type === 'browserExtensionInput') {
@@ -10110,7 +10076,7 @@ class WorkflowMappingService {
 
         // 創建所有連接
         handleMap.forEach((connections, handleId) => {
-          connections.forEach((connection, index) => {
+          connections.forEach((connection) => {
             // 創建邊緣 ID
             const edgeId = `${connection.sourceNodeId}-${node.id}-${handleId}-${connection.outputName}`;
 
@@ -10274,20 +10240,12 @@ class WorkflowMappingService {
 
       case 'customInput':
       case 'input':
-        if (node.data.fields && node.data.fields.length > 0) {
-          node.data.fields.forEach((field, index) => {
-            nodeOutput[`output-${index}`] = {
-              node_id: node.id,
-              type: 'string'
-            };
-          });
-          console.log(`輸入節點: 設置 ${node.data.fields.length} 個輸出`);
-        } else {
-          nodeOutput.output = {
-            node_id: node.id,
-            type: 'string'
-          };
-        }
+        // 修改: 使用單一 "output" 作為 handle ID 而不是 "output-0"
+        nodeOutput.output = {
+          node_id: node.id,
+          type: 'string'
+        };
+        console.log(`輸入節點: 設置單一輸出 (output)`);
         break;
 
       case 'ifElse':
@@ -11021,55 +10979,64 @@ class WorkflowDataConverter {
 
       case 'basic_input': {
         // 提取參數中的欄位
-        const fields = [];
-        const paramKeys = Object.keys(node.parameters || {});
-
-        console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
-
-        // 查找所有輸入欄位對
-        const fieldIndicies = new Set();
-
-        paramKeys.forEach((key) => {
-          if (
-            key.startsWith('input_name_') ||
-            key.startsWith('default_value_')
-          ) {
-            const match = key.match(/_(\d+)$/);
-            if (match && match[1]) {
-              fieldIndicies.add(parseInt(match[1]));
-            }
-          }
+        // const fields = [];
+        // 修改: 使用固定參數名稱而不是索引
+        const field = {
+          inputName: node.parameters?.input_name?.data || 'input_name',
+          defaultValue: node.parameters?.default_value?.data || ''
+        };
+        console.log(`處理 basic_input 節點:`, {
+          inputName: field.inputName,
+          defaultValue: field.defaultValue
         });
+        // const paramKeys = Object.keys(node.parameters || {});
 
-        const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
-        console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
+        // console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
 
-        // 處理每個欄位
-        sortedIndicies.forEach((i) => {
-          const field = {
-            inputName:
-              node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
-            defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
-          };
-          fields.push(field);
-          console.log(`添加欄位 ${i}:`, field);
-        });
+        // // 查找所有輸入欄位對
+        // const fieldIndicies = new Set();
 
-        // 確保至少有一個欄位
-        if (fields.length === 0) {
-          const defaultField = {
-            inputName: 'default_input',
-            defaultValue: 'Enter value here'
-          };
-          fields.push(defaultField);
-          console.log('添加一個默認欄位:', defaultField);
-        }
+        // paramKeys.forEach((key) => {
+        //   if (
+        //     key.startsWith('input_name_') ||
+        //     key.startsWith('default_value_')
+        //   ) {
+        //     const match = key.match(/_(\d+)$/);
+        //     if (match && match[1]) {
+        //       fieldIndicies.add(parseInt(match[1]));
+        //     }
+        //   }
+        // });
+
+        // const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
+        // console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
+
+        // // 處理每個欄位
+        // sortedIndicies.forEach((i) => {
+        //   const field = {
+        //     inputName:
+        //       node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
+        //     defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
+        //   };
+        //   fields.push(field);
+        //   console.log(`添加欄位 ${i}:`, field);
+        // });
+
+        // // 確保至少有一個欄位
+        // if (fields.length === 0) {
+        //   const defaultField = {
+        //     inputName: 'default_input',
+        //     defaultValue: 'Enter value here'
+        //   };
+        //   fields.push(defaultField);
+        //   console.log('添加一個默認欄位:', defaultField);
+        // }
 
         // 返回完整的資料結構，不包含回調函數
         // 回調函數將在 updateNodeFunctions 中添加
         return {
           ...baseData,
-          fields
+          fields: [field]
         };
       }
 
@@ -11288,16 +11255,32 @@ class WorkflowDataConverter {
     switch (node.type) {
       case 'customInput':
       case 'input':
+        // if (node.data.fields && node.data.fields.length > 0) {
+        //   node.data.fields.forEach((field, index) => {
+        //     parameters[`input_name_${index}`] = { data: field.inputName || '' };
+        //     parameters[`default_value_${index}`] = {
+        //       data: field.defaultValue || ''
+        //     };
+        //   });
+        //   console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
+        // } else {
+        //   console.warn(`節點 ${node.id} 沒有欄位資料`);
+        // }
+
+        // 修改: 使用固定參數名稱而不是索引
+        // 使用第一個欄位的資料，或是空字串
         if (node.data.fields && node.data.fields.length > 0) {
-          node.data.fields.forEach((field, index) => {
-            parameters[`input_name_${index}`] = { data: field.inputName || '' };
-            parameters[`default_value_${index}`] = {
-              data: field.defaultValue || ''
-            };
-          });
-          console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
+          const field = node.data.fields[0]; // 只使用第一個欄位
+          parameters.input_name = { data: field.inputName || '' };
+          parameters.default_value = { data: field.defaultValue || '' };
+          console.log(
+            `處理輸入節點參數: input_name=${field.inputName}, default_value=${field.defaultValue}`
+          );
         } else {
-          console.warn(`節點 ${node.id} 沒有欄位資料`);
+          // 如果沒有欄位資料，提供默認值
+          parameters.input_name = { data: 'input_name' };
+          parameters.default_value = { data: 'Summary the input text' };
+          console.warn(`節點 ${node.id} 沒有欄位資料，使用默認值`);
         }
         break;
 
@@ -11727,6 +11710,39 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   ] });
 };
 const AICustomInputNode$1 = memo$9(AICustomInputNode);
+
+const add = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23l9ob8qnlxa)'%3e%3cpath%20d='M8%200a8%208%200%200%200-8%208%208%208%200%200%200%208%208%208%208%200%200%200%208-8%208%208%200%200%200-8-8zm4.666%208.666A.664.664%200%200%201%2012%209.33H9.334V12a.664.664%200%200%201-.665.666H7.334A.666.666%200%200%201%206.67%2012V9.334H4a.666.666%200%200%201-.666-.665V7.334c0-.368.297-.665.666-.665h2.666V4c0-.369.296-.666.665-.666h1.335c.368%200%20.665.3.665.666v2.666H12c.369%200%20.666.3.666.665v1.335z'%20fill='%23fff'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='l9ob8qnlxa'%3e%3cpath%20fill='%23fff'%20d='M0%200h16v16H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
+
+await importShared('react');
+const Add = () => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: `flex items-center justify-center`,
+      style: {
+        width: "14px",
+        height: "14px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "img",
+        {
+          src: add,
+          width: 32,
+          height: 32,
+          className: "max-w-full max-h-full object-contain",
+          style: {
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain"
+          }
+        }
+      )
+    }
+  );
+};
 
 const React$d = await importShared('react');
 const {memo: memo$8,useEffect: useEffect$4,useState: useState$a,useRef: useRef$2,useCallback: useCallback$3} = React$d;
