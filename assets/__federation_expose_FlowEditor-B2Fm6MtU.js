@@ -8887,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T06:37:23.279Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.76"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T06:57:34.984Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.77"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14627,6 +14627,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       }
       console.log("FlowEditor: 將流程數據轉換為 API 格式:", apiData);
       let response;
+      let flowIdToUse;
       if (flowMetadata.id) {
         response = await workflowAPIService.updateWorkflow(apiData);
         console.log("FlowEditor: 更新流程成功", response);
@@ -14634,22 +14635,42 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       } else {
         response = await workflowAPIService.createWorkflow(apiData);
         console.log("FlowEditor: 創建流程成功", response);
-        if (response && response.flow_id) {
+        flowIdToUse = response?.flow_id;
+        if (flowIdToUse) {
           setFlowMetadata((prev) => ({
             ...prev,
-            id: response.flow_id,
+            id: flowIdToUse,
             lastSaved: (/* @__PURE__ */ new Date()).toISOString()
           }));
         }
+        const currentPath = window.location.pathname;
+        let newPath;
+        const flowIdPattern = /\/flow_[a-zA-Z0-9_-]+$/;
+        if (flowIdPattern.test(currentPath)) {
+          newPath = currentPath.replace(flowIdPattern, `/${flowIdToUse}`);
+        } else if (currentPath.endsWith("/new")) {
+          newPath = currentPath.replace("/new", `/${flowIdToUse}`);
+        } else {
+          newPath = currentPath.endsWith("/") ? `${currentPath}${flowIdToUse}` : `${currentPath}/${flowIdToUse}`;
+        }
+        window.history.pushState({ flowId: flowIdToUse }, "", newPath);
+        console.log(`URL 已更新: ${currentPath} -> ${newPath}`);
         showNotification("流程創建成功", "success");
       }
       setFlowMetadata((prev) => ({
         ...prev,
         lastSaved: (/* @__PURE__ */ new Date()).toISOString()
       }));
-      await handleLoadWorkflow(flowMetadata.id);
-      debugConnections(edges, "保存后重新加载");
-      debugAINodeConnections(nodes, edges);
+      if (flowIdToUse) {
+        setTimeout(async () => {
+          console.log("使用 flow_id 重新加載工作流:", flowIdToUse);
+          await handleLoadWorkflow(flowIdToUse);
+          debugConnections(edges, "保存后重新加载");
+          debugAINodeConnections(nodes, edges);
+        }, 1e3);
+      } else {
+        console.warn("沒有可用的 flow_id，無法重新加載工作流");
+      }
       return response;
     } catch (error) {
       console.error("FlowEditor: 儲存流程時發生錯誤：", error);
