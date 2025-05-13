@@ -8887,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T07:00:13.184Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.78"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T07:01:29.141Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.79"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14632,6 +14632,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         response = await workflowAPIService.updateWorkflow(apiData);
         console.log("FlowEditor: 更新流程成功", response);
         showNotification("流程更新成功", "success");
+        setFlowMetadata((prev) => ({
+          ...prev,
+          lastSaved: (/* @__PURE__ */ new Date()).toISOString()
+        }));
       } else {
         response = await workflowAPIService.createWorkflow(apiData);
         console.log("FlowEditor: 創建流程成功", response);
@@ -14645,10 +14649,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         }
         showNotification("流程創建成功", "success");
       }
-      setFlowMetadata((prev) => ({
-        ...prev,
-        lastSaved: (/* @__PURE__ */ new Date()).toISOString()
-      }));
       if (flowIdToUse) {
         setTimeout(async () => {
           console.log("使用 flow_id 重新加載工作流:", flowIdToUse);
