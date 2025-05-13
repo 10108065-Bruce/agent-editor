@@ -8887,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T07:01:29.141Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.79"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T07:35:35.660Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.80"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -13903,7 +13903,7 @@ const {useState: useState$2} = React$2;
 
 const LoadWorkflowButton = ({ onLoad }) => {
   const [workflowId, setWorkflowId] = useState$2(
-    "472c3fe4-bfdb-44fa-9b1d-28f87b2b3126"
+    "8a97a194-0358-4375-ae07-283144197894"
   );
   const [showInput, setShowInput] = useState$2(false);
   const [loadState, setLoadState] = useState$2("");
@@ -14646,6 +14646,23 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             id: flowIdToUse,
             lastSaved: (/* @__PURE__ */ new Date()).toISOString()
           }));
+        }
+        const isInIframe2 = window.self !== window.top;
+        if (isInIframe2) {
+          console.log("在 iframe 中检测到新创建的流程，发送事件到父窗口");
+          try {
+            iframeBridge.sendToParent({
+              type: "FLOW_SAVED",
+              flowId: flowIdToUse,
+              title: flowMetadata.title || "未命名流程",
+              isNewFlow: true,
+              currentPath: window.location.pathname,
+              isNewPath: window.location.pathname.includes("/new"),
+              timestamp: (/* @__PURE__ */ new Date()).toISOString()
+            });
+          } catch (error) {
+            console.error("向父页面发送事件失败：", error);
+          }
         }
         showNotification("流程創建成功", "success");
       }
