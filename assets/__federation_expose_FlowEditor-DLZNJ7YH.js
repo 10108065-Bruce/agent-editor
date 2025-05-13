@@ -8887,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "52df8450aeae370cdf22e6ae7d1cceddef908fd0", "VITE_APP_BUILD_TIME": "2025-05-13T07:51:47.046Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.81"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "52df8450aeae370cdf22e6ae7d1cceddef908fd0", "VITE_APP_BUILD_TIME": "2025-05-13T08:07:34.354Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.82"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14654,6 +14654,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             iframeBridge.sendToParent({
               type: "FLOW_SAVED",
               flowId: flowIdToUse,
+              success: true,
               title: flowMetadata.title || "未命名流程",
               isNewFlow: true,
               currentPath: window.location.pathname,
