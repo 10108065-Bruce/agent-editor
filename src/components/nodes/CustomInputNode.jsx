@@ -8,17 +8,27 @@ import React, {
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
-import AddIcon from '../icons/AddIcon';
+
 const CustomInputNode = ({ data, isConnectable, id }) => {
   // 當前節點狀態管理
   const [localFields, setLocalFields] = useState([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
-  // 初始化和同步欄位
+  // 初始化和同步欄位 - 保持與舊版相容
   useEffect(() => {
     // 如果 data.fields 存在，更新本地欄位
     if (Array.isArray(data.fields)) {
-      setLocalFields(data.fields);
+      // 確保只使用第一個欄位，同時保持與舊版數據格式相容
+      const fieldToUse =
+        data.fields.length > 0
+          ? [data.fields[0]]
+          : [
+              {
+                inputName: 'input_name',
+                defaultValue: 'Summary the input text'
+              }
+            ];
+      setLocalFields(fieldToUse);
     } else {
       // 如果不存在，設置默認欄位
       setLocalFields([
@@ -30,41 +40,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     }
   }, [data.fields]);
 
-  // 處理添加欄位功能
-  const handleAddField = useCallback(() => {
-    console.log('添加欄位', {
-      hasAddField: typeof data.addField === 'function',
-      fieldsLength: localFields.length,
-      nodeId: id
-    });
-
-    if (typeof data.addField === 'function') {
-      // 使用原來的添加欄位函數
-      data.addField();
-    } else {
-      // 本地實現添加欄位功能
-      console.warn(`節點 ${id}: addField 函數未定義，使用本地實現`);
-
-      const newField = {
-        inputName: 'New Input',
-        defaultValue: 'Default value'
-      };
-
-      // 更新本地欄位狀態
-      const updatedFields = [...localFields, newField];
-      setLocalFields(updatedFields);
-
-      // 如果 data.fields 存在，也同步更新
-      if (data.fields) {
-        data.fields = updatedFields;
-      }
-
-      // 強制重新渲染
-      forceUpdate();
-    }
-  }, [data, localFields, id]);
-
-  // 處理更新欄位名稱
+  // 處理更新欄位名稱 - 保持與舊版相容的函數
   const handleUpdateFieldInputName = useCallback(
     (index, value) => {
       console.log('更新欄位名稱', {
@@ -75,7 +51,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       });
 
       if (typeof data.updateFieldInputName === 'function') {
-        // 使用原來的更新函數
+        // 使用原來的更新函數 - 保持與舊版結構相容
         data.updateFieldInputName(index, value);
       } else {
         // 本地實現更新欄位名稱功能
@@ -106,7 +82,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     [data, localFields, id]
   );
 
-  // 處理更新欄位默認值
+  // 處理更新欄位默認值 - 保持與舊版相容的函數
   const handleUpdateFieldDefaultValue = useCallback(
     (index, value) => {
       console.log('更新欄位默認值', {
@@ -178,15 +154,13 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
           {/* Display a message if no fields */}
           {fields.length === 0 && (
             <div className='text-gray-500 text-sm mb-4'>
-              Click the + button below to add an input field
+              No input field found
             </div>
           )}
 
-          {/* Multiple input fields */}
-          {fields.map((field, idx) => (
-            <div
-              key={idx}
-              className='mb-4 last:mb-2 relative'>
+          {/* Single input field - 只顯示第一個欄位 */}
+          {fields.length > 0 && (
+            <div className='mb-4 last:mb-2 relative'>
               <div className='mb-2'>
                 <label className='block text-sm text-gray-700 mb-1 font-bold'>
                   input_name
@@ -195,9 +169,9 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                   type='text'
                   className='w-full border border-gray-300 rounded p-2 text-sm'
                   placeholder='AI node prompt'
-                  value={field.inputName || ''}
+                  value={fields[0].inputName || ''}
                   onChange={(e) =>
-                    handleUpdateFieldInputName(idx, e.target.value)
+                    handleUpdateFieldInputName(0, e.target.value)
                   }
                 />
               </div>
@@ -207,15 +181,15 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                   default_value
                 </label>
                 <AutoResizeTextarea
-                  value={field.defaultValue || ''}
+                  value={fields[0].defaultValue || ''}
                   onChange={(e) =>
-                    handleUpdateFieldDefaultValue(idx, e.target.value)
+                    handleUpdateFieldDefaultValue(0, e.target.value)
                   }
                   placeholder='Summary the input text'
                 />
               </div>
 
-              {/* Simple handle per field positioned at midpoint */}
+              {/* Handle with ID "output" instead of "output-0" */}
               <div
                 style={{
                   position: 'absolute',
@@ -229,7 +203,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                 <Handle
                   type='source'
                   position={Position.Right}
-                  id={`output-${idx}`}
+                  id={`output`}
                   style={{
                     background: '#e5e7eb',
                     border: '1px solid #D3D3D3',
@@ -241,20 +215,8 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                   isConnectable={isConnectable}
                 />
               </div>
-
-              {/* Separator if not the last item */}
-              {idx < fields.length - 1 && (
-                <div className='border-t border-gray-200 my-3'></div>
-              )}
             </div>
-          ))}
-
-          {/* Add button - teal color - now adds items to the node */}
-          {/* <button
-            className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mt-4'
-            onClick={handleAddField}>
-            <AddIcon />
-          </button> */}
+          )}
         </div>
       </div>
     </div>

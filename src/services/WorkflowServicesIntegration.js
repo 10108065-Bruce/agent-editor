@@ -197,15 +197,28 @@ class WorkflowMappingService {
                 sourceNode.data.fields &&
                 Array.isArray(sourceNode.data.fields)
               ) {
-                // 從 sourceHandle 中提取索引（如 output-0）
-                const outputIndex = edge.sourceHandle
-                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                  : 0;
-
-                // 獲取對應的欄位名稱
-                if (sourceNode.data.fields[outputIndex]) {
+                // 修改: 不再從 sourceHandle 提取索引，而是直接使用第一個欄位
+                // 如果 sourceHandle 是 'output'，使用第一個欄位的 inputName
+                if (
+                  edge.sourceHandle === 'output' &&
+                  sourceNode.data.fields[0]
+                ) {
                   returnName =
-                    sourceNode.data.fields[outputIndex].inputName || returnName;
+                    sourceNode.data.fields[0].inputName || returnName;
+                }
+                // 保留舊版處理方式，處理 'output-N' 格式的 sourceHandle
+                else if (
+                  edge.sourceHandle &&
+                  edge.sourceHandle.startsWith('output-')
+                ) {
+                  const outputIndex = parseInt(
+                    edge.sourceHandle.split('-')[1] || 0
+                  );
+                  if (sourceNode.data.fields[outputIndex]) {
+                    returnName =
+                      sourceNode.data.fields[outputIndex].inputName ||
+                      returnName;
+                  }
                 }
               }
             } else if (sourceNode.type === 'browserExtensionInput') {
@@ -468,7 +481,7 @@ class WorkflowMappingService {
 
         // 創建所有連接
         handleMap.forEach((connections, handleId) => {
-          connections.forEach((connection, index) => {
+          connections.forEach((connection) => {
             // 創建邊緣 ID
             const edgeId = `${connection.sourceNodeId}-${node.id}-${handleId}-${connection.outputName}`;
 
@@ -632,20 +645,12 @@ class WorkflowMappingService {
 
       case 'customInput':
       case 'input':
-        if (node.data.fields && node.data.fields.length > 0) {
-          node.data.fields.forEach((field, index) => {
-            nodeOutput[`output-${index}`] = {
-              node_id: node.id,
-              type: 'string'
-            };
-          });
-          console.log(`輸入節點: 設置 ${node.data.fields.length} 個輸出`);
-        } else {
-          nodeOutput.output = {
-            node_id: node.id,
-            type: 'string'
-          };
-        }
+        // 修改: 使用單一 "output" 作為 handle ID 而不是 "output-0"
+        nodeOutput.output = {
+          node_id: node.id,
+          type: 'string'
+        };
+        console.log(`輸入節點: 設置單一輸出 (output)`);
         break;
 
       case 'ifElse':
@@ -1379,55 +1384,64 @@ class WorkflowDataConverter {
 
       case 'basic_input': {
         // 提取參數中的欄位
-        const fields = [];
-        const paramKeys = Object.keys(node.parameters || {});
-
-        console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
-
-        // 查找所有輸入欄位對
-        const fieldIndicies = new Set();
-
-        paramKeys.forEach((key) => {
-          if (
-            key.startsWith('input_name_') ||
-            key.startsWith('default_value_')
-          ) {
-            const match = key.match(/_(\d+)$/);
-            if (match && match[1]) {
-              fieldIndicies.add(parseInt(match[1]));
-            }
-          }
+        // const fields = [];
+        // 修改: 使用固定參數名稱而不是索引
+        const field = {
+          inputName: node.parameters?.input_name?.data || 'input_name',
+          defaultValue: node.parameters?.default_value?.data || ''
+        };
+        console.log(`處理 basic_input 節點:`, {
+          inputName: field.inputName,
+          defaultValue: field.defaultValue
         });
+        // const paramKeys = Object.keys(node.parameters || {});
 
-        const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
-        console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
+        // console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
 
-        // 處理每個欄位
-        sortedIndicies.forEach((i) => {
-          const field = {
-            inputName:
-              node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
-            defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
-          };
-          fields.push(field);
-          console.log(`添加欄位 ${i}:`, field);
-        });
+        // // 查找所有輸入欄位對
+        // const fieldIndicies = new Set();
 
-        // 確保至少有一個欄位
-        if (fields.length === 0) {
-          const defaultField = {
-            inputName: 'default_input',
-            defaultValue: 'Enter value here'
-          };
-          fields.push(defaultField);
-          console.log('添加一個默認欄位:', defaultField);
-        }
+        // paramKeys.forEach((key) => {
+        //   if (
+        //     key.startsWith('input_name_') ||
+        //     key.startsWith('default_value_')
+        //   ) {
+        //     const match = key.match(/_(\d+)$/);
+        //     if (match && match[1]) {
+        //       fieldIndicies.add(parseInt(match[1]));
+        //     }
+        //   }
+        // });
+
+        // const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
+        // console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
+
+        // // 處理每個欄位
+        // sortedIndicies.forEach((i) => {
+        //   const field = {
+        //     inputName:
+        //       node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
+        //     defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
+        //   };
+        //   fields.push(field);
+        //   console.log(`添加欄位 ${i}:`, field);
+        // });
+
+        // // 確保至少有一個欄位
+        // if (fields.length === 0) {
+        //   const defaultField = {
+        //     inputName: 'default_input',
+        //     defaultValue: 'Enter value here'
+        //   };
+        //   fields.push(defaultField);
+        //   console.log('添加一個默認欄位:', defaultField);
+        // }
 
         // 返回完整的資料結構，不包含回調函數
         // 回調函數將在 updateNodeFunctions 中添加
         return {
           ...baseData,
-          fields
+          fields: [field]
         };
       }
 
@@ -1646,16 +1660,32 @@ class WorkflowDataConverter {
     switch (node.type) {
       case 'customInput':
       case 'input':
+        // if (node.data.fields && node.data.fields.length > 0) {
+        //   node.data.fields.forEach((field, index) => {
+        //     parameters[`input_name_${index}`] = { data: field.inputName || '' };
+        //     parameters[`default_value_${index}`] = {
+        //       data: field.defaultValue || ''
+        //     };
+        //   });
+        //   console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
+        // } else {
+        //   console.warn(`節點 ${node.id} 沒有欄位資料`);
+        // }
+
+        // 修改: 使用固定參數名稱而不是索引
+        // 使用第一個欄位的資料，或是空字串
         if (node.data.fields && node.data.fields.length > 0) {
-          node.data.fields.forEach((field, index) => {
-            parameters[`input_name_${index}`] = { data: field.inputName || '' };
-            parameters[`default_value_${index}`] = {
-              data: field.defaultValue || ''
-            };
-          });
-          console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
+          const field = node.data.fields[0]; // 只使用第一個欄位
+          parameters.input_name = { data: field.inputName || '' };
+          parameters.default_value = { data: field.defaultValue || '' };
+          console.log(
+            `處理輸入節點參數: input_name=${field.inputName}, default_value=${field.defaultValue}`
+          );
         } else {
-          console.warn(`節點 ${node.id} 沒有欄位資料`);
+          // 如果沒有欄位資料，提供默認值
+          parameters.input_name = { data: 'input_name' };
+          parameters.default_value = { data: 'Summary the input text' };
+          console.warn(`節點 ${node.id} 沒有欄位資料，使用默認值`);
         }
         break;
 
