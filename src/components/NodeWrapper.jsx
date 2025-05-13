@@ -19,9 +19,12 @@ const NodeWrapper = ({ children, selected, onClick }) => {
       className={`node-wrapper ${selected ? 'selected-node' : ''}`}
       onClick={handleClick}
       style={{
-        border: selected ? '1px solid #F57DBD' : 'none',
+        border: selected ? '1px solid #00CED1' : 'none',
         borderRadius: '8px',
-        transition: 'border 0.2s ease',
+        boxShadow: selected
+          ? '0 0 8px 1px rgba(0, 206, 209, 0.5), 0 0 12px 4px rgba(0, 206, 209, 0.1)'
+          : 'none',
+        transition: 'border 0.2s ease, box-shadow 0.3s ease',
         cursor: 'pointer'
       }}>
       {children}
