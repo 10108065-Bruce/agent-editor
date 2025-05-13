@@ -8869,7 +8869,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "7d1983e419c390eac3725ad54324eb3478e316f1", "VITE_APP_BUILD_TIME": "2025-05-02T08:45:33.670Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.73"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a4d33235aef19531049315b49678d22eef5f0c0c", "VITE_APP_BUILD_TIME": "2025-05-13T03:24:38.247Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.74"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14149,7 +14149,9 @@ const ReactFlowWithControls = forwardRef(
     onSelectionChange,
     onInit,
     onDrop,
-    onDragOver
+    onDragOver,
+    sidebarVisible
+    // 添加sidebar狀態參數
   }, ref) => {
     const reactFlowInstance = useReactFlow();
     const fitViewToNodes = useCallback(
@@ -14180,6 +14182,14 @@ const ReactFlowWithControls = forwardRef(
     useImperativeHandle(ref, () => ({
       fitViewToNodes
     }));
+    const controlsStyle = useMemo(() => {
+      return {
+        left: sidebarVisible ? "17rem" : "10px",
+        // 如果sidebar顯示，將controls向右移動
+        transition: "left 0.3s ease"
+        // 添加過渡效果使移動更平滑
+      };
+    }, [sidebarVisible]);
     return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
       ReactFlow,
       {
@@ -14199,7 +14209,8 @@ const ReactFlowWithControls = forwardRef(
         onDragOver,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(MiniMap$1, {}),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Controls$1, {}),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Controls$1, { style: controlsStyle }),
+          " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx(Background$1, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Panel, { position: "bottom-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -14240,6 +14251,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowControlsRef = useRef(null);
   const isInitialized = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
   const nodeTypes = useMemo(() => enhancedNodeTypes, []);
   const edgeTypes = useMemo(() => ({ "custom-edge": CustomEdge }), []);
   const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
@@ -14285,6 +14297,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     } catch {
       return true;
     }
+  }, []);
+  const toggleSidebar = useCallback(() => {
+    setSidebarVisible((prev) => !prev);
   }, []);
   const handleLoadWorkflow = useCallback(async (flowId) => {
     try {
@@ -14668,10 +14683,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     isInIframe,
     onTitleChange
   ]);
-  const [sidebarVisible, setSidebarVisible] = useState(true);
-  const toggleSidebar = useCallback(() => {
-    setSidebarVisible((prev) => !prev);
-  }, []);
   const handleSelectionChange = useCallback(
     ({ nodes: selectedNodes }) => {
       if (selectedNodes && selectedNodes.length > 0) {
@@ -14727,7 +14738,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             onSelectionChange: handleSelectionChange,
             onInit: setReactFlowInstance,
             onDrop,
-            onDragOver
+            onDragOver,
+            sidebarVisible
           }
         )
       }
