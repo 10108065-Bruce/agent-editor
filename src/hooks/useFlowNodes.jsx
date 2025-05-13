@@ -858,6 +858,35 @@ export default function useFlowNodes() {
       const isBrowserExtensionInput =
         sourceNode && sourceNode.type === 'browserExtensionInput';
 
+      // 新增: 檢查源節點是否為CustomInputNode
+      const isCustomInputNode = sourceNode && sourceNode.type === 'customInput';
+
+      // 新增: 如果是CustomInputNode，檢查輸出連線限制
+      if (isCustomInputNode) {
+        console.log('源節點是CustomInputNode，檢查連線限制');
+
+        // 檢查該輸出handle是否已有連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.source === params.source && edge.sourceHandle === sourceHandle
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`Input的輸出已有連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `Input已有連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
+
       // 處理AI節點的連線限制
       if (isAINode) {
         console.log('目標是AI節點，檢查連線限制');

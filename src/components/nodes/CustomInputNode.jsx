@@ -250,11 +250,11 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
           ))}
 
           {/* Add button - teal color - now adds items to the node */}
-          <button
+          {/* <button
             className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mt-4'
             onClick={handleAddField}>
             <AddIcon />
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
