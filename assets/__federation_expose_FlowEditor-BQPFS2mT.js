@@ -8887,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "37babed4cf0bad519726d957fe385ef75539c597", "VITE_APP_BUILD_TIME": "2025-05-13T07:35:35.660Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.80"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "52df8450aeae370cdf22e6ae7d1cceddef908fd0", "VITE_APP_BUILD_TIME": "2025-05-13T07:51:47.046Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.81"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14649,7 +14649,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         }
         const isInIframe2 = window.self !== window.top;
         if (isInIframe2) {
-          console.log("在 iframe 中检测到新创建的流程，发送事件到父窗口");
+          console.log("在 iframe 中檢測到新創建的流程，發送事件到父窗口");
           try {
             iframeBridge.sendToParent({
               type: "FLOW_SAVED",
@@ -14661,7 +14661,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               timestamp: (/* @__PURE__ */ new Date()).toISOString()
             });
           } catch (error) {
-            console.error("向父页面发送事件失败：", error);
+            console.error("向父頁面發送事件失敗：", error);
           }
         }
         showNotification("流程創建成功", "success");
@@ -14670,7 +14670,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         setTimeout(async () => {
           console.log("使用 flow_id 重新加載工作流:", flowIdToUse);
           await handleLoadWorkflow(flowIdToUse);
-          debugConnections(edges, "保存后重新加载");
+          debugConnections(edges, "保存後重新加載");
           debugAINodeConnections(nodes, edges);
         }, 1e3);
       } else {
