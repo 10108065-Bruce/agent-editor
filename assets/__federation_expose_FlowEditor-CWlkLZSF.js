@@ -8887,7 +8887,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "52df8450aeae370cdf22e6ae7d1cceddef908fd0", "VITE_APP_BUILD_TIME": "2025-05-13T08:07:34.354Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.82"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "74bf1a9af4fe7f9832f932ff259ca1dec85a33b9", "VITE_APP_BUILD_TIME": "2025-05-13T08:36:06.536Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.83"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9685,7 +9685,7 @@ class WorkflowMappingService {
       case 'browser_extension_output':
         return '瀏覽器擴充輸出';
       case 'ask_ai':
-        return `AI (${node.parameters?.model?.data || 'GPT-4o'})`;
+        return `AI (${node.parameters?.llm_id?.data || 'GPT-4o'})`;
       case 'basic_input': {
         // 嘗試獲取第一個輸入欄位的名稱
         const inputName =
@@ -10972,8 +10972,8 @@ class WorkflowDataConverter {
 
         return {
           ...baseData,
-          model: modelId,
-          selectedOption: node.parameters?.selected_option?.data || 'prompt'
+          model: modelId
+          // selectedOption: node.parameters?.selected_option?.data || 'prompt'
         };
       }
 
@@ -11299,11 +11299,11 @@ class WorkflowDataConverter {
         parameters.llm_id = { data: Number(safeModelValue) };
 
         // 保留model參數，以兼容舊版API
-        parameters.model = { data: safeModelValue };
+        // parameters.model = { data: safeModelValue };
 
-        if (node.data.selectedOption) {
-          parameters.selected_option = { data: node.data.selectedOption };
-        }
+        // if (node.data.selectedOption) {
+        //   parameters.selected_option = { data: node.data.selectedOption };
+        // }
         break;
       }
 
@@ -14627,7 +14627,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       }
       console.log("FlowEditor: 將流程數據轉換為 API 格式:", apiData);
       let response;
-      let flowIdToUse;
+      let flowIdToUse = flowMetadata.id || null;
       if (flowMetadata.id) {
         response = await workflowAPIService.updateWorkflow(apiData);
         console.log("FlowEditor: 更新流程成功", response);
