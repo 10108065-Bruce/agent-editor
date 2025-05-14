@@ -717,6 +717,7 @@ export default function useFlowNodes() {
             { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
           ],
           selectedFile: '', // 默認不選擇
+          topK: 5, // 添加默認的 top_k 值
           ...nodeCallbacksObject
         },
         position: position || {
@@ -878,6 +879,60 @@ export default function useFlowNodes() {
           if (typeof window !== 'undefined' && window.notify) {
             window.notify({
               message: `Input已有連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
+      // 在 onConnect 函數中添加對知識檢索節點的連線限制
+      // 找到 onConnect 函數並添加以下代碼（在檢查 CustomInputNode 後）
+
+      // 檢查知識檢索節點的連線限制
+      if (targetNode && targetNode.type === 'knowledgeRetrieval') {
+        console.log('目標是知識檢索節點，檢查連線限制');
+
+        // 檢查是否已有輸入連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === 'passage'
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`知識檢索節點已有輸入連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `知識檢索節點只能有一個輸入連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
+
+      // 檢查源節點是否為知識檢索節點
+      if (sourceNode && sourceNode.type === 'knowledgeRetrieval') {
+        console.log('源節點是知識檢索節點，檢查連線限制');
+
+        // 檢查是否已有輸出連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.source === params.source && edge.sourceHandle === 'output'
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`知識檢索節點已有輸出連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
               type: 'error',
               duration: 3000
             });

@@ -1737,10 +1737,10 @@ class WorkflowDataConverter {
       case 'knowledgeRetrieval':
       case 'knowledge_retrieval':
         if (node.data.selectedFile) {
-          // parameters.data_source = { data: node.data.selectedFile };
-          // 使用model作為llm_id - 現在存的是ID值而非名稱
           parameters.file_id = { data: node.data.selectedFile };
         }
+        // 添加 top_k 參數
+        parameters.top_k = { data: node.data.topK || 5 };
         break;
       case 'ifElse':
         if (node.data.variableName) {

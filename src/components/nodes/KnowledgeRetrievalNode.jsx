@@ -30,6 +30,9 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     data?.selectedFile || ''
   );
 
+  // 新增 top_k 參數
+  const [topK, setTopK] = useState(data?.topK || 5);
+
   // 統一更新父組件狀態的輔助函數
   const updateParentState = useCallback(
     (key, value) => {
@@ -65,6 +68,16 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
+
+  // 處理 top_k 值更改
+  // const handleTopKChange = useCallback(
+  //   (event) => {
+  //     const value = parseInt(event.target.value) || 5;
+  //     setTopK(value);
+  //     updateParentState('topK', value);
+  //   },
+  //   [updateParentState]
+  // );
 
   // 獲取當前選擇的文件ID
   const getCurrentSelectedFile = useCallback(() => {
@@ -136,7 +149,12 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       );
       setLocalSelectedFile(data.selectedFile);
     }
-  }, [data?.selectedFile, localSelectedFile, id]);
+
+    // 同步 topK 值
+    if (data?.topK && data.topK !== topK) {
+      setTopK(data.topK);
+    }
+  }, [data?.selectedFile, data?.topK, localSelectedFile, topK, id]);
 
   // 組件掛載時載入文件列表
   useEffect(() => {
@@ -146,10 +164,20 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     console.log('KnowledgeRetrievalNode 初始化狀態:', {
       'node.id': id,
       'data.selectedFile': data?.selectedFile,
+      'data.topK': data?.topK,
       localSelectedFile,
+      topK,
       'dataFiles.length': dataFiles.length
     });
-  }, [id, data?.selectedFile, localSelectedFile, dataFiles.length, loadFiles]);
+  }, [
+    id,
+    data?.selectedFile,
+    data?.topK,
+    localSelectedFile,
+    topK,
+    dataFiles.length,
+    loadFiles
+  ]);
 
   // 當文件列表為空或錯誤時重新加載
   const handleReloadFiles = useCallback(() => {
@@ -157,16 +185,6 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       loadFiles();
     }
   }, [dataFiles.length, fileLoadError, loadFiles]);
-
-  // 調試用 - 監視狀態變化
-  useEffect(() => {
-    console.log('KnowledgeRetrievalNode 狀態更新:', {
-      'node.id': id,
-      'data.selectedFile': data?.selectedFile,
-      localSelectedFile,
-      'dataFiles.length': dataFiles.length
-    });
-  }, [id, data?.selectedFile, localSelectedFile, dataFiles]);
 
   return (
     <div className='rounded-lg shadow-md overflow-visible w-64'>
@@ -241,13 +259,30 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
             )}
           </div>
         </div>
+
+        {/* 新增 top_k 參數設置 */}
+        {/* <div className='mb-3'>
+          <label className='block text-sm text-gray-700 mb-1 font-bold'>
+            Top K
+          </label>
+          <div className='relative'>
+            <input
+              type='number'
+              className='w-full border border-gray-300 rounded-md p-2 text-sm'
+              value={topK}
+              onChange={handleTopKChange}
+              min={1}
+              max={20}
+            />
+          </div>
+        </div> */}
       </div>
 
-      {/* Input handle */}
+      {/* Input handle - 將 id 改為 "passage" */}
       <Handle
         type='target'
         position={Position.Left}
-        id='input'
+        id='passage'
         style={{
           background: '#e5e7eb',
           border: '1px solid #D3D3D3',
@@ -258,7 +293,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         isConnectable={isConnectable}
       />
 
-      {/* Output handle */}
+      {/* Output handle - 保持 id 為 "output" */}
       <Handle
         type='source'
         position={Position.Right}
