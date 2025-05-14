@@ -1,9 +1,8 @@
-// Modified AICustomInputNode.jsx - Changed handle ID from "prompt-input" to "prompt"
-
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
 import { Handle, Position, useEdges } from 'reactflow';
 import { llmService } from '../../services/WorkflowServicesIntegration';
 import IconBase from '../icons/IconBase';
+import AutoResizeTextarea from '../text/AutoResizeText';
 
 const AICustomInputNode = ({ data, isConnectable, id }) => {
   // 保存LLM模型選項 - 使用id作為value
@@ -35,10 +34,14 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   // 本地狀態 - 確保初始化時有預設值，使用模型ID
   const [localModel, setLocalModel] = useState(data?.model || '1');
 
+  // 新增 - 本地狀態管理 prompt 文本
+  const [promptText, setPromptText] = useState(data?.promptText || '');
+
   // 初始化和同步數據 - 增強版，能夠處理API數據加載的情況
   useEffect(() => {
     console.log('AICustomInputNode 數據同步更新:', {
-      'data.model': data?.model
+      'data.model': data?.model,
+      'data.promptText': data?.promptText
     });
 
     // 同步模型選擇
@@ -46,7 +49,13 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       console.log(`同步模型從 ${localModel} 到 ${data.model}`);
       setLocalModel(data.model);
     }
-  }, [data?.model]);
+
+    // 同步 prompt 文本
+    if (data?.promptText !== undefined && data.promptText !== promptText) {
+      console.log(`同步 prompt 文本從 "${promptText}" 到 "${data.promptText}"`);
+      setPromptText(data.promptText);
+    }
+  }, [data?.model, data?.promptText, localModel, promptText]);
 
   // 從API加載模型列表
   const loadModels = async () => {
@@ -116,34 +125,51 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   }, []);
 
   // 統一更新父組件狀態的輔助函數
-  const updateParentState = (key, value) => {
-    console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+  const updateParentState = useCallback(
+    (key, value) => {
+      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
 
-    // 方法1：使用 updateNodeData 回調
-    if (data && typeof data.updateNodeData === 'function') {
-      data.updateNodeData(key, value);
-      console.log(`使用 updateNodeData 更新 ${key}`);
-      return true;
-    }
+      // 方法1：使用 updateNodeData 回調
+      if (data && typeof data.updateNodeData === 'function') {
+        data.updateNodeData(key, value);
+        console.log(`使用 updateNodeData 更新 ${key}`);
+        return true;
+      }
 
-    // 方法2：直接修改 data 對象（應急方案）
-    if (data) {
-      data[key] = value;
-      console.log(`直接修改 data.${key} = ${value}`);
-      return true;
-    }
+      // 方法2：直接修改 data 對象（應急方案）
+      if (data) {
+        data[key] = value;
+        console.log(`直接修改 data.${key} = ${value}`);
+        return true;
+      }
 
-    console.warn(`無法更新父組件的 ${key}`);
-    return false;
-  };
+      console.warn(`無法更新父組件的 ${key}`);
+      return false;
+    },
+    [data]
+  );
 
   // 處理模型變更
-  const handleModelChange = (e) => {
-    const newModelValue = e.target.value;
-    console.log(`模型變更為ID: ${newModelValue}`);
-    setLocalModel(newModelValue);
-    updateParentState('model', newModelValue);
-  };
+  const handleModelChange = useCallback(
+    (e) => {
+      const newModelValue = e.target.value;
+      console.log(`模型變更為ID: ${newModelValue}`);
+      setLocalModel(newModelValue);
+      updateParentState('model', newModelValue);
+    },
+    [updateParentState]
+  );
+
+  // 新增 - 處理 prompt 文本變更
+  const handlePromptTextChange = useCallback(
+    (e) => {
+      const newText = e.target.value;
+      console.log(`Prompt 文本變更為: ${newText}`);
+      setPromptText(newText);
+      updateParentState('promptText', newText);
+    },
+    [updateParentState]
+  );
 
   return (
     <div className='rounded-lg shadow-md overflow-hidden w-64'>
@@ -196,19 +222,31 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           )}
         </div>
 
-        {/* Input type labels with connection status */}
-        <div className='space-y-2'>
-          <div className='flex items-center justify-between'>
-            <span className='text-sm text-gray-700 mr-2 font-bold'>prompt</span>
+        {/* 新增 - Prompt textarea */}
+        <div className='mb-4'>
+          <div className='flex items-center justify-between mb-1'>
+            <label className='block text-sm text-gray-700 font-bold'>
+              Prompt
+            </label>
             {hasPromptConnection && (
               <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
                 已連線
               </span>
             )}
           </div>
+          <AutoResizeTextarea
+            value={promptText}
+            onChange={handlePromptTextChange}
+            placeholder='輸入您的提示'
+            className='w-full border border-gray-300 rounded p-2 text-sm'
+          />
+        </div>
+
+        {/* Context label with connection status */}
+        <div className='space-y-2'>
           <div className='flex items-center justify-between'>
             <span className='text-sm text-gray-700 mr-2 font-bold'>
-              context
+              Context
             </span>
             {contextConnectionCount > 0 && (
               <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
@@ -219,7 +257,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         </div>
       </div>
 
-      {/* Prompt input handle - with conditional styling and renamed to just 'prompt' */}
+      {/* Prompt input handle */}
       <Handle
         type='target'
         position={Position.Left}
@@ -230,8 +268,8 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: '12px',
           height: '12px',
           left: '-6px',
-          top: '85%',
-          transform: 'translateY(-250%)'
+          top: '70%', // 調整位置到 prompt 文本區域附近
+          transform: 'translateY(-50%)'
         }}
         isConnectable={isConnectable}
       />
@@ -246,8 +284,8 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: '12px',
           height: '12px',
           left: '-6px',
-          top: '76%',
-          transform: 'translateY(150%)'
+          top: '92%', // 調整位置到 context 標籤附近
+          transform: 'translateY(-50%)'
         }}
         isConnectable={isConnectable}
       />

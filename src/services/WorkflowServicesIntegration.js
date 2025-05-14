@@ -177,9 +177,26 @@ class WorkflowMappingService {
       if (isAINode && targetHandle.startsWith('context')) {
         // 對於 context-input，我們需要處理多個連接
         targetEdges.forEach((edge, index) => {
-          // 創建唯一的輸入鍵
-          const inputKey =
-            targetEdges.length > 1 ? `context-input_${index}` : 'context-input';
+          // 創建唯一的輸入鍵 - 兼容舊版和新版格式
+          // 舊版: context-input 或 context-input_N
+          // 新版: contextN (例如 context0, context1)
+          let inputKey;
+
+          // 檢查格式，支持可能的舊版格式
+          if (targetHandle === 'context-input') {
+            // 標準舊版格式
+            inputKey = targetEdges.length > 1 ? `context${index}` : 'context0';
+          } else if (targetHandle.startsWith('context-input_')) {
+            // 舊版多連接格式 (context-input_0, context-input_1)
+            const oldIndex = targetHandle.split('_')[1];
+            inputKey = `context${oldIndex}`;
+          } else if (targetHandle.startsWith('context')) {
+            // 新版格式已經是 context0, context1 等
+            inputKey = targetHandle;
+          } else {
+            // 未知格式，使用默認
+            inputKey = `context${index}`;
+          }
 
           // 查找源節點以獲取 return_name
           const sourceNode = allNodes.find((n) => n.id === edge.source);
@@ -268,6 +285,33 @@ class WorkflowMappingService {
             `AI節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
           );
         });
+      } // 修改處理 prompt-input
+      else if (isAINode && targetHandle === 'prompt-input') {
+        const edge = targetEdges[0]; // 只取第一個連接
+
+        // 創建唯一的輸入鍵 - 改為 "prompt"
+        const inputKey = 'prompt';
+
+        // 查找源節點以獲取 return_name
+        const sourceNode = allNodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || 'output';
+
+        // 根據源節點類型獲取適當的 return_name
+        if (sourceNode) {
+          // ... 現有的 return_name 處理邏輯 ...
+        }
+
+        // 添加到 nodeInput
+        nodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+
+        console.log(
+          `AI節點Prompt連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
+        );
       }
       // 對於瀏覽器擴展輸出節點，特殊處理多個連線
       else if (isBrowserExtensionOutput) {
@@ -383,6 +427,31 @@ class WorkflowMappingService {
         }
       }
     });
+
+    if (targetNode) {
+      const isAINode =
+        targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
+
+      if (isAINode && targetNode.data?.promptText) {
+        // 檢查是否已有連線到 prompt-input
+        const hasPromptConnection = edges.some(
+          (edge) =>
+            edge.target === nodeId && edge.targetHandle === 'prompt-input'
+        );
+
+        // 如果沒有連線到 prompt-input 但有 promptText，則創建一個特殊的 prompt 輸入
+        if (!hasPromptConnection) {
+          nodeInput.prompt = {
+            type: 'string',
+            data: targetNode.data.promptText,
+            node_id: '' // 空 node_id 表示使用直接輸入的文本
+          };
+          console.log(
+            `AI節點使用直接輸入的 prompt 文本: "${targetNode.data.promptText}"`
+          );
+        }
+      }
+    }
 
     return nodeInput;
   }
@@ -1215,20 +1284,58 @@ class WorkflowDataConverter {
 
     // 處理連接關係
     flowPipeline.forEach((node) => {
-      // 檢查節點是否為 AI 節點
+      // 檢查節點類型
       const isAINode = node.operator === 'ask_ai';
+      const isKnowledgeNode = node.operator === 'knowledge_retrieval';
 
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
 
+        // 如果是 AI 節點，檢查是否有直接輸入的提示文本
+        if (isAINode) {
+          const promptInput = node.node_input.prompt;
+          if (promptInput && promptInput.node_id === '') {
+            // 找到對應的 ReactFlow 節點
+            const reactFlowNode = nodes.find((n) => n.id === node.id);
+            if (reactFlowNode) {
+              // 設置直接輸入的 promptText
+              reactFlowNode.data.promptText = promptInput.data || '';
+              console.log(
+                `設置AI節點直接輸入的提示文本: "${promptInput.data}"`
+              );
+            }
+          }
+        }
+
         // 創建連接
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
+          // 跳過直接輸入的提示文本，已在上面處理
+          if (inputKey === 'prompt' && inputValue.node_id === '') {
+            return;
+          }
+
           if (inputValue && inputValue.node_id) {
-            // 如果是 AI 節點且輸入鍵是 context_N 格式，使用 context-input 作為 targetHandle
+            // 為不同類型的節點處理特殊的 targetHandle
             let targetHandle = inputKey;
-            if (isAINode && inputKey.startsWith('context')) {
-              targetHandle = 'context-input';
+
+            // AI 節點特殊處理
+            if (isAINode) {
+              // 處理 context 相關的輸入鍵
+              if (inputKey.startsWith('context')) {
+                targetHandle = 'context-input';
+              }
+              // 處理 prompt 相關的輸入鍵
+              else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
+                targetHandle = 'prompt-input';
+              }
+            }
+            // 知識檢索節點特殊處理
+            else if (isKnowledgeNode) {
+              // 統一使用 passage 作為目標 handle
+              if (inputKey === 'passage' || inputKey === 'input') {
+                targetHandle = 'passage';
+              }
             }
 
             // 為每個邊緣創建一個唯一的 ID
@@ -1375,10 +1482,13 @@ class WorkflowDataConverter {
             ? rawModelId.toString()
             : '1';
 
+        // 提取 prompt 文本
+        const promptText = node.parameters?.prompt?.data || '';
+
         return {
           ...baseData,
-          model: modelId
-          // selectedOption: node.parameters?.selected_option?.data || 'prompt'
+          model: modelId,
+          promptText: promptText
         };
       }
 
@@ -1649,6 +1759,38 @@ class WorkflowDataConverter {
   }
 
   /**
+   * 統一 AI 節點輸入鍵的格式
+   * @param {string} key - 原始輸入鍵
+   * @param {number} index - 如果是上下文連接，提供的索引
+   * @returns {string} - 統一格式的輸入鍵
+   */
+  static normalizeAIInputKey(key, index = 0) {
+    // 處理 prompt 相關的鍵
+    if (key === 'prompt-input' || key === 'prompt') {
+      return 'prompt';
+    }
+
+    // 處理 context 相關的鍵
+    if (key === 'context-input') {
+      // 單一 context 連接
+      return 'context0';
+    } else if (key.startsWith('context-input_')) {
+      // 舊版多連接格式：context-input_0, context-input_1
+      const oldIndex = key.split('_')[1];
+      return `context${oldIndex}`;
+    } else if (key.match(/^context\d+$/)) {
+      // 新版格式：已經是 context0, context1 等
+      return key;
+    } else if (key.startsWith('context')) {
+      // 其他 context 開頭的格式
+      return `context${index}`;
+    }
+
+    // 其他鍵保持不變
+    return key;
+  }
+
+  /**
    * 將 ReactFlow 節點數據轉換為 API 參數格式
    * @param {Object} node - ReactFlow 節點
    * @returns {Object} - API 格式參數
@@ -1703,12 +1845,12 @@ class WorkflowDataConverter {
         // 使用model作為llm_id - 現在存的是ID值而非名稱
         parameters.llm_id = { data: Number(safeModelValue) };
 
-        // 保留model參數，以兼容舊版API
-        // parameters.model = { data: safeModelValue };
+        // 新增處理 promptText - 當有直接輸入的提示文本時
+        // 兼容舊版：不覆蓋已有的 prompt 參數
+        if (node.data.promptText && !parameters.prompt) {
+          parameters.prompt = { data: node.data.promptText };
+        }
 
-        // if (node.data.selectedOption) {
-        //   parameters.selected_option = { data: node.data.selectedOption };
-        // }
         break;
       }
 
