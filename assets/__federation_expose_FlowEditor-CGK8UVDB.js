@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$o = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$8,useState: useState$h,useEffect: useEffect$b,forwardRef: forwardRef$1,useCallback: useCallback$8} = React$o;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$8,useState: useState$h,useEffect: useEffect$b,forwardRef: forwardRef$1,useCallback: useCallback$9} = React$o;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -5350,21 +5350,21 @@ const useViewportHelper = () => {
 function useReactFlow() {
   const viewportHelper = useViewportHelper();
   const store = useStoreApi();
-  const getNodes = useCallback$8(() => {
+  const getNodes = useCallback$9(() => {
     return store.getState().getNodes().map((n) => ({ ...n }));
   }, []);
-  const getNode = useCallback$8((id) => {
+  const getNode = useCallback$9((id) => {
     return store.getState().nodeInternals.get(id);
   }, []);
-  const getEdges = useCallback$8(() => {
+  const getEdges = useCallback$9(() => {
     const { edges = [] } = store.getState();
     return edges.map((e) => ({ ...e }));
   }, []);
-  const getEdge = useCallback$8((id) => {
+  const getEdge = useCallback$9((id) => {
     const { edges = [] } = store.getState();
     return edges.find((e) => e.id === id);
   }, []);
-  const setNodes = useCallback$8((payload) => {
+  const setNodes = useCallback$9((payload) => {
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     const nodes = getNodes2();
     const nextNodes = typeof payload === "function" ? payload(nodes) : payload;
@@ -5375,7 +5375,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const setEdges = useCallback$8((payload) => {
+  const setEdges = useCallback$9((payload) => {
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     const nextEdges = typeof payload === "function" ? payload(edges) : payload;
     if (hasDefaultEdges) {
@@ -5385,7 +5385,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const addNodes = useCallback$8((payload) => {
+  const addNodes = useCallback$9((payload) => {
     const nodes = Array.isArray(payload) ? payload : [payload];
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     if (hasDefaultNodes) {
@@ -5397,7 +5397,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const addEdges = useCallback$8((payload) => {
+  const addEdges = useCallback$9((payload) => {
     const nextEdges = Array.isArray(payload) ? payload : [payload];
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     if (hasDefaultEdges) {
@@ -5407,7 +5407,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const toObject = useCallback$8(() => {
+  const toObject = useCallback$9(() => {
     const { getNodes: getNodes2, edges = [], transform } = store.getState();
     const [x, y, zoom2] = transform;
     return {
@@ -5420,7 +5420,7 @@ function useReactFlow() {
       }
     };
   }, []);
-  const deleteElements = useCallback$8(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
+  const deleteElements = useCallback$9(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
     const { nodeInternals, getNodes: getNodes2, edges, hasDefaultNodes, hasDefaultEdges, onNodesDelete, onEdgesDelete, onNodesChange, onEdgesChange } = store.getState();
     const nodeIds = (nodesDeleted || []).map((node) => node.id);
     const edgeIds = (edgesDeleted || []).map((edge) => edge.id);
@@ -5477,7 +5477,7 @@ function useReactFlow() {
       }
     }
   }, []);
-  const getNodeRect = useCallback$8((nodeOrRect) => {
+  const getNodeRect = useCallback$9((nodeOrRect) => {
     const isRect = isRectObject(nodeOrRect);
     const node = isRect ? null : store.getState().nodeInternals.get(nodeOrRect.id);
     if (!isRect && !node) {
@@ -5486,7 +5486,7 @@ function useReactFlow() {
     const nodeRect = isRect ? nodeOrRect : nodeToRect(node);
     return [nodeRect, node, isRect];
   }, []);
-  const getIntersectingNodes = useCallback$8((nodeOrRect, partially = true, nodes) => {
+  const getIntersectingNodes = useCallback$9((nodeOrRect, partially = true, nodes) => {
     const [nodeRect, node, isRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return [];
@@ -5501,7 +5501,7 @@ function useReactFlow() {
       return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
     });
   }, []);
-  const isNodeIntersecting = useCallback$8((nodeOrRect, area, partially = true) => {
+  const isNodeIntersecting = useCallback$9((nodeOrRect, area, partially = true) => {
     const [nodeRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return false;
@@ -6247,7 +6247,7 @@ function handleNodeClick({ id, store, unselect = false, nodeRef }) {
 }
 function useGetPointerPosition() {
   const store = useStoreApi();
-  const getPointerPosition = useCallback$8(({ sourceEvent }) => {
+  const getPointerPosition = useCallback$9(({ sourceEvent }) => {
     const { transform, snapGrid, snapToGrid } = store.getState();
     const x = sourceEvent.touches ? sourceEvent.touches[0].clientX : sourceEvent.clientX;
     const y = sourceEvent.touches ? sourceEvent.touches[0].clientY : sourceEvent.clientY;
@@ -6457,7 +6457,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
 }
 function useUpdateNodePositions() {
   const store = useStoreApi();
-  const updatePositions = useCallback$8((params) => {
+  const updatePositions = useCallback$9((params) => {
     const { nodeInternals, nodeExtent, updateNodePositions, getNodes, snapToGrid, snapGrid, onError, nodesDraggable } = store.getState();
     const selectedNodes = getNodes().filter((n) => n.selected && (n.draggable || nodesDraggable && typeof n.draggable === "undefined"));
     const xVelo = snapToGrid ? snapGrid[0] : 5;
@@ -6703,7 +6703,7 @@ const FlowRenderer = ({ children, onPaneClick, onPaneMouseEnter, onPaneMouseMove
 FlowRenderer.displayName = "FlowRenderer";
 var FlowRenderer$1 = memo$g(FlowRenderer);
 function useVisibleNodes(onlyRenderVisible) {
-  const nodes = useStore(useCallback$8((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
+  const nodes = useStore(useCallback$9((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
   return nodes;
 }
 function createNodeTypes(nodeTypes) {
@@ -7053,7 +7053,7 @@ function groupEdgesByZLevel(edges, nodeInternals, elevateEdgesOnSelect = false) 
   return edgeTree;
 }
 function useVisibleEdges(onlyRenderVisible, nodeInternals, elevateEdgesOnSelect) {
-  const edges = useStore(useCallback$8((s) => {
+  const edges = useStore(useCallback$9((s) => {
     if (!onlyRenderVisible) {
       return s.edges;
     }
@@ -7132,7 +7132,7 @@ const markerSelector = ({ defaultColor, rfId }) => (s) => {
 };
 const MarkerDefinitions = ({ defaultColor, rfId }) => {
   const markers = useStore(
-    useCallback$8(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
+    useCallback$9(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
     // the id includes all marker options, so we just need to look at that part of the marker
     (a, b) => !(a.length !== b.length || a.some((m, i) => m.id !== b[i].id))
   );
@@ -7219,7 +7219,7 @@ const oppositePosition = {
   [Position.Bottom]: Position.Top
 };
 const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLineType.Bezier, CustomComponent, connectionStatus }) => {
-  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$8((s) => ({
+  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$9((s) => ({
     fromNode: s.nodeInternals.get(nodeId),
     handleId: s.connectionHandleId,
     toX: (s.connectionPosition.x - s.transform[0]) / s.transform[2],
@@ -7664,7 +7664,7 @@ function EdgeLabelRenderer({ children }) {
 }
 function useUpdateNodeInternals() {
   const store = useStoreApi();
-  return useCallback$8((id) => {
+  return useCallback$9((id) => {
     const { domNode, updateNodeDimensions } = store.getState();
     const updateIds = Array.isArray(id) ? id : [id];
     const updates = updateIds.reduce((res, updateId) => {
@@ -7685,7 +7685,7 @@ function useEdges() {
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
     const [items, setItems] = useState$h(initialItems);
-    const onItemsChange = useCallback$8((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
+    const onItemsChange = useCallback$9((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
 }
@@ -7971,7 +7971,7 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
 Background.displayName = 'Background';
 var Background$1 = memo$d(Background);
 
-const {useRef: useRef$5,useCallback: useCallback$7} = await importShared('react');
+const {useRef: useRef$5,useCallback: useCallback$8} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -7979,40 +7979,40 @@ function useFlowNodes() {
   const redoStack = useRef$5([]);
   const nodeCallbacks = useRef$5({});
   const isUpdatingNodes = useRef$5(false);
-  const handleNodesChange = useCallback$7(
+  const handleNodesChange = useCallback$8(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
     [setNodes]
   );
-  const handleEdgesChange = useCallback$7(
+  const handleEdgesChange = useCallback$8(
     (changes) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
     },
     [setEdges]
   );
-  const pushToUndoStack = useCallback$7(() => {
+  const pushToUndoStack = useCallback$8(() => {
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
       edges: JSON.parse(JSON.stringify(edges))
     });
     redoStack.current = [];
   }, [nodes, edges]);
-  const safeSetNodes = useCallback$7(
+  const safeSetNodes = useCallback$8(
     (updater) => {
       pushToUndoStack();
       setNodes(updater);
     },
     [pushToUndoStack, setNodes]
   );
-  const safeSetEdges = useCallback$7(
+  const safeSetEdges = useCallback$8(
     (updater) => {
       pushToUndoStack();
       setEdges(updater);
     },
     [pushToUndoStack, setEdges]
   );
-  const handleNodeSelection = useCallback$7(
+  const handleNodeSelection = useCallback$8(
     (nodeId) => {
       if (isUpdatingNodes.current) return;
       isUpdatingNodes.current = true;
@@ -8029,7 +8029,7 @@ function useFlowNodes() {
     },
     [setNodes]
   );
-  const getNodeCallbacks = useCallback$7(
+  const getNodeCallbacks = useCallback$8(
     (nodeId, nodeType) => {
       if (nodeCallbacks.current[nodeId]) {
         return nodeCallbacks.current[nodeId];
@@ -8198,7 +8198,7 @@ function useFlowNodes() {
     },
     [handleNodeSelection, safeSetNodes]
   );
-  const onNodesDelete = useCallback$7(
+  const onNodesDelete = useCallback$8(
     (nodesToDelete) => {
       if (!nodesToDelete || nodesToDelete.length === 0) return;
       const nodeIdsToDelete = nodesToDelete.map((node) => node.id);
@@ -8279,14 +8279,14 @@ function useFlowNodes() {
       getOutgoers
     ]
   );
-  const deleteSelectedNodes = useCallback$7(
+  const deleteSelectedNodes = useCallback$8(
     (selectedNodes) => {
       if (!selectedNodes || selectedNodes.length === 0) return;
       onNodesDelete(selectedNodes);
     },
     [onNodesDelete]
   );
-  const handleAddInputNode = useCallback$7(
+  const handleAddInputNode = useCallback$8(
     (position) => {
       const id = `input_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "customInput");
@@ -8310,7 +8310,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddAINode = useCallback$7(
+  const handleAddAINode = useCallback$8(
     (position) => {
       const id = `ai_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "aiCustomInput");
@@ -8331,7 +8331,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddBrowserExtensionOutput = useCallback$7(
+  const handleAddBrowserExtensionOutput = useCallback$8(
     (position) => {
       const id = `browserExtOut_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(
@@ -8410,7 +8410,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks, nodes]
   );
-  const handleAddBrowserExtensionInput = useCallback$7(
+  const handleAddBrowserExtensionInput = useCallback$8(
     (position) => {
       const id = `browserExtIn_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "browserExtensionInput");
@@ -8431,7 +8431,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddNode = useCallback$7(
+  const handleAddNode = useCallback$8(
     (position) => {
       const id = `default_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "default");
@@ -8451,7 +8451,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddIfElseNode = useCallback$7(
+  const handleAddIfElseNode = useCallback$8(
     (position) => {
       const id = `ifelse_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "ifElse");
@@ -8473,7 +8473,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddHTTPNode = useCallback$7(
+  const handleAddHTTPNode = useCallback$8(
     (position) => {
       const id = `http_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "http");
@@ -8496,7 +8496,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddLineNode = useCallback$7(
+  const handleAddLineNode = useCallback$8(
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "line");
@@ -8519,7 +8519,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddKnowledgeRetrievalNode = useCallback$7(
+  const handleAddKnowledgeRetrievalNode = useCallback$8(
     (position) => {
       const id = `knowledge_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "knowledgeRetrieval");
@@ -8546,7 +8546,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEndNode = useCallback$7(
+  const handleAddEndNode = useCallback$8(
     (position) => {
       const id = `end_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "end");
@@ -8567,7 +8567,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddWebhookNode = useCallback$7(
+  const handleAddWebhookNode = useCallback$8(
     (position) => {
       const id = `webhook_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "webhook");
@@ -8588,7 +8588,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddTimerNode = useCallback$7(
+  const handleAddTimerNode = useCallback$8(
     (position) => {
       const id = `timer_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "timer");
@@ -8610,7 +8610,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEventNode = useCallback$7(
+  const handleAddEventNode = useCallback$8(
     (position) => {
       const id = `event_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "event");
@@ -8632,7 +8632,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const onConnect = useCallback$7(
+  const onConnect = useCallback$8(
     (params) => {
       const sourceHandle = params.sourceHandle || "output";
       const targetNodeId = params.target;
@@ -8821,7 +8821,7 @@ function useFlowNodes() {
     },
     [nodes, safeSetNodes, safeSetEdges, edges]
   );
-  const undo = useCallback$7(() => {
+  const undo = useCallback$8(() => {
     if (undoStack.current.length === 0) return;
     redoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -8831,7 +8831,7 @@ function useFlowNodes() {
     setNodes(prev.nodes);
     setEdges(prev.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const redo = useCallback$7(() => {
+  const redo = useCallback$8(() => {
     if (redoStack.current.length === 0) return;
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -8841,7 +8841,7 @@ function useFlowNodes() {
     setNodes(next.nodes);
     setEdges(next.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const updateNodeLabel = useCallback$7(
+  const updateNodeLabel = useCallback$8(
     (id, label) => {
       safeSetNodes(
         (nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, label } } : n)
@@ -8849,7 +8849,7 @@ function useFlowNodes() {
     },
     [safeSetNodes]
   );
-  const updateNodeFunctions = useCallback$7(() => {
+  const updateNodeFunctions = useCallback$8(() => {
     const updatedNodes = [...nodes];
     let hasChanges = false;
     console.log("開始檢查並更新所有節點的回調函數...");
@@ -8923,7 +8923,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "86fa5dff27661cea83a6893d5f74fa690985025b", "VITE_APP_BUILD_TIME": "2025-05-14T01:15:36.697Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.84"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5c2ea20c499fa756e9ff4b5d414f51db1753406b", "VITE_APP_BUILD_TIME": "2025-05-14T02:21:12.013Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.85"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9313,10 +9313,10 @@ const APAAssistant = ({ title, onTitleChange }) => {
 };
 
 const React$i = await importShared('react');
-const {memo: memo$c,useCallback: useCallback$6} = React$i;
+const {memo: memo$c,useCallback: useCallback$7} = React$i;
 
 const NodeWrapper = ({ children, selected, onClick }) => {
-  const handleClick = useCallback$6(
+  const handleClick = useCallback$7(
     (e) => {
       e.stopPropagation();
       if (typeof onClick === "function") {
@@ -9344,13 +9344,13 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 const NodeWrapper$1 = memo$c(NodeWrapper);
 
 const React$h = await importShared('react');
-const {memo: memo$b,useCallback: useCallback$5,useEffect: useEffect$8,useState: useState$d,useRef: useRef$4} = React$h;
+const {memo: memo$b,useCallback: useCallback$6,useEffect: useEffect$8,useState: useState$d,useRef: useRef$4} = React$h;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
     const nodeRef = useRef$4(null);
     const [isInputFocused, setIsInputFocused] = useState$d(false);
-    const handleNodeClick = useCallback$5(
+    const handleNodeClick = useCallback$6(
       (e) => {
         e.stopPropagation();
         if (data && typeof data.onSelect === "function") {
@@ -9476,7 +9476,7 @@ const AutoResizeTextarea = ({
 };
 
 const React$f = await importShared('react');
-const {memo: memo$a,useReducer,useCallback: useCallback$4,useState: useState$c,useEffect: useEffect$6} = React$f;
+const {memo: memo$a,useReducer,useCallback: useCallback$5,useState: useState$c,useEffect: useEffect$6} = React$f;
 const CustomInputNode = ({ data, isConnectable, id }) => {
   const [localFields, setLocalFields] = useState$c([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -9498,7 +9498,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       ]);
     }
   }, [data.fields]);
-  const handleUpdateFieldInputName = useCallback$4(
+  const handleUpdateFieldInputName = useCallback$5(
     (index, value) => {
       console.log("更新欄位名稱", {
         hasUpdateField: typeof data.updateFieldInputName === "function",
@@ -9528,7 +9528,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
-  const handleUpdateFieldDefaultValue = useCallback$4(
+  const handleUpdateFieldDefaultValue = useCallback$5(
     (index, value) => {
       console.log("更新欄位默認值", {
         hasUpdateDefaultValue: typeof data.updateFieldDefaultValue === "function",
@@ -9808,9 +9808,26 @@ class WorkflowMappingService {
       if (isAINode && targetHandle.startsWith('context')) {
         // 對於 context-input，我們需要處理多個連接
         targetEdges.forEach((edge, index) => {
-          // 創建唯一的輸入鍵
-          const inputKey =
-            targetEdges.length > 1 ? `context-input_${index}` : 'context-input';
+          // 創建唯一的輸入鍵 - 兼容舊版和新版格式
+          // 舊版: context-input 或 context-input_N
+          // 新版: contextN (例如 context0, context1)
+          let inputKey;
+
+          // 檢查格式，支持可能的舊版格式
+          if (targetHandle === 'context-input') {
+            // 標準舊版格式
+            inputKey = targetEdges.length > 1 ? `context${index}` : 'context0';
+          } else if (targetHandle.startsWith('context-input_')) {
+            // 舊版多連接格式 (context-input_0, context-input_1)
+            const oldIndex = targetHandle.split('_')[1];
+            inputKey = `context${oldIndex}`;
+          } else if (targetHandle.startsWith('context')) {
+            // 新版格式已經是 context0, context1 等
+            inputKey = targetHandle;
+          } else {
+            // 未知格式，使用默認
+            inputKey = `context${index}`;
+          }
 
           // 查找源節點以獲取 return_name
           const sourceNode = allNodes.find((n) => n.id === edge.source);
@@ -9899,6 +9916,28 @@ class WorkflowMappingService {
             `AI節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
           );
         });
+      } // 修改處理 prompt-input
+      else if (isAINode && targetHandle === 'prompt-input') {
+        const edge = targetEdges[0]; // 只取第一個連接
+
+        // 創建唯一的輸入鍵 - 改為 "prompt"
+        const inputKey = 'prompt';
+
+        // 查找源節點以獲取 return_name
+        allNodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || 'output';
+
+        // 添加到 nodeInput
+        nodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+
+        console.log(
+          `AI節點Prompt連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
+        );
       }
       // 對於瀏覽器擴展輸出節點，特殊處理多個連線
       else if (isBrowserExtensionOutput) {
@@ -10014,6 +10053,31 @@ class WorkflowMappingService {
         }
       }
     });
+
+    if (targetNode) {
+      const isAINode =
+        targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
+
+      if (isAINode && targetNode.data?.promptText) {
+        // 檢查是否已有連線到 prompt-input
+        const hasPromptConnection = edges.some(
+          (edge) =>
+            edge.target === nodeId && edge.targetHandle === 'prompt-input'
+        );
+
+        // 如果沒有連線到 prompt-input 但有 promptText，則創建一個特殊的 prompt 輸入
+        if (!hasPromptConnection) {
+          nodeInput.prompt = {
+            type: 'string',
+            data: targetNode.data.promptText,
+            node_id: '' // 空 node_id 表示使用直接輸入的文本
+          };
+          console.log(
+            `AI節點使用直接輸入的 prompt 文本: "${targetNode.data.promptText}"`
+          );
+        }
+      }
+    }
 
     return nodeInput;
   }
@@ -10846,20 +10910,58 @@ class WorkflowDataConverter {
 
     // 處理連接關係
     flowPipeline.forEach((node) => {
-      // 檢查節點是否為 AI 節點
+      // 檢查節點類型
       const isAINode = node.operator === 'ask_ai';
+      const isKnowledgeNode = node.operator === 'knowledge_retrieval';
 
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
 
+        // 如果是 AI 節點，檢查是否有直接輸入的提示文本
+        if (isAINode) {
+          const promptInput = node.node_input.prompt;
+          if (promptInput && promptInput.node_id === '') {
+            // 找到對應的 ReactFlow 節點
+            const reactFlowNode = nodes.find((n) => n.id === node.id);
+            if (reactFlowNode) {
+              // 設置直接輸入的 promptText
+              reactFlowNode.data.promptText = promptInput.data || '';
+              console.log(
+                `設置AI節點直接輸入的提示文本: "${promptInput.data}"`
+              );
+            }
+          }
+        }
+
         // 創建連接
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
+          // 跳過直接輸入的提示文本，已在上面處理
+          if (inputKey === 'prompt' && inputValue.node_id === '') {
+            return;
+          }
+
           if (inputValue && inputValue.node_id) {
-            // 如果是 AI 節點且輸入鍵是 context_N 格式，使用 context-input 作為 targetHandle
+            // 為不同類型的節點處理特殊的 targetHandle
             let targetHandle = inputKey;
-            if (isAINode && inputKey.startsWith('context')) {
-              targetHandle = 'context-input';
+
+            // AI 節點特殊處理
+            if (isAINode) {
+              // 處理 context 相關的輸入鍵
+              if (inputKey.startsWith('context')) {
+                targetHandle = 'context-input';
+              }
+              // 處理 prompt 相關的輸入鍵
+              else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
+                targetHandle = 'prompt-input';
+              }
+            }
+            // 知識檢索節點特殊處理
+            else if (isKnowledgeNode) {
+              // 統一使用 passage 作為目標 handle
+              if (inputKey === 'passage' || inputKey === 'input') {
+                targetHandle = 'passage';
+              }
             }
 
             // 為每個邊緣創建一個唯一的 ID
@@ -11006,10 +11108,13 @@ class WorkflowDataConverter {
             ? rawModelId.toString()
             : '1';
 
+        // 提取 prompt 文本
+        const promptText = node.parameters?.prompt?.data || '';
+
         return {
           ...baseData,
-          model: modelId
-          // selectedOption: node.parameters?.selected_option?.data || 'prompt'
+          model: modelId,
+          promptText: promptText
         };
       }
 
@@ -11280,6 +11385,38 @@ class WorkflowDataConverter {
   }
 
   /**
+   * 統一 AI 節點輸入鍵的格式
+   * @param {string} key - 原始輸入鍵
+   * @param {number} index - 如果是上下文連接，提供的索引
+   * @returns {string} - 統一格式的輸入鍵
+   */
+  static normalizeAIInputKey(key, index = 0) {
+    // 處理 prompt 相關的鍵
+    if (key === 'prompt-input' || key === 'prompt') {
+      return 'prompt';
+    }
+
+    // 處理 context 相關的鍵
+    if (key === 'context-input') {
+      // 單一 context 連接
+      return 'context0';
+    } else if (key.startsWith('context-input_')) {
+      // 舊版多連接格式：context-input_0, context-input_1
+      const oldIndex = key.split('_')[1];
+      return `context${oldIndex}`;
+    } else if (key.match(/^context\d+$/)) {
+      // 新版格式：已經是 context0, context1 等
+      return key;
+    } else if (key.startsWith('context')) {
+      // 其他 context 開頭的格式
+      return `context${index}`;
+    }
+
+    // 其他鍵保持不變
+    return key;
+  }
+
+  /**
    * 將 ReactFlow 節點數據轉換為 API 參數格式
    * @param {Object} node - ReactFlow 節點
    * @returns {Object} - API 格式參數
@@ -11334,12 +11471,12 @@ class WorkflowDataConverter {
         // 使用model作為llm_id - 現在存的是ID值而非名稱
         parameters.llm_id = { data: Number(safeModelValue) };
 
-        // 保留model參數，以兼容舊版API
-        // parameters.model = { data: safeModelValue };
+        // 新增處理 promptText - 當有直接輸入的提示文本時
+        // 兼容舊版：不覆蓋已有的 prompt 參數
+        if (node.data.promptText && !parameters.prompt) {
+          parameters.prompt = { data: node.data.promptText };
+        }
 
-        // if (node.data.selectedOption) {
-        //   parameters.selected_option = { data: node.data.selectedOption };
-        // }
         break;
       }
 
@@ -11555,7 +11692,7 @@ const llmService = new LLMService();
 const iconUploadService = new IconUploadService();
 
 const React$e = await importShared('react');
-const {memo: memo$9,useState: useState$b,useEffect: useEffect$5} = React$e;
+const {memo: memo$9,useState: useState$b,useEffect: useEffect$5,useCallback: useCallback$4} = React$e;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
   const [modelOptions, setModelOptions] = useState$b([
     { value: "1", label: "O3-mini" },
@@ -11573,15 +11710,21 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const [isLoadingModels, setIsLoadingModels] = useState$b(false);
   const [modelLoadError, setModelLoadError] = useState$b(null);
   const [localModel, setLocalModel] = useState$b(data?.model || "1");
+  const [promptText, setPromptText] = useState$b(data?.promptText || "");
   useEffect$5(() => {
     console.log("AICustomInputNode 數據同步更新:", {
-      "data.model": data?.model
+      "data.model": data?.model,
+      "data.promptText": data?.promptText
     });
     if (data?.model && data.model !== localModel) {
       console.log(`同步模型從 ${localModel} 到 ${data.model}`);
       setLocalModel(data.model);
     }
-  }, [data?.model]);
+    if (data?.promptText !== void 0 && data.promptText !== promptText) {
+      console.log(`同步 prompt 文本從 "${promptText}" 到 "${data.promptText}"`);
+      setPromptText(data.promptText);
+    }
+  }, [data?.model, data?.promptText, localModel, promptText]);
   const loadModels = async () => {
     if (isLoadingModels) return;
     setIsLoadingModels(true);
@@ -11623,27 +11766,42 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   useEffect$5(() => {
     loadModels();
   }, []);
-  const updateParentState = (key, value) => {
-    console.log(`嘗試更新父組件狀態 ${key}=${value}`);
-    if (data && typeof data.updateNodeData === "function") {
-      data.updateNodeData(key, value);
-      console.log(`使用 updateNodeData 更新 ${key}`);
-      return true;
-    }
-    if (data) {
-      data[key] = value;
-      console.log(`直接修改 data.${key} = ${value}`);
-      return true;
-    }
-    console.warn(`無法更新父組件的 ${key}`);
-    return false;
-  };
-  const handleModelChange = (e) => {
-    const newModelValue = e.target.value;
-    console.log(`模型變更為ID: ${newModelValue}`);
-    setLocalModel(newModelValue);
-    updateParentState("model", newModelValue);
-  };
+  const updateParentState = useCallback$4(
+    (key, value) => {
+      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData(key, value);
+        console.log(`使用 updateNodeData 更新 ${key}`);
+        return true;
+      }
+      if (data) {
+        data[key] = value;
+        console.log(`直接修改 data.${key} = ${value}`);
+        return true;
+      }
+      console.warn(`無法更新父組件的 ${key}`);
+      return false;
+    },
+    [data]
+  );
+  const handleModelChange = useCallback$4(
+    (e) => {
+      const newModelValue = e.target.value;
+      console.log(`模型變更為ID: ${newModelValue}`);
+      setLocalModel(newModelValue);
+      updateParentState("model", newModelValue);
+    },
+    [updateParentState]
+  );
+  const handlePromptTextChange = useCallback$4(
+    (e) => {
+      const newText = e.target.value;
+      console.log(`Prompt 文本變更為: ${newText}`);
+      setPromptText(newText);
+      updateParentState("promptText", newText);
+    },
+    [updateParentState]
+  );
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
@@ -11677,19 +11835,28 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         ] }),
         modelLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: modelLoadError })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "prompt" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Prompt" }),
           hasPromptConnection && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: "已連線" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "context" }),
-          contextConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: [
-            contextConnectionCount,
-            " 個連線"
-          ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AutoResizeTextarea,
+          {
+            value: promptText,
+            onChange: handlePromptTextChange,
+            placeholder: "輸入您的提示",
+            className: "w-full border border-gray-300 rounded p-2 text-sm"
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "Context" }),
+        contextConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: [
+          contextConnectionCount,
+          " 個連線"
         ] })
-      ] })
+      ] }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Handle$1,
@@ -11703,8 +11870,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: "12px",
           height: "12px",
           left: "-6px",
-          top: "85%",
-          transform: "translateY(-250%)"
+          top: "70%",
+          // 調整位置到 prompt 文本區域附近
+          transform: "translateY(-50%)"
         },
         isConnectable
       }
@@ -11721,8 +11889,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: "12px",
           height: "12px",
           left: "-6px",
-          top: "76%",
-          transform: "translateY(150%)"
+          top: "92%",
+          // 調整位置到 context 標籤附近
+          transform: "translateY(-50%)"
         },
         isConnectable
       }
