@@ -8533,6 +8533,8 @@ function useFlowNodes() {
           ],
           selectedFile: "",
           // 默認不選擇
+          topK: 5,
+          // 添加默認的 top_k 值
           ...nodeCallbacksObject
         },
         position: position || {
@@ -8654,6 +8656,40 @@ function useFlowNodes() {
           if (typeof window !== "undefined" && window.notify) {
             window.notify({
               message: `Input已有連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
+      if (targetNode && targetNode.type === "knowledgeRetrieval") {
+        console.log("目標是知識檢索節點，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.target === targetNodeId && edge.targetHandle === "passage"
+        );
+        if (existingEdges.length > 0) {
+          console.log(`知識檢索節點已有輸入連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `知識檢索節點只能有一個輸入連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
+      if (sourceNode && sourceNode.type === "knowledgeRetrieval") {
+        console.log("源節點是知識檢索節點，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.source === params.source && edge.sourceHandle === "output"
+        );
+        if (existingEdges.length > 0) {
+          console.log(`知識檢索節點已有輸出連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
               type: "error",
               duration: 3e3
             });
@@ -8887,7 +8923,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "74bf1a9af4fe7f9832f932ff259ca1dec85a33b9", "VITE_APP_BUILD_TIME": "2025-05-13T08:36:06.536Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.83"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "86fa5dff27661cea83a6893d5f74fa690985025b", "VITE_APP_BUILD_TIME": "2025-05-14T01:15:36.697Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.84"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -11332,10 +11368,10 @@ class WorkflowDataConverter {
       case 'knowledgeRetrieval':
       case 'knowledge_retrieval':
         if (node.data.selectedFile) {
-          // parameters.data_source = { data: node.data.selectedFile };
-          // 使用model作為llm_id - 現在存的是ID值而非名稱
           parameters.file_id = { data: node.data.selectedFile };
         }
+        // 添加 top_k 參數
+        parameters.top_k = { data: node.data.topK || 5 };
         break;
       case 'ifElse':
         if (node.data.variableName) {
@@ -12324,6 +12360,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [localSelectedFile, setLocalSelectedFile] = useState$8(
     data?.selectedFile || ""
   );
+  const [topK, setTopK] = useState$8(data?.topK || 5);
   const updateParentState = useCallback$1(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=${value}`);
@@ -12395,29 +12432,34 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       );
       setLocalSelectedFile(data.selectedFile);
     }
-  }, [data?.selectedFile, localSelectedFile, id]);
+    if (data?.topK && data.topK !== topK) {
+      setTopK(data.topK);
+    }
+  }, [data?.selectedFile, data?.topK, localSelectedFile, topK, id]);
   useEffect$2(() => {
     loadFiles();
     console.log("KnowledgeRetrievalNode 初始化狀態:", {
       "node.id": id,
       "data.selectedFile": data?.selectedFile,
+      "data.topK": data?.topK,
       localSelectedFile,
+      topK,
       "dataFiles.length": dataFiles.length
     });
-  }, [id, data?.selectedFile, localSelectedFile, dataFiles.length, loadFiles]);
+  }, [
+    id,
+    data?.selectedFile,
+    data?.topK,
+    localSelectedFile,
+    topK,
+    dataFiles.length,
+    loadFiles
+  ]);
   const handleReloadFiles = useCallback$1(() => {
     if (dataFiles.length <= 2 || fileLoadError) {
       loadFiles();
     }
   }, [dataFiles.length, fileLoadError, loadFiles]);
-  useEffect$2(() => {
-    console.log("KnowledgeRetrievalNode 狀態更新:", {
-      "node.id": id,
-      "data.selectedFile": data?.selectedFile,
-      localSelectedFile,
-      "dataFiles.length": dataFiles.length
-    });
-  }, [id, data?.selectedFile, localSelectedFile, dataFiles]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
@@ -12483,7 +12525,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       {
         type: "target",
         position: Position.Left,
-        id: "input",
+        id: "passage",
         style: {
           background: "#e5e7eb",
           border: "1px solid #D3D3D3",
