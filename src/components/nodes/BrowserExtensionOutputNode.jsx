@@ -9,6 +9,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const updateNodeInternals = useUpdateNodeInternals(); // 用於通知 ReactFlow 更新節點內部結構
   const initAttempts = useRef(0);
   const nodeId = id || 'unknown'; // 防止 id 為 undefined
+  const handlesMigrated = useRef(false); // 追蹤是否已進行過 handle 遷移
 
   const getNodeHeight = useCallback(() => {
     // 標題區域高度
@@ -36,6 +37,23 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 使用 useEdges 獲取所有邊緣
   const edges = useEdges();
 
+  // 將舊的 handle ID 轉換為新格式的函數
+  const migrateHandleId = (oldId) => {
+    // 如果已經是 outputX 格式，直接返回
+    if (oldId && oldId.startsWith('output')) {
+      return oldId;
+    }
+
+    // 如果是默認的 'input'，轉換為 'output0'
+    if (oldId === 'input') {
+      return 'output0';
+    }
+
+    // 如果是 input_timestamp 格式，轉換為下一個可用的 outputX
+    // 這裡我們返回帶有舊 ID 的對象，稍後會進行批量處理
+    return { oldId, needsMigration: true };
+  };
+
   // 初始化節點 - 確保 handle 正確載入並初始化
   useEffect(() => {
     // 追蹤初始化嘗試次數
@@ -46,15 +64,30 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     // 準備收集所有 handle
     let allHandles = new Map();
+    let needsMigration = false;
+    let migratedHandles = [];
 
     // 首先從 node_input 中提取 handle
     if (data.node_input && typeof data.node_input === 'object') {
       const inputKeys = Object.keys(data.node_input);
       console.log(`從 node_input 載入 handle (${nodeId}):`, inputKeys);
 
-      // 將 node_input 中的所有 handle 加入 map
+      // 將 node_input 中的所有 handle 加入 map，並檢查是否需要遷移
       inputKeys.forEach((key) => {
-        allHandles.set(key, { id: key });
+        const migratedId = migrateHandleId(key);
+
+        if (typeof migratedId === 'object' && migratedId.needsMigration) {
+          needsMigration = true;
+          migratedHandles.push({ oldId: migratedId.oldId, newId: null }); // 暫時不設置新 ID
+        } else {
+          allHandles.set(migratedId, { id: migratedId });
+
+          // 如果 key 不等於 migratedId，說明發生了 ID 變更
+          if (key !== migratedId) {
+            needsMigration = true;
+            migratedHandles.push({ oldId: key, newId: migratedId });
+          }
+        }
       });
 
       console.log(`從 node_input 找到 ${allHandles.size} 個 handle`);
@@ -68,7 +101,19 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
       data.inputHandles.forEach((handle) => {
         if (handle && handle.id) {
-          allHandles.set(handle.id, { id: handle.id });
+          const migratedId = migrateHandleId(handle.id);
+
+          if (typeof migratedId === 'object' && migratedId.needsMigration) {
+            needsMigration = true;
+            migratedHandles.push({ oldId: migratedId.oldId, newId: null });
+          } else {
+            allHandles.set(migratedId, { id: migratedId });
+
+            if (handle.id !== migratedId) {
+              needsMigration = true;
+              migratedHandles.push({ oldId: handle.id, newId: migratedId });
+            }
+          }
         }
       });
 
@@ -86,25 +131,97 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       const paramHandles = data.parameters.inputHandles.data;
       if (Array.isArray(paramHandles)) {
         paramHandles.forEach((handleId) => {
-          allHandles.set(handleId, { id: handleId });
+          const migratedId = migrateHandleId(handleId);
+
+          if (typeof migratedId === 'object' && migratedId.needsMigration) {
+            needsMigration = true;
+            migratedHandles.push({ oldId: migratedId.oldId, newId: null });
+          } else {
+            allHandles.set(migratedId, { id: migratedId });
+
+            if (handleId !== migratedId) {
+              needsMigration = true;
+              migratedHandles.push({ oldId: handleId, newId: migratedId });
+            }
+          }
         });
       }
 
       console.log(`加入參數後共有 ${allHandles.size} 個 handle`);
     }
 
+    // 處理需要遷移但尚未分配新 ID 的 handle
+    if (needsMigration && migratedHandles.some((h) => h.newId === null)) {
+      // 找出最大的輸出索引
+      let maxIndex = -1;
+      allHandles.forEach((handle, id) => {
+        if (id.startsWith('output')) {
+          const indexStr = id.substring(6);
+          const index = parseInt(indexStr, 10);
+          if (!isNaN(index) && index > maxIndex) {
+            maxIndex = index;
+          }
+        }
+      });
+
+      // 為每個未分配 ID 的 handle 分配新 ID
+      migratedHandles.forEach((handle) => {
+        if (handle.newId === null) {
+          maxIndex++;
+          handle.newId = `output${maxIndex}`;
+          allHandles.set(handle.newId, { id: handle.newId });
+        }
+      });
+
+      console.log('完成 handle ID 遷移:', migratedHandles);
+    }
+
+    // 遷移 node_input 中的資料
+    if (needsMigration && data.node_input) {
+      const newNodeInput = {};
+
+      // 複製原有資料到新的 ID
+      migratedHandles.forEach(({ oldId, newId }) => {
+        if (data.node_input[oldId]) {
+          newNodeInput[newId] = { ...data.node_input[oldId] };
+        }
+      });
+
+      // 保留其他未遷移的資料
+      Object.keys(data.node_input).forEach((key) => {
+        if (!migratedHandles.some((h) => h.oldId === key)) {
+          newNodeInput[key] = data.node_input[key];
+        }
+      });
+
+      // 更新 node_input
+      data.node_input = newNodeInput;
+      console.log('遷移後的 node_input:', data.node_input);
+    }
+
     // 轉換 Map 為數組
     let handles = Array.from(allHandles.values());
 
-    // 確保至少有一個默認 handle
+    // 確保至少有一個默認 handle，並且使用 "output0" 作為默認 ID
     if (handles.length === 0) {
-      handles = [{ id: 'input' }];
-      console.log(`添加默認 handle: input`);
+      handles = [{ id: 'output0' }];
+      console.log(`添加默認 handle: output0`);
+
+      // 同時確保 node_input 中有對應的項
+      if (data.node_input) {
+        data.node_input['output0'] = {
+          node_id: '',
+          output_name: '',
+          type: 'string',
+          data: '',
+          is_empty: true
+        };
+      }
     }
 
     // 確保每個 handle ID 都是字符串類型，以防止 ReactFlow 錯誤
     handles = handles.map((handle) => ({
-      id: String(handle.id || `input_${Date.now()}`)
+      id: String(handle.id || 'output0')
     }));
 
     console.log(`最終設置節點 ${nodeId} 的 inputs:`, handles);
@@ -134,6 +251,11 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       data.node_input = nodeInput;
     }
 
+    // 更新 inputHandles
+    if (data.inputHandles) {
+      data.inputHandles = handles;
+    }
+
     // 調試輸出完整的節點資料
     console.log(`節點 ${nodeId} 完整資料:`, {
       handles: handles,
@@ -152,6 +274,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         }
       }, delay);
     });
+
+    // 標記遷移已完成
+    handlesMigrated.current = true;
   }, [nodeId, data, updateNodeInternals]);
 
   // 當 inputs 變更時，也更新節點內部結構
@@ -190,10 +315,23 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     return { totalConnections, connectionsPerHandle };
   }, [edges, id, inputs]);
 
-  // 處理新增輸出按鈕點擊 - 關鍵修改，直接更新 node_input
+  // 處理新增輸出按鈕點擊 - 使用遞增數字格式 "output1", "output2" 等
   const handleAddOutput = useCallback(() => {
-    // 創建帶有時間戳的新 handle ID
-    const newInputId = `input_${Date.now()}`;
+    // 查找當前最大的輸出索引，以便生成下一個序號
+    let maxIndex = -1;
+    inputs.forEach((input) => {
+      if (input.id && input.id.startsWith('output')) {
+        const indexStr = input.id.substring(6); // 提取 'output' 後面的部分
+        const index = parseInt(indexStr, 10);
+        if (!isNaN(index) && index > maxIndex) {
+          maxIndex = index;
+        }
+      }
+    });
+
+    // 創建新的 handle ID，格式為 "outputX"，其中 X 是遞增的數字
+    const newIndex = maxIndex + 1;
+    const newInputId = `output${newIndex}`;
     const newInputs = [...inputs, { id: newInputId }];
 
     console.log(`新增 handle (${nodeId}):`, newInputId);

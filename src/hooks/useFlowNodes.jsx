@@ -489,7 +489,7 @@ export default function useFlowNodes() {
         type: 'browserExtensionOutput',
         data: {
           // 確保默認有一個 input handle
-          inputHandles: [{ id: 'input' }],
+          inputHandles: [{ id: 'output0' }],
           // 儲存節點輸入連接關聯
           node_input: {
             // 為默認 handle 創建一個空的輸入項
@@ -546,8 +546,8 @@ export default function useFlowNodes() {
 
           // 新增 onRemoveHandle 方法
           onRemoveHandle: (handleId) => {
-            if (handleId === 'input') {
-              console.log('不能移除默認 input handle');
+            if (handleId === 'output0') {
+              console.log('不能移除默認 output0 handle');
               return;
             }
 
@@ -1000,6 +1000,23 @@ export default function useFlowNodes() {
 
           // 確保目標節點有 inputHandles 數組
           const currentHandles = targetNode.data.inputHandles || [];
+
+          // 找出最大索引
+          let maxIndex = -1;
+          currentHandles.forEach((handle) => {
+            if (handle.id && handle.id.startsWith('output')) {
+              const indexStr = handle.id.substring(6); // 提取 'output' 後面的部分
+              const index = parseInt(indexStr, 10);
+              if (!isNaN(index) && index > maxIndex) {
+                maxIndex = index;
+              }
+            }
+          });
+
+          // 新的 handle ID 使用下一個索引
+          const newIndex = maxIndex + 1;
+          targetHandle = `output${newIndex}`;
+          console.log(`創建新的 handle: ${targetHandle}`);
 
           // 添加新 handle 到節點
           safeSetNodes((nds) =>

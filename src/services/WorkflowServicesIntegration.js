@@ -1341,8 +1341,8 @@ class WorkflowDataConverter {
 
         // 確保至少有一個默認 handle
         if (inputHandles.length === 0) {
-          inputHandles.push({ id: 'input' });
-          console.log(`添加默認 handle: input`);
+          inputHandles.push({ id: 'output0' });
+          console.log(`添加默認 handle: output0`);
         }
 
         // 設置節點數據
