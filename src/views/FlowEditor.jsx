@@ -595,6 +595,28 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     try {
       // 檢查保存前的連線
       debugConnections(edges, '保存前');
+      // 重要：在轉換前檢查所有 BrowserExtensionOutput 節點的資料完整性
+      nodes.forEach((node) => {
+        if (node.type === 'browserExtensionOutput') {
+          console.log(`保存前檢查節點 ${node.id}:`, {
+            inputHandles: node.data.inputHandles || [],
+            node_input: node.data.node_input || {}
+          });
+
+          // 確保 inputHandles 和 node_input 同步
+          if (node.data.inputHandles && node.data.node_input) {
+            const handleMismatch = node.data.inputHandles.some(
+              (handle) => !node.data.node_input[handle.id]
+            );
+
+            if (handleMismatch) {
+              console.warn(
+                `節點 ${node.id} 的 inputHandles 和 node_input 不同步`
+              );
+            }
+          }
+        }
+      });
       const flowData = {
         id: flowMetadata.id || `flow_${Date.now()}`,
         title: flowMetadata.title || '未命名流程',
@@ -1159,6 +1181,9 @@ if (typeof window !== 'undefined') {
 /**
  * 在 API 數據發送前調試節點輸入數據
  */
+/**
+ * 在 API 數據發送前調試節點輸入數據
+ */
 const debugNodeInputsBeforeSave = (flowPipeline) => {
   console.group('保存前節點輸入調試');
 
@@ -1168,13 +1193,15 @@ const debugNodeInputsBeforeSave = (flowPipeline) => {
     if (node.operator === 'browser_extension_output' && node.node_input) {
       console.group(`節點 ${node.id} (${node.operator}) 的輸入:`);
 
-      // 檢查每個輸入連接
+      // 檢查每個輸入連接，包括空連線
       Object.entries(node.node_input).forEach(([key, input]) => {
+        const isEmpty = input.is_empty || !input.node_id;
         console.log(`輸入 ${key}:`, {
-          node_id: input.node_id,
+          node_id: input.node_id || '(空)',
           output_name: input.output_name,
           type: input.type,
-          return_name: input.return_name || '(未設置)'
+          return_name: input.return_name || '(未設置)',
+          isEmpty: isEmpty ? '是' : '否'
         });
       });
 

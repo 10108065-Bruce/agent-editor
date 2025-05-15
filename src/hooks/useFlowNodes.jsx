@@ -491,32 +491,61 @@ export default function useFlowNodes() {
           // 確保默認有一個 input handle
           inputHandles: [{ id: 'input' }],
           // 儲存節點輸入連接關聯
-          node_input: {},
+          node_input: {
+            // 為默認 handle 創建一個空的輸入項
+            input: {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true
+            }
+          },
           onAddOutput: (newInputHandles) => {
             console.log(`更新節點 ${id} 的 handle：`, newInputHandles);
 
-            // 檢查是否已經有相同的 handle
+            // 獲取當前節點
             const currentNode = nodes.find((node) => node.id === id);
-            if (
-              currentNode &&
-              currentNode.data &&
-              JSON.stringify(currentNode.data.inputHandles) ===
-                JSON.stringify(newInputHandles)
-            ) {
-              console.log('handles 沒有變化，跳過更新');
+            if (!currentNode) {
+              console.error(`找不到節點 ${id}`);
               return;
             }
 
-            // 更新節點時保留現有的 node_input 數據
+            // 獲取現有的 node_input 或初始化
+            const currentNodeInput = currentNode.data?.node_input || {};
+
+            // 創建更新後的 node_input
+            const updatedNodeInput = { ...currentNodeInput };
+
+            // 關鍵修正：檢查每個 handle，確保在 node_input 中存在對應項
+            newInputHandles.forEach((handle) => {
+              const handleId = handle.id;
+
+              // 如果此 handle 還沒有對應的 node_input 項，創建一個
+              if (!updatedNodeInput[handleId]) {
+                updatedNodeInput[handleId] = {
+                  node_id: '',
+                  output_name: '',
+                  type: 'string',
+                  data: '',
+                  is_empty: true
+                };
+                console.log(`為 handle ${handleId} 創建 node_input 項`);
+              }
+            });
+
+            console.log(`更新後的 node_input:`, updatedNodeInput);
+
+            // 更新節點，同時更新 inputHandles 和 node_input
             safeSetNodes((nds) =>
               nds.map((node) => {
                 if (node.id === id) {
-                  // 保留原有數據，只更新 inputHandles
                   return {
                     ...node,
                     data: {
                       ...node.data,
-                      inputHandles: newInputHandles
+                      inputHandles: newInputHandles,
+                      node_input: updatedNodeInput
                     }
                   };
                 }

@@ -34,6 +34,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     );
   }, [inputs.length]);
 
+  // 使用 useEdges 獲取所有邊緣
+  const edges = useEdges();
+
   // 初始化節點 - 確保 handle 正確載入並初始化
   useEffect(() => {
     // 追蹤初始化嘗試次數
@@ -42,28 +45,62 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       `初始化 BrowserExtensionOutputNode ${nodeId}，嘗試 #${initAttempts.current}`
     );
 
-    let handles = [];
+    // 準備收集所有 handle
+    let allHandles = new Map();
 
-    // 檢查是否從 node_input 載入資料（從後端加載時的情況）
+    // 首先從 node_input 中提取 handle
     if (data.node_input && typeof data.node_input === 'object') {
       const inputKeys = Object.keys(data.node_input);
       console.log(`從 node_input 載入 handle (${nodeId}):`, inputKeys);
 
-      if (inputKeys.length > 0) {
-        // 從 node_input 直接獲取 handle
-        handles = inputKeys.map((handleId) => ({
-          id: handleId
-        }));
-        console.log(`從 node_input 找到 ${handles.length} 個 handle`);
-      }
+      // 將 node_input 中的所有 handle 加入 map
+      inputKeys.forEach((key) => {
+        allHandles.set(key, { id: key });
+      });
+
+      console.log(`從 node_input 找到 ${allHandles.size} 個 handle`);
     }
 
-    // 如果有明確的 inputHandles 資料，使用它
+    // 其次，如果有 inputHandles 屬性，也將它們加入 map
     if (data.inputHandles && Array.isArray(data.inputHandles)) {
       console.log(
         `從 inputHandles 屬性載入 ${data.inputHandles.length} 個 handle`
       );
-      handles = data.inputHandles;
+
+      data.inputHandles.forEach((handle) => {
+        if (handle && handle.id) {
+          allHandles.set(handle.id, { id: handle.id });
+        }
+      });
+
+      console.log(`合併後共有 ${allHandles.size} 個 handle`);
+    }
+
+    // 還要確認一下參數中的 inputHandles
+    if (
+      data.parameters &&
+      data.parameters.inputHandles &&
+      data.parameters.inputHandles.data
+    ) {
+      console.log(`從參數中載入 handle`);
+
+      const paramHandles = data.parameters.inputHandles.data;
+      if (Array.isArray(paramHandles)) {
+        paramHandles.forEach((handleId) => {
+          allHandles.set(handleId, { id: handleId });
+        });
+      }
+
+      console.log(`加入參數後共有 ${allHandles.size} 個 handle`);
+    }
+
+    // 轉換 Map 為數組
+    let handles = Array.from(allHandles.values());
+
+    // 確保至少有一個默認 handle
+    if (handles.length === 0) {
+      handles = [{ id: 'input' }];
+      console.log(`添加默認 handle: input`);
     }
 
     // 確保每個 handle ID 都是字符串類型，以防止 ReactFlow 錯誤
@@ -71,8 +108,39 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       id: String(handle.id || `input_${Date.now()}`)
     }));
 
+    console.log(`最終設置節點 ${nodeId} 的 inputs:`, handles);
+
     // 設置 inputs 並更新 ReactFlow 內部結構
     setInputs(handles);
+
+    // 同步 node_input - 關鍵修復：確保所有 handle 都有對應的 node_input 項
+    if (data.node_input) {
+      const nodeInput = { ...data.node_input };
+
+      // 檢查每個 handle，確保在 node_input 中存在
+      handles.forEach((handle) => {
+        if (!nodeInput[handle.id]) {
+          nodeInput[handle.id] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true
+          };
+          console.log(`為 handle ${handle.id} 創建 node_input 項`);
+        }
+      });
+
+      // 更新 node_input
+      data.node_input = nodeInput;
+    }
+
+    // 調試輸出完整的節點資料
+    console.log(`節點 ${nodeId} 完整資料:`, {
+      handles: handles,
+      node_input: data.node_input || {},
+      inputHandles: data.inputHandles || []
+    });
 
     // 多次延遲更新節點內部結構，確保 ReactFlow 能正確識別 handle
     const updateTimes = [0, 50, 150, 300, 600, 1000, 1500];
@@ -103,13 +171,27 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
   }, [inputs, nodeId, updateNodeInternals]);
 
-  // 使用 useEdges 獲取所有邊緣
-  const edges = useEdges();
+  // 計算連接到該節點的連線數量和每個 handle 的連線詳情
+  const connectionInfo = useCallback(() => {
+    // 計算總連接數
+    const totalConnections = edges.filter((edge) => edge.target === id).length;
 
-  // 計算連接到 context handle 的連線數量
-  const connectionCount = edges.filter((edge) => edge.target === id).length;
+    // 計算每個 handle 的連接數
+    const connectionsPerHandle = {};
 
-  // 處理新增輸出按鈕點擊
+    inputs.forEach((input) => {
+      const handleId = input.id;
+      const connectionsToHandle = edges.filter(
+        (edge) => edge.target === id && edge.targetHandle === handleId
+      ).length;
+
+      connectionsPerHandle[handleId] = connectionsToHandle;
+    });
+
+    return { totalConnections, connectionsPerHandle };
+  }, [edges, id, inputs]);
+
+  // 處理新增輸出按鈕點擊 - 關鍵修改，直接更新 node_input
   const handleAddOutput = useCallback(() => {
     // 創建帶有時間戳的新 handle ID
     const newInputId = `input_${Date.now()}`;
@@ -120,17 +202,50 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     // 更新本地狀態
     setInputs(newInputs);
 
-    // 呼叫回調函數以更新父元件中的節點資料
-    if (data.onAddOutput) {
-      data.onAddOutput(newInputs);
+    // 直接更新 node_input - 不依賴回調函數
+    if (data.node_input) {
+      data.node_input[newInputId] = {
+        node_id: '',
+        output_name: '',
+        type: 'string',
+        data: '',
+        is_empty: true
+      };
+      console.log(`已在 node_input 中添加 ${newInputId}`);
     }
-  }, [inputs, data.onAddOutput, nodeId]);
+
+    // 更新 inputHandles
+    if (data.inputHandles) {
+      data.inputHandles = newInputs;
+    } else {
+      data.inputHandles = newInputs;
+    }
+
+    // 同時也嘗試更新參數
+    if (data.parameters && data.parameters.inputHandles) {
+      data.parameters.inputHandles.data = newInputs.map((h) => h.id);
+    }
+
+    // 如果有回調函數，也嘗試調用
+    if (data.onAddOutput) {
+      try {
+        data.onAddOutput(newInputs);
+      } catch (err) {
+        console.warn(`調用 onAddOutput 時出錯:`, err);
+      }
+    } else {
+      console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
+    }
+  }, [inputs, data, nodeId]);
 
   // 計算節點樣式，包括動態高度
   const nodeStyle = {
     height: `${getNodeHeight()}px`,
     transition: 'height 0.3s ease' // 添加平滑過渡效果
   };
+
+  // 取得連線信息
+  const { totalConnections, connectionsPerHandle } = connectionInfo();
 
   return (
     <div
@@ -165,12 +280,12 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         {inputs.length > 0 && (
           <div className='text-xs text-gray-600 mt-2'>
             <div>已有 {inputs.length} 個輸入點</div>
-            <div>共連線 {connectionCount} 個</div>
+            <div>共連線 {totalConnections} 個</div>
           </div>
         )}
       </div>
 
-      {/* 動態渲染 handle */}
+      {/* 動態渲染所有 handle */}
       {inputs.map((input, index) => {
         // 計算 handle 的位置
         // 從標準起始位置開始，每個間隔 25px
@@ -178,22 +293,44 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         const spacing = 25; // handle 之間的間距
         const topPosition = startY + index * spacing;
 
+        // 獲取此 handle 的連線數量
+        const connectionCount = connectionsPerHandle[input.id] || 0;
+
+        // 根據是否有連線設置不同的樣式
+        const handleStyle = {
+          background: connectionCount > 0 ? '#e5e7eb' : '#f3f4f6',
+          borderColor: connectionCount > 0 ? '#D3D3D3' : '#E0E0E0',
+          width: '12px',
+          height: '12px',
+          left: '-6px',
+          top: `${topPosition}px`,
+          border:
+            connectionCount > 0 ? '1px solid #D3D3D3' : '1px dashed #A0A0A0'
+        };
+
         return (
-          <Handle
-            key={`handle-${input.id}`}
-            type='target'
-            position={Position.Left}
-            id={String(input.id)}
-            style={{
-              background: '#e5e7eb',
-              borderColor: '#D3D3D3',
-              width: '12px',
-              height: '12px',
-              left: '-6px',
-              top: `${topPosition}px`
-            }}
-            isConnectable={isConnectable}
-          />
+          <React.Fragment key={`handle-${input.id}`}>
+            {/* Handle 元素 */}
+            <Handle
+              type='target'
+              position={Position.Left}
+              id={String(input.id)}
+              style={handleStyle}
+              isConnectable={isConnectable}
+            />
+
+            {/* 添加標籤顯示 handle ID */}
+            <div
+              className='text-xs text-gray-500 absolute'
+              style={{
+                left: '10px',
+                top: `${topPosition - 6}px`,
+                pointerEvents: 'none'
+              }}>
+              {input.id.length > 15 ? `...${input.id.slice(-12)}` : input.id}
+              {connectionCount > 0 ? ` (${connectionCount})` : ''}
+            </div>
+          </React.Fragment>
         );
       })}
     </div>
