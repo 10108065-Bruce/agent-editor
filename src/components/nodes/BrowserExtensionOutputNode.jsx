@@ -6,10 +6,13 @@ import AddIcon from '../icons/AddIcon';
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 用來追蹤輸入 handle 的狀態
   const [inputs, setInputs] = useState([]);
-  const updateNodeInternals = useUpdateNodeInternals(); // 用於通知 ReactFlow 更新節點內部結構
+  // 新增 handleLabels 狀態來儲存每個 handle 的自定義標籤
+  const [handleLabels, setHandleLabels] = useState({});
+  const updateNodeInternals = useUpdateNodeInternals();
   const initAttempts = useRef(0);
-  const nodeId = id || 'unknown'; // 防止 id 為 undefined
-  const handlesMigrated = useRef(false); // 追蹤是否已進行過 handle 遷移
+  const nodeId = id || 'unknown';
+  const handlesMigrated = useRef(false);
+  const isUpdating = useRef(false); // 防止循環更新
 
   const getNodeHeight = useCallback(() => {
     // 標題區域高度
@@ -23,8 +26,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     // 每個 handle 之間的間距
     const handleSpacing = 25;
 
-    // 計算總高度:
-    // 固定部分 + (handle數量) * 間距 + 額外的底部區域
+    // 計算總高度
     return (
       headerHeight +
       inputs.length * handleSpacing +
@@ -50,13 +52,30 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
 
     // 如果是 input_timestamp 格式，轉換為下一個可用的 outputX
-    // 這裡我們返回帶有舊 ID 的對象，稍後會進行批量處理
     return { oldId, needsMigration: true };
   };
 
+  // 從 node_input 讀取標籤 - 只在初始化時調用一次
+  const loadLabelsFromNodeInput = useCallback(() => {
+    if (!data.node_input) return {};
+
+    const labels = {};
+    Object.entries(data.node_input).forEach(([key, value]) => {
+      console.log('loadLabelsFromNodeInput:', key, value);
+      if (value && value.return_name) {
+        console.log(`讀取 ${key} 的 return_name:`, value.return_name);
+        labels[key] = value.return_name;
+      }
+    });
+
+    return labels;
+  }, [data.node_input]);
+
   // 初始化節點 - 確保 handle 正確載入並初始化
   useEffect(() => {
-    // 追蹤初始化嘗試次數
+    if (isUpdating.current) return;
+    isUpdating.current = true;
+
     initAttempts.current += 1;
     console.log(
       `初始化 BrowserExtensionOutputNode ${nodeId}，嘗試 #${initAttempts.current}`
@@ -66,6 +85,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     let allHandles = new Map();
     let needsMigration = false;
     let migratedHandles = [];
+
+    // 讀取初始標籤
+    const initialLabels = loadLabelsFromNodeInput();
 
     // 首先從 node_input 中提取 handle
     if (data.node_input && typeof data.node_input === 'object') {
@@ -78,19 +100,16 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
         if (typeof migratedId === 'object' && migratedId.needsMigration) {
           needsMigration = true;
-          migratedHandles.push({ oldId: migratedId.oldId, newId: null }); // 暫時不設置新 ID
+          migratedHandles.push({ oldId: migratedId.oldId, newId: null });
         } else {
           allHandles.set(migratedId, { id: migratedId });
 
-          // 如果 key 不等於 migratedId，說明發生了 ID 變更
           if (key !== migratedId) {
             needsMigration = true;
             migratedHandles.push({ oldId: key, newId: migratedId });
           }
         }
       });
-
-      console.log(`從 node_input 找到 ${allHandles.size} 個 handle`);
     }
 
     // 其次，如果有 inputHandles 屬性，也將它們加入 map
@@ -214,7 +233,8 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           output_name: '',
           type: 'string',
           data: '',
-          is_empty: true
+          is_empty: true,
+          return_name: '' // 確保有 return_name 屬性
         };
       }
     }
@@ -241,9 +261,21 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             output_name: '',
             type: 'string',
             data: '',
-            is_empty: true
+            is_empty: true,
+            return_name: '' // 確保有 return_name 屬性
           };
           console.log(`為 handle ${handle.id} 創建 node_input 項`);
+        } else if (
+          !Object.prototype.hasOwnProperty.call(
+            nodeInput[handle.id],
+            'return_name'
+          )
+        ) {
+          // 確保 return_name 屬性存在
+          nodeInput[handle.id].return_name = '';
+          console.log(`為 handle ${handle.id} 添加 return_name 屬性`);
+        } else {
+          // return name 屬性存在
         }
       });
 
@@ -256,11 +288,18 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       data.inputHandles = handles;
     }
 
+    // 設置標籤狀態
+    if (Object.keys(initialLabels).length > 0) {
+      setHandleLabels(initialLabels);
+      console.log('設置初始標籤:', initialLabels);
+    }
+
     // 調試輸出完整的節點資料
     console.log(`節點 ${nodeId} 完整資料:`, {
       handles: handles,
       node_input: data.node_input || {},
-      inputHandles: data.inputHandles || []
+      inputHandles: data.inputHandles || [],
+      labels: initialLabels
     });
 
     // 多次延遲更新節點內部結構，確保 ReactFlow 能正確識別 handle
@@ -277,7 +316,12 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     // 標記遷移已完成
     handlesMigrated.current = true;
-  }, [nodeId, data, updateNodeInternals]);
+
+    // 重置更新狀態
+    setTimeout(() => {
+      isUpdating.current = false;
+    }, 100);
+  }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
 
   // 當 inputs 變更時，也更新節點內部結構
   useEffect(() => {
@@ -315,13 +359,13 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     return { totalConnections, connectionsPerHandle };
   }, [edges, id, inputs]);
 
-  // 處理新增輸出按鈕點擊 - 使用遞增數字格式 "output1", "output2" 等
+  // 處理新增輸出按鈕點擊
   const handleAddOutput = useCallback(() => {
     // 查找當前最大的輸出索引，以便生成下一個序號
     let maxIndex = -1;
     inputs.forEach((input) => {
       if (input.id && input.id.startsWith('output')) {
-        const indexStr = input.id.substring(6); // 提取 'output' 後面的部分
+        const indexStr = input.id.substring(6);
         const index = parseInt(indexStr, 10);
         if (!isNaN(index) && index > maxIndex) {
           maxIndex = index;
@@ -339,14 +383,15 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     // 更新本地狀態
     setInputs(newInputs);
 
-    // 直接更新 node_input - 不依賴回調函數
+    // 直接更新 node_input
     if (data.node_input) {
       data.node_input[newInputId] = {
         node_id: '',
         output_name: '',
         type: 'string',
         data: '',
-        is_empty: true
+        is_empty: true,
+        return_name: '' // 確保有 return_name 屬性
       };
       console.log(`已在 node_input 中添加 ${newInputId}`);
     }
@@ -375,10 +420,55 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
   }, [inputs, data, nodeId]);
 
+  // 處理標籤變更的函數 - 避免無限循環
+  const handleLabelChange = useCallback(
+    (handleId, newLabel) => {
+      // 更新本地標籤狀態
+      setHandleLabels((prev) => {
+        // 如果標籤沒有變化，不更新
+        if (prev[handleId] === newLabel) return prev;
+
+        // 標籤有變化，更新節點數據
+        if (data.node_input && data.node_input[handleId]) {
+          // 關鍵修改：確保即便是未連線的 handle 也能儲存 return_name
+          data.node_input[handleId].return_name = newLabel;
+
+          // 避免 return_name 被 is_empty 標記覆蓋，明確標記這是一個需要保存的屬性
+          data.node_input[handleId].has_return_name = true;
+        } else if (data.node_input) {
+          // 如果 node_input 中沒有對應的 handle，創建一個
+          data.node_input[handleId] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true,
+            return_name: newLabel,
+            has_return_name: true // 標記為有 return_name
+          };
+        }
+
+        console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
+        return { ...prev, [handleId]: newLabel };
+      });
+
+      // 確保立即更新到後端
+      if (data.updateNodeData && data.node_input) {
+        try {
+          data.updateNodeData('node_input', { ...data.node_input });
+          console.log(`已將 ${handleId} 的標籤變更同步到後端`);
+        } catch (err) {
+          console.warn('更新節點數據時出錯:', err);
+        }
+      }
+    },
+    [data]
+  );
+
   // 計算節點樣式，包括動態高度
   const nodeStyle = {
     height: `${getNodeHeight()}px`,
-    transition: 'height 0.3s ease' // 添加平滑過渡效果
+    transition: 'height 0.3s ease'
   };
 
   // 取得連線信息
@@ -435,16 +525,23 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
               isConnectable={isConnectable}
             />
 
-            {/* 添加標籤顯示 handle ID */}
+            {/* 可編輯的標籤 - 替換原有的靜態標籤 */}
             <div
-              className='text-xs text-gray-500 absolute'
-              style={{
-                left: '10px',
-                top: `${topPosition - 6}px`,
-                pointerEvents: 'none'
-              }}>
-              {input.id.length > 15 ? `...${input.id.slice(-12)}` : input.id}
-              {connectionCount > 0 ? ` (${connectionCount})` : ''}
+              className='absolute flex'
+              style={{ left: '10px', top: `${topPosition - 6}px` }}>
+              <input
+                type='text'
+                className='text-xs border border-gray-300 rounded px-1 py-0 w-55 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none'
+                placeholder='請輸入'
+                value={handleLabels[input.id] || ''}
+                onChange={(e) => handleLabelChange(input.id, e.target.value)}
+                title={`輸入 ${input.id} 的標籤（將儲存為 return_name）`}
+              />
+              {connectionCount > 0 ? (
+                <span className='text-xs text-gray-500 ml-1'>
+                  ({connectionCount})
+                </span>
+              ) : null}
             </div>
           </React.Fragment>
         );

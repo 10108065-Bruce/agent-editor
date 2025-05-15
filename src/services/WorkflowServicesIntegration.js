@@ -169,71 +169,72 @@ class WorkflowMappingService {
             const inputKey =
               connectedEdges.length > 1 ? `${handleId}_${index}` : handleId;
             const sourceNode = allNodes.find((n) => n.id === edge.source);
-            let returnName = edge.label || 'output';
 
             // 根據源節點類型獲取適當的 return_name
             if (sourceNode) {
-              if (
-                sourceNode.type === 'customInput' ||
-                sourceNode.type === 'input'
-              ) {
-                // 從自定義輸入節點獲取欄位名稱
-                if (
-                  sourceNode.data &&
-                  sourceNode.data.fields &&
-                  Array.isArray(sourceNode.data.fields)
-                ) {
-                  // 從 sourceHandle 中提取索引（如 output-0）
-                  const outputIndex = edge.sourceHandle
-                    ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                    : 0;
-
-                  // 獲取對應的欄位名稱
-                  if (sourceNode.data.fields[outputIndex]) {
-                    returnName =
-                      sourceNode.data.fields[outputIndex].inputName ||
-                      returnName;
-                  }
-                }
-              } else if (sourceNode.type === 'browserExtensionInput') {
-                // 從瀏覽器擴展輸入節點獲取項目名稱
-                if (
-                  sourceNode.data &&
-                  sourceNode.data.items &&
-                  Array.isArray(sourceNode.data.items)
-                ) {
-                  // 從 sourceHandle 中提取索引（如 output-0）
-                  const outputIndex = edge.sourceHandle
-                    ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                    : 0;
-
-                  // 獲取對應的項目名稱
-                  if (sourceNode.data.items[outputIndex]) {
-                    returnName =
-                      sourceNode.data.items[outputIndex].name || returnName;
-                  }
-                }
-              } else if (
-                sourceNode.type === 'aiCustomInput' ||
-                sourceNode.type === 'ai'
-              ) {
-                // AI 節點通常使用默認的 output
-                returnName = 'output';
-              } else if (sourceNode.type === 'knowledgeRetrieval') {
-                // 知識檢索節點
-                returnName = 'output';
-              } else {
-                // 對於其他節點類型，使用 sourceHandle 或默認為 'output'
-                returnName = edge.sourceHandle || 'output';
-              }
+              // if (
+              //   sourceNode.type === 'customInput' ||
+              //   sourceNode.type === 'input'
+              // ) {
+              //   // 從自定義輸入節點獲取欄位名稱
+              //   if (
+              //     sourceNode.data &&
+              //     sourceNode.data.fields &&
+              //     Array.isArray(sourceNode.data.fields)
+              //   ) {
+              //     // 從 sourceHandle 中提取索引（如 output-0）
+              //     const outputIndex = edge.sourceHandle
+              //       ? parseInt(edge.sourceHandle.split('-')[1] || 0)
+              //       : 0;
+              //     // 獲取對應的欄位名稱
+              //     if (sourceNode.data.fields[outputIndex]) {
+              //       returnName =
+              //         sourceNode.data.fields[outputIndex].inputName ||
+              //         returnName;
+              //     }
+              //   }
+              // } else if (sourceNode.type === 'browserExtensionInput') {
+              //   // 從瀏覽器擴展輸入節點獲取項目名稱
+              //   if (
+              //     sourceNode.data &&
+              //     sourceNode.data.items &&
+              //     Array.isArray(sourceNode.data.items)
+              //   ) {
+              //     // 從 sourceHandle 中提取索引（如 output-0）
+              //     const outputIndex = edge.sourceHandle
+              //       ? parseInt(edge.sourceHandle.split('-')[1] || 0)
+              //       : 0;
+              //     // 獲取對應的項目名稱
+              //     if (sourceNode.data.items[outputIndex]) {
+              //       returnName =
+              //         sourceNode.data.items[outputIndex].name || returnName;
+              //     }
+              //   }
+              // } else if (
+              //   sourceNode.type === 'aiCustomInput' ||
+              //   sourceNode.type === 'ai'
+              // ) {
+              //   // AI 節點通常使用默認的 output
+              //   returnName = 'output';
+              // } else if (sourceNode.type === 'knowledgeRetrieval') {
+              //   // 知識檢索節點
+              //   returnName = 'output';
+              // } else {
+              //   // 對於其他節點類型，使用 sourceHandle 或默認為 'output'
+              //   console.log('=================edge', edge);
+              //   returnName = edge.sourceHandle || 'output';
+              // }
             }
 
             // 添加到 nodeInput
+            // 從targetnode.dara.node_input中找到key handleId 對應的值，把裡面的return_name提取出來
+            const inputValue = targetNode.data.node_input[handleId];
+            let returnName = inputValue.return_name || 'output';
             nodeInput[inputKey] = {
               node_id: edge.source,
-              output_name: edge.sourceHandle || 'output',
+              output_name: edge.sourceHandle || '',
               type: 'string',
-              return_name: returnName
+              return_name: returnName || edge.label || '' // 確保 return_name 優先使用現有值或邊的標籤
             };
 
             console.log(
@@ -241,13 +242,17 @@ class WorkflowMappingService {
             );
           });
         } else {
+          // 從targetnode.dara.node_input中找到key handleId 對應的值，把裡面的return_name提取出來
+          const inputValue = targetNode.data.node_input[handleId];
+          let returnName = inputValue.return_name || '';
           // 為未連線的 handle 創建空的輸入項
           nodeInput[handleId] = {
             node_id: '', // 空節點 ID 表示沒有連線
             output_name: '',
             type: 'string',
             data: '', // 提供默認空數據
-            is_empty: true // 標記為空連線
+            is_empty: true, // 標記為空連線
+            return_name: returnName || '' // 確保 return_name 優先使用現有值或邊的標籤
           };
           console.log(`保留未連線的 handle: ${handleId}`);
         }
@@ -1276,7 +1281,7 @@ class LLMService {
 class WorkflowDataConverter {
   // 修改 transformToReactFlowFormat 方法，確保連線正確處理
   static transformToReactFlowFormat(apiData) {
-    console.log('開始轉換 API 格式為 ReactFlow 格式');
+    console.log('開始轉換 API 格式為 ReactFlow 格式', apiData);
 
     // 處理 API 數據結構差異
     const flowPipeline =

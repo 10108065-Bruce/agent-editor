@@ -226,7 +226,47 @@ export default function useFlowNodes() {
             );
           };
           break;
+        case 'browserExtensionOutput':
+          callbacks.updateEdgeLabels = (edgeIds, newLabel) => {
+            safeSetEdges((eds) =>
+              eds.map((edge) => {
+                if (Array.isArray(edgeIds) && edgeIds.includes(edge.id)) {
+                  return {
+                    ...edge,
+                    label: newLabel
+                  };
+                } else if (edge.id === edgeIds) {
+                  return {
+                    ...edge,
+                    label: newLabel
+                  };
+                }
+                return edge;
+              })
+            );
+          };
 
+          // 確保有 updateNodeData 回調
+          if (!callbacks.updateNodeData) {
+            callbacks.updateNodeData = (key, value) => {
+              console.log(`更新節點 ${nodeId} 的 ${key} 資料:`, value);
+              safeSetNodes((nds) =>
+                nds.map((node) => {
+                  if (node.id === nodeId) {
+                    return {
+                      ...node,
+                      data: {
+                        ...node.data,
+                        [key]: value
+                      }
+                    };
+                  }
+                  return node;
+                })
+              );
+            };
+          }
+          break;
         default:
           // 所有其他節點類型的通用更新函數
           callbacks.updateNodeData = (key, value) => {
@@ -993,6 +1033,26 @@ export default function useFlowNodes() {
         console.log('目標是瀏覽器擴展輸出節點');
 
         // 處理特殊的 'new-connection' handle，或目標 handle 不存在的情況
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === targetHandle
+        );
+
+        // 暫時先限制
+        if (existingEdges.length > 0) {
+          console.log(`已有連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `已有連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+          return;
+        }
+
         if (targetHandle === 'new-connection' || !targetHandle) {
           // 創建新的 handle ID
           targetHandle = `input_${Date.now()}`;
