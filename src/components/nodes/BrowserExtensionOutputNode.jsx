@@ -10,7 +10,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const initAttempts = useRef(0);
   const nodeId = id || 'unknown'; // 防止 id 為 undefined
 
-  // 計算節點的動態高度
   const getNodeHeight = useCallback(() => {
     // 標題區域高度
     const headerHeight = 50;
@@ -19,18 +18,18 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     // 文字提示區域高度 + 間距 (增加高度以容納兩行文字)
     const textAreaHeight = 40;
     // 額外的底部間距
-    const bottomPadding = 10;
+    const bottomPadding = 30;
     // 每個 handle 之間的間距
-    const handleSpacing = 20;
+    const handleSpacing = 25;
 
     // 計算總高度:
-    // 固定部分 + (handle數量) * 間距
+    // 固定部分 + (handle數量) * 間距 + 額外的底部區域
     return (
       headerHeight +
+      inputs.length * handleSpacing +
       buttonAreaHeight +
       textAreaHeight +
-      bottomPadding +
-      inputs.length * handleSpacing
+      bottomPadding
     );
   }, [inputs.length]);
 
@@ -265,30 +264,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         </div>
       </div>
 
-      {/* 白色內容區域 - 明確設置背景為白色 */}
-      <div
-        className='p-4'
-        style={{ backgroundColor: 'white' }}>
-        {/* 添加按鈕 - 青色 */}
-        <button
-          className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center'
-          onClick={handleAddOutput}>
-          <AddIcon />
-        </button>
-
-        {/* 顯示輸入點的數量和連線數量 */}
-        {inputs.length > 0 && (
-          <div className='text-xs text-gray-600 mt-2'>
-            <div>已有 {inputs.length} 個輸入點</div>
-            <div>共連線 {totalConnections} 個</div>
-          </div>
-        )}
-      </div>
-
       {/* 動態渲染所有 handle */}
       {inputs.map((input, index) => {
         // 計算 handle 的位置
-        // 從標準起始位置開始，每個間隔 25px
         const startY = 65; // 白色部分開始的位置
         const spacing = 25; // handle 之間的間距
         const topPosition = startY + index * spacing;
@@ -333,6 +311,29 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           </React.Fragment>
         );
       })}
+
+      {/* 白色內容區域 - 移到底部 */}
+      <div
+        className='p-4 absolute bottom-1 left-1 right-1 rounded-b-lg'
+        style={{
+          backgroundColor: 'white',
+          borderTop: '1px solid #f0f0f0'
+        }}>
+        {/* 添加按鈕 - 青色 */}
+        <button
+          className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center'
+          onClick={handleAddOutput}>
+          <AddIcon />
+        </button>
+
+        {/* 顯示輸入點的數量和連線數量 */}
+        {inputs.length > 0 && (
+          <div className='text-xs text-gray-600 mt-2'>
+            <div>已有 {inputs.length} 個輸入點</div>
+            <div>共連線 {totalConnections} 個</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
