@@ -1484,6 +1484,19 @@ class WorkflowDataConverter {
       node_output: node.node_output
     };
 
+    if (node.operator === 'browser_extension_output') {
+      baseData.onAddOutput = (newInputHandles) => {
+        // 類似於 handleAddBrowserExtensionOutput 中的邏輯
+        console.log(`更新節點的 handle：`, newInputHandles);
+        // 實現更新邏輯
+      };
+
+      baseData.onRemoveHandle = (handleId) => {
+        // 實現移除 handle 的邏輯
+        console.log(`準備移除 handle：${handleId}`);
+      };
+    }
+
     // 根據節點類型轉換參數
     switch (node.operator) {
       case 'browser_extension_input':

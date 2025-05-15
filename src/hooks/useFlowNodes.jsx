@@ -501,100 +501,85 @@ export default function useFlowNodes() {
               is_empty: true
             }
           },
+          // 新增一個通用的 onAddOutput 方法
           onAddOutput: (newInputHandles) => {
             console.log(`更新節點 ${id} 的 handle：`, newInputHandles);
 
-            // 獲取當前節點
-            const currentNode = nodes.find((node) => node.id === id);
-            if (!currentNode) {
-              console.error(`找不到節點 ${id}`);
-              return;
-            }
+            // 使用 setNodes 直接更新
+            setNodes((prevNodes) => {
+              const nodeIndex = prevNodes.findIndex((node) => node.id === id);
 
-            // 獲取現有的 node_input 或初始化
-            const currentNodeInput = currentNode.data?.node_input || {};
-
-            // 創建更新後的 node_input
-            const updatedNodeInput = { ...currentNodeInput };
-
-            // 關鍵修正：檢查每個 handle，確保在 node_input 中存在對應項
-            newInputHandles.forEach((handle) => {
-              const handleId = handle.id;
-
-              // 如果此 handle 還沒有對應的 node_input 項，創建一個
-              if (!updatedNodeInput[handleId]) {
-                updatedNodeInput[handleId] = {
-                  node_id: '',
-                  output_name: '',
-                  type: 'string',
-                  data: '',
-                  is_empty: true
-                };
-                console.log(`為 handle ${handleId} 創建 node_input 項`);
+              if (nodeIndex === -1) {
+                console.warn(`找不到節點 ${id}`);
+                return prevNodes;
               }
-            });
 
-            console.log(`更新後的 node_input:`, updatedNodeInput);
+              // 創建更新後的節點副本
+              const updatedNodes = [...prevNodes];
+              const currentNode = updatedNodes[nodeIndex];
 
-            // 更新節點，同時更新 inputHandles 和 node_input
-            safeSetNodes((nds) =>
-              nds.map((node) => {
-                if (node.id === id) {
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      inputHandles: newInputHandles,
-                      node_input: updatedNodeInput
-                    }
-                  };
+              // 更新 inputHandles 和 node_input
+              updatedNodes[nodeIndex] = {
+                ...currentNode,
+                data: {
+                  ...currentNode.data,
+                  inputHandles: newInputHandles,
+                  node_input: {
+                    ...currentNode.data.node_input,
+                    ...newInputHandles.reduce((acc, handle) => {
+                      acc[handle.id] = {
+                        node_id: '',
+                        output_name: '',
+                        type: 'string',
+                        data: '',
+                        is_empty: true
+                      };
+                      return acc;
+                    }, {})
+                  }
                 }
-                return node;
-              })
-            );
-          },
-          // 添加一個可以移除 handle 的函數
-          onRemoveHandle: (handleId) => {
-            console.log(`準備移除節點 ${id} 的 handle：${handleId}`);
+              };
 
-            // 禁止移除默認 input handle
+              return updatedNodes;
+            });
+          },
+
+          // 新增 onRemoveHandle 方法
+          onRemoveHandle: (handleId) => {
             if (handleId === 'input') {
               console.log('不能移除默認 input handle');
               return;
             }
 
-            safeSetNodes((nds) =>
-              nds.map((node) => {
-                if (node.id === id) {
-                  // 獲取現有的 handles
-                  const currentHandles = node.data.inputHandles || [];
+            setNodes((prevNodes) => {
+              const nodeIndex = prevNodes.findIndex((node) => node.id === id);
 
-                  // 過濾掉要移除的 handle
-                  const updatedHandles = currentHandles.filter(
+              if (nodeIndex === -1) {
+                console.warn(`找不到節點 ${id}`);
+                return prevNodes;
+              }
+
+              const updatedNodes = [...prevNodes];
+              const currentNode = updatedNodes[nodeIndex];
+
+              // 過濾 inputHandles 並刪除對應的 node_input
+              updatedNodes[nodeIndex] = {
+                ...currentNode,
+                data: {
+                  ...currentNode.data,
+                  inputHandles: currentNode.data.inputHandles.filter(
                     (handle) => handle.id !== handleId
-                  );
-
-                  // 獲取現有的 node_input
-                  const currentNodeInput = node.data.node_input || {};
-
-                  // 創建一個新的 node_input，移除對應的輸入關聯
-                  const updatedNodeInput = { ...currentNodeInput };
-                  delete updatedNodeInput[handleId];
-
-                  console.log(`已從節點 ${id} 移除 handle ${handleId}`);
-
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      inputHandles: updatedHandles,
-                      node_input: updatedNodeInput
-                    }
-                  };
+                  ),
+                  node_input: Object.fromEntries(
+                    Object.entries(currentNode.data.node_input || {}).filter(
+                      ([key]) => key !== handleId
+                    )
+                  )
                 }
-                return node;
-              })
-            );
+              };
+
+              return updatedNodes;
+            });
           },
           ...nodeCallbacksObject
         },
@@ -606,7 +591,7 @@ export default function useFlowNodes() {
 
       safeSetNodes((nds) => [...nds, newNode]);
     },
-    [safeSetNodes, getNodeCallbacks, nodes]
+    [safeSetNodes, getNodeCallbacks, setNodes]
   );
 
   const handleAddBrowserExtensionInput = useCallback(
