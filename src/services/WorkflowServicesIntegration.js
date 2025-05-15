@@ -1588,10 +1588,18 @@ class WorkflowDataConverter {
         // 提取參數中的欄位
         // const fields = [];
         // 修改: 使用固定參數名稱而不是索引
+        // 有可能有舊資料， input_name_0, default_value_0, 也要多判斷
         const field = {
-          inputName: node.parameters?.input_name?.data || 'input_name',
-          defaultValue: node.parameters?.default_value?.data || ''
+          inputName:
+            node.parameters?.input_name?.data ||
+            node.parameters?.input_name_0?.data ||
+            'input_name',
+          defaultValue:
+            node.parameters?.default_value?.data ||
+            node.parameters?.default_value_0?.data ||
+            ''
         };
+
         console.log(`處理 basic_input 節點:`, {
           inputName: field.inputName,
           defaultValue: field.defaultValue
