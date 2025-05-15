@@ -8156,6 +8156,45 @@ function useFlowNodes() {
             );
           };
           break;
+        case "browserExtensionOutput":
+          callbacks.updateEdgeLabels = (edgeIds, newLabel) => {
+            safeSetEdges(
+              (eds) => eds.map((edge) => {
+                if (Array.isArray(edgeIds) && edgeIds.includes(edge.id)) {
+                  return {
+                    ...edge,
+                    label: newLabel
+                  };
+                } else if (edge.id === edgeIds) {
+                  return {
+                    ...edge,
+                    label: newLabel
+                  };
+                }
+                return edge;
+              })
+            );
+          };
+          if (!callbacks.updateNodeData) {
+            callbacks.updateNodeData = (key, value) => {
+              console.log(`更新節點 ${nodeId} 的 ${key} 資料:`, value);
+              safeSetNodes(
+                (nds) => nds.map((node) => {
+                  if (node.id === nodeId) {
+                    return {
+                      ...node,
+                      data: {
+                        ...node.data,
+                        [key]: value
+                      }
+                    };
+                  }
+                  return node;
+                })
+              );
+            };
+          }
+          break;
         default:
           callbacks.updateNodeData = (key, value) => {
             safeSetNodes(
@@ -8343,61 +8382,82 @@ function useFlowNodes() {
         type: "browserExtensionOutput",
         data: {
           // 確保默認有一個 input handle
-          inputHandles: [{ id: "input" }],
+          inputHandles: [{ id: "output0" }],
           // 儲存節點輸入連接關聯
-          node_input: {},
+          node_input: {
+            // 為默認 handle 創建一個空的輸入項
+            input: {
+              node_id: "",
+              output_name: "",
+              type: "string",
+              data: "",
+              is_empty: true
+            }
+          },
+          // 新增一個通用的 onAddOutput 方法
           onAddOutput: (newInputHandles) => {
             console.log(`更新節點 ${id} 的 handle：`, newInputHandles);
-            const currentNode = nodes.find((node) => node.id === id);
-            if (currentNode && currentNode.data && JSON.stringify(currentNode.data.inputHandles) === JSON.stringify(newInputHandles)) {
-              console.log("handles 沒有變化，跳過更新");
-              return;
-            }
-            safeSetNodes(
-              (nds) => nds.map((node) => {
-                if (node.id === id) {
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      inputHandles: newInputHandles
-                    }
-                  };
+            setNodes((prevNodes) => {
+              const nodeIndex = prevNodes.findIndex((node) => node.id === id);
+              if (nodeIndex === -1) {
+                console.warn(`找不到節點 ${id}`);
+                return prevNodes;
+              }
+              const updatedNodes = [...prevNodes];
+              const currentNode = updatedNodes[nodeIndex];
+              updatedNodes[nodeIndex] = {
+                ...currentNode,
+                data: {
+                  ...currentNode.data,
+                  inputHandles: newInputHandles,
+                  node_input: {
+                    ...currentNode.data.node_input,
+                    ...newInputHandles.reduce((acc, handle) => {
+                      acc[handle.id] = {
+                        node_id: "",
+                        output_name: "",
+                        type: "string",
+                        data: "",
+                        is_empty: true
+                      };
+                      return acc;
+                    }, {})
+                  }
                 }
-                return node;
-              })
-            );
+              };
+              return updatedNodes;
+            });
           },
-          // 添加一個可以移除 handle 的函數
+          // 新增 onRemoveHandle 方法
           onRemoveHandle: (handleId) => {
-            console.log(`準備移除節點 ${id} 的 handle：${handleId}`);
-            if (handleId === "input") {
-              console.log("不能移除默認 input handle");
+            if (handleId === "output0") {
+              console.log("不能移除默認 output0 handle");
               return;
             }
-            safeSetNodes(
-              (nds) => nds.map((node) => {
-                if (node.id === id) {
-                  const currentHandles = node.data.inputHandles || [];
-                  const updatedHandles = currentHandles.filter(
+            setNodes((prevNodes) => {
+              const nodeIndex = prevNodes.findIndex((node) => node.id === id);
+              if (nodeIndex === -1) {
+                console.warn(`找不到節點 ${id}`);
+                return prevNodes;
+              }
+              const updatedNodes = [...prevNodes];
+              const currentNode = updatedNodes[nodeIndex];
+              updatedNodes[nodeIndex] = {
+                ...currentNode,
+                data: {
+                  ...currentNode.data,
+                  inputHandles: currentNode.data.inputHandles.filter(
                     (handle) => handle.id !== handleId
-                  );
-                  const currentNodeInput = node.data.node_input || {};
-                  const updatedNodeInput = { ...currentNodeInput };
-                  delete updatedNodeInput[handleId];
-                  console.log(`已從節點 ${id} 移除 handle ${handleId}`);
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      inputHandles: updatedHandles,
-                      node_input: updatedNodeInput
-                    }
-                  };
+                  ),
+                  node_input: Object.fromEntries(
+                    Object.entries(currentNode.data.node_input || {}).filter(
+                      ([key]) => key !== handleId
+                    )
+                  )
                 }
-                return node;
-              })
-            );
+              };
+              return updatedNodes;
+            });
           },
           ...nodeCallbacksObject
         },
@@ -8408,7 +8468,7 @@ function useFlowNodes() {
       };
       safeSetNodes((nds) => [...nds, newNode]);
     },
-    [safeSetNodes, getNodeCallbacks, nodes]
+    [safeSetNodes, getNodeCallbacks, setNodes]
   );
   const handleAddBrowserExtensionInput = useCallback$8(
     (position) => {
@@ -8718,10 +8778,37 @@ function useFlowNodes() {
       }
       if (isBrowserExtensionOutput) {
         console.log("目標是瀏覽器擴展輸出節點");
+        const existingEdges = edges.filter(
+          (edge) => edge.target === targetNodeId && edge.targetHandle === targetHandle
+        );
+        if (existingEdges.length > 0) {
+          console.log(`已有連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `已有連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
         if (targetHandle === "new-connection" || !targetHandle) {
           targetHandle = `input_${Date.now()}`;
           console.log(`創建新的 handle: ${targetHandle}`);
           const currentHandles = targetNode.data.inputHandles || [];
+          let maxIndex = -1;
+          currentHandles.forEach((handle) => {
+            if (handle.id && handle.id.startsWith("output")) {
+              const indexStr = handle.id.substring(6);
+              const index = parseInt(indexStr, 10);
+              if (!isNaN(index) && index > maxIndex) {
+                maxIndex = index;
+              }
+            }
+          });
+          const newIndex = maxIndex + 1;
+          targetHandle = `output${newIndex}`;
+          console.log(`創建新的 handle: ${targetHandle}`);
           safeSetNodes(
             (nds) => nds.map((node) => {
               if (node.id === targetNodeId) {
@@ -8923,7 +9010,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5c2ea20c499fa756e9ff4b5d414f51db1753406b", "VITE_APP_BUILD_TIME": "2025-05-14T02:21:12.013Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.85"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "85e54790e9fa37a43a14a0ac695ce8a712161902", "VITE_APP_BUILD_TIME": "2025-05-15T07:58:50.378Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.86"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9764,15 +9851,6 @@ class WorkflowMappingService {
     const nodeInput = {};
     console.log(`提取節點 ${nodeId} 的輸入連接`);
 
-    // 獲取所有以該節點為目標的邊緣
-    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
-    console.log(`找到 ${relevantEdges.length} 個輸入連接`);
-
-    // 如果沒有連接，直接返回空對象
-    if (relevantEdges.length === 0) {
-      return nodeInput;
-    }
-
     // 獲取目標節點
     const targetNode = allNodes.find((n) => n.id === nodeId);
     if (!targetNode) {
@@ -9785,6 +9863,74 @@ class WorkflowMappingService {
       targetNode.type === 'browserExtensionOutput';
     const isAINode =
       targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
+
+    // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
+    if (
+      isBrowserExtensionOutput &&
+      targetNode.data &&
+      targetNode.data.inputHandles
+    ) {
+      console.log(`處理 BrowserExtensionOutput 節點的所有 input handles`);
+
+      // 遍歷所有 inputHandles，無論是否有連線
+      targetNode.data.inputHandles.forEach((handle) => {
+        const handleId = handle.id;
+
+        // 檢查此 handle 是否有連線
+        const connectedEdges = edges.filter(
+          (edge) => edge.target === nodeId && edge.targetHandle === handleId
+        );
+
+        if (connectedEdges.length > 0) {
+          // 處理已有連線的 handle
+          connectedEdges.forEach((edge, index) => {
+            const inputKey =
+              connectedEdges.length > 1 ? `${handleId}_${index}` : handleId;
+            allNodes.find((n) => n.id === edge.source);
+
+            // 添加到 nodeInput
+            // 從targetnode.dara.node_input中找到key handleId 對應的值，把裡面的return_name提取出來
+            const inputValue = targetNode.data.node_input[handleId];
+            let returnName = inputValue.return_name || 'output';
+            nodeInput[inputKey] = {
+              node_id: edge.source,
+              output_name: edge.sourceHandle || '',
+              type: 'string',
+              return_name: returnName // 確保 return_name 優先使用現有值或邊的標籤
+            };
+
+            console.log(
+              `瀏覽器擴展輸出節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
+            );
+          });
+        } else {
+          // 從targetnode.dara.node_input中找到key handleId 對應的值，把裡面的return_name提取出來
+          const inputValue = targetNode.data.node_input[handleId];
+          let returnName = inputValue.return_name || '';
+          // 為未連線的 handle 創建空的輸入項
+          nodeInput[handleId] = {
+            node_id: '', // 空節點 ID 表示沒有連線
+            output_name: '',
+            type: 'string',
+            data: '', // 提供默認空數據
+            is_empty: true, // 標記為空連線
+            return_name: returnName || '' // 確保 return_name 優先使用現有值或邊的標籤
+          };
+          console.log(`保留未連線的 handle: ${handleId}`);
+        }
+      });
+
+      return nodeInput;
+    }
+
+    // 獲取所有以該節點為目標的邊緣
+    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
+    console.log(`找到 ${relevantEdges.length} 個輸入連接`);
+
+    // 如果沒有連接，直接返回空對象（普通節點）
+    if (relevantEdges.length === 0) {
+      return nodeInput;
+    }
 
     // 按 targetHandle 分組邊緣
     const handleGroups = {};
@@ -9809,8 +9955,6 @@ class WorkflowMappingService {
         // 對於 context-input，我們需要處理多個連接
         targetEdges.forEach((edge, index) => {
           // 創建唯一的輸入鍵 - 兼容舊版和新版格式
-          // 舊版: context-input 或 context-input_N
-          // 新版: contextN (例如 context0, context1)
           let inputKey;
 
           // 檢查格式，支持可能的舊版格式
@@ -9939,90 +10083,9 @@ class WorkflowMappingService {
           `AI節點Prompt連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
         );
       }
-      // 對於瀏覽器擴展輸出節點，特殊處理多個連線
-      else if (isBrowserExtensionOutput) {
+      // 其他節點類型的處理...
+      else {
         // 處理多個連接到同一 handle 的情況
-        targetEdges.forEach((edge, index) => {
-          // 創建唯一的輸入鍵，使用原始 targetHandle 加索引
-          const inputKey =
-            targetEdges.length > 1 ? `${targetHandle}_${index}` : targetHandle;
-
-          // 查找源節點以獲取 return_name
-          const sourceNode = allNodes.find((n) => n.id === edge.source);
-          let returnName = edge.label || 'output';
-
-          // 根據源節點類型獲取適當的 return_name
-          if (sourceNode) {
-            if (
-              sourceNode.type === 'customInput' ||
-              sourceNode.type === 'input'
-            ) {
-              // 從自定義輸入節點獲取欄位名稱
-              if (
-                sourceNode.data &&
-                sourceNode.data.fields &&
-                Array.isArray(sourceNode.data.fields)
-              ) {
-                // 從 sourceHandle 中提取索引（如 output-0）
-                const outputIndex = edge.sourceHandle
-                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                  : 0;
-
-                // 獲取對應的欄位名稱
-                if (sourceNode.data.fields[outputIndex]) {
-                  returnName =
-                    sourceNode.data.fields[outputIndex].inputName || returnName;
-                }
-              }
-            } else if (sourceNode.type === 'browserExtensionInput') {
-              // 從瀏覽器擴展輸入節點獲取項目名稱
-              if (
-                sourceNode.data &&
-                sourceNode.data.items &&
-                Array.isArray(sourceNode.data.items)
-              ) {
-                // 從 sourceHandle 中提取索引（如 output-0）
-                const outputIndex = edge.sourceHandle
-                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                  : 0;
-
-                // 獲取對應的項目名稱
-                if (sourceNode.data.items[outputIndex]) {
-                  returnName =
-                    sourceNode.data.items[outputIndex].name || returnName;
-                }
-              }
-            } else if (
-              sourceNode.type === 'aiCustomInput' ||
-              sourceNode.type === 'ai'
-            ) {
-              // AI 節點通常使用默認的 output
-              returnName = 'output';
-            } else if (sourceNode.type === 'knowledgeRetrieval') {
-              // 知識檢索節點
-              returnName = 'output';
-            } else {
-              // 對於其他節點類型，使用 sourceHandle 或默認為 'output'
-              returnName = edge.sourceHandle || 'output';
-            }
-          }
-
-          console.log(`源節點 ${edge.source} 的 return_name: ${returnName}`);
-
-          // 添加到 nodeInput
-          nodeInput[inputKey] = {
-            node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string',
-            return_name: returnName
-          };
-
-          console.log(
-            `瀏覽器擴展輸出節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
-          );
-        });
-      } else {
-        // 其他節點類型的處理...
         if (targetEdges.length > 1) {
           targetEdges.forEach((edge, index) => {
             // 創建唯一的輸入鍵
@@ -10082,213 +10145,213 @@ class WorkflowMappingService {
     return nodeInput;
   }
 
-  /**
-   * 修正 transformToReactFlowFormat 方法，確保載入時能正確處理多個連線到同一 handle
-   */
-  static transformToReactFlowFormat(apiData) {
-    console.log('開始轉換 API 格式為 ReactFlow 格式');
+  // /**
+  //  * 修正 transformToReactFlowFormat 方法，確保載入時能正確處理多個連線到同一 handle
+  //  */
+  // static transformToReactFlowFormat(apiData) {
+  //   console.log('開始轉換 API 格式為 ReactFlow 格式');
 
-    // 處理 API 數據結構差異
-    const flowPipeline =
-      apiData.flow_pipeline ||
-      (apiData.content ? apiData.content.flow_pipeline : []);
+  //   // 處理 API 數據結構差異
+  //   const flowPipeline =
+  //     apiData.flow_pipeline ||
+  //     (apiData.content ? apiData.content.flow_pipeline : []);
 
-    if (!flowPipeline || !Array.isArray(flowPipeline)) {
-      console.error('找不到有效的 flow_pipeline 數組');
-      return { nodes: [], edges: [] };
-    }
+  //   if (!flowPipeline || !Array.isArray(flowPipeline)) {
+  //     console.error('找不到有效的 flow_pipeline 數組');
+  //     return { nodes: [], edges: [] };
+  //   }
 
-    const nodes = [];
-    const edges = [];
+  //   const nodes = [];
+  //   const edges = [];
 
-    // 首先處理所有節點，確保在創建邊緣之前節點已存在
-    flowPipeline.forEach((node) => {
-      console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
+  //   // 首先處理所有節點，確保在創建邊緣之前節點已存在
+  //   flowPipeline.forEach((node) => {
+  //     console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
 
-      // 轉換為 ReactFlow 節點格式
-      const reactFlowNode = {
-        id: node.id,
-        type: WorkflowMappingService.getTypeFromOperator(node.operator),
-        position: {
-          x: typeof node.position_x === 'number' ? node.position_x : 0,
-          y: typeof node.position_y === 'number' ? node.position_y : 0
-        },
-        data: this.transformNodeDataToReactFlow(node)
-      };
+  //     // 轉換為 ReactFlow 節點格式
+  //     const reactFlowNode = {
+  //       id: node.id,
+  //       type: WorkflowMappingService.getTypeFromOperator(node.operator),
+  //       position: {
+  //         x: typeof node.position_x === 'number' ? node.position_x : 0,
+  //         y: typeof node.position_y === 'number' ? node.position_y : 0
+  //       },
+  //       data: this.transformNodeDataToReactFlow(node)
+  //     };
 
-      nodes.push(reactFlowNode);
-    });
+  //     nodes.push(reactFlowNode);
+  //   });
 
-    // 對於瀏覽器擴展輸出節點，特殊處理 node_input
-    flowPipeline.forEach((node) => {
-      // 檢查節點類型是否為瀏覽器擴展輸出
-      const isBrowserExtOutput = node.operator === 'browser_extension_output';
+  //   // 對於瀏覽器擴展輸出節點，特殊處理 node_input
+  //   flowPipeline.forEach((node) => {
+  //     // 檢查節點類型是否為瀏覽器擴展輸出
+  //     const isBrowserExtOutput = node.operator === 'browser_extension_output';
 
-      // 檢查節點類型是否為 AI 節點
-      const isAINode = node.operator === 'ask_ai';
+  //     // 檢查節點類型是否為 AI 節點
+  //     const isAINode = node.operator === 'ask_ai';
 
-      if (isBrowserExtOutput && node.node_input) {
-        console.log(
-          `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
-          node.node_input
-        );
+  //     if (isBrowserExtOutput && node.node_input) {
+  //       console.log(
+  //         `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
+  //         node.node_input
+  //       );
 
-        // 查找對應的 ReactFlow 節點
-        const reactFlowNode = nodes.find((n) => n.id === node.id);
-        if (!reactFlowNode) return;
+  //       // 查找對應的 ReactFlow 節點
+  //       const reactFlowNode = nodes.find((n) => n.id === node.id);
+  //       if (!reactFlowNode) return;
 
-        // 從 node_input 識別所有的 handle
-        const handlePattern = /^(.+?)(?:_\d+)?$/;
-        const handleMap = new Map();
+  //       // 從 node_input 識別所有的 handle
+  //       const handlePattern = /^(.+?)(?:_\d+)?$/;
+  //       const handleMap = new Map();
 
-        // 分析 node_input，提取真正的 handle ID
-        Object.keys(node.node_input).forEach((key) => {
-          const match = key.match(handlePattern);
-          if (match && match[1]) {
-            const baseHandle = match[1];
-            if (!handleMap.has(baseHandle)) {
-              handleMap.set(baseHandle, []);
-            }
+  //       // 分析 node_input，提取真正的 handle ID
+  //       Object.keys(node.node_input).forEach((key) => {
+  //         const match = key.match(handlePattern);
+  //         if (match && match[1]) {
+  //           const baseHandle = match[1];
+  //           if (!handleMap.has(baseHandle)) {
+  //             handleMap.set(baseHandle, []);
+  //           }
 
-            handleMap.get(baseHandle).push({
-              fullKey: key,
-              sourceNodeId: node.node_input[key].node_id,
-              outputName: node.node_input[key].output_name || 'output',
-              returnName: node.node_input[key].return_name || 'output' // 新增處理 return_name
-            });
-          }
-        });
+  //           handleMap.get(baseHandle).push({
+  //             fullKey: key,
+  //             sourceNodeId: node.node_input[key].node_id,
+  //             outputName: node.node_input[key].output_name || 'output',
+  //             returnName: node.node_input[key].return_name || 'output' // 新增處理 return_name
+  //           });
+  //         }
+  //       });
 
-        // 確保 inputHandles 包含所有真正的 handle
-        const inputHandles = [...(reactFlowNode.data.inputHandles || [])];
-        const existingHandleIds = inputHandles.map((h) => h.id);
+  //       // 確保 inputHandles 包含所有真正的 handle
+  //       const inputHandles = [...(reactFlowNode.data.inputHandles || [])];
+  //       const existingHandleIds = inputHandles.map((h) => h.id);
 
-        // 添加缺失的 handle
-        handleMap.forEach((connections, handleId) => {
-          if (!existingHandleIds.includes(handleId)) {
-            inputHandles.push({ id: handleId });
-            console.log(`為節點 ${node.id} 添加缺失的 handle: ${handleId}`);
-          }
-        });
+  //       // 添加缺失的 handle
+  //       handleMap.forEach((connections, handleId) => {
+  //         if (!existingHandleIds.includes(handleId)) {
+  //           inputHandles.push({ id: handleId });
+  //           console.log(`為節點 ${node.id} 添加缺失的 handle: ${handleId}`);
+  //         }
+  //       });
 
-        // 更新節點的 inputHandles
-        reactFlowNode.data.inputHandles = inputHandles;
+  //       // 更新節點的 inputHandles
+  //       reactFlowNode.data.inputHandles = inputHandles;
 
-        // 創建所有連接
-        handleMap.forEach((connections, handleId) => {
-          connections.forEach((connection) => {
-            // 創建邊緣 ID
-            const edgeId = `${connection.sourceNodeId}-${node.id}-${handleId}-${connection.outputName}`;
+  //       // 創建所有連接
+  //       handleMap.forEach((connections, handleId) => {
+  //         connections.forEach((connection) => {
+  //           // 創建邊緣 ID
+  //           const edgeId = `${connection.sourceNodeId}-${node.id}-${handleId}-${connection.outputName}`;
 
-            // 創建連接
-            const edge = {
-              id: edgeId,
-              source: connection.sourceNodeId,
-              sourceHandle: connection.outputName,
-              target: node.id,
-              targetHandle: handleId,
-              type: 'custom-edge',
-              label: connection.returnName // 使用 return_name 作為標籤
-            };
+  //           // 創建連接
+  //           const edge = {
+  //             id: edgeId,
+  //             source: connection.sourceNodeId,
+  //             sourceHandle: connection.outputName,
+  //             target: node.id,
+  //             targetHandle: handleId,
+  //             type: 'custom-edge',
+  //             label: connection.returnName // 使用 return_name 作為標籤
+  //           };
 
-            edges.push(edge);
-            console.log(
-              `創建連接: ${edgeId} (return_name: ${connection.returnName})`
-            );
-          });
-        });
-      } // 新增 AI 節點特殊處理
-      else if (isAINode && node.node_input) {
-        console.log(`處理AI節點 ${node.id} 的輸入:`, node.node_input);
+  //           edges.push(edge);
+  //           console.log(
+  //             `創建連接: ${edgeId} (return_name: ${connection.returnName})`
+  //           );
+  //         });
+  //       });
+  //     } // 新增 AI 節點特殊處理
+  //     else if (isAINode && node.node_input) {
+  //       console.log(`處理AI節點 ${node.id} 的輸入:`, node.node_input);
 
-        // 查找對應的 ReactFlow 節點
-        const reactFlowNode = nodes.find((n) => n.id === node.id);
-        if (!reactFlowNode) return;
+  //       // 查找對應的 ReactFlow 節點
+  //       const reactFlowNode = nodes.find((n) => n.id === node.id);
+  //       if (!reactFlowNode) return;
 
-        // 從 node_input 識別所有的 context handle
-        const contextHandles = Object.keys(node.node_input).filter(
-          (key) => key === 'context-input' || key.startsWith('context')
-        );
+  //       // 從 node_input 識別所有的 context handle
+  //       const contextHandles = Object.keys(node.node_input).filter(
+  //         (key) => key === 'context-input' || key.startsWith('context')
+  //       );
 
-        // 處理每個 context 連接
-        contextHandles.forEach((key) => {
-          const inputValue = node.node_input[key];
-          if (inputValue && inputValue.node_id) {
-            // 創建邊緣 ID
-            const edgeId = `${inputValue.node_id}-${node.id}-${key}-${
-              inputValue.output_name || 'output'
-            }-${Date.now()}`;
+  //       // 處理每個 context 連接
+  //       contextHandles.forEach((key) => {
+  //         const inputValue = node.node_input[key];
+  //         if (inputValue && inputValue.node_id) {
+  //           // 創建邊緣 ID
+  //           const edgeId = `${inputValue.node_id}-${node.id}-${key}-${
+  //             inputValue.output_name || 'output'
+  //           }-${Date.now()}`;
 
-            // 創建連接，統一使用 'context-input' 作為 targetHandle
-            const edge = {
-              id: edgeId,
-              source: inputValue.node_id,
-              sourceHandle: inputValue.output_name || 'output',
-              target: node.id,
-              targetHandle: 'context-input',
-              type: 'custom-edge',
-              label: inputValue.return_name || undefined
-            };
+  //           // 創建連接，統一使用 'context-input' 作為 targetHandle
+  //           const edge = {
+  //             id: edgeId,
+  //             source: inputValue.node_id,
+  //             sourceHandle: inputValue.output_name || 'output',
+  //             target: node.id,
+  //             targetHandle: 'context-input',
+  //             type: 'custom-edge',
+  //             label: inputValue.return_name || undefined
+  //           };
 
-            edges.push(edge);
-            console.log(`創建AI節點連接: ${edgeId}`);
-          }
-        });
+  //           edges.push(edge);
+  //           console.log(`創建AI節點連接: ${edgeId}`);
+  //         }
+  //       });
 
-        // 處理 prompt 連接
-        if (node.node_input['prompt-input']) {
-          const promptInput = node.node_input['prompt-input'];
-          if (promptInput && promptInput.node_id) {
-            const edgeId = `${promptInput.node_id}-${node.id}-prompt-input-${
-              promptInput.output_name || 'output'
-            }`;
+  //       // 處理 prompt 連接
+  //       if (node.node_input['prompt-input']) {
+  //         const promptInput = node.node_input['prompt-input'];
+  //         if (promptInput && promptInput.node_id) {
+  //           const edgeId = `${promptInput.node_id}-${node.id}-prompt-input-${
+  //             promptInput.output_name || 'output'
+  //           }`;
 
-            const edge = {
-              id: edgeId,
-              source: promptInput.node_id,
-              sourceHandle: promptInput.output_name || 'output',
-              target: node.id,
-              targetHandle: 'prompt-input',
-              type: 'custom-edge',
-              label: promptInput.return_name || undefined
-            };
+  //           const edge = {
+  //             id: edgeId,
+  //             source: promptInput.node_id,
+  //             sourceHandle: promptInput.output_name || 'output',
+  //             target: node.id,
+  //             targetHandle: 'prompt-input',
+  //             type: 'custom-edge',
+  //             label: promptInput.return_name || undefined
+  //           };
 
-            edges.push(edge);
-            console.log(`創建AI節點Prompt連接: ${edgeId}`);
-          }
-        }
-      } else if (node.node_input) {
-        // 處理其他節點類型的連接
-        Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          if (inputValue && inputValue.node_id) {
-            // 創建邊緣 ID
-            const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
-              inputValue.output_name || 'output'
-            }`;
+  //           edges.push(edge);
+  //           console.log(`創建AI節點Prompt連接: ${edgeId}`);
+  //         }
+  //       }
+  //     } else if (node.node_input) {
+  //       // 處理其他節點類型的連接
+  //       Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
+  //         if (inputValue && inputValue.node_id) {
+  //           // 創建邊緣 ID
+  //           const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
+  //             inputValue.output_name || 'output'
+  //           }`;
 
-            // 創建連接
-            const edge = {
-              id: edgeId,
-              source: inputValue.node_id,
-              sourceHandle: inputValue.output_name || 'output',
-              target: node.id,
-              targetHandle: inputKey,
-              type: 'custom-edge'
-            };
+  //           // 創建連接
+  //           const edge = {
+  //             id: edgeId,
+  //             source: inputValue.node_id,
+  //             sourceHandle: inputValue.output_name || 'output',
+  //             target: node.id,
+  //             targetHandle: inputKey,
+  //             type: 'custom-edge'
+  //           };
 
-            edges.push(edge);
-            console.log(`創建標準連接: ${edgeId}`);
-          }
-        });
-      }
-    });
+  //           edges.push(edge);
+  //           console.log(`創建標準連接: ${edgeId}`);
+  //         }
+  //       });
+  //     }
+  //   });
 
-    // 自動布局（如果位置都是 0,0）
-    this.autoLayout(nodes);
+  //   // 自動布局（如果位置都是 0,0）
+  //   this.autoLayout(nodes);
 
-    console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
-    return { nodes, edges };
-  }
+  //   console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
+  //   return { nodes, edges };
+  // }
   /**
    * 提取節點輸出以供 API 格式使用
    * @param {Object} node - ReactFlow 節點
@@ -10875,7 +10938,7 @@ class LLMService {
 class WorkflowDataConverter {
   // 修改 transformToReactFlowFormat 方法，確保連線正確處理
   static transformToReactFlowFormat(apiData) {
-    console.log('開始轉換 API 格式為 ReactFlow 格式');
+    console.log('開始轉換 API 格式為 ReactFlow 格式', apiData);
 
     // 處理 API 數據結構差異
     const flowPipeline =
@@ -10904,6 +10967,49 @@ class WorkflowDataConverter {
         },
         data: this.transformNodeDataToReactFlow(node)
       };
+
+      // 特殊處理 BrowserExtensionOutput 節點
+      // 在 transformToReactFlowFormat 方法中的 BrowserExtensionOutput 節點處理邏輯
+      if (node.operator === 'browser_extension_output') {
+        console.log(`特殊處理 BrowserExtensionOutput 節點: ${node.id}`);
+
+        // 從 node_input 提取所有 handle
+        const inputHandles = [];
+
+        if (node.node_input && typeof node.node_input === 'object') {
+          // 直接使用全部 handle ID
+          Object.keys(node.node_input).forEach((key) => {
+            inputHandles.push({ id: key });
+            console.log(`從 node_input 提取 handle: ${key}`);
+          });
+        }
+
+        // 檢查是否有從參數中保存的 inputHandles
+        if (
+          node.parameters &&
+          node.parameters.inputHandles &&
+          node.parameters.inputHandles.data
+        ) {
+          const savedHandles = node.parameters.inputHandles.data;
+          if (Array.isArray(savedHandles)) {
+            savedHandles.forEach((handleId) => {
+              if (!inputHandles.some((h) => h.id === handleId)) {
+                inputHandles.push({ id: handleId });
+                console.log(`從 parameters 提取 handle: ${handleId}`);
+              }
+            });
+          }
+        }
+
+        // 確保至少有一個默認 handle
+        if (inputHandles.length === 0) {
+          inputHandles.push({ id: 'output0' });
+          console.log(`添加默認 handle: output0`);
+        }
+
+        // 設置節點數據
+        reactFlowNode.data.inputHandles = inputHandles;
+      }
 
       nodes.push(reactFlowNode);
     });
@@ -10934,82 +11040,86 @@ class WorkflowDataConverter {
           }
         }
 
-        // 創建連接
+        // 創建連接 - 忽略標記為 is_empty 的空連接
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
           // 跳過直接輸入的提示文本，已在上面處理
           if (inputKey === 'prompt' && inputValue.node_id === '') {
             return;
           }
 
-          if (inputValue && inputValue.node_id) {
-            // 為不同類型的節點處理特殊的 targetHandle
-            let targetHandle = inputKey;
-
-            // AI 節點特殊處理
-            if (isAINode) {
-              // 處理 context 相關的輸入鍵
-              if (inputKey.startsWith('context')) {
-                targetHandle = 'context-input';
-              }
-              // 處理 prompt 相關的輸入鍵
-              else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
-                targetHandle = 'prompt-input';
-              }
-            }
-            // 知識檢索節點特殊處理
-            else if (isKnowledgeNode) {
-              // 統一使用 passage 作為目標 handle
-              if (inputKey === 'passage' || inputKey === 'input') {
-                targetHandle = 'passage';
-              }
-            }
-
-            // 為每個邊緣創建一個唯一的 ID
-            const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
-              inputValue.output_name || 'output'
-            }`;
-
-            console.log(
-              `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${targetHandle}`
-            );
-
-            // 確認目標節點存在
-            const targetNode = nodes.find((n) => n.id === node.id);
-            if (!targetNode) {
-              console.warn(`找不到目標節點 ${node.id}，跳過邊緣創建`);
-              return;
-            }
-
-            // 創建邊緣，添加 return_name 支持
-            const edge = {
-              id: edgeId,
-              source: inputValue.node_id,
-              sourceHandle: inputValue.output_name || 'output',
-              target: node.id,
-              targetHandle: targetHandle,
-              type: 'custom-edge'
-            };
-
-            // 如果有 return_name 屬性，添加為標籤
-            if (inputValue.return_name) {
-              edge.label = inputValue.return_name;
-              console.log(
-                `邊緣 ${edgeId} 添加 return_name: ${inputValue.return_name}`
-              );
-            }
-
-            // 記錄詳細信息，幫助除錯
-            console.log('創建的邊緣詳情:', {
-              id: edge.id,
-              source: edge.source,
-              target: edge.target,
-              sourceHandle: edge.sourceHandle,
-              targetHandle: edge.targetHandle,
-              label: edge.label
-            });
-
-            edges.push(edge);
+          // 跳過空連接（沒有源節點）
+          if (!inputValue.node_id || inputValue.is_empty === true) {
+            console.log(`跳過空連接: ${node.id}:${inputKey}`);
+            return;
           }
+
+          // 為不同類型的節點處理特殊的 targetHandle
+          let targetHandle = inputKey;
+
+          // AI 節點特殊處理
+          if (isAINode) {
+            // 處理 context 相關的輸入鍵
+            if (inputKey.startsWith('context')) {
+              targetHandle = 'context-input';
+            }
+            // 處理 prompt 相關的輸入鍵
+            else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
+              targetHandle = 'prompt-input';
+            }
+          }
+          // 知識檢索節點特殊處理
+          else if (isKnowledgeNode) {
+            // 統一使用 passage 作為目標 handle
+            if (inputKey === 'passage' || inputKey === 'input') {
+              targetHandle = 'passage';
+            }
+          }
+
+          // 為每個邊緣創建一個唯一的 ID
+          const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
+            inputValue.output_name || 'output'
+          }`;
+
+          console.log(
+            `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${targetHandle}`
+          );
+
+          // 確認目標節點存在
+          const targetNode = nodes.find((n) => n.id === node.id);
+          if (!targetNode) {
+            console.warn(`找不到目標節點 ${node.id}，跳過邊緣創建`);
+            return;
+          }
+
+          // 創建邊緣，添加 return_name 支持
+          const edge = {
+            id: edgeId,
+            source: inputValue.node_id,
+            sourceHandle: inputValue.output_name || 'output',
+            target: node.id,
+            targetHandle: targetHandle,
+            type: 'custom-edge'
+          };
+
+          // 如果有 return_name 屬性，添加為標籤
+          if (inputValue.return_name) {
+            edge.label = inputValue.return_name;
+            console.log(
+              `邊緣 ${edgeId} 添加 return_name: ${inputValue.return_name}`
+            );
+          }
+
+          // 記錄詳細信息，幫助除錯
+          console.log('創建的邊緣詳情:', {
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            sourceHandle: edge.sourceHandle,
+            targetHandle: edge.targetHandle,
+            label: edge.label
+          });
+
+          edges.push(edge);
         });
       }
     });
@@ -11035,6 +11145,19 @@ class WorkflowDataConverter {
       node_input: node.node_input,
       node_output: node.node_output
     };
+
+    if (node.operator === 'browser_extension_output') {
+      baseData.onAddOutput = (newInputHandles) => {
+        // 類似於 handleAddBrowserExtensionOutput 中的邏輯
+        console.log(`更新節點的 handle：`, newInputHandles);
+        // 實現更新邏輯
+      };
+
+      baseData.onRemoveHandle = (handleId) => {
+        // 實現移除 handle 的邏輯
+        console.log(`準備移除 handle：${handleId}`);
+      };
+    }
 
     // 根據節點類型轉換參數
     switch (node.operator) {
@@ -11122,10 +11245,18 @@ class WorkflowDataConverter {
         // 提取參數中的欄位
         // const fields = [];
         // 修改: 使用固定參數名稱而不是索引
+        // 有可能有舊資料， input_name_0, default_value_0, 也要多判斷
         const field = {
-          inputName: node.parameters?.input_name?.data || 'input_name',
-          defaultValue: node.parameters?.default_value?.data || ''
+          inputName:
+            node.parameters?.input_name?.data ||
+            node.parameters?.input_name_0?.data ||
+            'input_name',
+          defaultValue:
+            node.parameters?.default_value?.data ||
+            node.parameters?.default_value_0?.data ||
+            ''
         };
+
         console.log(`處理 basic_input 節點:`, {
           inputName: field.inputName,
           defaultValue: field.defaultValue
@@ -11558,7 +11689,20 @@ class WorkflowDataConverter {
         break;
 
       case 'browserExtensionOutput':
-        // 目前沒有特定的參數需要轉換
+        // 重要：保存所有 inputHandles 到 parameters
+        if (
+          node.data &&
+          node.data.inputHandles &&
+          Array.isArray(node.data.inputHandles)
+        ) {
+          // 儲存 handle ID 列表
+          parameters.inputHandles = {
+            data: node.data.inputHandles.map((h) => h.id)
+          };
+          console.log(
+            `保存節點 ${node.id} 的 ${node.data.inputHandles.length} 個 handle 到 parameters`
+          );
+        }
         break;
 
       default:
@@ -11953,43 +12097,204 @@ const React$d = await importShared('react');
 const {memo: memo$8,useEffect: useEffect$4,useState: useState$a,useRef: useRef$2,useCallback: useCallback$3} = React$d;
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const [inputs, setInputs] = useState$a([]);
+  const [handleLabels, setHandleLabels] = useState$a({});
   const updateNodeInternals = useUpdateNodeInternals();
   const initAttempts = useRef$2(0);
   const nodeId = id || "unknown";
+  const handlesMigrated = useRef$2(false);
+  const isUpdating = useRef$2(false);
   const getNodeHeight = useCallback$3(() => {
     const headerHeight = 50;
     const buttonAreaHeight = 48;
     const textAreaHeight = 40;
-    const bottomPadding = 10;
-    const handleSpacing = 20;
-    return headerHeight + buttonAreaHeight + textAreaHeight + bottomPadding + inputs.length * handleSpacing;
+    const bottomPadding = 30;
+    const handleSpacing = 25;
+    return headerHeight + inputs.length * handleSpacing + buttonAreaHeight + textAreaHeight + bottomPadding;
   }, [inputs.length]);
+  const edges = useEdges();
+  const migrateHandleId = (oldId) => {
+    if (oldId && oldId.startsWith("output")) {
+      return oldId;
+    }
+    if (oldId === "input") {
+      return "output0";
+    }
+    return { oldId, needsMigration: true };
+  };
+  const loadLabelsFromNodeInput = useCallback$3(() => {
+    if (!data.node_input) return {};
+    const labels = {};
+    Object.entries(data.node_input).forEach(([key, value]) => {
+      console.log("loadLabelsFromNodeInput:", key, value);
+      if (value && value.return_name) {
+        console.log(`讀取 ${key} 的 return_name:`, value.return_name);
+        labels[key] = value.return_name;
+      }
+    });
+    return labels;
+  }, [data.node_input]);
   useEffect$4(() => {
+    if (isUpdating.current) return;
+    isUpdating.current = true;
     initAttempts.current += 1;
     console.log(
       `初始化 BrowserExtensionOutputNode ${nodeId}，嘗試 #${initAttempts.current}`
     );
-    let handles = [];
+    let allHandles = /* @__PURE__ */ new Map();
+    let needsMigration = false;
+    let migratedHandles = [];
+    const initialLabels = loadLabelsFromNodeInput();
     if (data.node_input && typeof data.node_input === "object") {
       const inputKeys = Object.keys(data.node_input);
       console.log(`從 node_input 載入 handle (${nodeId}):`, inputKeys);
-      if (inputKeys.length > 0) {
-        handles = inputKeys.map((handleId) => ({
-          id: handleId
-        }));
-        console.log(`從 node_input 找到 ${handles.length} 個 handle`);
-      }
+      inputKeys.forEach((key) => {
+        const migratedId = migrateHandleId(key);
+        if (typeof migratedId === "object" && migratedId.needsMigration) {
+          needsMigration = true;
+          migratedHandles.push({ oldId: migratedId.oldId, newId: null });
+        } else {
+          allHandles.set(migratedId, { id: migratedId });
+          if (key !== migratedId) {
+            needsMigration = true;
+            migratedHandles.push({ oldId: key, newId: migratedId });
+          }
+        }
+      });
     }
     if (data.inputHandles && Array.isArray(data.inputHandles)) {
       console.log(
         `從 inputHandles 屬性載入 ${data.inputHandles.length} 個 handle`
       );
-      handles = data.inputHandles;
+      data.inputHandles.forEach((handle) => {
+        if (handle && handle.id) {
+          const migratedId = migrateHandleId(handle.id);
+          if (typeof migratedId === "object" && migratedId.needsMigration) {
+            needsMigration = true;
+            migratedHandles.push({ oldId: migratedId.oldId, newId: null });
+          } else {
+            allHandles.set(migratedId, { id: migratedId });
+            if (handle.id !== migratedId) {
+              needsMigration = true;
+              migratedHandles.push({ oldId: handle.id, newId: migratedId });
+            }
+          }
+        }
+      });
+      console.log(`合併後共有 ${allHandles.size} 個 handle`);
+    }
+    if (data.parameters && data.parameters.inputHandles && data.parameters.inputHandles.data) {
+      console.log(`從參數中載入 handle`);
+      const paramHandles = data.parameters.inputHandles.data;
+      if (Array.isArray(paramHandles)) {
+        paramHandles.forEach((handleId) => {
+          const migratedId = migrateHandleId(handleId);
+          if (typeof migratedId === "object" && migratedId.needsMigration) {
+            needsMigration = true;
+            migratedHandles.push({ oldId: migratedId.oldId, newId: null });
+          } else {
+            allHandles.set(migratedId, { id: migratedId });
+            if (handleId !== migratedId) {
+              needsMigration = true;
+              migratedHandles.push({ oldId: handleId, newId: migratedId });
+            }
+          }
+        });
+      }
+      console.log(`加入參數後共有 ${allHandles.size} 個 handle`);
+    }
+    if (needsMigration && migratedHandles.some((h) => h.newId === null)) {
+      let maxIndex = -1;
+      allHandles.forEach((handle, id2) => {
+        if (id2.startsWith("output")) {
+          const indexStr = id2.substring(6);
+          const index = parseInt(indexStr, 10);
+          if (!isNaN(index) && index > maxIndex) {
+            maxIndex = index;
+          }
+        }
+      });
+      migratedHandles.forEach((handle) => {
+        if (handle.newId === null) {
+          maxIndex++;
+          handle.newId = `output${maxIndex}`;
+          allHandles.set(handle.newId, { id: handle.newId });
+        }
+      });
+      console.log("完成 handle ID 遷移:", migratedHandles);
+    }
+    if (needsMigration && data.node_input) {
+      const newNodeInput = {};
+      migratedHandles.forEach(({ oldId, newId }) => {
+        if (data.node_input[oldId]) {
+          newNodeInput[newId] = { ...data.node_input[oldId] };
+        }
+      });
+      Object.keys(data.node_input).forEach((key) => {
+        if (!migratedHandles.some((h) => h.oldId === key)) {
+          newNodeInput[key] = data.node_input[key];
+        }
+      });
+      data.node_input = newNodeInput;
+      console.log("遷移後的 node_input:", data.node_input);
+    }
+    let handles = Array.from(allHandles.values());
+    if (handles.length === 0) {
+      handles = [{ id: "output0" }];
+      console.log(`添加默認 handle: output0`);
+      if (data.node_input) {
+        data.node_input["output0"] = {
+          node_id: "",
+          output_name: "",
+          type: "string",
+          data: "",
+          is_empty: true,
+          return_name: ""
+          // 確保有 return_name 屬性
+        };
+      }
     }
     handles = handles.map((handle) => ({
-      id: String(handle.id || `input_${Date.now()}`)
+      id: String(handle.id || "output0")
     }));
+    console.log(`最終設置節點 ${nodeId} 的 inputs:`, handles);
     setInputs(handles);
+    if (data.node_input) {
+      const nodeInput = { ...data.node_input };
+      handles.forEach((handle) => {
+        if (!nodeInput[handle.id]) {
+          nodeInput[handle.id] = {
+            node_id: "",
+            output_name: "",
+            type: "string",
+            data: "",
+            is_empty: true,
+            return_name: ""
+            // 確保有 return_name 屬性
+          };
+          console.log(`為 handle ${handle.id} 創建 node_input 項`);
+        } else if (!Object.prototype.hasOwnProperty.call(
+          nodeInput[handle.id],
+          "return_name"
+        )) {
+          nodeInput[handle.id].return_name = "";
+          console.log(`為 handle ${handle.id} 添加 return_name 屬性`);
+        } else ;
+      });
+      data.node_input = nodeInput;
+    }
+    if (data.inputHandles) {
+      data.inputHandles = handles;
+    }
+    if (Object.keys(initialLabels).length > 0) {
+      setHandleLabels(initialLabels);
+      console.log("設置初始標籤:", initialLabels);
+    }
+    console.log(`節點 ${nodeId} 完整資料:`, {
+      handles,
+      node_input: data.node_input || {},
+      inputHandles: data.inputHandles || [],
+      labels: initialLabels
+    });
     const updateTimes = [0, 50, 150, 300, 600, 1e3, 1500];
     updateTimes.forEach((delay) => {
       setTimeout(() => {
@@ -12000,7 +12305,11 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         }
       }, delay);
     });
-  }, [nodeId, data, updateNodeInternals]);
+    handlesMigrated.current = true;
+    setTimeout(() => {
+      isUpdating.current = false;
+    }, 100);
+  }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
   useEffect$4(() => {
     if (inputs.length > 0) {
       console.log(`inputs 更新為 ${inputs.length} 個 handle，更新內部結構`);
@@ -12013,22 +12322,102 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }, 50);
     }
   }, [inputs, nodeId, updateNodeInternals]);
-  const edges = useEdges();
-  const connectionCount = edges.filter((edge) => edge.target === id).length;
+  const connectionInfo = useCallback$3(() => {
+    const totalConnections2 = edges.filter((edge) => edge.target === id).length;
+    const connectionsPerHandle2 = {};
+    inputs.forEach((input) => {
+      const handleId = input.id;
+      const connectionsToHandle = edges.filter(
+        (edge) => edge.target === id && edge.targetHandle === handleId
+      ).length;
+      connectionsPerHandle2[handleId] = connectionsToHandle;
+    });
+    return { totalConnections: totalConnections2, connectionsPerHandle: connectionsPerHandle2 };
+  }, [edges, id, inputs]);
   const handleAddOutput = useCallback$3(() => {
-    const newInputId = `input_${Date.now()}`;
+    let maxIndex = -1;
+    inputs.forEach((input) => {
+      if (input.id && input.id.startsWith("output")) {
+        const indexStr = input.id.substring(6);
+        const index = parseInt(indexStr, 10);
+        if (!isNaN(index) && index > maxIndex) {
+          maxIndex = index;
+        }
+      }
+    });
+    const newIndex = maxIndex + 1;
+    const newInputId = `output${newIndex}`;
     const newInputs = [...inputs, { id: newInputId }];
     console.log(`新增 handle (${nodeId}):`, newInputId);
     setInputs(newInputs);
-    if (data.onAddOutput) {
-      data.onAddOutput(newInputs);
+    if (data.node_input) {
+      data.node_input[newInputId] = {
+        node_id: "",
+        output_name: "",
+        type: "string",
+        data: "",
+        is_empty: true,
+        return_name: ""
+        // 確保有 return_name 屬性
+      };
+      console.log(`已在 node_input 中添加 ${newInputId}`);
     }
-  }, [inputs, data.onAddOutput, nodeId]);
+    if (data.inputHandles) {
+      data.inputHandles = newInputs;
+    } else {
+      data.inputHandles = newInputs;
+    }
+    if (data.parameters && data.parameters.inputHandles) {
+      data.parameters.inputHandles.data = newInputs.map((h) => h.id);
+    }
+    if (data.onAddOutput) {
+      try {
+        data.onAddOutput(newInputs);
+      } catch (err) {
+        console.warn(`調用 onAddOutput 時出錯:`, err);
+      }
+    } else {
+      console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
+    }
+  }, [inputs, data, nodeId]);
+  const handleLabelChange = useCallback$3(
+    (handleId, newLabel) => {
+      setHandleLabels((prev) => {
+        if (prev[handleId] === newLabel) return prev;
+        if (data.node_input && data.node_input[handleId]) {
+          data.node_input[handleId].return_name = newLabel;
+          data.node_input[handleId].has_return_name = true;
+        } else if (data.node_input) {
+          data.node_input[handleId] = {
+            node_id: "",
+            output_name: "",
+            type: "string",
+            data: "",
+            is_empty: true,
+            return_name: newLabel,
+            has_return_name: true
+            // 標記為有 return_name
+          };
+        }
+        console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
+        return { ...prev, [handleId]: newLabel };
+      });
+      if (data.updateNodeData && data.node_input) {
+        try {
+          data.updateNodeData("node_input", { ...data.node_input });
+          console.log(`已將 ${handleId} 的標籤變更同步到後端`);
+        } catch (err) {
+          console.warn("更新節點數據時出錯:", err);
+        }
+      }
+    },
+    [data]
+  );
   const nodeStyle = {
     height: `${getNodeHeight()}px`,
     transition: "height 0.3s ease"
-    // 添加平滑過渡效果
   };
+  const { totalConnections, connectionsPerHandle } = connectionInfo();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -12046,11 +12435,66 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             ] })
           }
         ),
+        inputs.map((input, index) => {
+          const startY = 65;
+          const spacing = 25;
+          const topPosition = startY + index * spacing;
+          const connectionCount = connectionsPerHandle[input.id] || 0;
+          const handleStyle = {
+            background: connectionCount > 0 ? "#e5e7eb" : "#f3f4f6",
+            borderColor: connectionCount > 0 ? "#D3D3D3" : "#E0E0E0",
+            width: "12px",
+            height: "12px",
+            left: "-6px",
+            top: `${topPosition}px`,
+            border: connectionCount > 0 ? "1px solid #D3D3D3" : "1px dashed #A0A0A0"
+          };
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$d.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Handle$1,
+              {
+                type: "target",
+                position: Position.Left,
+                id: String(input.id),
+                style: handleStyle,
+                isConnectable
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "absolute flex",
+                style: { left: "10px", top: `${topPosition - 6}px` },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      className: "text-xs border border-gray-300 rounded px-1 py-0 w-55 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none",
+                      placeholder: "請輸入",
+                      value: handleLabels[input.id] || "",
+                      onChange: (e) => handleLabelChange(input.id, e.target.value),
+                      title: `輸入 ${input.id} 的標籤（將儲存為 return_name）`
+                    }
+                  ),
+                  connectionCount > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500 ml-1", children: [
+                    "(",
+                    connectionCount,
+                    ")"
+                  ] }) : null
+                ]
+              }
+            )
+          ] }, `handle-${input.id}`);
+        }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
-            className: "p-4",
-            style: { backgroundColor: "white" },
+            className: "p-4 absolute bottom-1 left-1 right-1 rounded-b-lg",
+            style: {
+              backgroundColor: "white",
+              borderTop: "1px solid #f0f0f0"
+            },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
@@ -12068,36 +12512,13 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   "共連線 ",
-                  connectionCount,
+                  totalConnections,
                   " 個"
                 ] })
               ] })
             ]
           }
-        ),
-        inputs.map((input, index) => {
-          const startY = 65;
-          const spacing = 25;
-          const topPosition = startY + index * spacing;
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Handle$1,
-            {
-              type: "target",
-              position: Position.Left,
-              id: String(input.id),
-              style: {
-                background: "#e5e7eb",
-                borderColor: "#D3D3D3",
-                width: "12px",
-                height: "12px",
-                left: "-6px",
-                top: `${topPosition}px`
-              },
-              isConnectable
-            },
-            `handle-${input.id}`
-          );
-        })
+        )
       ]
     }
   );
@@ -14817,6 +15238,24 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     setIsSaving(true);
     try {
       debugConnections(edges, "保存前");
+      nodes.forEach((node) => {
+        if (node.type === "browserExtensionOutput") {
+          console.log(`保存前檢查節點 ${node.id}:`, {
+            inputHandles: node.data.inputHandles || [],
+            node_input: node.data.node_input || {}
+          });
+          if (node.data.inputHandles && node.data.node_input) {
+            const handleMismatch = node.data.inputHandles.some(
+              (handle) => !node.data.node_input[handle.id]
+            );
+            if (handleMismatch) {
+              console.warn(
+                `節點 ${node.id} 的 inputHandles 和 node_input 不同步`
+              );
+            }
+          }
+        }
+      });
       const flowData = {
         id: flowMetadata.id || `flow_${Date.now()}`,
         title: flowMetadata.title || "未命名流程",
@@ -15225,11 +15664,13 @@ const debugNodeInputsBeforeSave = (flowPipeline) => {
     if (node.operator === "browser_extension_output" && node.node_input) {
       console.group(`節點 ${node.id} (${node.operator}) 的輸入:`);
       Object.entries(node.node_input).forEach(([key, input]) => {
+        const isEmpty = input.is_empty || !input.node_id;
         console.log(`輸入 ${key}:`, {
-          node_id: input.node_id,
+          node_id: input.node_id || "(空)",
           output_name: input.output_name,
           type: input.type,
-          return_name: input.return_name || "(未設置)"
+          return_name: input.return_name || "(未設置)",
+          isEmpty: isEmpty ? "是" : "否"
         });
       });
       console.groupEnd();
