@@ -1090,6 +1090,9 @@ video {
 .h-screen {
   height: 100vh;
 }
+.max-h-\[200px\] {
+  max-height: 200px;
+}
 .max-h-full {
   max-height: 100%;
 }
@@ -1247,6 +1250,9 @@ video {
 .self-center {
   align-self: center;
 }
+.overflow-auto {
+  overflow: auto;
+}
 .overflow-hidden {
   overflow: hidden;
 }
@@ -1335,6 +1341,10 @@ video {
 .border-blue-300 {
   --tw-border-opacity: 1;
   border-color: rgb(147 197 253 / var(--tw-border-opacity, 1));
+}
+.border-blue-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(96 165 250 / var(--tw-border-opacity, 1));
 }
 .border-gray-200 {
   --tw-border-opacity: 1;

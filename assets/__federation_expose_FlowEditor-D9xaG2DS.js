@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$o = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$8,useState: useState$h,useEffect: useEffect$b,forwardRef: forwardRef$1,useCallback: useCallback$9} = React$o;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$8,useState: useState$i,useEffect: useEffect$b,forwardRef: forwardRef$1,useCallback: useCallback$9} = React$o;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3918,7 +3918,7 @@ function Attribution({ proOptions, position = "bottom-right" }) {
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
   const edgeRef = useRef$8(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$h({ x: 0, y: 0, width: 0, height: 0 });
+  const [edgeTextBbox, setEdgeTextBbox] = useState$i({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
   useEffect$b(() => {
     if (edgeRef.current) {
@@ -5057,7 +5057,7 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$h(false);
+  const [keyPressed, setKeyPressed] = useState$i(false);
   const modifierPressed = useRef$8(false);
   const pressedKeys = useRef$8(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
@@ -6268,7 +6268,7 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$h(false);
+  const [dragging, setDragging] = useState$i(false);
   const dragItems = useRef$8([]);
   const lastPos = useRef$8({ x: null, y: null });
   const autoPanId = useRef$8(0);
@@ -6813,8 +6813,8 @@ const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
     const edgeRef = useRef$8(null);
-    const [updateHover, setUpdateHover] = useState$h(false);
-    const [updating, setUpdating] = useState$h(false);
+    const [updateHover, setUpdateHover] = useState$i(false);
+    const [updating, setUpdating] = useState$i(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -7684,7 +7684,7 @@ function useEdges() {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$h(initialItems);
+    const [items, setItems] = useState$i(initialItems);
     const onItemsChange = useCallback$9((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
@@ -7831,7 +7831,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$f(MiniMap);
 
 const React$m = await importShared('react');
-const {memo: memo$e,useState: useState$g,useEffect: useEffect$9} = React$m;
+const {memo: memo$e,useState: useState$h,useEffect: useEffect$9} = React$m;
 
 function PlusIcon() {
     return (React$m.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7868,7 +7868,7 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$g(false);
+    const [isVisible, setIsVisible] = useState$h(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
     useEffect$9(() => {
@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bd8757ad47cbeaf943630047dc95bdef60616075", "VITE_APP_BUILD_TIME": "2025-05-16T02:28:10.415Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.87"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c38abc1ab3913876754a8760396401a5798c3331", "VITE_APP_BUILD_TIME": "2025-05-16T08:36:09.473Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.88"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9122,9 +9122,9 @@ const IconBase = ({ type, className = "" }) => {
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
 const React$k = await importShared('react');
-const {useState: useState$f} = React$k;
+const {useState: useState$g} = React$k;
 const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
-  const [searchTerm, setSearchTerm] = useState$f("");
+  const [searchTerm, setSearchTerm] = useState$g("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -9295,9 +9295,9 @@ const workflowIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20vie
 const pencilIcon = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23fff'%20fill-opacity='.01'%20d='M0%200h16v16H0z'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M12.644%201.223a.533.533%200%200%200-.754%200L3.962%209.15c-.096.096-.173.21-.226.334l-1.56%203.64a.533.533%200%200%200%20.7.7l3.64-1.56c.124-.053.238-.13.334-.226l7.927-7.928a.533.533%200%200%200%200-.754l-2.133-2.133zM4.716%209.904l7.55-7.55%201.38%201.38-7.55%207.55-1.596.683-.467-.468.683-1.595z'%20fill='%231C2024'/%3e%3c/svg%3e";
 
 const React$j = await importShared('react');
-const {useState: useState$e} = React$j;
+const {useState: useState$f} = React$j;
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$e(true);
+  const [isEditing, setIsEditing] = useState$f(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -9417,12 +9417,12 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 const NodeWrapper$1 = memo$c(NodeWrapper);
 
 const React$h = await importShared('react');
-const {memo: memo$b,useCallback: useCallback$6,useEffect: useEffect$8,useState: useState$d,useRef: useRef$4} = React$h;
+const {memo: memo$b,useCallback: useCallback$6,useEffect: useEffect$8,useState: useState$e,useRef: useRef$4} = React$h;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
     const nodeRef = useRef$4(null);
-    const [isInputFocused, setIsInputFocused] = useState$d(false);
+    const [isInputFocused, setIsInputFocused] = useState$e(false);
     const handleNodeClick = useCallback$6(
       (e) => {
         e.stopPropagation();
@@ -9507,7 +9507,7 @@ function getDisplayName(WrappedComponent) {
 }
 
 const React$g = await importShared('react');
-const {useRef: useRef$3,useEffect: useEffect$7} = React$g;
+const {useRef: useRef$3,useEffect: useEffect$7,useState: useState$d} = React$g;
 
 const AutoResizeTextarea = ({
   value,
@@ -9517,12 +9517,99 @@ const AutoResizeTextarea = ({
   ...props
 }) => {
   const textareaRef = useRef$3(null);
+  const [isFocused, setIsFocused] = useState$d(false);
   useEffect$7(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${Math.max(textarea.scrollHeight, 60)}px`;
   }, [value]);
+  useEffect$7(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const handleFocus = () => {
+      setIsFocused(true);
+    };
+    const handleBlur = () => {
+      setIsFocused(false);
+    };
+    const handleMouseDown = (e) => {
+      if (e.button === 1) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    textarea.addEventListener("focus", handleFocus);
+    textarea.addEventListener("blur", handleBlur);
+    textarea.addEventListener("mousedown", handleMouseDown);
+    return () => {
+      textarea.removeEventListener("focus", handleFocus);
+      textarea.removeEventListener("blur", handleBlur);
+      textarea.removeEventListener("mousedown", handleMouseDown);
+    };
+  }, []);
+  useEffect$7(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const handleWheelCapture = (e) => {
+      if (isFocused && (e.target === textarea || textarea.contains(e.target))) {
+        e.stopPropagation();
+        const isAtTop = textarea.scrollTop <= 0;
+        const isAtBottom = Math.abs(
+          textarea.scrollTop + textarea.clientHeight - textarea.scrollHeight
+        ) <= 1;
+        if (isAtTop && e.deltaY < 0 || isAtBottom && e.deltaY > 0) {
+          e.preventDefault();
+        }
+      }
+    };
+    const preventZoom = (e) => {
+      if (isFocused && (e.ctrlKey || e.metaKey) && (e.target === textarea || textarea.contains(e.target))) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("wheel", handleWheelCapture, {
+      passive: false,
+      capture: true
+    });
+    document.addEventListener("wheel", preventZoom, {
+      passive: false,
+      capture: true
+    });
+    return () => {
+      document.removeEventListener("wheel", handleWheelCapture, {
+        passive: false,
+        capture: true
+      });
+      document.removeEventListener("wheel", preventZoom, {
+        passive: false,
+        capture: true
+      });
+    };
+  }, [isFocused]);
+  useEffect$7(() => {
+    if (isFocused) {
+      const findReactFlowNode = (element) => {
+        let current = element;
+        while (current && !current.classList?.contains("react-flow__node")) {
+          current = current.parentElement;
+        }
+        return current;
+      };
+      const reactFlowNode = findReactFlowNode(textareaRef.current);
+      if (reactFlowNode) {
+        reactFlowNode._originalClassName = reactFlowNode.className;
+        reactFlowNode.classList.add("nodrag");
+      }
+      return () => {
+        if (reactFlowNode && reactFlowNode._originalClassName) {
+          reactFlowNode.className = reactFlowNode._originalClassName;
+          delete reactFlowNode._originalClassName;
+        }
+      };
+    }
+  }, [isFocused]);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "textarea",
     {
@@ -9539,8 +9626,10 @@ const AutoResizeTextarea = ({
         p-2 
         text-sm 
         resize-none 
-        overflow-hidden 
+        overflow-auto 
         min-h-[60px] 
+        max-h-[200px]
+        ${isFocused ? "z-50 shadow-md border-blue-400" : ""} 
         ${className}
       `,
       ...props
