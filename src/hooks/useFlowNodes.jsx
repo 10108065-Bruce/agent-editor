@@ -1033,25 +1033,25 @@ export default function useFlowNodes() {
         console.log('目標是瀏覽器擴展輸出節點');
 
         // 處理特殊的 'new-connection' handle，或目標 handle 不存在的情況
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.target === targetNodeId && edge.targetHandle === targetHandle
-        );
+        // const existingEdges = edges.filter(
+        //   (edge) =>
+        //     edge.target === targetNodeId && edge.targetHandle === targetHandle
+        // );
 
         // 暫時先限制
-        if (existingEdges.length > 0) {
-          console.log(`已有連線，拒絕新連線`);
+        // if (existingEdges.length > 0) {
+        //   console.log(`已有連線，拒絕新連線`);
 
-          // 使用通知系統提示用戶
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `已有連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
-          }
-          return;
-        }
+        //   // 使用通知系統提示用戶
+        //   if (typeof window !== 'undefined' && window.notify) {
+        //     window.notify({
+        //       message: `已有連線，請先刪除現有連線`,
+        //       type: 'error',
+        //       duration: 3000
+        //     });
+        //   }
+        //   return;
+        // }
 
         if (targetHandle === 'new-connection' || !targetHandle) {
           // 創建新的 handle ID

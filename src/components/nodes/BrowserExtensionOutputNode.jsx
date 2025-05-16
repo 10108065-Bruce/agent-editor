@@ -11,7 +11,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const updateNodeInternals = useUpdateNodeInternals();
   const initAttempts = useRef(0);
   const nodeId = id || 'unknown';
-  const handlesMigrated = useRef(false);
   const isUpdating = useRef(false); // 防止循環更新
 
   const getNodeHeight = useCallback(() => {
@@ -39,20 +38,21 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 使用 useEdges 獲取所有邊緣
   const edges = useEdges();
 
-  // 將舊的 handle ID 轉換為新格式的函數
-  const migrateHandleId = (oldId) => {
-    // 如果已經是 outputX 格式，直接返回
-    if (oldId && oldId.startsWith('output')) {
-      return oldId;
+  // 處理 handle ID，將多連線格式 (output0_0, output0_1) 轉換為基本格式 (output0)
+  const processHandleId = (handleId) => {
+    // 使用正則表達式匹配多連線格式
+    const match = handleId && handleId.match(/^(output\d+)(?:_\d+)?$/);
+    if (match && match[1]) {
+      return match[1]; // 返回基本 handle ID
     }
 
-    // 如果是默認的 'input'，轉換為 'output0'
-    if (oldId === 'input') {
+    // 如果是舊版 'input' 格式，轉換為 'output0'
+    if (handleId === 'input') {
       return 'output0';
     }
 
-    // 如果是 input_timestamp 格式，轉換為下一個可用的 outputX
-    return { oldId, needsMigration: true };
+    // 其他情況直接返回原始 ID
+    return handleId;
   };
 
   // 從 node_input 讀取標籤 - 只在初始化時調用一次
@@ -63,8 +63,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     Object.entries(data.node_input).forEach(([key, value]) => {
       console.log('loadLabelsFromNodeInput:', key, value);
       if (value && value.return_name) {
+        const baseHandleId = processHandleId(key);
         console.log(`讀取 ${key} 的 return_name:`, value.return_name);
-        labels[key] = value.return_name;
+        labels[baseHandleId] = value.return_name;
       }
     });
 
@@ -82,37 +83,23 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     );
 
     // 準備收集所有 handle
-    let allHandles = new Map();
-    let needsMigration = false;
-    let migratedHandles = [];
+    const handleSet = new Set();
 
-    // 讀取初始標籤
-    const initialLabels = loadLabelsFromNodeInput();
-
-    // 首先從 node_input 中提取 handle
+    // 從 node_input 提取基本 handle ID (處理多連線格式)
     if (data.node_input && typeof data.node_input === 'object') {
       const inputKeys = Object.keys(data.node_input);
       console.log(`從 node_input 載入 handle (${nodeId}):`, inputKeys);
 
-      // 將 node_input 中的所有 handle 加入 map，並檢查是否需要遷移
+      // 為每個 key 提取基本 handle ID
       inputKeys.forEach((key) => {
-        const migratedId = migrateHandleId(key);
-
-        if (typeof migratedId === 'object' && migratedId.needsMigration) {
-          needsMigration = true;
-          migratedHandles.push({ oldId: migratedId.oldId, newId: null });
-        } else {
-          allHandles.set(migratedId, { id: migratedId });
-
-          if (key !== migratedId) {
-            needsMigration = true;
-            migratedHandles.push({ oldId: key, newId: migratedId });
-          }
+        const baseHandleId = processHandleId(key);
+        if (baseHandleId) {
+          handleSet.add(baseHandleId);
         }
       });
     }
 
-    // 其次，如果有 inputHandles 屬性，也將它們加入 map
+    // 從 inputHandles 屬性添加 handle
     if (data.inputHandles && Array.isArray(data.inputHandles)) {
       console.log(
         `從 inputHandles 屬性載入 ${data.inputHandles.length} 個 handle`
@@ -120,26 +107,15 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
       data.inputHandles.forEach((handle) => {
         if (handle && handle.id) {
-          const migratedId = migrateHandleId(handle.id);
-
-          if (typeof migratedId === 'object' && migratedId.needsMigration) {
-            needsMigration = true;
-            migratedHandles.push({ oldId: migratedId.oldId, newId: null });
-          } else {
-            allHandles.set(migratedId, { id: migratedId });
-
-            if (handle.id !== migratedId) {
-              needsMigration = true;
-              migratedHandles.push({ oldId: handle.id, newId: migratedId });
-            }
+          const baseHandleId = processHandleId(handle.id);
+          if (baseHandleId) {
+            handleSet.add(baseHandleId);
           }
         }
       });
-
-      console.log(`合併後共有 ${allHandles.size} 個 handle`);
     }
 
-    // 還要確認一下參數中的 inputHandles
+    // 從參數中添加 handle
     if (
       data.parameters &&
       data.parameters.inputHandles &&
@@ -150,113 +126,51 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       const paramHandles = data.parameters.inputHandles.data;
       if (Array.isArray(paramHandles)) {
         paramHandles.forEach((handleId) => {
-          const migratedId = migrateHandleId(handleId);
-
-          if (typeof migratedId === 'object' && migratedId.needsMigration) {
-            needsMigration = true;
-            migratedHandles.push({ oldId: migratedId.oldId, newId: null });
-          } else {
-            allHandles.set(migratedId, { id: migratedId });
-
-            if (handleId !== migratedId) {
-              needsMigration = true;
-              migratedHandles.push({ oldId: handleId, newId: migratedId });
-            }
+          const baseHandleId = processHandleId(handleId);
+          if (baseHandleId) {
+            handleSet.add(baseHandleId);
           }
         });
       }
-
-      console.log(`加入參數後共有 ${allHandles.size} 個 handle`);
     }
 
-    // 處理需要遷移但尚未分配新 ID 的 handle
-    if (needsMigration && migratedHandles.some((h) => h.newId === null)) {
-      // 找出最大的輸出索引
-      let maxIndex = -1;
-      allHandles.forEach((handle, id) => {
-        if (id.startsWith('output')) {
-          const indexStr = id.substring(6);
-          const index = parseInt(indexStr, 10);
-          if (!isNaN(index) && index > maxIndex) {
-            maxIndex = index;
-          }
-        }
-      });
-
-      // 為每個未分配 ID 的 handle 分配新 ID
-      migratedHandles.forEach((handle) => {
-        if (handle.newId === null) {
-          maxIndex++;
-          handle.newId = `output${maxIndex}`;
-          allHandles.set(handle.newId, { id: handle.newId });
-        }
-      });
-
-      console.log('完成 handle ID 遷移:', migratedHandles);
-    }
-
-    // 遷移 node_input 中的資料
-    if (needsMigration && data.node_input) {
-      const newNodeInput = {};
-
-      // 複製原有資料到新的 ID
-      migratedHandles.forEach(({ oldId, newId }) => {
-        if (data.node_input[oldId]) {
-          newNodeInput[newId] = { ...data.node_input[oldId] };
-        }
-      });
-
-      // 保留其他未遷移的資料
-      Object.keys(data.node_input).forEach((key) => {
-        if (!migratedHandles.some((h) => h.oldId === key)) {
-          newNodeInput[key] = data.node_input[key];
-        }
-      });
-
-      // 更新 node_input
-      data.node_input = newNodeInput;
-      console.log('遷移後的 node_input:', data.node_input);
-    }
-
-    // 轉換 Map 為數組
-    let handles = Array.from(allHandles.values());
-
-    // 確保至少有一個默認 handle，並且使用 "output0" 作為默認 ID
-    if (handles.length === 0) {
-      handles = [{ id: 'output0' }];
+    // 確保至少有一個默認 handle
+    if (handleSet.size === 0) {
+      handleSet.add('output0');
       console.log(`添加默認 handle: output0`);
-
-      // 同時確保 node_input 中有對應的項
-      if (data.node_input) {
-        data.node_input['output0'] = {
-          node_id: '',
-          output_name: '',
-          type: 'string',
-          data: '',
-          is_empty: true,
-          return_name: '' // 確保有 return_name 屬性
-        };
-      }
     }
 
-    // 確保每個 handle ID 都是字符串類型，以防止 ReactFlow 錯誤
-    handles = handles.map((handle) => ({
-      id: String(handle.id || 'output0')
-    }));
-
+    // 轉換 Set 為數組
+    const handles = Array.from(handleSet).map((id) => ({ id: String(id) }));
     console.log(`最終設置節點 ${nodeId} 的 inputs:`, handles);
 
-    // 設置 inputs 並更新 ReactFlow 內部結構
+    // 設置 inputs
     setInputs(handles);
 
-    // 同步 node_input - 關鍵修復：確保所有 handle 都有對應的 node_input 項
+    // 同步 node_input - 確保所有 handle 都有對應的 node_input 項
     if (data.node_input) {
       const nodeInput = { ...data.node_input };
 
+      // 構建一個映射，將多連線格式映射到基本 handle ID
+      const handleMapping = {};
+      Object.keys(nodeInput).forEach((key) => {
+        const baseHandleId = processHandleId(key);
+        if (!handleMapping[baseHandleId]) {
+          handleMapping[baseHandleId] = [];
+        }
+        handleMapping[baseHandleId].push(key);
+      });
+
       // 檢查每個 handle，確保在 node_input 中存在
       handles.forEach((handle) => {
-        if (!nodeInput[handle.id]) {
-          nodeInput[handle.id] = {
+        const baseHandleId = handle.id;
+
+        // 如果沒有對應的 node_input 項，創建一個
+        if (
+          !handleMapping[baseHandleId] ||
+          handleMapping[baseHandleId].length === 0
+        ) {
+          nodeInput[baseHandleId] = {
             node_id: '',
             output_name: '',
             type: 'string',
@@ -264,18 +178,21 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             is_empty: true,
             return_name: '' // 確保有 return_name 屬性
           };
-          console.log(`為 handle ${handle.id} 創建 node_input 項`);
-        } else if (
-          !Object.prototype.hasOwnProperty.call(
-            nodeInput[handle.id],
-            'return_name'
-          )
-        ) {
-          // 確保 return_name 屬性存在
-          nodeInput[handle.id].return_name = '';
-          console.log(`為 handle ${handle.id} 添加 return_name 屬性`);
-        } else {
-          // return name 屬性存在
+          console.log(`為 handle ${baseHandleId} 創建 node_input 項`);
+        }
+        // 確保所有多連線格式的項都有 return_name 屬性
+        else if (handleMapping[baseHandleId]) {
+          handleMapping[baseHandleId].forEach((key) => {
+            if (
+              !Object.prototype.hasOwnProperty.call(
+                nodeInput[key],
+                'return_name'
+              )
+            ) {
+              nodeInput[key].return_name = '';
+              console.log(`為 handle ${key} 添加 return_name 屬性`);
+            }
+          });
         }
       });
 
@@ -289,6 +206,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
 
     // 設置標籤狀態
+    const initialLabels = loadLabelsFromNodeInput();
     if (Object.keys(initialLabels).length > 0) {
       setHandleLabels(initialLabels);
       console.log('設置初始標籤:', initialLabels);
@@ -314,13 +232,10 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }, delay);
     });
 
-    // 標記遷移已完成
-    handlesMigrated.current = true;
-
     // 重置更新狀態
     setTimeout(() => {
       isUpdating.current = false;
-    }, 100);
+    }, 200);
   }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
 
   // 當 inputs 變更時，也更新節點內部結構
@@ -421,6 +336,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   }, [inputs, data, nodeId]);
 
   // 處理標籤變更的函數 - 避免無限循環
+  // 處理標籤變更的函數 - 避免無限循環
   const handleLabelChange = useCallback(
     (handleId, newLabel) => {
       // 更新本地標籤狀態
@@ -429,33 +345,73 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         if (prev[handleId] === newLabel) return prev;
 
         // 標籤有變化，更新節點數據
-        if (data.node_input && data.node_input[handleId]) {
-          // 關鍵修改：確保即便是未連線的 handle 也能儲存 return_name
-          data.node_input[handleId].return_name = newLabel;
+        if (data.node_input) {
+          // 查找所有與此基本 handle ID 相關的項
+          Object.keys(data.node_input).forEach((key) => {
+            const baseKey = processHandleId(key);
+            if (baseKey === handleId) {
+              // 更新所有相關連線的 return_name
+              data.node_input[key].return_name = newLabel;
+              data.node_input[key].has_return_name = true; // 標記為有 return_name
+            }
+          });
 
-          // 避免 return_name 被 is_empty 標記覆蓋，明確標記這是一個需要保存的屬性
-          data.node_input[handleId].has_return_name = true;
-        } else if (data.node_input) {
           // 如果 node_input 中沒有對應的 handle，創建一個
-          data.node_input[handleId] = {
-            node_id: '',
-            output_name: '',
-            type: 'string',
-            data: '',
-            is_empty: true,
-            return_name: newLabel,
-            has_return_name: true // 標記為有 return_name
-          };
+          const baseHandleExists = Object.keys(data.node_input).some(
+            (key) => processHandleId(key) === handleId
+          );
+
+          if (!baseHandleExists) {
+            data.node_input[handleId] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: newLabel,
+              has_return_name: true // 標記為有 return_name
+            };
+          }
         }
 
         console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
         return { ...prev, [handleId]: newLabel };
       });
 
-      // 確保立即更新到後端
+      // 確保立即更新到後端 - 如果有 updateNodeData 方法
       if (data.updateNodeData && data.node_input) {
         try {
-          data.updateNodeData('node_input', { ...data.node_input });
+          // 創建一個深拷貝，確保不會意外修改原始數據
+          const updatedNodeInput = JSON.parse(JSON.stringify(data.node_input));
+
+          // 遍歷並更新所有相關的 entry
+          Object.keys(updatedNodeInput).forEach((key) => {
+            const baseKey = processHandleId(key);
+            if (baseKey === handleId) {
+              updatedNodeInput[key].return_name = newLabel;
+              updatedNodeInput[key].has_return_name = true;
+            }
+          });
+
+          // 如果沒有對應的 entry，創建一個
+          if (
+            !Object.keys(updatedNodeInput).some(
+              (key) => processHandleId(key) === handleId
+            )
+          ) {
+            updatedNodeInput[handleId] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: newLabel,
+              has_return_name: true
+            };
+          }
+
+          // 調用更新方法
+          data.updateNodeData('node_input', updatedNodeInput);
           console.log(`已將 ${handleId} 的標籤變更同步到後端`);
         } catch (err) {
           console.warn('更新節點數據時出錯:', err);

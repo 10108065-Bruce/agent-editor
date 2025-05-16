@@ -143,8 +143,6 @@ class WorkflowMappingService {
     // 檢查節點類型
     const isBrowserExtensionOutput =
       targetNode.type === 'browserExtensionOutput';
-    const isAINode =
-      targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
 
     // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
     if (
@@ -154,109 +152,140 @@ class WorkflowMappingService {
     ) {
       console.log(`處理 BrowserExtensionOutput 節點的所有 input handles`);
 
-      // 遍歷所有 inputHandles，無論是否有連線
-      targetNode.data.inputHandles.forEach((handle) => {
-        const handleId = handle.id;
+      // 保存原始的 node_input 資訊
+      const originalNodeInput = targetNode.data.node_input || {};
 
-        // 檢查此 handle 是否有連線
-        const connectedEdges = edges.filter(
-          (edge) => edge.target === nodeId && edge.targetHandle === handleId
-        );
+      // 查找所有連線到此節點的邊
+      const relevantEdges = edges.filter((edge) => edge.target === nodeId);
 
-        if (connectedEdges.length > 0) {
-          // 處理已有連線的 handle
-          connectedEdges.forEach((edge, index) => {
-            const inputKey =
-              connectedEdges.length > 1 ? `${handleId}_${index}` : handleId;
-            const sourceNode = allNodes.find((n) => n.id === edge.source);
+      // 按基本 handle 分組
+      const handleGroups = {};
+      relevantEdges.forEach((edge) => {
+        const baseHandle = edge.targetHandle.split('_')[0];
+        if (!handleGroups[baseHandle]) {
+          handleGroups[baseHandle] = [];
+        }
+        handleGroups[baseHandle].push(edge);
+      });
 
-            // 根據源節點類型獲取適當的 return_name
-            if (sourceNode) {
-              // if (
-              //   sourceNode.type === 'customInput' ||
-              //   sourceNode.type === 'input'
-              // ) {
-              //   // 從自定義輸入節點獲取欄位名稱
-              //   if (
-              //     sourceNode.data &&
-              //     sourceNode.data.fields &&
-              //     Array.isArray(sourceNode.data.fields)
-              //   ) {
-              //     // 從 sourceHandle 中提取索引（如 output-0）
-              //     const outputIndex = edge.sourceHandle
-              //       ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-              //       : 0;
-              //     // 獲取對應的欄位名稱
-              //     if (sourceNode.data.fields[outputIndex]) {
-              //       returnName =
-              //         sourceNode.data.fields[outputIndex].inputName ||
-              //         returnName;
-              //     }
-              //   }
-              // } else if (sourceNode.type === 'browserExtensionInput') {
-              //   // 從瀏覽器擴展輸入節點獲取項目名稱
-              //   if (
-              //     sourceNode.data &&
-              //     sourceNode.data.items &&
-              //     Array.isArray(sourceNode.data.items)
-              //   ) {
-              //     // 從 sourceHandle 中提取索引（如 output-0）
-              //     const outputIndex = edge.sourceHandle
-              //       ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-              //       : 0;
-              //     // 獲取對應的項目名稱
-              //     if (sourceNode.data.items[outputIndex]) {
-              //       returnName =
-              //         sourceNode.data.items[outputIndex].name || returnName;
-              //     }
-              //   }
-              // } else if (
-              //   sourceNode.type === 'aiCustomInput' ||
-              //   sourceNode.type === 'ai'
-              // ) {
-              //   // AI 節點通常使用默認的 output
-              //   returnName = 'output';
-              // } else if (sourceNode.type === 'knowledgeRetrieval') {
-              //   // 知識檢索節點
-              //   returnName = 'output';
-              // } else {
-              //   // 對於其他節點類型，使用 sourceHandle 或默認為 'output'
-              //   console.log('=================edge', edge);
-              //   returnName = edge.sourceHandle || 'output';
-              // }
+      // 遍歷所有基本 handle
+      Object.keys(handleGroups).forEach((baseHandle) => {
+        const groupEdges = handleGroups[baseHandle];
+
+        if (groupEdges.length > 1) {
+          // 多連線情況
+          groupEdges.forEach((edge, index) => {
+            const inputKey = `${baseHandle}_${index + 1}`;
+
+            // 找到原始的 return_name
+            let returnName = 'output';
+
+            // 優先使用原始 inputKey 的 return_name
+            if (
+              originalNodeInput[inputKey] &&
+              originalNodeInput[inputKey].return_name
+            ) {
+              returnName = originalNodeInput[inputKey].return_name;
+            }
+            // 如果沒有，嘗試使用基本 handle 的 return_name
+            else if (
+              originalNodeInput[baseHandle] &&
+              originalNodeInput[baseHandle].return_name
+            ) {
+              returnName = originalNodeInput[baseHandle].return_name;
+            }
+            // 如果仍然沒有，嘗試找其他類似的多連線 key
+            else {
+              const similarKeys = Object.keys(originalNodeInput).filter(
+                (key) =>
+                  key.startsWith(baseHandle) &&
+                  key !== inputKey &&
+                  originalNodeInput[key].return_name
+              );
+
+              if (similarKeys.length > 0) {
+                returnName = originalNodeInput[similarKeys[0]].return_name;
+              }
             }
 
-            // 添加到 nodeInput
-            // 從targetnode.dara.node_input中找到key handleId 對應的值，把裡面的return_name提取出來
-            const inputValue = targetNode.data.node_input[handleId];
-            let returnName = inputValue.return_name || 'output';
             nodeInput[inputKey] = {
               node_id: edge.source,
-              output_name: edge.sourceHandle || '',
+              output_name: edge.sourceHandle || 'output',
               type: 'string',
-              return_name: returnName || edge.label || '' // 確保 return_name 優先使用現有值或邊的標籤
+              return_name: returnName
             };
 
             console.log(
-              `瀏覽器擴展輸出節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
+              `多連線 Handle: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
             );
           });
         } else {
-          // 從targetnode.dara.node_input中找到key handleId 對應的值，把裡面的return_name提取出來
-          const inputValue = targetNode.data.node_input[handleId];
-          let returnName = inputValue.return_name || '';
-          // 為未連線的 handle 創建空的輸入項
-          nodeInput[handleId] = {
-            node_id: '', // 空節點 ID 表示沒有連線
-            output_name: '',
+          // 單一連線情況
+          const edge = groupEdges[0];
+
+          // 找到原始的 return_name
+          let returnName = 'output';
+
+          // 優先使用基本 handle 的 return_name
+          if (
+            originalNodeInput[baseHandle] &&
+            originalNodeInput[baseHandle].return_name
+          ) {
+            returnName = originalNodeInput[baseHandle].return_name;
+          }
+          // 如果沒有，檢查多連線 key
+          else {
+            const similarKeys = Object.keys(originalNodeInput).filter(
+              (key) =>
+                key.startsWith(baseHandle) && originalNodeInput[key].return_name
+            );
+
+            if (similarKeys.length > 0) {
+              returnName = originalNodeInput[similarKeys[0]].return_name;
+            }
+          }
+
+          nodeInput[baseHandle] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
             type: 'string',
-            data: '', // 提供默認空數據
-            is_empty: true, // 標記為空連線
-            return_name: returnName || '' // 確保 return_name 優先使用現有值或邊的標籤
+            return_name: returnName
           };
-          console.log(`保留未連線的 handle: ${handleId}`);
+
+          console.log(
+            `單一連線 Handle: ${edge.source} -> ${nodeId}:${baseHandle} (return_name: ${returnName})`
+          );
         }
       });
+
+      // 處理未連線的 handle
+      targetNode.data.inputHandles
+        .filter((handle) => !handleGroups[handle.id])
+        .forEach((handle) => {
+          const baseHandleId = handle.id;
+          const similarKeys = Object.keys(originalNodeInput).filter(
+            (key) =>
+              key.startsWith(baseHandleId) && originalNodeInput[key].return_name
+          );
+
+          const returnName =
+            (originalNodeInput[baseHandleId] &&
+              originalNodeInput[baseHandleId].return_name) ||
+            (similarKeys.length > 0
+              ? originalNodeInput[similarKeys[0]].return_name
+              : '');
+
+          nodeInput[baseHandleId] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true,
+            return_name: returnName
+          };
+
+          console.log(`保留未連線的 handle: ${baseHandleId}`);
+        });
 
       return nodeInput;
     }
@@ -288,6 +317,8 @@ class WorkflowMappingService {
 
     // 處理每個句柄組
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
+      const isAINode =
+        targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
       // 特殊處理 AI 節點的 context-input
       if (isAINode && targetHandle.startsWith('context')) {
         // 對於 context-input，我們需要處理多個連接
@@ -1318,12 +1349,29 @@ class WorkflowDataConverter {
 
         // 從 node_input 提取所有 handle
         const inputHandles = [];
+        const handleMap = new Map(); // 用於記錄真實的 handle ID
 
         if (node.node_input && typeof node.node_input === 'object') {
           // 直接使用全部 handle ID
+          const handlePattern = /^(output\d+)(?:_\d+)?$/;
           Object.keys(node.node_input).forEach((key) => {
-            inputHandles.push({ id: key });
-            console.log(`從 node_input 提取 handle: ${key}`);
+            const match = key.match(handlePattern);
+            if (match && match[1]) {
+              const baseHandleId = match[1]; // 提取基本 handle ID (如 output0)
+
+              // 如果這個基本 handle ID 還沒被加入，則添加
+              if (!handleMap.has(baseHandleId)) {
+                handleMap.set(baseHandleId, true);
+                inputHandles.push({ id: baseHandleId });
+                console.log(
+                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
+                );
+              }
+            } else {
+              // 非標準格式的 handle ID 直接添加
+              inputHandles.push({ id: key });
+              console.log(`從 node_input 提取非標準 handle ID: ${key}`);
+            }
           });
         }
 
@@ -1398,7 +1446,13 @@ class WorkflowDataConverter {
 
           // 為不同類型的節點處理特殊的 targetHandle
           let targetHandle = inputKey;
-
+          // 對於 BrowserExtensionOutput，處理多連線格式
+          if (node.operator === 'browser_extension_output') {
+            const match = inputKey.match(/^(output\d+)(?:_\d+)?$/);
+            if (match && match[1]) {
+              targetHandle = match[1]; // 使用基本 handle ID
+            }
+          }
           // AI 節點特殊處理
           if (isAINode) {
             // 處理 context 相關的輸入鍵
