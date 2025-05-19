@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c38abc1ab3913876754a8760396401a5798c3331", "VITE_APP_BUILD_TIME": "2025-05-16T08:36:09.473Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.88"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-19T02:10:53.556Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.89"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9920,7 +9920,7 @@ class WorkflowMappingService {
    * @param {Array} allNodes - 所有節點數據
    * @returns {Object} - API 格式的節點輸入
    */
-  // 3. 修改 WorkflowDataConverter 類中的 extractNodeInputForAPI 方法
+  // 在 WorkflowServicesIntegration.js 中修改 extractNodeInputForAPI 方法
 
   static extractNodeInputForAPI(nodeId, edges, allNodes) {
     const nodeInput = {};
@@ -9948,12 +9948,45 @@ class WorkflowMappingService {
       // 保存原始的 node_input 資訊
       const originalNodeInput = targetNode.data.node_input || {};
 
+      // 保存原始的 handleLabels 狀態，用於映射 handle ID
+      const handleLabels = {};
+
+      // 首先檢查 node_input 中是否存在 return_name
+      Object.entries(originalNodeInput).forEach(([key, value]) => {
+        if (value && value.return_name) {
+          // 使用 processHandleId 或等效邏輯轉換 handle ID
+          const baseHandleId = key.split('_')[0]; // 簡化版的 processHandleId
+          handleLabels[baseHandleId] = value.return_name;
+          console.log(
+            `從 node_input 讀取標籤: ${baseHandleId} => ${value.return_name}`
+          );
+        }
+      });
+
+      // 還原 input 到 output0 的映射 (處理第一個預設 handle 的情況)
+      if (
+        originalNodeInput.input &&
+        originalNodeInput.input.return_name &&
+        !handleLabels.output0
+      ) {
+        handleLabels.output0 = originalNodeInput.input.return_name;
+        console.log(
+          `特殊處理: 將 input.return_name (${originalNodeInput.input.return_name}) 映射到 output0`
+        );
+      }
+
       // 查找所有連線到此節點的邊
       const relevantEdges = edges.filter((edge) => edge.target === nodeId);
 
       // 按基本 handle 分組
       const handleGroups = {};
       relevantEdges.forEach((edge) => {
+        // 確保有效的 targetHandle
+        if (!edge.targetHandle) {
+          console.warn(`邊緣 ${edge.id} 沒有有效的 targetHandle，跳過`);
+          return;
+        }
+
         const baseHandle = edge.targetHandle.split('_')[0];
         if (!handleGroups[baseHandle]) {
           handleGroups[baseHandle] = [];
@@ -9970,36 +10003,10 @@ class WorkflowMappingService {
           groupEdges.forEach((edge, index) => {
             const inputKey = `${baseHandle}_${index + 1}`;
 
-            // 找到原始的 return_name
-            let returnName = 'output';
+            // 使用保存的標籤或原始的 return_name 或預設值
+            let returnName = handleLabels[baseHandle] || 'output';
 
-            // 優先使用原始 inputKey 的 return_name
-            if (
-              originalNodeInput[inputKey] &&
-              originalNodeInput[inputKey].return_name
-            ) {
-              returnName = originalNodeInput[inputKey].return_name;
-            }
-            // 如果沒有，嘗試使用基本 handle 的 return_name
-            else if (
-              originalNodeInput[baseHandle] &&
-              originalNodeInput[baseHandle].return_name
-            ) {
-              returnName = originalNodeInput[baseHandle].return_name;
-            }
-            // 如果仍然沒有，嘗試找其他類似的多連線 key
-            else {
-              const similarKeys = Object.keys(originalNodeInput).filter(
-                (key) =>
-                  key.startsWith(baseHandle) &&
-                  key !== inputKey &&
-                  originalNodeInput[key].return_name
-              );
-
-              if (similarKeys.length > 0) {
-                returnName = originalNodeInput[similarKeys[0]].return_name;
-              }
-            }
+            console.log(`多連線 Handle ${inputKey} 使用標籤值: ${returnName}`);
 
             nodeInput[inputKey] = {
               node_id: edge.source,
@@ -10016,27 +10023,12 @@ class WorkflowMappingService {
           // 單一連線情況
           const edge = groupEdges[0];
 
-          // 找到原始的 return_name
-          let returnName = 'output';
+          // 使用保存的標籤或預設值
+          let returnName = handleLabels[baseHandle] || 'output';
 
-          // 優先使用基本 handle 的 return_name
-          if (
-            originalNodeInput[baseHandle] &&
-            originalNodeInput[baseHandle].return_name
-          ) {
-            returnName = originalNodeInput[baseHandle].return_name;
-          }
-          // 如果沒有，檢查多連線 key
-          else {
-            const similarKeys = Object.keys(originalNodeInput).filter(
-              (key) =>
-                key.startsWith(baseHandle) && originalNodeInput[key].return_name
-            );
-
-            if (similarKeys.length > 0) {
-              returnName = originalNodeInput[similarKeys[0]].return_name;
-            }
-          }
+          console.log(
+            `單一連線 Handle ${baseHandle} 使用標籤值: ${returnName}`
+          );
 
           nodeInput[baseHandle] = {
             node_id: edge.source,
@@ -10056,17 +10048,13 @@ class WorkflowMappingService {
         .filter((handle) => !handleGroups[handle.id])
         .forEach((handle) => {
           const baseHandleId = handle.id;
-          const similarKeys = Object.keys(originalNodeInput).filter(
-            (key) =>
-              key.startsWith(baseHandleId) && originalNodeInput[key].return_name
-          );
 
-          const returnName =
-            (originalNodeInput[baseHandleId] &&
-              originalNodeInput[baseHandleId].return_name) ||
-            (similarKeys.length > 0
-              ? originalNodeInput[similarKeys[0]].return_name
-              : '');
+          // 使用保存的標籤或空字串
+          let returnName = handleLabels[baseHandleId] || '';
+
+          console.log(
+            `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
+          );
 
           nodeInput[baseHandleId] = {
             node_id: '',
@@ -10077,7 +10065,9 @@ class WorkflowMappingService {
             return_name: returnName
           };
 
-          console.log(`保留未連線的 handle: ${baseHandleId}`);
+          console.log(
+            `保留未連線的 handle: ${baseHandleId} (return_name: ${returnName})`
+          );
         });
 
       return nodeInput;
@@ -10108,7 +10098,7 @@ class WorkflowMappingService {
       handleGroups[targetHandle].push(edge);
     });
 
-    // 處理每個句柄組
+    // 處理每個句柄組 - 保持原始處理邏輯不變
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
       const isAINode =
         targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
@@ -12287,13 +12277,13 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const initAttempts = useRef$2(0);
   const nodeId = id || "unknown";
   const isUpdating = useRef$2(false);
+  const handleHeight = 40;
   const getNodeHeight = useCallback$3(() => {
     const headerHeight = 50;
     const buttonAreaHeight = 48;
     const textAreaHeight = 40;
     const bottomPadding = 30;
-    const handleSpacing = 25;
-    return headerHeight + inputs.length * handleSpacing + buttonAreaHeight + textAreaHeight + bottomPadding;
+    return headerHeight + inputs.length * handleHeight + buttonAreaHeight + textAreaHeight + bottomPadding;
   }, [inputs.length]);
   const edges = useEdges();
   const processHandleId = (handleId) => {
@@ -12591,8 +12581,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         ),
         inputs.map((input, index) => {
           const startY = 65;
-          const spacing = 25;
-          const topPosition = startY + index * spacing;
+          const topPosition = startY + index * handleHeight;
           const connectionCount = connectionsPerHandle[input.id] || 0;
           const handleStyle = {
             background: connectionCount > 0 ? "#e5e7eb" : "#f3f4f6",
@@ -12600,7 +12589,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             width: "12px",
             height: "12px",
             left: "-6px",
-            top: `${topPosition}px`,
+            top: `${topPosition + 14}px`,
             border: connectionCount > 0 ? "1px solid #D3D3D3" : "1px dashed #A0A0A0"
           };
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$d.Fragment, { children: [
@@ -12618,20 +12607,30 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
               "div",
               {
                 className: "absolute flex",
-                style: { left: "10px", top: `${topPosition - 6}px` },
+                style: { left: "10px", top: `${topPosition}px` },
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "input",
                     {
                       type: "text",
-                      className: "text-xs border border-gray-300 rounded px-1 py-0 w-55 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none",
+                      className: "text-sm border border-gray-300 rounded px-2 py-1 w-55 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none",
                       placeholder: "請輸入",
                       value: handleLabels[input.id] || "",
                       onChange: (e) => handleLabelChange(input.id, e.target.value),
-                      title: `輸入 ${input.id} 的標籤（將儲存為 return_name）`
+                      title: `輸入 ${input.id} 的標籤（將儲存為 return_name）`,
+                      style: {
+                        height: "30px",
+                        // 增加高度到30px
+                        lineHeight: "28px",
+                        // 調整行高以便文字垂直居中
+                        fontSize: "14px",
+                        // 增加字體大小到14px
+                        width: "180px"
+                        // 設定固定寬度
+                      }
                     }
                   ),
-                  connectionCount > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500 ml-1", children: [
+                  connectionCount > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500 ml-1 mt-1", children: [
                     "(",
                     connectionCount,
                     ")"
