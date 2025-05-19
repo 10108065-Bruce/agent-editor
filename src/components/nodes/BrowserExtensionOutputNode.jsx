@@ -13,6 +13,8 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const nodeId = id || 'unknown';
   const isUpdating = useRef(false); // 防止循環更新
 
+  // 每個 handle 的高度 (增加高度)
+  const handleHeight = 40; // 從原本的 25 增加到 40
   const getNodeHeight = useCallback(() => {
     // 標題區域高度
     const headerHeight = 50;
@@ -22,13 +24,11 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     const textAreaHeight = 40;
     // 額外的底部間距
     const bottomPadding = 30;
-    // 每個 handle 之間的間距
-    const handleSpacing = 25;
 
     // 計算總高度
     return (
       headerHeight +
-      inputs.length * handleSpacing +
+      inputs.length * handleHeight +
       buttonAreaHeight +
       textAreaHeight +
       bottomPadding
@@ -452,8 +452,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       {inputs.map((input, index) => {
         // 計算 handle 的位置
         const startY = 65; // 白色部分開始的位置
-        const spacing = 25; // handle 之間的間距
-        const topPosition = startY + index * spacing;
+        const topPosition = startY + index * handleHeight;
 
         // 獲取此 handle 的連線數量
         const connectionCount = connectionsPerHandle[input.id] || 0;
@@ -465,7 +464,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           width: '12px',
           height: '12px',
           left: '-6px',
-          top: `${topPosition}px`,
+          top: `${topPosition + 14}px`,
           border:
             connectionCount > 0 ? '1px solid #D3D3D3' : '1px dashed #A0A0A0'
         };
@@ -484,17 +483,23 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             {/* 可編輯的標籤 - 替換原有的靜態標籤 */}
             <div
               className='absolute flex'
-              style={{ left: '10px', top: `${topPosition - 6}px` }}>
+              style={{ left: '10px', top: `${topPosition}px` }}>
               <input
                 type='text'
-                className='text-xs border border-gray-300 rounded px-1 py-0 w-55 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none'
+                className='text-sm border border-gray-300 rounded px-2 py-1 w-55 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none'
                 placeholder='請輸入'
                 value={handleLabels[input.id] || ''}
                 onChange={(e) => handleLabelChange(input.id, e.target.value)}
                 title={`輸入 ${input.id} 的標籤（將儲存為 return_name）`}
+                style={{
+                  height: '30px', // 增加高度到30px
+                  lineHeight: '28px', // 調整行高以便文字垂直居中
+                  fontSize: '14px', // 增加字體大小到14px
+                  width: '180px' // 設定固定寬度
+                }}
               />
               {connectionCount > 0 ? (
-                <span className='text-xs text-gray-500 ml-1'>
+                <span className='text-xs text-gray-500 ml-1 mt-1'>
                   ({connectionCount})
                 </span>
               ) : null}
