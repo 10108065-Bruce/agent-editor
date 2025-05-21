@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CUzMhCSY.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-zm1dR9xV.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15800,6 +15800,7 @@ const IFrameFlowEditor = () => {
   const [hasToken, setHasToken] = useState$1(false);
   const eventsRegistered = useRef(false);
   useEffect$1(() => {
+    console.log("================");
     const handleTokenChange = (token) => {
       setHasToken(!!token);
       console.log("IFrameFlowEditor: API Token 狀態已更新");
