@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T02:09:08.858Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.93"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T02:18:49.763Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.94"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9791,25 +9791,15 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
 };
 const CustomInputNode$1 = memo$a(CustomInputNode);
 
-/**
- * Token 服務 - 處理 API Token 的存儲和使用
- */
+// TokenService.js 簡化版
+
 class TokenService {
   constructor() {
     this.token = null;
-    this.tokenListeners = [];
-
-    // 嘗試從 localStorage 載入 token
-    this.loadTokenFromStorage();
-
-    // 監聽來自 IFrameBridge 的 token 變更
-    this.initBridgeListener();
+    this.initToken();
   }
 
-  /**
-   * 從 localStorage 載入 token
-   */
-  loadTokenFromStorage() {
+  initToken() {
     try {
       const storedToken = localStorage.getItem('api_token');
       if (storedToken) {
@@ -9817,102 +9807,37 @@ class TokenService {
         console.log('已從 localStorage 載入 API Token');
       }
     } catch (error) {
-      console.error('從 localStorage 載入 token 失敗:', error);
+      console.error('初始化 token 失敗:', error);
     }
   }
 
-  /**
-   * 初始化 Bridge 監聽器
-   */
-  initBridgeListener() {
-    // 確保 iframeBridge 已載入
-    if (typeof window !== 'undefined' && window.iframeBridge) {
-      window.iframeBridge.on('tokenReceived', (token) => {
-        this.setToken(token);
-      });
-    } else {
-      // 如果 iframeBridge 還未載入，等待載入後再註冊
-      setTimeout(() => {
-        this.initBridgeListener();
-      }, 500);
-    }
-  }
-
-  /**
-   * 設置 token
-   * @param {string} token - API token
-   */
   setToken(token) {
     if (!token) return;
 
     this.token = token;
     console.log('API Token 已更新');
 
-    // 保存到 localStorage
     try {
       localStorage.setItem('api_token', token);
     } catch (error) {
       console.error('保存 token 到 localStorage 失敗:', error);
     }
-
-    // 通知所有監聽器
-    this.notifyListeners();
   }
 
-  /**
-   * 獲取 token
-   * @returns {string|null} 目前的 token
-   */
   getToken() {
     return this.token;
   }
 
-  /**
-   * 添加 token 變更監聽器
-   * @param {Function} listener - 監聽器函數
-   */
-  addTokenListener(listener) {
-    if (typeof listener === 'function') {
-      this.tokenListeners.push(listener);
-    }
-  }
-
-  /**
-   * 移除 token 變更監聽器
-   * @param {Function} listener - 要移除的監聽器函數
-   */
-  removeTokenListener(listener) {
-    this.tokenListeners = this.tokenListeners.filter((l) => l !== listener);
-  }
-
-  /**
-   * 通知所有監聽器 token 已變更
-   */
-  notifyListeners() {
-    this.tokenListeners.forEach((listener) => {
-      try {
-        listener(this.token);
-      } catch (error) {
-        console.error('通知 token 監聽器時出錯:', error);
-      }
-    });
-  }
-
-  /**
-   * 為 API 請求創建帶有 Authorization 標頭的配置
-   * @param {Object} options - 原始請求配置
-   * @returns {Object} 添加了 Authorization 標頭的配置
-   */
   createAuthHeader(options = {}) {
     if (!this.token) {
       return options;
     }
-    console.log('createAuthHeader: 使用 token:', this.token);
+
     const headers = {
       ...(options.headers || {}),
       Authorization: `Bearer ${this.token}`
     };
-    console.log('headers:', headers);
+
     return {
       ...options,
       headers
@@ -9920,7 +9845,6 @@ class TokenService {
   }
 }
 
-// 創建單例實例
 const tokenService = new TokenService();
 
 /**
@@ -15345,6 +15269,24 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
         reactFlowControlsRef.current.fitViewToNodes();
       }
+    },
+    // 新增 setToken 方法
+    setToken: (token) => {
+      if (token && typeof token === "string") {
+        if (typeof tokenService !== "undefined") {
+          tokenService.setToken(token);
+          return true;
+        }
+        try {
+          localStorage.setItem("api_token", token);
+          console.log("Token 已設置到 FlowEditor");
+          return true;
+        } catch (error) {
+          console.error("保存 token 失敗:", error);
+          return false;
+        }
+      }
+      return false;
     }
   }));
   useEffect(() => {
@@ -15993,4 +15935,4 @@ const debugNodeInputsBeforeSave = (flowPipeline) => {
   console.groupEnd();
 };
 
-export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, tokenService as t };
+export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j };

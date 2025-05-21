@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-zm1dR9xV.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-6UaqHKaq.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15799,17 +15799,14 @@ const IFrameFlowEditor = () => {
   const [error, setError] = useState$1(null);
   const [hasToken, setHasToken] = useState$1(false);
   const eventsRegistered = useRef(false);
-  useEffect$1(() => {
-    console.log("================");
-    const handleTokenChange = (token) => {
-      setHasToken(!!token);
-      console.log("IFrameFlowEditor: API Token 狀態已更新");
-    };
-    tokenService.addTokenListener(handleTokenChange);
-    setHasToken(!!tokenService.getToken());
-    return () => {
-      tokenService.removeTokenListener(handleTokenChange);
-    };
+  const handleTokenReceived = useCallback((token) => {
+    console.log("IFrameFlowEditor: 從 Bridge 接收到 token");
+    if (flowEditorRef.current && flowEditorRef.current.setToken) {
+      flowEditorRef.current.setToken(token);
+    } else {
+      console.log("IFrameFlowEditor: 流程編輯器引用不可用，暫存 token");
+      localStorage.setItem("pending_token", token);
+    }
   }, []);
   const isLoadingRef = useRef(false);
   const handleLoadWorkflow = useCallback(async (workflowId) => {
@@ -15859,15 +15856,23 @@ const IFrameFlowEditor = () => {
     console.log("IFrameFlowEditor: 註冊事件處理器");
     iframeBridge.off("loadWorkflow", handleLoadWorkflow);
     iframeBridge.off("downloadRequest", handleDownloadRequest);
+    iframeBridge.off("tokenReceived", handleTokenReceived);
     iframeBridge.on("loadWorkflow", handleLoadWorkflow);
     iframeBridge.on("downloadRequest", handleDownloadRequest);
+    iframeBridge.on("tokenReceived", handleTokenReceived);
     eventsRegistered.current = true;
+    const pendingToken = localStorage.getItem("pending_token");
+    if (pendingToken && flowEditorRef.current && flowEditorRef.current.setToken) {
+      flowEditorRef.current.setToken(pendingToken);
+      localStorage.removeItem("pending_token");
+    }
     return () => {
       console.log("IFrameFlowEditor: 移除事件處理器");
       iframeBridge.off("loadWorkflow", handleLoadWorkflow);
       iframeBridge.off("downloadRequest", handleDownloadRequest);
+      iframeBridge.off("tokenReceived", handleTokenReceived);
     };
-  }, [handleLoadWorkflow, handleDownloadRequest]);
+  }, [handleLoadWorkflow, handleDownloadRequest, handleTokenReceived]);
   useEffect$1(() => {
     const timeout = setTimeout(() => {
       console.log("IFrameFlowEditor: 重新發送 READY 消息");
