@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T00:42:03.135Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.90"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T01:52:28.241Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.91"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -14595,24 +14595,22 @@ class IFrameBridgeService {
           this.triggerEvent('loadWorkflow', flowId);
         }
         break;
-      case 'SET_TOKEN':
-        if (message.token) {
-          console.log(`接收到 API Token`);
-
-          // 如果存在瀏覽器的 localStorage 中
-          try {
-            localStorage.setItem('api_token', message.token);
-            console.log('API Token 已保存至 localStorage');
-
-            // 觸發 token 變更事件
-            this.triggerEvent('tokenReceived', message.token);
-          } catch (error) {
-            console.error('保存 API Token 失敗:', error);
-          }
-        } else {
-          console.warn('收到 SET_TOKEN 消息，但 token 為空');
+      case 'SET_FLOW_ID_AND_TOKEN':
+        if (message.flowId && message.token) {
+          const flowId = message.flowId;
+          // 更詳細的日誌，顯示將要觸發的事件類型和數據
+          console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
+          console.log(
+            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+          );
+          this.triggerEvent('tokenReceived', message.token);
+          setTimeout(() => {
+            // 觸發流ID變更事件
+            this.triggerEvent('loadWorkflow', flowId);
+          }, 500);
         }
         break;
+
       case 'SET_TITLE':
         if (message.title) {
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
