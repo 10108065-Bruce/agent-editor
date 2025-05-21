@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-19T02:10:53.556Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.89"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T00:42:03.135Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.90"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9790,6 +9790,138 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   ] });
 };
 const CustomInputNode$1 = memo$a(CustomInputNode);
+
+/**
+ * Token 服務 - 處理 API Token 的存儲和使用
+ */
+class TokenService {
+  constructor() {
+    this.token = null;
+    this.tokenListeners = [];
+
+    // 嘗試從 localStorage 載入 token
+    this.loadTokenFromStorage();
+
+    // 監聽來自 IFrameBridge 的 token 變更
+    this.initBridgeListener();
+  }
+
+  /**
+   * 從 localStorage 載入 token
+   */
+  loadTokenFromStorage() {
+    try {
+      const storedToken = localStorage.getItem('api_token');
+      if (storedToken) {
+        this.token = storedToken;
+        console.log('已從 localStorage 載入 API Token');
+      }
+    } catch (error) {
+      console.error('從 localStorage 載入 token 失敗:', error);
+    }
+  }
+
+  /**
+   * 初始化 Bridge 監聽器
+   */
+  initBridgeListener() {
+    // 確保 iframeBridge 已載入
+    if (typeof window !== 'undefined' && window.iframeBridge) {
+      window.iframeBridge.on('tokenReceived', (token) => {
+        this.setToken(token);
+      });
+    } else {
+      // 如果 iframeBridge 還未載入，等待載入後再註冊
+      setTimeout(() => {
+        this.initBridgeListener();
+      }, 500);
+    }
+  }
+
+  /**
+   * 設置 token
+   * @param {string} token - API token
+   */
+  setToken(token) {
+    if (!token) return;
+
+    this.token = token;
+    console.log('API Token 已更新');
+
+    // 保存到 localStorage
+    try {
+      localStorage.setItem('api_token', token);
+    } catch (error) {
+      console.error('保存 token 到 localStorage 失敗:', error);
+    }
+
+    // 通知所有監聽器
+    this.notifyListeners();
+  }
+
+  /**
+   * 獲取 token
+   * @returns {string|null} 目前的 token
+   */
+  getToken() {
+    return this.token;
+  }
+
+  /**
+   * 添加 token 變更監聽器
+   * @param {Function} listener - 監聽器函數
+   */
+  addTokenListener(listener) {
+    if (typeof listener === 'function') {
+      this.tokenListeners.push(listener);
+    }
+  }
+
+  /**
+   * 移除 token 變更監聽器
+   * @param {Function} listener - 要移除的監聽器函數
+   */
+  removeTokenListener(listener) {
+    this.tokenListeners = this.tokenListeners.filter((l) => l !== listener);
+  }
+
+  /**
+   * 通知所有監聽器 token 已變更
+   */
+  notifyListeners() {
+    this.tokenListeners.forEach((listener) => {
+      try {
+        listener(this.token);
+      } catch (error) {
+        console.error('通知 token 監聽器時出錯:', error);
+      }
+    });
+  }
+
+  /**
+   * 為 API 請求創建帶有 Authorization 標頭的配置
+   * @param {Object} options - 原始請求配置
+   * @returns {Object} 添加了 Authorization 標頭的配置
+   */
+  createAuthHeader(options = {}) {
+    if (!this.token) {
+      return options;
+    }
+
+    const headers = {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${this.token}`
+    };
+
+    return {
+      ...options,
+      headers
+    };
+  }
+}
+
+// 創建單例實例
+const tokenService = new TokenService();
 
 /**
  * 工作流相關服務共用的基礎映射和轉換功能
@@ -10605,17 +10737,20 @@ class WorkflowAPIService {
   async loadWorkflow(workflowId) {
     try {
       console.log(`嘗試載入工作流 ID: ${workflowId}`);
+      // 使用 tokenService 創建帶有 Authorization 的請求配置
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_id: workflowId
+        })
+      });
+
       const response = await fetch(
         `${this.baseUrl}/agent_designer/workflows/load`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_id: workflowId
-          })
-        }
+        options
       );
 
       if (!response.ok) {
@@ -10639,20 +10774,22 @@ class WorkflowAPIService {
   async createWorkflow(data) {
     console.log('創建新工作流:', data);
     try {
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_name: data.flow_name,
+          content: data.content,
+          flow_pipeline: data.flow_pipeline
+        })
+      });
+
       const response = await fetch(
         `${this.baseUrl}/agent_designer/workflows/`,
-        {
-          method: 'POST',
-          headers: {
-            accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_name: data.flow_name,
-            content: data.content,
-            flow_pipeline: data.flow_pipeline
-          })
-        }
+        options
       );
 
       if (!response.ok) {
@@ -10676,21 +10813,22 @@ class WorkflowAPIService {
   async updateWorkflow(data) {
     console.log('更新工作流:', data);
     try {
+      const options = tokenService.createAuthHeader({
+        method: 'PUT',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_name: data.flow_name,
+          content: data.content,
+          flow_id: data.flow_id,
+          flow_pipeline: data.flow_pipeline
+        })
+      });
       const response = await fetch(
         `${this.baseUrl}/agent_designer/workflows/`,
-        {
-          method: 'PUT',
-          headers: {
-            accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_name: data.flow_name,
-            content: data.content,
-            flow_id: data.flow_id,
-            flow_pipeline: data.flow_pipeline
-          })
-        }
+        options
       );
 
       if (!response.ok) {
@@ -10750,13 +10888,14 @@ class LLMService {
 
       // 創建新請求
       console.log('獲取LLM模型列表...');
-      this.pendingRequest = fetch(`${this.baseUrl}/llm/detail`, {
+      const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json'
         }
-      })
+      });
+      this.pendingRequest = fetch(`${this.baseUrl}/llm/detail`, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -10889,15 +11028,16 @@ class LLMService {
 
       // 創建新請求
       console.log('獲取已完成文件列表...');
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
       this.pendingFilesRequest = fetch(
         `${this.baseUrl}/agent_designer/files/completed`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
-          }
-        }
+        options
       )
         .then((response) => {
           if (!response.ok) {
@@ -11943,7 +12083,7 @@ class IconUploadService {
       formData.append('file', file); // 使用正確的欄位名稱 'file'
 
       // 發送 POST 請求
-      const response = await fetch(`${this.baseUrl}/agent_designer/icons/`, {
+      const options = tokenService.createAuthHeader({
         method: 'POST',
         headers: {
           accept: 'application/json'
@@ -11952,6 +12092,10 @@ class IconUploadService {
         },
         body: formData
       });
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/icons/`,
+        options
+      );
 
       if (!response.ok) {
         throw new Error(`上傳失敗: ${response.status} ${response.statusText}`);
@@ -14358,7 +14502,8 @@ class IFrameBridgeService {
       titleChange: [],
       downloadRequest: [],
       loadWorkflow: [], // 新增載入工作流事件
-      ready: []
+      ready: [],
+      tokenReceived: []
     };
 
     // 是否在 iframe 內部
@@ -14448,6 +14593,24 @@ class IFrameBridgeService {
 
           // 觸發流ID變更事件
           this.triggerEvent('loadWorkflow', flowId);
+        }
+        break;
+      case 'SET_TOKEN':
+        if (message.token) {
+          console.log(`接收到 API Token`);
+
+          // 如果存在瀏覽器的 localStorage 中
+          try {
+            localStorage.setItem('api_token', message.token);
+            console.log('API Token 已保存至 localStorage');
+
+            // 觸發 token 變更事件
+            this.triggerEvent('tokenReceived', message.token);
+          } catch (error) {
+            console.error('保存 API Token 失敗:', error);
+          }
+        } else {
+          console.warn('收到 SET_TOKEN 消息，但 token 為空');
         }
         break;
       case 'SET_TITLE':
@@ -15832,4 +15995,4 @@ const debugNodeInputsBeforeSave = (flowPipeline) => {
   console.groupEnd();
 };
 
-export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j };
+export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, tokenService as t };
