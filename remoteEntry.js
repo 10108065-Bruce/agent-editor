@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-JlTR-eAz.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-zWSSSqki.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15798,13 +15798,16 @@ const IFrameFlowEditor = () => {
   const [isLoading, setIsLoading] = useState$1(false);
   const [error, setError] = useState$1(null);
   const eventsRegistered = useRef(false);
-  const handleTokenReceived = useCallback((token) => {
+  const handleTokenReceived = useCallback((data) => {
     console.log("IFrameFlowEditor: 從 Bridge 接收到 token");
+    const { token, storage } = typeof data === "object" ? data : { token: data, storage: "local" };
+    const storageObj = storage === "session" ? sessionStorage : localStorage;
     if (flowEditorRef.current && flowEditorRef.current.setToken) {
-      flowEditorRef.current.setToken(token);
+      tokenService.setToken(token, storage);
     } else {
       console.log("IFrameFlowEditor: 流程編輯器引用不可用，暫存 token");
-      localStorage.setItem("pending_token", token);
+      storageObj.setItem("pending_token", token);
+      tokenService.setToken(token, storage);
     }
   }, []);
   const isLoadingRef = useRef(false);

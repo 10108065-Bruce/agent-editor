@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T02:33:26.538Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.95"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T03:50:43.647Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.96"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9796,6 +9796,7 @@ const CustomInputNode$1 = memo$a(CustomInputNode);
 class TokenService {
   constructor() {
     this.token = null;
+    this.storageType = 'local'; // 默認使用 localStorage
     this.initToken();
   }
 
@@ -9811,14 +9812,16 @@ class TokenService {
     }
   }
 
-  setToken(token) {
+  setToken(token, storageType = 'local') {
     if (!token) return;
 
     this.token = token;
-    console.log('API Token 已更新');
+    this.storageType = storageType;
+    console.log(`API Token 已更新 (存儲類型: ${storageType})`);
 
     try {
-      localStorage.setItem('api_token', token);
+      const storage = storageType === 'session' ? sessionStorage : localStorage;
+      storage.setItem('api_token', token);
     } catch (error) {
       console.error('保存 token 到 localStorage 失敗:', error);
     }
@@ -9829,6 +9832,16 @@ class TokenService {
   }
 
   createAuthHeader(options = {}) {
+    // 嘗試獲取 token
+    if (!this.token) {
+      // 優先檢查 sessionStorage
+      this.token = sessionStorage.getItem('api_token');
+      // 如果 sessionStorage 中沒有，檢查 localStorage
+      if (!this.token) {
+        this.token = localStorage.getItem('api_token');
+      }
+    }
+
     if (!this.token) {
       return options;
     }
@@ -14520,16 +14533,27 @@ class IFrameBridgeService {
         }
         break;
       case 'SET_FLOW_ID_AND_TOKEN':
-        if (message.flowId && message.token) {
+        if (message.flowId && message.token && message.storage) {
+          console.log(
+            `接收到 API Token (存儲類型: ${message.storage || 'local'})`
+          );
+
           const flowId = message.flowId;
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
-          console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
+          console.log(`準備觸發 tokenReceived 事件，流ID: "${flowId}"`);
           console.log(
-            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
+            `註冊的 tokenReceived 處理程序數量: ${this.eventHandlers.tokenReceived.length}`
           );
-          this.triggerEvent('tokenReceived', message.token);
+          // const storage =
+          //   message.storage === 'session' ? sessionStorage : localStorage;
+          // storage.setItem('api_token', message.token);
+          this.triggerEvent('tokenReceived', {
+            token: message.token,
+            storage: message.storage || 'local'
+          });
           setTimeout(() => {
             // 觸發流ID變更事件
+            console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
             this.triggerEvent('loadWorkflow', flowId);
           }, 500);
         }
@@ -15269,25 +15293,27 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
         reactFlowControlsRef.current.fitViewToNodes();
       }
-    },
-    // 新增 setToken 方法
-    setToken: (token) => {
-      if (token && typeof token === "string") {
-        if (typeof tokenService !== "undefined") {
-          tokenService.setToken(token);
-          return true;
-        }
-        try {
-          localStorage.setItem("api_token", token);
-          console.log("Token 已設置到 FlowEditor");
-          return true;
-        } catch (error) {
-          console.error("保存 token 失敗:", error);
-          return false;
-        }
-      }
-      return false;
     }
+    // 新增 setToken 方法
+    // setToken: (token) => {
+    //   if (token && typeof token === 'string') {
+    //     // 如果 TokenService 已導入，則直接使用
+    //     if (typeof tokenService !== 'undefined') {
+    //       tokenService.setToken(token);
+    //       return true;
+    //     }
+    //     // 或者存儲到 localStorage
+    //     try {
+    //       localStorage.setItem('api_token', token);
+    //       console.log('Token 已設置到 FlowEditor');
+    //       return true;
+    //     } catch (error) {
+    //       console.error('保存 token 失敗:', error);
+    //       return false;
+    //     }
+    //   }
+    //   return false;
+    // }
   }));
   useEffect(() => {
     if (!isInitialized.current) {
@@ -15935,4 +15961,4 @@ const debugNodeInputsBeforeSave = (flowPipeline) => {
   console.groupEnd();
 };
 
-export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j };
+export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, tokenService as t };
