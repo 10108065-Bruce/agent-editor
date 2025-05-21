@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-CpyXGjFi.js';
-import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-6UaqHKaq.js';
+import FlowEditor, { i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-JlTR-eAz.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-DvUXrXSS.js';
 import { r as requireReactDom } from './assets/index-CHD0Wkh7.js';
 
@@ -15797,7 +15797,6 @@ const IFrameFlowEditor = () => {
   const flowEditorRef = useRef(null);
   const [isLoading, setIsLoading] = useState$1(false);
   const [error, setError] = useState$1(null);
-  const [hasToken, setHasToken] = useState$1(false);
   const eventsRegistered = useRef(false);
   const handleTokenReceived = useCallback((token) => {
     console.log("IFrameFlowEditor: 從 Bridge 接收到 token");
@@ -15884,7 +15883,6 @@ const IFrameFlowEditor = () => {
     return () => clearTimeout(timeout);
   }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "iframe-flow-editor-container", children: [
-    !hasToken && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "token-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "warning-message", children: "等待 API Token 連接..." }) }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "error-message", children: [
       "載入工作流失敗: ",
       error
