@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-22T07:03:56.728Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.97"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-22T07:06:50.991Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.98"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -10833,7 +10833,7 @@ class LLMService {
         }
       });
       this.pendingRequest = fetch(
-        `${this.baseUrl}/v1/agent_designer/llm/`,
+        `${this.baseUrl}/agent_designer/llm/`,
         options
       )
         .then((response) => {
