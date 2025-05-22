@@ -8996,7 +8996,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-21T03:50:43.647Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.96"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-22T07:03:56.728Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.97"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9817,7 +9817,7 @@ class TokenService {
 
     this.token = token;
     this.storageType = storageType;
-    console.log(`API Token 已更新 (存儲類型: ${storageType})`);
+    console.log(`API Token 已更新 (儲存類型: ${storageType})`);
 
     try {
       const storage = storageType === 'session' ? sessionStorage : localStorage;
@@ -10832,7 +10832,10 @@ class LLMService {
           Accept: 'application/json'
         }
       });
-      this.pendingRequest = fetch(`${this.baseUrl}/llm/detail`, options)
+      this.pendingRequest = fetch(
+        `${this.baseUrl}/v1/agent_designer/llm/`,
+        options
+      )
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
