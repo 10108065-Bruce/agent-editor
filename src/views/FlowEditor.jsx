@@ -329,7 +329,27 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       ) {
         reactFlowControlsRef.current.fitViewToNodes();
       }
-    }
+    } // 新增 setToken 方法
+    // setToken: (token) => {
+    //   if (token && typeof token === 'string') {
+    //     // 如果 TokenService 已導入，則直接使用
+    //     if (typeof tokenService !== 'undefined') {
+    //       tokenService.setToken(token);
+    //       return true;
+    //     }
+
+    //     // 或者存儲到 localStorage
+    //     try {
+    //       localStorage.setItem('api_token', token);
+    //       console.log('Token 已設置到 FlowEditor');
+    //       return true;
+    //     } catch (error) {
+    //       console.error('保存 token 失敗:', error);
+    //       return false;
+    //     }
+    //   }
+    //   return false;
+    // }
   }));
 
   // 在首次渲染時初始化節點函數

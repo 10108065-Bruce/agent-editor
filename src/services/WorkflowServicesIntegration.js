@@ -1,3 +1,5 @@
+import { tokenService } from './TokenService';
+
 /**
  * 工作流相關服務共用的基礎映射和轉換功能
  */
@@ -817,17 +819,20 @@ class WorkflowAPIService {
   async loadWorkflow(workflowId) {
     try {
       console.log(`嘗試載入工作流 ID: ${workflowId}`);
+      // 使用 tokenService 創建帶有 Authorization 的請求配置
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_id: workflowId
+        })
+      });
+
       const response = await fetch(
         `${this.baseUrl}/agent_designer/workflows/load`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_id: workflowId
-          })
-        }
+        options
       );
 
       if (!response.ok) {
@@ -851,20 +856,22 @@ class WorkflowAPIService {
   async createWorkflow(data) {
     console.log('創建新工作流:', data);
     try {
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_name: data.flow_name,
+          content: data.content,
+          flow_pipeline: data.flow_pipeline
+        })
+      });
+
       const response = await fetch(
         `${this.baseUrl}/agent_designer/workflows/`,
-        {
-          method: 'POST',
-          headers: {
-            accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_name: data.flow_name,
-            content: data.content,
-            flow_pipeline: data.flow_pipeline
-          })
-        }
+        options
       );
 
       if (!response.ok) {
@@ -888,21 +895,22 @@ class WorkflowAPIService {
   async updateWorkflow(data) {
     console.log('更新工作流:', data);
     try {
+      const options = tokenService.createAuthHeader({
+        method: 'PUT',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_name: data.flow_name,
+          content: data.content,
+          flow_id: data.flow_id,
+          flow_pipeline: data.flow_pipeline
+        })
+      });
       const response = await fetch(
         `${this.baseUrl}/agent_designer/workflows/`,
-        {
-          method: 'PUT',
-          headers: {
-            accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            flow_name: data.flow_name,
-            content: data.content,
-            flow_id: data.flow_id,
-            flow_pipeline: data.flow_pipeline
-          })
-        }
+        options
       );
 
       if (!response.ok) {
@@ -962,13 +970,17 @@ class LLMService {
 
       // 創建新請求
       console.log('獲取LLM模型列表...');
-      this.pendingRequest = fetch(`${this.baseUrl}/llm/detail`, {
+      const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json'
         }
-      })
+      });
+      this.pendingRequest = fetch(
+        `${this.baseUrl}/agent_designer/llm/`,
+        options
+      )
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -1101,15 +1113,16 @@ class LLMService {
 
       // 創建新請求
       console.log('獲取已完成文件列表...');
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
       this.pendingFilesRequest = fetch(
         `${this.baseUrl}/agent_designer/files/completed`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
-          }
-        }
+        options
       )
         .then((response) => {
           if (!response.ok) {
@@ -2155,7 +2168,7 @@ class IconUploadService {
       formData.append('file', file); // 使用正確的欄位名稱 'file'
 
       // 發送 POST 請求
-      const response = await fetch(`${this.baseUrl}/agent_designer/icons/`, {
+      const options = tokenService.createAuthHeader({
         method: 'POST',
         headers: {
           accept: 'application/json'
@@ -2164,6 +2177,10 @@ class IconUploadService {
         },
         body: formData
       });
+      const response = await fetch(
+        `${this.baseUrl}/agent_designer/icons/`,
+        options
+      );
 
       if (!response.ok) {
         throw new Error(`上傳失敗: ${response.status} ${response.statusText}`);

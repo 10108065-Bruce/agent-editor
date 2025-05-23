@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import FlowEditor from './FlowEditor';
 import { iframeBridge } from '../services/IFrameBridgeService';
+import { tokenService } from '../services/TokenService';
 
 /**
  * 增強版 IFrameFlowEditor - 處理從母網站接收標題修改及下載JSON功能
@@ -35,6 +36,28 @@ const IFrameFlowEditor = () => {
   //     console.warn('IFrameFlowEditor: 接收到無效標題:', title);
   //   }
   // }, []);
+
+  // 處理從父頁面接收 token
+  const handleTokenReceived = useCallback((data) => {
+    console.log('IFrameFlowEditor: 從 Bridge 接收到 token');
+
+    const { token, storage } =
+      typeof data === 'object' ? data : { token: data, storage: 'local' };
+
+    // 根據存儲類型選擇存儲位置
+    const storageObj = storage === 'session' ? sessionStorage : localStorage;
+
+    // 如果流程編輯器引用可用，直接設置 token
+    if (flowEditorRef.current && flowEditorRef.current.setToken) {
+      // flowEditorRef.current.setToken(token);
+      tokenService.setToken(token, storage);
+    } else {
+      console.log('IFrameFlowEditor: 流程編輯器引用不可用，暫存 token');
+      // 可以在這裡暫存 token，等編輯器準備好後再設置
+      storageObj.setItem('pending_token', token);
+      tokenService.setToken(token, storage);
+    }
+  }, []);
 
   const isLoadingRef = useRef(false);
   // 處理載入工作流
@@ -117,7 +140,7 @@ const IFrameFlowEditor = () => {
     // iframeBridge.off('titleChange', handleTitleChange);
     iframeBridge.off('loadWorkflow', handleLoadWorkflow);
     iframeBridge.off('downloadRequest', handleDownloadRequest);
-
+    iframeBridge.off('tokenReceived', handleTokenReceived);
     // 監聽來自服務的標題變更事件
     // iframeBridge.on('titleChange', handleTitleChange);
 
@@ -126,9 +149,21 @@ const IFrameFlowEditor = () => {
 
     // 監聽下載請求事件
     iframeBridge.on('downloadRequest', handleDownloadRequest);
-
+    // 監聽來自服務的 token 變更事件
+    iframeBridge.on('tokenReceived', handleTokenReceived);
     // 標記已註冊
     eventsRegistered.current = true;
+
+    // 檢查是否有暫存的 token
+    const pendingToken = localStorage.getItem('pending_token');
+    if (
+      pendingToken &&
+      flowEditorRef.current &&
+      flowEditorRef.current.setToken
+    ) {
+      flowEditorRef.current.setToken(pendingToken);
+      localStorage.removeItem('pending_token');
+    }
 
     // 清理函數
     return () => {
@@ -136,9 +171,10 @@ const IFrameFlowEditor = () => {
       // iframeBridge.off('titleChange', handleTitleChange);
       iframeBridge.off('loadWorkflow', handleLoadWorkflow);
       iframeBridge.off('downloadRequest', handleDownloadRequest);
+      iframeBridge.off('tokenReceived', handleTokenReceived);
     };
     // 移除 flowTitle 依賴，只有在處理器函數變更時才重新註冊
-  }, [handleLoadWorkflow, handleDownloadRequest]);
+  }, [handleLoadWorkflow, handleDownloadRequest, handleTokenReceived]);
 
   // 組件掛載後手動觸發一次 READY 消息，確保與父頁面的連接
   useEffect(() => {
