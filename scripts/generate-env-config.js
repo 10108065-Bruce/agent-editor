@@ -44,7 +44,7 @@ function readEnvVars() {
   }
 
   // 設置默認值
-  if (!envVars.VITE_APP_VERSION) envVars.VITE_APP_VERSION = '0.0.0';
+  if (!envVars.VITE_APP_VERSION) envVars.VITE_APP_VERSION = '0.0.0.0';
   if (!envVars.VITE_APP_BUILD_TIME)
     envVars.VITE_APP_BUILD_TIME = new Date().toISOString();
   if (!envVars.VITE_APP_BUILD_ID)

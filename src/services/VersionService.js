@@ -67,11 +67,11 @@ class VersionService {
    * @returns {string} 格式化的版本字串
    */
   getFormattedVersion() {
-    const buildIdDisplay =
-      this.buildId && this.buildId !== 'development'
-        ? this.buildId.substring(0, 7)
-        : 'dev';
-    return `v${this.version} (${buildIdDisplay})`;
+    // const buildIdDisplay =
+    //   this.buildId && this.buildId !== 'development'
+    //     ? this.buildId.substring(0, 7)
+    //     : 'dev';
+    return `v${this.version}`;
   }
 }
 

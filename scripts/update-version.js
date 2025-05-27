@@ -40,19 +40,28 @@ function readPackageJson() {
   }
 }
 
-// 函數：更新版本號（根據構建類型）
-function updateVersion(packageJson, buildType = 'patch') {
-  const version = packageJson.version || '0.0.0';
-  const [major, minor, patch] = version.split('.').map(Number);
+// 函數：更新版本號（四段式版號：major.minor.patch.build）
+function updateVersion(packageJson, buildType = 'build') {
+  const version = packageJson.version || '1.0.0.0';
+  const versionParts = version.split('.').map(Number);
+
+  // 確保有四個版本段
+  while (versionParts.length < 4) {
+    versionParts.push(0);
+  }
+
+  const [major, minor, patch, build] = versionParts;
 
   switch (buildType) {
     case 'major':
-      return `${major + 1}.0.0`;
+      return `${major + 1}.0.0.0`;
     case 'minor':
-      return `${major}.${minor + 1}.0`;
+      return `${major}.${minor + 1}.0.0`;
     case 'patch':
+      return `${major}.${minor}.${patch + 1}.0`;
+    case 'build':
     default:
-      return `${major}.${minor}.${patch + 1}`;
+      return `${major}.${minor}.${patch}.${build + 1}`;
   }
 }
 
@@ -79,7 +88,6 @@ VITE_APP_BUILD_TIME=${new Date().toISOString()}
 VITE_APP_BUILD_ID=${commitHash}
 VITE_APP_GIT_BRANCH=${branch}
 `;
-
   const envPath = path.resolve(rootDir, '.env.production');
   try {
     fs.writeFileSync(envPath, envContent.trim());
@@ -93,9 +101,9 @@ VITE_APP_GIT_BRANCH=${branch}
 // 主函數
 function main() {
   // 獲取構建類型參數
-  const buildType = process.argv[2] || 'patch';
-  if (!['major', 'minor', 'patch'].includes(buildType)) {
-    console.error('無效的構建類型。請使用: major, minor, 或 patch');
+  const buildType = process.argv[2] || 'build';
+  if (!['major', 'minor', 'patch', 'build'].includes(buildType)) {
+    console.error('無效的構建類型。請使用: major, minor, patch, 或 build');
     process.exit(1);
   }
 
