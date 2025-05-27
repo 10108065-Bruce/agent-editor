@@ -9022,7 +9022,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9947d66cebf47d8ba16c6ceb820ecb0b108b4eb5", "VITE_APP_BUILD_TIME": "2025-05-27T05:35:58.556Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.48.0"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9947d66cebf47d8ba16c6ceb820ecb0b108b4eb5", "VITE_APP_BUILD_TIME": "2025-05-27T05:36:29.797Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.0"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
