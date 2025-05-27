@@ -9022,7 +9022,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9947d66cebf47d8ba16c6ceb820ecb0b108b4eb5", "VITE_APP_BUILD_TIME": "2025-05-27T05:39:28.541Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.2"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "57cb0433f0a0d37094592c92edb0cb8c06e882aa", "VITE_APP_BUILD_TIME": "2025-05-27T06:09:10.162Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.4"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9063,8 +9063,7 @@ class VersionService {
    * @returns {string} 格式化的版本字串
    */
   getFormattedVersion() {
-    const buildIdDisplay = this.buildId && this.buildId !== "development" ? this.buildId.substring(0, 7) : "dev";
-    return `v${this.version} (${buildIdDisplay})`;
+    return `v${this.version}`;
   }
 }
 const versionService = new VersionService();
@@ -16055,7 +16054,7 @@ const Notification = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "", children: notifications.map((notification) => /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
-      className: `absolute top-16 left-1/2 transform -translate-x-1/2 px-4 py-2  z-20 text-sm ${notification.type === "error" ? "bg-red-100 text-red-700 border border-red-200" : notification.type === "success" ? "bg-green-100 text-green-700 border border-green-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`,
+      className: `absolute top-16 left-1/2 rounded-lg transform -translate-x-1/2 px-4 py-2 z-20 text-sm ${notification.type === "error" ? "bg-red-100 text-red-700 border border-red-200" : notification.type === "success" ? "bg-green-100 text-green-700 border border-green-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`,
       children: notification.message
     },
     notification.id
@@ -16800,26 +16799,112 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, [nodes, edges, flowMetadata, handleLoadWorkflow]);
   const handleDialogSave = useCallback(
     async (flowName) => {
+      console.log(`對話框觸發的保存，流程名稱: ${flowName}`);
+      console.log("當前 flowMetadata:", flowMetadata);
+      setIsSaving(true);
       try {
-        setFlowMetadata((prev) => ({ ...prev, title: flowName }));
-        const result = await saveToServer();
+        const flowDataWithNewTitle = {
+          id: flowMetadata.id || `flow_${Date.now()}`,
+          title: flowName,
+          // 直接使用對話框傳入的標題
+          version: flowMetadata.version || 1,
+          nodes,
+          edges,
+          metadata: {
+            lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+            savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+            nodeCount: nodes.length,
+            edgeCount: edges.length
+          }
+        };
+        console.log("創建的 flowData:", flowDataWithNewTitle);
+        const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowDataWithNewTitle);
+        console.log("轉換後的 API 數據:", apiData);
+        console.log("API 中的 flow_name:", apiData.flow_name);
+        let response;
+        let flowIdToUse = flowMetadata.id || null;
+        if (flowMetadata.id) {
+          console.log("更新現有流程，flow_id:", flowMetadata.id);
+          response = await workflowAPIService.updateWorkflow(apiData);
+          console.log("更新流程成功:", response);
+          window.notify({
+            message: "流程更新成功",
+            type: "success",
+            duration: 2e3
+          });
+        } else {
+          console.log("創建新流程");
+          response = await workflowAPIService.createWorkflow(apiData);
+          console.log("創建流程成功:", response);
+          flowIdToUse = response?.flow_id;
+          console.log("獲得新的 flow_id:", flowIdToUse);
+          const isInIframe2 = window.self !== window.top;
+          if (isInIframe2) {
+            console.log("在 iframe 中，發送事件到父頁面");
+            try {
+              iframeBridge.sendToParent({
+                type: "FLOW_SAVED",
+                flowId: flowIdToUse,
+                success: true,
+                title: flowName,
+                // 使用正確的標題
+                isNewFlow: true,
+                currentPath: window.location.pathname,
+                isNewPath: window.location.pathname.includes("/new"),
+                timestamp: (/* @__PURE__ */ new Date()).toISOString()
+              });
+            } catch (error) {
+              console.error("向父頁面發送事件失敗：", error);
+            }
+          }
+          window.notify({
+            message: "流程創建成功",
+            type: "success",
+            duration: 2e3
+          });
+        }
+        setFlowMetadata((prev) => {
+          const newMetadata = {
+            ...prev,
+            id: flowIdToUse || prev.id,
+            title: flowName,
+            // 確保標題正確更新
+            lastSaved: (/* @__PURE__ */ new Date()).toISOString()
+          };
+          console.log("更新 flowMetadata:", newMetadata);
+          return newMetadata;
+        });
         setShowSaveDialog(false);
         if (saveDialogCallback) {
-          const flowId = flowMetadata.id || result?.flow_id;
-          saveDialogCallback(flowId);
+          const finalFlowId = flowIdToUse || flowMetadata.id;
+          console.log("執行回調函數，flow_id:", finalFlowId);
+          saveDialogCallback(finalFlowId);
           setSaveDialogCallback(null);
+        }
+        if (flowIdToUse) {
+          setTimeout(async () => {
+            console.log("重新加載工作流:", flowIdToUse);
+            await handleLoadWorkflow(flowIdToUse);
+          }, 1e3);
         }
         return {
           success: true,
-          flow_id: flowMetadata.id || result?.flow_id,
-          ...result
+          flow_id: flowIdToUse || flowMetadata.id,
+          ...response
         };
       } catch (error) {
         console.error("對話框觸發的保存失敗:", error);
+        window.notify({
+          message: "無法儲存流程，請稍後再試",
+          type: "error",
+          duration: 3e3
+        });
         throw error;
+      } finally {
+        setIsSaving(false);
       }
     },
-    [saveToServer, flowMetadata.id, saveDialogCallback]
+    [nodes, edges, flowMetadata, saveDialogCallback, handleLoadWorkflow]
   );
   const closeSaveDialog = useCallback(() => {
     setShowSaveDialog(false);
