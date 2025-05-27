@@ -3,7 +3,8 @@ import React, {
   useReducer,
   useCallback,
   useState,
-  useEffect
+  useEffect,
+  useRef
 } from 'react';
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
@@ -14,7 +15,16 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   const [localFields, setLocalFields] = useState([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
-  // 初始化和同步欄位 - 保持與舊版相容
+  // 關鍵修正：添加 IME 和用戶輸入狀態追踪
+  const isComposingInputNameRef = useRef(false);
+  const isComposingDefaultValueRef = useRef(false);
+  const isUserInputInputNameRef = useRef(false); // 新增：追踪輸入名稱的用戶操作
+  const isUserInputDefaultValueRef = useRef(false); // 新增：追踪默認值的用戶操作
+  const updateTimeoutRef = useRef({});
+  const lastExternalInputNameRef = useRef(''); // 新增：追踪外部輸入名稱
+  const lastExternalDefaultValueRef = useRef(''); // 新增：追踪外部默認值
+
+  // 初始化和同步欄位 - 保持與舊版相容，但添加智能同步
   useEffect(() => {
     // 如果 data.fields 存在，更新本地欄位
     if (Array.isArray(data.fields)) {
@@ -28,28 +38,68 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                 defaultValue: 'Summary the input text'
               }
             ];
-      setLocalFields(fieldToUse);
+
+      // 智能同步：只有在非用戶輸入時才更新
+      const currentField = localFields[0];
+      const newField = fieldToUse[0];
+
+      console.log('CustomInputNode 數據同步檢查:', {
+        'current inputName': currentField?.inputName,
+        'new inputName': newField?.inputName,
+        'current defaultValue': currentField?.defaultValue,
+        'new defaultValue': newField?.defaultValue,
+        isUserInputInputName: isUserInputInputNameRef.current,
+        isUserInputDefaultValue: isUserInputDefaultValueRef.current
+      });
+
+      // 只有在非用戶輸入且值真的改變時才同步
+      let shouldUpdate = false;
+
+      if (
+        !isUserInputInputNameRef.current &&
+        newField.inputName !== lastExternalInputNameRef.current
+      ) {
+        lastExternalInputNameRef.current = newField.inputName;
+        shouldUpdate = true;
+      }
+
+      if (
+        !isUserInputDefaultValueRef.current &&
+        newField.defaultValue !== lastExternalDefaultValueRef.current
+      ) {
+        lastExternalDefaultValueRef.current = newField.defaultValue;
+        shouldUpdate = true;
+      }
+
+      if (shouldUpdate || localFields.length === 0) {
+        setLocalFields(fieldToUse);
+      }
     } else {
       // 如果不存在，設置默認欄位
-      setLocalFields([
+      const defaultFields = [
         {
           inputName: 'input_name',
           defaultValue: 'Summary the input text'
         }
-      ]);
+      ];
+      setLocalFields(defaultFields);
+      lastExternalInputNameRef.current = 'input_name';
+      lastExternalDefaultValueRef.current = 'Summary the input text';
     }
-  }, [data.fields]);
+  }, [data.fields, localFields]);
+
+  // 清理計時器
+  useEffect(() => {
+    return () => {
+      Object.values(updateTimeoutRef.current).forEach((timeout) => {
+        if (timeout) clearTimeout(timeout);
+      });
+    };
+  }, []);
 
   // 處理更新欄位名稱 - 保持與舊版相容的函數
   const handleUpdateFieldInputName = useCallback(
     (index, value) => {
-      console.log('更新欄位名稱', {
-        hasUpdateField: typeof data.updateFieldInputName === 'function',
-        index,
-        value,
-        nodeId: id
-      });
-
       if (typeof data.updateFieldInputName === 'function') {
         // 使用原來的更新函數 - 保持與舊版結構相容
         data.updateFieldInputName(index, value);
@@ -85,22 +135,11 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   // 處理更新欄位默認值 - 保持與舊版相容的函數
   const handleUpdateFieldDefaultValue = useCallback(
     (index, value) => {
-      console.log('更新欄位默認值', {
-        hasUpdateDefaultValue:
-          typeof data.updateFieldDefaultValue === 'function',
-        index,
-        value,
-        nodeId: id
-      });
-
       if (typeof data.updateFieldDefaultValue === 'function') {
         // 使用原來的更新函數
         data.updateFieldDefaultValue(index, value);
       } else {
         // 本地實現更新欄位默認值功能
-        console.warn(
-          `節點 ${id}: updateFieldDefaultValue 函數未定義，使用本地實現`
-        );
 
         const updatedFields = [...localFields];
         if (index >= 0 && index < updatedFields.length) {
@@ -124,6 +163,180 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
+
+  // 關鍵修正：改進的延遲更新函數
+  const debouncedUpdate = useCallback(
+    (updateFunction, index, value, fieldType) => {
+      const timeoutKey = `${fieldType}_${index}`;
+
+      // 清除之前的計時器
+      if (updateTimeoutRef.current[timeoutKey]) {
+        clearTimeout(updateTimeoutRef.current[timeoutKey]);
+      }
+
+      // 設置新的延遲更新
+      updateTimeoutRef.current[timeoutKey] = setTimeout(() => {
+        updateFunction(index, value);
+
+        // 延遲重置用戶輸入標記
+        setTimeout(() => {
+          if (fieldType === 'inputName') {
+            isUserInputInputNameRef.current = false;
+          } else if (fieldType === 'defaultValue') {
+            isUserInputDefaultValueRef.current = false;
+          }
+        }, 100);
+      }, 150); // 增加延遲以確保操作完成
+    },
+    []
+  );
+
+  // 關鍵修正：處理輸入名稱變更 - 支援 IME 和刪除操作
+  const handleInputNameChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+
+      // 標記為用戶輸入
+      isUserInputInputNameRef.current = true;
+
+      // 立即更新本地狀態和外部記錄
+      const updatedFields = [...localFields];
+      if (updatedFields.length > 0) {
+        updatedFields[0] = {
+          ...updatedFields[0],
+          inputName: value
+        };
+        setLocalFields(updatedFields);
+        lastExternalInputNameRef.current = value; // 同步記錄
+      }
+
+      // 只有在不是 IME 組合狀態時才延遲更新父組件
+      if (!isComposingInputNameRef.current) {
+        debouncedUpdate(handleUpdateFieldInputName, 0, value, 'inputName');
+      }
+    },
+    [localFields, handleUpdateFieldInputName, debouncedUpdate]
+  );
+
+  // 關鍵修正：處理默認值變更 - 支援 IME 和刪除操作
+  const handleDefaultValueChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+
+      // 標記為用戶輸入
+      isUserInputDefaultValueRef.current = true;
+
+      // 立即更新本地狀態和外部記錄
+      const updatedFields = [...localFields];
+      if (updatedFields.length > 0) {
+        updatedFields[0] = {
+          ...updatedFields[0],
+          defaultValue: value
+        };
+        setLocalFields(updatedFields);
+        lastExternalDefaultValueRef.current = value; // 同步記錄
+      }
+
+      // 只有在不是 IME 組合狀態時才延遲更新父組件
+      if (!isComposingDefaultValueRef.current) {
+        debouncedUpdate(
+          handleUpdateFieldDefaultValue,
+          0,
+          value,
+          'defaultValue'
+        );
+      }
+    },
+    [localFields, handleUpdateFieldDefaultValue, debouncedUpdate]
+  );
+
+  // 關鍵修正：IME 組合開始處理
+  const handleInputNameCompositionStart = useCallback(() => {
+    isComposingInputNameRef.current = true;
+    isUserInputInputNameRef.current = true;
+
+    // 清除任何待執行的更新
+    const timeoutKey = 'inputName_0';
+    if (updateTimeoutRef.current[timeoutKey]) {
+      clearTimeout(updateTimeoutRef.current[timeoutKey]);
+      updateTimeoutRef.current[timeoutKey] = null;
+    }
+  }, []);
+
+  const handleDefaultValueCompositionStart = useCallback(() => {
+    isComposingDefaultValueRef.current = true;
+    isUserInputDefaultValueRef.current = true;
+
+    // 清除任何待執行的更新
+    const timeoutKey = 'defaultValue_0';
+    if (updateTimeoutRef.current[timeoutKey]) {
+      clearTimeout(updateTimeoutRef.current[timeoutKey]);
+      updateTimeoutRef.current[timeoutKey] = null;
+    }
+  }, []);
+
+  // 關鍵修正：IME 組合結束處理
+  const handleInputNameCompositionEnd = useCallback(
+    (e) => {
+      isComposingInputNameRef.current = false;
+
+      const finalValue = e.target.value;
+      // 更新記錄
+      lastExternalInputNameRef.current = finalValue;
+
+      // 立即更新父組件
+      handleUpdateFieldInputName(0, finalValue);
+
+      // 延遲重置用戶輸入標記
+      setTimeout(() => {
+        isUserInputInputNameRef.current = false;
+      }, 200);
+    },
+    [handleUpdateFieldInputName]
+  );
+
+  const handleDefaultValueCompositionEnd = useCallback(
+    (e) => {
+      isComposingDefaultValueRef.current = false;
+
+      const finalValue = e.target.value;
+
+      // 更新記錄
+      lastExternalDefaultValueRef.current = finalValue;
+
+      // 立即更新父組件
+      handleUpdateFieldDefaultValue(0, finalValue);
+
+      // 延遲重置用戶輸入標記
+      setTimeout(() => {
+        isUserInputDefaultValueRef.current = false;
+      }, 200);
+    },
+    [handleUpdateFieldDefaultValue]
+  );
+
+  // 新增：處理鍵盤事件，特別是刪除操作
+  const handleInputNameKeyDown = useCallback((e) => {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      isUserInputInputNameRef.current = true;
+
+      // 延遲重置標記
+      setTimeout(() => {
+        isUserInputInputNameRef.current = false;
+      }, 300);
+    }
+  }, []);
+
+  const handleDefaultValueKeyDown = useCallback((e) => {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      isUserInputDefaultValueRef.current = true;
+
+      // 延遲重置標記
+      setTimeout(() => {
+        isUserInputDefaultValueRef.current = false;
+      }, 300);
+    }
+  }, []);
 
   // 使用本地欄位或 data.fields（如果存在）
   const fields =
@@ -165,14 +378,16 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                 <label className='block text-sm text-gray-700 mb-1 font-bold'>
                   input_name
                 </label>
+                {/* 關鍵修正：添加 IME 和鍵盤事件處理 */}
                 <input
                   type='text'
                   className='w-full border border-gray-300 rounded p-2 text-sm'
                   placeholder='AI node prompt'
                   value={fields[0].inputName || ''}
-                  onChange={(e) =>
-                    handleUpdateFieldInputName(0, e.target.value)
-                  }
+                  onChange={handleInputNameChange}
+                  onCompositionStart={handleInputNameCompositionStart}
+                  onCompositionEnd={handleInputNameCompositionEnd}
+                  onKeyDown={handleInputNameKeyDown} // 新增：處理刪除操作
                 />
               </div>
 
@@ -180,11 +395,13 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
                 <label className='block text-sm text-gray-700 mb-1 font-bold'>
                   default_value
                 </label>
+                {/* 關鍵修正：添加 IME 和鍵盤事件處理 */}
                 <AutoResizeTextarea
                   value={fields[0].defaultValue || ''}
-                  onChange={(e) =>
-                    handleUpdateFieldDefaultValue(0, e.target.value)
-                  }
+                  onChange={handleDefaultValueChange}
+                  onCompositionStart={handleDefaultValueCompositionStart}
+                  onCompositionEnd={handleDefaultValueCompositionEnd}
+                  onKeyDown={handleDefaultValueKeyDown} // 新增：處理刪除操作
                   placeholder='Summary the input text'
                 />
               </div>

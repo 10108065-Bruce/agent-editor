@@ -1,11 +1,11 @@
-import React, { memo, useState, useEffect, useCallback } from 'react';
+// 改進的 AI 節點 IME 處理方案
+import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position, useEdges } from 'reactflow';
 import { llmService } from '../../services/WorkflowServicesIntegration';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
 
 const AICustomInputNode = ({ data, isConnectable, id }) => {
-  // 保存LLM模型選項 - 使用id作為value
   const [modelOptions, setModelOptions] = useState([
     { value: '1', label: 'O3-mini' },
     { value: '2', label: 'O3-plus' },
@@ -13,97 +13,79 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     { value: '4', label: 'O3-ultra' }
   ]);
 
-  // 使用 useEdges 獲取所有邊緣
   const edges = useEdges();
-
-  // 計算連接到 context handle 的連線數量
   const contextConnectionCount = edges.filter(
     (edge) => edge.target === id && edge.targetHandle === 'context-input'
   ).length;
 
-  // 檢查是否有prompt連線
   const hasPromptConnection = edges.some(
     (edge) => edge.target === id && edge.targetHandle === 'prompt-input'
   );
 
-  // 加載狀態
   const [isLoadingModels, setIsLoadingModels] = useState(false);
-  // 錯誤狀態
   const [modelLoadError, setModelLoadError] = useState(null);
-
-  // 本地狀態 - 確保初始化時有預設值，使用模型ID
   const [localModel, setLocalModel] = useState(data?.model || '1');
 
-  // 新增 - 本地狀態管理 prompt 文本
+  // 關鍵修正：使用 ref 來存儲實際的文本值，避免狀態更新干擾
   const [promptText, setPromptText] = useState(data?.promptText || '');
+  const isComposingRef = useRef(false);
+  const updateTimeoutRef = useRef(null);
+  const lastExternalValueRef = useRef(data?.promptText || '');
+  const isUserInputRef = useRef(false); // 新增：追蹤是否為用戶輸入
 
-  // 初始化和同步數據 - 增強版，能夠處理API數據加載的情況
+  // 改進的同步邏輯
   useEffect(() => {
     console.log('AICustomInputNode 數據同步更新:', {
       'data.model': data?.model,
-      'data.promptText': data?.promptText
+      'data.promptText': data?.promptText,
+      'current promptText': promptText,
+      isUserInput: isUserInputRef.current,
+      isComposing: isComposingRef.current
     });
 
-    // 同步模型選擇
     if (data?.model && data.model !== localModel) {
-      console.log(`同步模型從 ${localModel} 到 ${data.model}`);
       setLocalModel(data.model);
     }
 
-    // 同步 prompt 文本
-    if (data?.promptText !== undefined && data.promptText !== promptText) {
-      console.log(`同步 prompt 文本從 "${promptText}" 到 "${data.promptText}"`);
+    // 關鍵修正：更智能的外部數據同步
+    if (
+      data?.promptText !== undefined &&
+      data.promptText !== lastExternalValueRef.current &&
+      !isComposingRef.current &&
+      !isUserInputRef.current
+    ) {
+      // 只有在非用戶輸入時才同步外部數據
       setPromptText(data.promptText);
+      lastExternalValueRef.current = data.promptText;
     }
   }, [data?.model, data?.promptText, localModel, promptText]);
 
-  // 從API加載模型列表
   const loadModels = async () => {
-    // 原有的模型加載邏輯保持不變
     if (isLoadingModels) return;
 
     setIsLoadingModels(true);
     setModelLoadError(null);
 
     try {
-      console.log('開始加載模型列表');
       const options = await llmService.getModelOptions();
-      console.log('llmService.getModelOptions 返回結果:', options);
-
       if (options && options.length > 0) {
-        console.log('設置模型選項:', options);
         setModelOptions(options);
-
-        // 檢查當前選擇的模型是否在新的選項中
         const isCurrentModelValid = options.some(
           (opt) => opt.value === localModel
         );
-        console.log(`當前模型 ${localModel} 是否有效:`, isCurrentModelValid);
 
         if (!isCurrentModelValid) {
-          // 如果當前模型不在選項中，選擇默認模型或第一個模型
           let defaultModel = options[0].value;
-
-          // 嘗試找到默認模型
           const defaultOption = options.find((opt) => opt.isDefault);
           if (defaultOption) {
             defaultModel = defaultOption.value;
-            console.log('找到默認模型:', defaultOption);
           }
-
-          console.log(`將模型從 ${localModel} 更新為 ${defaultModel}`);
           setLocalModel(defaultModel);
-
-          // 嘗試更新父組件的狀態
           updateParentState('model', defaultModel);
         }
-      } else {
-        console.warn('API未返回有效的模型選項或返回了空陣列');
       }
     } catch (error) {
       console.error('加載模型失敗:', error);
-
-      // 僅對非"進行中的請求"錯誤顯示錯誤信息
       if (
         !(
           error.message &&
@@ -119,61 +101,122 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     }
   };
 
-  // 組件掛載時加載模型
   useEffect(() => {
     loadModels();
   }, []);
 
-  // 統一更新父組件狀態的輔助函數
   const updateParentState = useCallback(
     (key, value) => {
-      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
-
-      // 方法1：使用 updateNodeData 回調
       if (data && typeof data.updateNodeData === 'function') {
         data.updateNodeData(key, value);
-        console.log(`使用 updateNodeData 更新 ${key}`);
         return true;
       }
-
-      // 方法2：直接修改 data 對象（應急方案）
       if (data) {
         data[key] = value;
-        console.log(`直接修改 data.${key} = ${value}`);
         return true;
       }
-
-      console.warn(`無法更新父組件的 ${key}`);
       return false;
     },
     [data]
   );
 
-  // 處理模型變更
   const handleModelChange = useCallback(
     (e) => {
       const newModelValue = e.target.value;
-      console.log(`模型變更為ID: ${newModelValue}`);
       setLocalModel(newModelValue);
       updateParentState('model', newModelValue);
     },
     [updateParentState]
   );
 
-  // 新增 - 處理 prompt 文本變更
   const handlePromptTextChange = useCallback(
     (e) => {
       const newText = e.target.value;
-      console.log(`Prompt 文本變更為: ${newText}`);
+
+      // 標記為用戶輸入
+      isUserInputRef.current = true;
+
+      // 立即更新本地狀態
       setPromptText(newText);
-      updateParentState('promptText', newText);
+      lastExternalValueRef.current = newText; // 同步記錄
+
+      // 清除之前的更新計時器
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+
+      // 如果不是在組合狀態，延遲更新父組件
+      if (!isComposingRef.current) {
+        updateTimeoutRef.current = setTimeout(() => {
+          updateParentState('promptText', newText);
+
+          // 重置用戶輸入標記
+          setTimeout(() => {
+            isUserInputRef.current = false;
+          }, 100);
+        }, 150); // 稍微增加延遲以確保操作完成
+      }
     },
     [updateParentState]
   );
 
+  const handleCompositionStart = useCallback(() => {
+    isComposingRef.current = true;
+    isUserInputRef.current = true;
+
+    // 清除任何待執行的更新
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleCompositionEnd = useCallback(
+    (e) => {
+      isComposingRef.current = false;
+
+      const finalText = e.target.value;
+
+      // 確保狀態同步
+      setPromptText(finalText);
+      lastExternalValueRef.current = finalText;
+
+      // 立即更新父組件
+      updateParentState('promptText', finalText);
+
+      // 延遲重置用戶輸入標記
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 200);
+    },
+    [updateParentState]
+  );
+
+  // 關鍵新增：處理鍵盤事件，特別是刪除操作
+  const handleKeyDown = useCallback((e) => {
+    // 對於刪除操作，立即標記為用戶輸入
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      isUserInputRef.current = true;
+
+      // 延遲重置標記
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 300);
+    }
+  }, []);
+
+  // 清理計時器
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className='rounded-lg shadow-md overflow-hidden w-64'>
-      {/* Header section with icon and title */}
+      {/* Header section */}
       <div className='bg-orange-50 p-4'>
         <div className='flex items-center'>
           <div className='w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2'>
@@ -183,10 +226,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         </div>
       </div>
 
-      {/* Separator line */}
       <div className='border-t border-gray-200'></div>
 
-      {/* White content area */}
+      {/* Content area */}
       <div className='bg-white p-4'>
         {/* Model selection */}
         <div className='mb-4'>
@@ -209,20 +251,18 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
                 </option>
               ))}
             </select>
-
             {isLoadingModels && (
               <div className='absolute right-2 top-1/2 transform -translate-y-1/2'>
                 <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500'></div>
               </div>
             )}
           </div>
-
           {modelLoadError && (
             <p className='text-xs text-red-500 mt-1'>{modelLoadError}</p>
           )}
         </div>
 
-        {/* 新增 - Prompt textarea */}
+        {/* Prompt textarea - 關鍵部分 */}
         <div className='mb-4'>
           <div className='flex items-center justify-between mb-1'>
             <label className='block text-sm text-gray-700 font-bold'>
@@ -237,12 +277,15 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           <AutoResizeTextarea
             value={promptText}
             onChange={handlePromptTextChange}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
+            onKeyDown={handleKeyDown}
             placeholder='輸入您的提示'
             className='w-full border border-gray-300 rounded p-2 text-sm'
           />
         </div>
 
-        {/* Context label with connection status */}
+        {/* Context section */}
         <div className='space-y-2'>
           <div className='flex items-center justify-between'>
             <span className='text-sm text-gray-700 mr-2 font-bold'>
@@ -257,7 +300,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         </div>
       </div>
 
-      {/* Prompt input handle */}
+      {/* Handles */}
       <Handle
         type='target'
         position={Position.Left}
@@ -268,7 +311,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: '12px',
           height: '12px',
           left: '-6px',
-          top: '70%', // 調整位置到 prompt 文本區域附近
+          top: '70%',
           transform: 'translateY(-50%)'
         }}
         isConnectable={isConnectable}
@@ -284,7 +327,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           width: '12px',
           height: '12px',
           left: '-6px',
-          top: '92%', // 調整位置到 context 標籤附近
+          top: '92%',
           transform: 'translateY(-50%)'
         }}
         isConnectable={isConnectable}
