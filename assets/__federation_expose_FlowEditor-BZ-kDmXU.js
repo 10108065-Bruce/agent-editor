@@ -3860,8 +3860,8 @@ function zoom() {
   return zoom;
 }
 
-const React$o = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$8,useState: useState$i,useEffect: useEffect$b,forwardRef: forwardRef$1,useCallback: useCallback$9} = React$o;
+const React$p = await importShared('react');
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$g,useRef: useRef$a,useState: useState$j,useEffect: useEffect$c,forwardRef: forwardRef$1,useCallback: useCallback$b} = React$p;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3904,23 +3904,23 @@ const selector$g = (s) => s.userSelectionActive ? "none" : "all";
 function Panel({ position, children, className, style: style2, ...rest }) {
   const pointerEvents = useStore(selector$g);
   const positionClasses = `${position}`.split("-");
-  return React$o.createElement("div", { className: cc(["react-flow__panel", className, ...positionClasses]), style: { ...style2, pointerEvents }, ...rest }, children);
+  return React$p.createElement("div", { className: cc(["react-flow__panel", className, ...positionClasses]), style: { ...style2, pointerEvents }, ...rest }, children);
 }
 function Attribution({ proOptions, position = "bottom-right" }) {
   if (proOptions?.hideAttribution) {
     return null;
   }
-  return React$o.createElement(
+  return React$p.createElement(
     Panel,
     { position, className: "react-flow__attribution", "data-message": "Please only hide this attribution when you are subscribed to React Flow Pro: https://reactflow.dev/pro" },
-    React$o.createElement("a", { href: "https://reactflow.dev", target: "_blank", rel: "noopener noreferrer", "aria-label": "React Flow attribution" }, "React Flow")
+    React$p.createElement("a", { href: "https://reactflow.dev", target: "_blank", rel: "noopener noreferrer", "aria-label": "React Flow attribution" }, "React Flow")
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$8(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$i({ x: 0, y: 0, width: 0, height: 0 });
+  const edgeRef = useRef$a(null);
+  const [edgeTextBbox, setEdgeTextBbox] = useState$j({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -3934,11 +3934,11 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
   if (typeof label === "undefined" || !label) {
     return null;
   }
-  return React$o.createElement(
+  return React$p.createElement(
     "g",
     { transform: `translate(${x - edgeTextBbox.width / 2} ${y - edgeTextBbox.height / 2})`, className: edgeTextClasses, visibility: edgeTextBbox.width ? "visible" : "hidden", ...rest },
-    labelShowBg && React$o.createElement("rect", { width: edgeTextBbox.width + 2 * labelBgPadding[0], x: -labelBgPadding[0], y: -labelBgPadding[1], height: edgeTextBbox.height + 2 * labelBgPadding[1], className: "react-flow__edge-textbg", style: labelBgStyle, rx: labelBgBorderRadius, ry: labelBgBorderRadius }),
-    React$o.createElement("text", { className: "react-flow__edge-text", y: edgeTextBbox.height / 2, dy: "0.3em", ref: edgeRef, style: labelStyle }, label),
+    labelShowBg && React$p.createElement("rect", { width: edgeTextBbox.width + 2 * labelBgPadding[0], x: -labelBgPadding[0], y: -labelBgPadding[1], height: edgeTextBbox.height + 2 * labelBgPadding[1], className: "react-flow__edge-textbg", style: labelBgStyle, rx: labelBgBorderRadius, ry: labelBgBorderRadius }),
+    React$p.createElement("text", { className: "react-flow__edge-text", y: edgeTextBbox.height / 2, dy: "0.3em", ref: edgeRef, style: labelStyle }, label),
     children
   );
 };
@@ -4020,12 +4020,12 @@ const getEventPosition = (event, bounds) => {
 };
 const isMacOs = () => typeof navigator !== "undefined" && navigator?.userAgent?.indexOf("Mac") >= 0;
 const BaseEdge = ({ id, path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth = 20 }) => {
-  return React$o.createElement(
-    React$o.Fragment,
+  return React$p.createElement(
+    React$p.Fragment,
     null,
-    React$o.createElement("path", { id, style: style2, d: path, fill: "none", className: "react-flow__edge-path", markerEnd, markerStart }),
-    interactionWidth && React$o.createElement("path", { d: path, fill: "none", strokeOpacity: 0, strokeWidth: interactionWidth, className: "react-flow__edge-interaction" }),
-    label && isNumeric(labelX) && isNumeric(labelY) ? React$o.createElement(EdgeText$1, { x: labelX, y: labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius }) : null
+    React$p.createElement("path", { id, style: style2, d: path, fill: "none", className: "react-flow__edge-path", markerEnd, markerStart }),
+    interactionWidth && React$p.createElement("path", { d: path, fill: "none", strokeOpacity: 0, strokeWidth: interactionWidth, className: "react-flow__edge-interaction" }),
+    label && isNumeric(labelX) && isNumeric(labelY) ? React$p.createElement(EdgeText$1, { x: labelX, y: labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius }) : null
   );
 };
 BaseEdge.displayName = "BaseEdge";
@@ -4135,7 +4135,7 @@ const SimpleBezierEdge = memo$g(({ sourceX, sourceY, targetX, targetY, sourcePos
     targetY,
     targetPosition
   });
-  return React$o.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$p.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 SimpleBezierEdge.displayName = "SimpleBezierEdge";
 const handleDirections = {
@@ -4286,10 +4286,10 @@ const SmoothStepEdge = memo$g(({ sourceX, sourceY, targetX, targetY, label, labe
     borderRadius: pathOptions?.borderRadius,
     offset: pathOptions?.offset
   });
-  return React$o.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$p.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 SmoothStepEdge.displayName = "SmoothStepEdge";
-const StepEdge = memo$g((props) => React$o.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
+const StepEdge = memo$g((props) => React$p.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
 StepEdge.displayName = "StepEdge";
 function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
   const [labelX, labelY, offsetX, offsetY] = getEdgeCenter({
@@ -4302,7 +4302,7 @@ function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
 }
 const StraightEdge = memo$g(({ sourceX, sourceY, targetX, targetY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth }) => {
   const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
-  return React$o.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$p.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 StraightEdge.displayName = "StraightEdge";
 function calculateControlOffset(distance2, curvature) {
@@ -4368,7 +4368,7 @@ const BezierEdge = memo$g(({ sourceX, sourceY, targetX, targetY, sourcePosition 
     targetPosition,
     curvature: pathOptions?.curvature
   });
-  return React$o.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$p.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 BezierEdge.displayName = "BezierEdge";
 const NodeIdContext = createContext(null);
@@ -4864,7 +4864,7 @@ const Handle = forwardRef$1(({ type = "source", position = Position.Top, isValid
     onClickConnectEnd?.(event);
     store.setState({ connectionClickStartHandle: null });
   };
-  return React$o.createElement("div", { "data-handleid": handleId, "data-nodeid": nodeId, "data-handlepos": position, "data-id": `${nodeId}-${handleId}-${type}`, className: cc([
+  return React$p.createElement("div", { "data-handleid": handleId, "data-nodeid": nodeId, "data-handlepos": position, "data-id": `${nodeId}-${handleId}-${type}`, className: cc([
     "react-flow__handle",
     `react-flow__handle-${position}`,
     "nodrag",
@@ -4885,28 +4885,28 @@ const Handle = forwardRef$1(({ type = "source", position = Position.Top, isValid
 Handle.displayName = "Handle";
 var Handle$1 = memo$g(Handle);
 const DefaultNode = ({ data, isConnectable, targetPosition = Position.Top, sourcePosition = Position.Bottom }) => {
-  return React$o.createElement(
-    React$o.Fragment,
+  return React$p.createElement(
+    React$p.Fragment,
     null,
-    React$o.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
+    React$p.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
     data?.label,
-    React$o.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
+    React$p.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
   );
 };
 DefaultNode.displayName = "DefaultNode";
 var DefaultNode$1 = memo$g(DefaultNode);
-const InputNode = ({ data, isConnectable, sourcePosition = Position.Bottom }) => React$o.createElement(
-  React$o.Fragment,
+const InputNode = ({ data, isConnectable, sourcePosition = Position.Bottom }) => React$p.createElement(
+  React$p.Fragment,
   null,
   data?.label,
-  React$o.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
+  React$p.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
 );
 InputNode.displayName = "InputNode";
 var InputNode$1 = memo$g(InputNode);
-const OutputNode = ({ data, isConnectable, targetPosition = Position.Top }) => React$o.createElement(
-  React$o.Fragment,
+const OutputNode = ({ data, isConnectable, targetPosition = Position.Top }) => React$p.createElement(
+  React$p.Fragment,
   null,
-  React$o.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
+  React$p.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
   data?.label
 );
 OutputNode.displayName = "OutputNode";
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$g(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$b(() => {
+  useEffect$c(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4936,7 +4936,7 @@ const changeSelector = (s) => !!s.onSelectionChange;
 function Wrapper$1({ onSelectionChange }) {
   const storeHasSelectionChange = useStore(changeSelector);
   if (onSelectionChange || storeHasSelectionChange) {
-    return React$o.createElement(SelectionListener, { onSelectionChange });
+    return React$p.createElement(SelectionListener, { onSelectionChange });
   }
   return null;
 }
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$b(() => {
+  useEffect$c(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5038,13 +5038,13 @@ const ARIA_LIVE_MESSAGE = "react-flow__aria-live";
 const selector$c = (s) => s.ariaLiveMessage;
 function AriaLiveMessage({ rfId }) {
   const ariaLiveMessage = useStore(selector$c);
-  return React$o.createElement("div", { id: `${ARIA_LIVE_MESSAGE}-${rfId}`, "aria-live": "assertive", "aria-atomic": "true", style: ariaLiveStyle }, ariaLiveMessage);
+  return React$p.createElement("div", { id: `${ARIA_LIVE_MESSAGE}-${rfId}`, "aria-live": "assertive", "aria-atomic": "true", style: ariaLiveStyle }, ariaLiveMessage);
 }
 function A11yDescriptions({ rfId, disableKeyboardA11y }) {
-  return React$o.createElement(
-    React$o.Fragment,
+  return React$p.createElement(
+    React$p.Fragment,
     null,
-    React$o.createElement(
+    React$p.createElement(
       "div",
       { id: `${ARIA_NODE_DESC_KEY}-${rfId}`, style },
       "Press enter or space to select a node.",
@@ -5052,14 +5052,14 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
       " Press delete to remove it and escape to cancel.",
       " "
     ),
-    React$o.createElement("div", { id: `${ARIA_EDGE_DESC_KEY}-${rfId}`, style }, "Press enter or space to select an edge. You can then press delete to remove it or escape to cancel."),
-    !disableKeyboardA11y && React$o.createElement(AriaLiveMessage, { rfId })
+    React$p.createElement("div", { id: `${ARIA_EDGE_DESC_KEY}-${rfId}`, style }, "Press enter or space to select an edge. You can then press delete to remove it or escape to cancel."),
+    !disableKeyboardA11y && React$p.createElement(AriaLiveMessage, { rfId })
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$i(false);
-  const modifierPressed = useRef$8(false);
-  const pressedKeys = useRef$8(/* @__PURE__ */ new Set([]));
+  const [keyPressed, setKeyPressed] = useState$j(false);
+  const modifierPressed = useRef$a(false);
+  const pressedKeys = useRef$a(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5350,21 +5350,21 @@ const useViewportHelper = () => {
 function useReactFlow() {
   const viewportHelper = useViewportHelper();
   const store = useStoreApi();
-  const getNodes = useCallback$9(() => {
+  const getNodes = useCallback$b(() => {
     return store.getState().getNodes().map((n) => ({ ...n }));
   }, []);
-  const getNode = useCallback$9((id) => {
+  const getNode = useCallback$b((id) => {
     return store.getState().nodeInternals.get(id);
   }, []);
-  const getEdges = useCallback$9(() => {
+  const getEdges = useCallback$b(() => {
     const { edges = [] } = store.getState();
     return edges.map((e) => ({ ...e }));
   }, []);
-  const getEdge = useCallback$9((id) => {
+  const getEdge = useCallback$b((id) => {
     const { edges = [] } = store.getState();
     return edges.find((e) => e.id === id);
   }, []);
-  const setNodes = useCallback$9((payload) => {
+  const setNodes = useCallback$b((payload) => {
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     const nodes = getNodes2();
     const nextNodes = typeof payload === "function" ? payload(nodes) : payload;
@@ -5375,7 +5375,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const setEdges = useCallback$9((payload) => {
+  const setEdges = useCallback$b((payload) => {
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     const nextEdges = typeof payload === "function" ? payload(edges) : payload;
     if (hasDefaultEdges) {
@@ -5385,7 +5385,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const addNodes = useCallback$9((payload) => {
+  const addNodes = useCallback$b((payload) => {
     const nodes = Array.isArray(payload) ? payload : [payload];
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     if (hasDefaultNodes) {
@@ -5397,7 +5397,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const addEdges = useCallback$9((payload) => {
+  const addEdges = useCallback$b((payload) => {
     const nextEdges = Array.isArray(payload) ? payload : [payload];
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     if (hasDefaultEdges) {
@@ -5407,7 +5407,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const toObject = useCallback$9(() => {
+  const toObject = useCallback$b(() => {
     const { getNodes: getNodes2, edges = [], transform } = store.getState();
     const [x, y, zoom2] = transform;
     return {
@@ -5420,7 +5420,7 @@ function useReactFlow() {
       }
     };
   }, []);
-  const deleteElements = useCallback$9(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
+  const deleteElements = useCallback$b(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
     const { nodeInternals, getNodes: getNodes2, edges, hasDefaultNodes, hasDefaultEdges, onNodesDelete, onEdgesDelete, onNodesChange, onEdgesChange } = store.getState();
     const nodeIds = (nodesDeleted || []).map((node) => node.id);
     const edgeIds = (edgesDeleted || []).map((edge) => edge.id);
@@ -5477,7 +5477,7 @@ function useReactFlow() {
       }
     }
   }, []);
-  const getNodeRect = useCallback$9((nodeOrRect) => {
+  const getNodeRect = useCallback$b((nodeOrRect) => {
     const isRect = isRectObject(nodeOrRect);
     const node = isRect ? null : store.getState().nodeInternals.get(nodeOrRect.id);
     if (!isRect && !node) {
@@ -5486,7 +5486,7 @@ function useReactFlow() {
     const nodeRect = isRect ? nodeOrRect : nodeToRect(node);
     return [nodeRect, node, isRect];
   }, []);
-  const getIntersectingNodes = useCallback$9((nodeOrRect, partially = true, nodes) => {
+  const getIntersectingNodes = useCallback$b((nodeOrRect, partially = true, nodes) => {
     const [nodeRect, node, isRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return [];
@@ -5501,7 +5501,7 @@ function useReactFlow() {
       return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
     });
   }, []);
-  const isNodeIntersecting = useCallback$9((nodeOrRect, area, partially = true) => {
+  const isNodeIntersecting = useCallback$b((nodeOrRect, area, partially = true) => {
     const [nodeRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return false;
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$b(() => {
+  useEffect$c(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5615,19 +5615,19 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$8();
+  const timerId = useRef$a();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$8(false);
-  const zoomedWithRightMouseButton = useRef$8(false);
-  const zoomPane = useRef$8(null);
-  const prevTransform = useRef$8({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$a(false);
+  const zoomedWithRightMouseButton = useRef$a(false);
+  const zoomPane = useRef$a(null);
+  const prevTransform = useRef$a({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$8(0);
-  const isPanScrolling = useRef$8(false);
-  const panScrollTimeout = useRef$8();
+  const mouseButton = useRef$a(0);
+  const isPanScrolling = useRef$a(false);
+  const panScrollTimeout = useRef$a();
   useResizeHandler(zoomPane);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -5837,7 +5837,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     elementsSelectable,
     zoomActivationKeyPressed
   ]);
-  return React$o.createElement("div", { className: "react-flow__renderer", ref: zoomPane, style: containerStyle }, children);
+  return React$p.createElement("div", { className: "react-flow__renderer", ref: zoomPane, style: containerStyle }, children);
 };
 const selector$9 = (s) => ({
   userSelectionActive: s.userSelectionActive,
@@ -5849,7 +5849,7 @@ function UserSelection() {
   if (!isActive) {
     return null;
   }
-  return React$o.createElement("div", { className: "react-flow__selection react-flow__container", style: {
+  return React$p.createElement("div", { className: "react-flow__selection react-flow__container", style: {
     width: userSelectionRect.width,
     height: userSelectionRect.height,
     transform: `translate(${userSelectionRect.x}px, ${userSelectionRect.y}px)`
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$g(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$8(null);
+  const container = useRef$a(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$8(0);
-  const prevSelectedEdgesCount = useRef$8(0);
-  const containerBounds = useRef$8();
+  const prevSelectedNodesCount = useRef$a(0);
+  const prevSelectedEdgesCount = useRef$a(0);
+  const containerBounds = useRef$a();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6088,11 +6088,11 @@ const Pane = memo$g(({ isSelecting, selectionMode = SelectionMode.Full, panOnDra
     resetUserSelection();
   };
   const hasActiveSelection = elementsSelectable && (isSelecting || userSelectionActive);
-  return React$o.createElement(
+  return React$p.createElement(
     "div",
     { className: cc(["react-flow__pane", { dragging, selection: isSelecting }]), onClick: hasActiveSelection ? void 0 : wrapHandler(onClick, container), onContextMenu: wrapHandler(onContextMenu, container), onWheel: wrapHandler(onWheel, container), onMouseEnter: hasActiveSelection ? void 0 : onPaneMouseEnter, onMouseDown: hasActiveSelection ? onMouseDown : void 0, onMouseMove: hasActiveSelection ? onMouseMove : onPaneMouseMove, onMouseUp: hasActiveSelection ? onMouseUp : void 0, onMouseLeave: hasActiveSelection ? onMouseLeave : onPaneMouseLeave, ref: container, style: containerStyle },
     children,
-    React$o.createElement(UserSelection, null)
+    React$p.createElement(UserSelection, null)
   );
 });
 Pane.displayName = "Pane";
@@ -6247,7 +6247,7 @@ function handleNodeClick({ id, store, unselect = false, nodeRef }) {
 }
 function useGetPointerPosition() {
   const store = useStoreApi();
-  const getPointerPosition = useCallback$9(({ sourceEvent }) => {
+  const getPointerPosition = useCallback$b(({ sourceEvent }) => {
     const { transform, snapGrid, snapToGrid } = store.getState();
     const x = sourceEvent.touches ? sourceEvent.touches[0].clientX : sourceEvent.clientX;
     const y = sourceEvent.touches ? sourceEvent.touches[0].clientY : sourceEvent.clientY;
@@ -6268,18 +6268,18 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$i(false);
-  const dragItems = useRef$8([]);
-  const lastPos = useRef$8({ x: null, y: null });
-  const autoPanId = useRef$8(0);
-  const containerBounds = useRef$8(null);
-  const mousePosition = useRef$8({ x: 0, y: 0 });
-  const dragEvent = useRef$8(null);
-  const autoPanStarted = useRef$8(false);
-  const dragStarted = useRef$8(false);
-  const abortDrag = useRef$8(false);
+  const [dragging, setDragging] = useState$j(false);
+  const dragItems = useRef$a([]);
+  const lastPos = useRef$a({ x: null, y: null });
+  const autoPanId = useRef$a(0);
+  const containerBounds = useRef$a(null);
+  const mousePosition = useRef$a({ x: 0, y: 0 });
+  const dragEvent = useRef$a(null);
+  const autoPanStarted = useRef$a(false);
+  const dragStarted = useRef$a(false);
+  const abortDrag = useRef$a(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$b(() => {
+  useEffect$c(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6457,7 +6457,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
 }
 function useUpdateNodePositions() {
   const store = useStoreApi();
-  const updatePositions = useCallback$9((params) => {
+  const updatePositions = useCallback$b((params) => {
     const { nodeInternals, nodeExtent, updateNodePositions, getNodes, snapToGrid, snapGrid, onError, nodesDraggable } = store.getState();
     const selectedNodes = getNodes().filter((n) => n.selected && (n.draggable || nodesDraggable && typeof n.draggable === "undefined"));
     const xVelo = snapToGrid ? snapGrid[0] : 5;
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$8(null);
-    const prevNodeRef = useRef$8(null);
-    const prevSourcePosition = useRef$8(sourcePosition);
-    const prevTargetPosition = useRef$8(targetPosition);
-    const prevType = useRef$8(type);
+    const nodeRef = useRef$a(null);
+    const prevNodeRef = useRef$a(null);
+    const prevSourcePosition = useRef$a(sourcePosition);
+    const prevTargetPosition = useRef$a(targetPosition);
+    const prevType = useRef$a(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$b(() => {
+    useEffect$c(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$b(() => {
+    useEffect$c(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$b(() => {
+    useEffect$c(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6594,7 +6594,7 @@ var wrapNode = (NodeComponent) => {
     if (hidden) {
       return null;
     }
-    return React$o.createElement(
+    return React$p.createElement(
       "div",
       { className: cc([
         "react-flow__node",
@@ -6617,10 +6617,10 @@ var wrapNode = (NodeComponent) => {
         visibility: initialized ? "visible" : "hidden",
         ...style2
       }, "data-id": id, "data-testid": `rf__node-${id}`, onMouseEnter: onMouseEnterHandler, onMouseMove: onMouseMoveHandler, onMouseLeave: onMouseLeaveHandler, onContextMenu: onContextMenuHandler, onClick: onSelectNodeHandler, onDoubleClick: onDoubleClickHandler, onKeyDown: isFocusable ? onKeyDown : void 0, tabIndex: isFocusable ? 0 : void 0, role: isFocusable ? "button" : void 0, "aria-describedby": disableKeyboardA11y ? void 0 : `${ARIA_NODE_DESC_KEY}-${rfId}`, "aria-label": ariaLabel },
-      React$o.createElement(
+      React$p.createElement(
         Provider,
         { value: id },
-        React$o.createElement(NodeComponent, { id, data, type, xPos, yPos, selected, isConnectable, sourcePosition, targetPosition, dragging, dragHandle, zIndex })
+        React$p.createElement(NodeComponent, { id, data, type, xPos, yPos, selected, isConnectable, sourcePosition, targetPosition, dragging, dragHandle, zIndex })
       )
     );
   };
@@ -6639,8 +6639,8 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$8(null);
-  useEffect$b(() => {
+  const nodeRef = useRef$a(null);
+  useEffect$c(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6666,12 +6666,12 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
       });
     }
   };
-  return React$o.createElement(
+  return React$p.createElement(
     "div",
     { className: cc(["react-flow__nodesselection", "react-flow__container", noPanClassName]), style: {
       transform: transformString
     } },
-    React$o.createElement("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu, tabIndex: disableKeyboardA11y ? void 0 : -1, onKeyDown: disableKeyboardA11y ? void 0 : onKeyDown, style: {
+    React$p.createElement("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu, tabIndex: disableKeyboardA11y ? void 0 : -1, onKeyDown: disableKeyboardA11y ? void 0 : onKeyDown, style: {
       width,
       height,
       top,
@@ -6689,21 +6689,21 @@ const FlowRenderer = ({ children, onPaneClick, onPaneMouseEnter, onPaneMouseMove
   const panOnScroll = panActivationKeyPressed || _panOnScroll;
   const isSelecting = selectionKeyPressed || selectionOnDrag && panOnDrag !== true;
   useGlobalKeyHandler({ deleteKeyCode, multiSelectionKeyCode });
-  return React$o.createElement(
+  return React$p.createElement(
     ZoomPane,
     { onMove, onMoveStart, onMoveEnd, onPaneContextMenu, elementsSelectable, zoomOnScroll, zoomOnPinch, panOnScroll, panOnScrollSpeed, panOnScrollMode, zoomOnDoubleClick, panOnDrag: !selectionKeyPressed && panOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling, noWheelClassName, noPanClassName },
-    React$o.createElement(
+    React$p.createElement(
       Pane,
       { onSelectionStart, onSelectionEnd, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneContextMenu, onPaneScroll, panOnDrag, isSelecting: !!isSelecting, selectionMode },
       children,
-      nodesSelectionActive && React$o.createElement(NodesSelection$1, { onSelectionContextMenu, noPanClassName, disableKeyboardA11y })
+      nodesSelectionActive && React$p.createElement(NodesSelection$1, { onSelectionContextMenu, noPanClassName, disableKeyboardA11y })
     )
   );
 };
 FlowRenderer.displayName = "FlowRenderer";
 var FlowRenderer$1 = memo$g(FlowRenderer);
 function useVisibleNodes(onlyRenderVisible) {
-  const nodes = useStore(useCallback$9((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
+  const nodes = useStore(useCallback$b((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
   return nodes;
 }
 function createNodeTypes(nodeTypes) {
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$8();
+  const resizeObserverRef = useRef$a();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6762,12 +6762,12 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$b(() => {
+  useEffect$c(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
   }, []);
-  return React$o.createElement("div", { className: "react-flow__nodes", style: containerStyle }, nodes.map((node) => {
+  return React$p.createElement("div", { className: "react-flow__nodes", style: containerStyle }, nodes.map((node) => {
     let nodeType = node.type || "default";
     if (!props.nodeTypes[nodeType]) {
       onError?.("003", errorMessages["error003"](nodeType));
@@ -6788,7 +6788,7 @@ const NodeRenderer = (props) => {
       height: node.height ?? 0,
       origin: props.nodeOrigin
     });
-    return React$o.createElement(NodeComponent, { key: node.id, id: node.id, className: node.className, style: node.style, type: nodeType, data: node.data, sourcePosition: node.sourcePosition || Position.Bottom, targetPosition: node.targetPosition || Position.Top, hidden: node.hidden, xPos: posX, yPos: posY, xPosOrigin: posOrigin.x, yPosOrigin: posOrigin.y, selectNodesOnDrag: props.selectNodesOnDrag, onClick: props.onNodeClick, onMouseEnter: props.onNodeMouseEnter, onMouseMove: props.onNodeMouseMove, onMouseLeave: props.onNodeMouseLeave, onContextMenu: props.onNodeContextMenu, onDoubleClick: props.onNodeDoubleClick, selected: !!node.selected, isDraggable, isSelectable, isConnectable, isFocusable, resizeObserver, dragHandle: node.dragHandle, zIndex: node[internalsSymbol]?.z ?? 0, isParent: !!node[internalsSymbol]?.isParent, noDragClassName: props.noDragClassName, noPanClassName: props.noPanClassName, initialized: !!node.width && !!node.height, rfId: props.rfId, disableKeyboardA11y: props.disableKeyboardA11y, ariaLabel: node.ariaLabel, hasHandleBounds: !!node[internalsSymbol]?.handleBounds });
+    return React$p.createElement(NodeComponent, { key: node.id, id: node.id, className: node.className, style: node.style, type: nodeType, data: node.data, sourcePosition: node.sourcePosition || Position.Bottom, targetPosition: node.targetPosition || Position.Top, hidden: node.hidden, xPos: posX, yPos: posY, xPosOrigin: posOrigin.x, yPosOrigin: posOrigin.y, selectNodesOnDrag: props.selectNodesOnDrag, onClick: props.onNodeClick, onMouseEnter: props.onNodeMouseEnter, onMouseMove: props.onNodeMouseMove, onMouseLeave: props.onNodeMouseLeave, onContextMenu: props.onNodeContextMenu, onDoubleClick: props.onNodeDoubleClick, selected: !!node.selected, isDraggable, isSelectable, isConnectable, isFocusable, resizeObserver, dragHandle: node.dragHandle, zIndex: node[internalsSymbol]?.z ?? 0, isParent: !!node[internalsSymbol]?.isParent, noDragClassName: props.noDragClassName, noPanClassName: props.noPanClassName, initialized: !!node.width && !!node.height, rfId: props.rfId, disableKeyboardA11y: props.disableKeyboardA11y, ariaLabel: node.ariaLabel, hasHandleBounds: !!node[internalsSymbol]?.handleBounds });
   }));
 };
 NodeRenderer.displayName = "NodeRenderer";
@@ -6808,13 +6808,13 @@ const shiftY = (y, shift, position) => {
   return y;
 };
 const EdgeUpdaterClassName = "react-flow__edgeupdater";
-const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMouseEnter, onMouseOut, type }) => React$o.createElement("circle", { onMouseDown, onMouseEnter, onMouseOut, className: cc([EdgeUpdaterClassName, `${EdgeUpdaterClassName}-${type}`]), cx: shiftX(centerX, radius, position), cy: shiftY(centerY, radius, position), r: radius, stroke: "transparent", fill: "transparent" });
+const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMouseEnter, onMouseOut, type }) => React$p.createElement("circle", { onMouseDown, onMouseEnter, onMouseOut, className: cc([EdgeUpdaterClassName, `${EdgeUpdaterClassName}-${type}`]), cx: shiftX(centerX, radius, position), cy: shiftY(centerY, radius, position), r: radius, stroke: "transparent", fill: "transparent" });
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$8(null);
-    const [updateHover, setUpdateHover] = useState$i(false);
-    const [updating, setUpdating] = useState$i(false);
+    const edgeRef = useRef$a(null);
+    const [updateHover, setUpdateHover] = useState$j(false);
+    const [updating, setUpdating] = useState$j(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -6893,7 +6893,7 @@ var wrapEdge = (EdgeComponent) => {
         }
       }
     };
-    return React$o.createElement(
+    return React$p.createElement(
       "g",
       { className: cc([
         "react-flow__edge",
@@ -6901,12 +6901,12 @@ var wrapEdge = (EdgeComponent) => {
         className,
         { selected, animated, inactive, updating: updateHover }
       ]), onClick: onEdgeClick, onDoubleClick: onEdgeDoubleClickHandler, onContextMenu: onEdgeContextMenu, onMouseEnter: onEdgeMouseEnter, onMouseMove: onEdgeMouseMove, onMouseLeave: onEdgeMouseLeave, onKeyDown: isFocusable ? onKeyDown : void 0, tabIndex: isFocusable ? 0 : void 0, role: isFocusable ? "button" : "img", "data-testid": `rf__edge-${id}`, "aria-label": ariaLabel === null ? void 0 : ariaLabel ? ariaLabel : `Edge from ${source} to ${target}`, "aria-describedby": isFocusable ? `${ARIA_EDGE_DESC_KEY}-${rfId}` : void 0, ref: edgeRef },
-      !updating && React$o.createElement(EdgeComponent, { id, source, target, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, data, style: style2, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, sourceHandleId, targetHandleId, markerStart: markerStartUrl, markerEnd: markerEndUrl, pathOptions, interactionWidth }),
-      isReconnectable && React$o.createElement(
-        React$o.Fragment,
+      !updating && React$p.createElement(EdgeComponent, { id, source, target, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, data, style: style2, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, sourceHandleId, targetHandleId, markerStart: markerStartUrl, markerEnd: markerEndUrl, pathOptions, interactionWidth }),
+      isReconnectable && React$p.createElement(
+        React$p.Fragment,
         null,
-        (isReconnectable === "source" || isReconnectable === true) && React$o.createElement(EdgeAnchor, { position: sourcePosition, centerX: sourceX, centerY: sourceY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterSourceMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "source" }),
-        (isReconnectable === "target" || isReconnectable === true) && React$o.createElement(EdgeAnchor, { position: targetPosition, centerX: targetX, centerY: targetY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterTargetMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "target" })
+        (isReconnectable === "source" || isReconnectable === true) && React$p.createElement(EdgeAnchor, { position: sourcePosition, centerX: sourceX, centerY: sourceY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterSourceMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "source" }),
+        (isReconnectable === "target" || isReconnectable === true) && React$p.createElement(EdgeAnchor, { position: targetPosition, centerX: targetX, centerY: targetY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterTargetMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "target" })
       )
     );
   };
@@ -7053,7 +7053,7 @@ function groupEdgesByZLevel(edges, nodeInternals, elevateEdgesOnSelect = false) 
   return edgeTree;
 }
 function useVisibleEdges(onlyRenderVisible, nodeInternals, elevateEdgesOnSelect) {
-  const edges = useStore(useCallback$9((s) => {
+  const edges = useStore(useCallback$b((s) => {
     if (!onlyRenderVisible) {
       return s.edges;
     }
@@ -7076,13 +7076,13 @@ function useVisibleEdges(onlyRenderVisible, nodeInternals, elevateEdgesOnSelect)
   return groupEdgesByZLevel(edges, nodeInternals, elevateEdgesOnSelect);
 }
 const ArrowSymbol = ({ color = "none", strokeWidth = 1 }) => {
-  return React$o.createElement("polyline", { style: {
+  return React$p.createElement("polyline", { style: {
     stroke: color,
     strokeWidth
   }, strokeLinecap: "round", strokeLinejoin: "round", fill: "none", points: "-5,-4 0,0 -5,4" });
 };
 const ArrowClosedSymbol = ({ color = "none", strokeWidth = 1 }) => {
-  return React$o.createElement("polyline", { style: {
+  return React$p.createElement("polyline", { style: {
     stroke: color,
     fill: color,
     strokeWidth
@@ -7109,10 +7109,10 @@ const Marker = ({ id, type, color, width = 12.5, height = 12.5, markerUnits = "s
   if (!Symbol2) {
     return null;
   }
-  return React$o.createElement(
+  return React$p.createElement(
     "marker",
     { className: "react-flow__arrowhead", id, markerWidth: `${width}`, markerHeight: `${height}`, viewBox: "-10 -10 20 20", markerUnits, orient, refX: "0", refY: "0" },
-    React$o.createElement(Symbol2, { color, strokeWidth })
+    React$p.createElement(Symbol2, { color, strokeWidth })
   );
 };
 const markerSelector = ({ defaultColor, rfId }) => (s) => {
@@ -7132,11 +7132,11 @@ const markerSelector = ({ defaultColor, rfId }) => (s) => {
 };
 const MarkerDefinitions = ({ defaultColor, rfId }) => {
   const markers = useStore(
-    useCallback$9(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
+    useCallback$b(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
     // the id includes all marker options, so we just need to look at that part of the marker
     (a, b) => !(a.length !== b.length || a.some((m, i) => m.id !== b[i].id))
   );
-  return React$o.createElement("defs", null, markers.map((marker) => React$o.createElement(Marker, { id: marker.id, key: marker.id, type: marker.type, color: marker.color, width: marker.width, height: marker.height, markerUnits: marker.markerUnits, strokeWidth: marker.strokeWidth, orient: marker.orient })));
+  return React$p.createElement("defs", null, markers.map((marker) => React$p.createElement(Marker, { id: marker.id, key: marker.id, type: marker.type, color: marker.color, width: marker.width, height: marker.height, markerUnits: marker.markerUnits, strokeWidth: marker.strokeWidth, orient: marker.orient })));
 };
 MarkerDefinitions.displayName = "MarkerDefinitions";
 var MarkerDefinitions$1 = memo$g(MarkerDefinitions);
@@ -7157,14 +7157,14 @@ const EdgeRenderer = ({ defaultMarkerColor, onlyRenderVisibleElements, elevateEd
   if (!width) {
     return null;
   }
-  return React$o.createElement(
-    React$o.Fragment,
+  return React$p.createElement(
+    React$p.Fragment,
     null,
-    edgeTree.map(({ level, edges, isMaxLevel }) => React$o.createElement(
+    edgeTree.map(({ level, edges, isMaxLevel }) => React$p.createElement(
       "svg",
       { key: level, style: { zIndex: level }, width, height, className: "react-flow__edges react-flow__container" },
-      isMaxLevel && React$o.createElement(MarkerDefinitions$1, { defaultColor: defaultMarkerColor, rfId }),
-      React$o.createElement("g", null, edges.map((edge) => {
+      isMaxLevel && React$p.createElement(MarkerDefinitions$1, { defaultColor: defaultMarkerColor, rfId }),
+      React$p.createElement("g", null, edges.map((edge) => {
         const [sourceNodeRect, sourceHandleBounds, sourceIsValid] = getNodeData(nodeInternals.get(edge.source));
         const [targetNodeRect, targetHandleBounds, targetIsValid] = getNodeData(nodeInternals.get(edge.target));
         if (!sourceIsValid || !targetIsValid) {
@@ -7189,7 +7189,7 @@ const EdgeRenderer = ({ defaultMarkerColor, onlyRenderVisibleElements, elevateEd
           return null;
         }
         const { sourceX, sourceY, targetX, targetY } = getEdgePositions(sourceNodeRect, sourceHandle, sourcePosition, targetNodeRect, targetHandle, targetPosition);
-        return React$o.createElement(EdgeComponent, { key: edge.id, id: edge.id, className: cc([edge.className, noPanClassName]), type: edgeType, data: edge.data, selected: !!edge.selected, animated: !!edge.animated, hidden: !!edge.hidden, label: edge.label, labelStyle: edge.labelStyle, labelShowBg: edge.labelShowBg, labelBgStyle: edge.labelBgStyle, labelBgPadding: edge.labelBgPadding, labelBgBorderRadius: edge.labelBgBorderRadius, style: edge.style, source: edge.source, target: edge.target, sourceHandleId: edge.sourceHandle, targetHandleId: edge.targetHandle, markerEnd: edge.markerEnd, markerStart: edge.markerStart, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, onContextMenu: onEdgeContextMenu, onMouseEnter: onEdgeMouseEnter, onMouseMove: onEdgeMouseMove, onMouseLeave: onEdgeMouseLeave, onClick: onEdgeClick, onEdgeDoubleClick, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius, rfId, ariaLabel: edge.ariaLabel, isFocusable, isReconnectable, pathOptions: "pathOptions" in edge ? edge.pathOptions : void 0, interactionWidth: edge.interactionWidth, disableKeyboardA11y });
+        return React$p.createElement(EdgeComponent, { key: edge.id, id: edge.id, className: cc([edge.className, noPanClassName]), type: edgeType, data: edge.data, selected: !!edge.selected, animated: !!edge.animated, hidden: !!edge.hidden, label: edge.label, labelStyle: edge.labelStyle, labelShowBg: edge.labelShowBg, labelBgStyle: edge.labelBgStyle, labelBgPadding: edge.labelBgPadding, labelBgBorderRadius: edge.labelBgBorderRadius, style: edge.style, source: edge.source, target: edge.target, sourceHandleId: edge.sourceHandle, targetHandleId: edge.targetHandle, markerEnd: edge.markerEnd, markerStart: edge.markerStart, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, onContextMenu: onEdgeContextMenu, onMouseEnter: onEdgeMouseEnter, onMouseMove: onEdgeMouseMove, onMouseLeave: onEdgeMouseLeave, onClick: onEdgeClick, onEdgeDoubleClick, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius, rfId, ariaLabel: edge.ariaLabel, isFocusable, isReconnectable, pathOptions: "pathOptions" in edge ? edge.pathOptions : void 0, interactionWidth: edge.interactionWidth, disableKeyboardA11y });
       }))
     )),
     children
@@ -7200,12 +7200,12 @@ var EdgeRenderer$1 = memo$g(EdgeRenderer);
 const selector$3 = (s) => `translate(${s.transform[0]}px,${s.transform[1]}px) scale(${s.transform[2]})`;
 function Viewport({ children }) {
   const transform = useStore(selector$3);
-  return React$o.createElement("div", { className: "react-flow__viewport react-flow__container", style: { transform } }, children);
+  return React$p.createElement("div", { className: "react-flow__viewport react-flow__container", style: { transform } }, children);
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$8(false);
-  useEffect$b(() => {
+  const isInitialized = useRef$a(false);
+  useEffect$c(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7219,7 +7219,7 @@ const oppositePosition = {
   [Position.Bottom]: Position.Top
 };
 const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLineType.Bezier, CustomComponent, connectionStatus }) => {
-  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$9((s) => ({
+  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$b((s) => ({
     fromNode: s.nodeInternals.get(nodeId),
     handleId: s.connectionHandleId,
     toX: (s.connectionPosition.x - s.transform[0]) / s.transform[2],
@@ -7245,7 +7245,7 @@ const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLi
     return null;
   }
   if (CustomComponent) {
-    return React$o.createElement(CustomComponent, { connectionLineType: type, connectionLineStyle: style2, fromNode, fromHandle, fromX, fromY, toX, toY, fromPosition, toPosition, connectionStatus });
+    return React$p.createElement(CustomComponent, { connectionLineType: type, connectionLineStyle: style2, fromNode, fromHandle, fromX, fromY, toX, toY, fromPosition, toPosition, connectionStatus });
   }
   let dAttr = "";
   const pathParams = {
@@ -7270,7 +7270,7 @@ const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLi
   } else {
     dAttr = `M${fromX},${fromY} ${toX},${toY}`;
   }
-  return React$o.createElement("path", { d: dAttr, fill: "none", className: "react-flow__connection-path", style: style2 });
+  return React$p.createElement("path", { d: dAttr, fill: "none", className: "react-flow__connection-path", style: style2 });
 };
 ConnectionLine.displayName = "ConnectionLine";
 const selector$2$1 = (s) => ({
@@ -7287,18 +7287,18 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   if (!isValid) {
     return null;
   }
-  return React$o.createElement(
+  return React$p.createElement(
     "svg",
     { style: containerStyle2, width, height, className: "react-flow__edges react-flow__connectionline react-flow__container" },
-    React$o.createElement(
+    React$p.createElement(
       "g",
       { className: cc(["react-flow__connection", connectionStatus]) },
-      React$o.createElement(ConnectionLine, { nodeId, handleType, style: style2, type, CustomComponent: component, connectionStatus })
+      React$p.createElement(ConnectionLine, { nodeId, handleType, style: style2, type, CustomComponent: component, connectionStatus })
     )
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$8(null);
+  useRef$a(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7309,19 +7309,19 @@ const GraphView = ({ nodeTypes, edgeTypes, onMove, onMoveStart, onMoveEnd, onIni
   const nodeTypesWrapped = useNodeOrEdgeTypes(nodeTypes, createNodeTypes);
   const edgeTypesWrapped = useNodeOrEdgeTypes(edgeTypes, createEdgeTypes);
   useOnInitHandler(onInit);
-  return React$o.createElement(
+  return React$p.createElement(
     FlowRenderer$1,
     { onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneContextMenu, onPaneScroll, deleteKeyCode, selectionKeyCode, selectionOnDrag, selectionMode, onSelectionStart, onSelectionEnd, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, elementsSelectable, onMove, onMoveStart, onMoveEnd, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, onSelectionContextMenu, preventScrolling, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y },
-    React$o.createElement(
+    React$p.createElement(
       Viewport,
       null,
-      React$o.createElement(
+      React$p.createElement(
         EdgeRenderer$1,
         { edgeTypes: edgeTypesWrapped, onEdgeClick, onEdgeDoubleClick, onlyRenderVisibleElements, onEdgeContextMenu, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius, defaultMarkerColor, noPanClassName, elevateEdgesOnSelect: !!elevateEdgesOnSelect, disableKeyboardA11y, rfId },
-        React$o.createElement(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle })
+        React$p.createElement(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle })
       ),
-      React$o.createElement("div", { className: "react-flow__edgelabel-renderer" }),
-      React$o.createElement(NodeRenderer$1, { nodeTypes: nodeTypesWrapped, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, selectNodesOnDrag, onlyRenderVisibleElements, noPanClassName, noDragClassName, disableKeyboardA11y, nodeOrigin, nodeExtent, rfId })
+      React$p.createElement("div", { className: "react-flow__edgelabel-renderer" }),
+      React$p.createElement(NodeRenderer$1, { nodeTypes: nodeTypesWrapped, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, selectNodesOnDrag, onlyRenderVisibleElements, noPanClassName, noDragClassName, disableKeyboardA11y, nodeOrigin, nodeExtent, rfId })
     )
   );
 };
@@ -7598,19 +7598,19 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$8(null);
+  const storeRef = useRef$a(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
-  return React$o.createElement(Provider$1, { value: storeRef.current }, children);
+  return React$p.createElement(Provider$1, { value: storeRef.current }, children);
 };
 ReactFlowProvider.displayName = "ReactFlowProvider";
 const Wrapper = ({ children }) => {
   const isWrapped = useContext(StoreContext);
   if (isWrapped) {
-    return React$o.createElement(React$o.Fragment, null, children);
+    return React$p.createElement(React$p.Fragment, null, children);
   }
-  return React$o.createElement(ReactFlowProvider, null, children);
+  return React$p.createElement(ReactFlowProvider, null, children);
 };
 Wrapper.displayName = "ReactFlowWrapper";
 const defaultNodeTypes = {
@@ -7638,18 +7638,18 @@ const wrapperStyle = {
 };
 const ReactFlow = forwardRef$1(({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes = defaultNodeTypes, edgeTypes = defaultEdgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionMode = ConnectionMode.Strict, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = "Backspace", selectionKeyCode = "Shift", selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = "Space", multiSelectionKeyCode = isMacOs() ? "Meta" : "Control", zoomActivationKeyCode = isMacOs() ? "Meta" : "Control", snapToGrid = false, snapGrid = initSnapGrid, onlyRenderVisibleElements = false, selectNodesOnDrag = true, nodesDraggable, nodesConnectable, nodesFocusable, nodeOrigin = initNodeOrigin, edgesFocusable, edgesUpdatable, elementsSelectable, defaultViewport = initDefaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = "#b1b1b7", zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, children, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onEdgeUpdate, onEdgeUpdateStart, onEdgeUpdateEnd, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius = 10, edgeUpdaterRadius = 10, onNodesChange, onEdgesChange, noDragClassName = "nodrag", noWheelClassName = "nowheel", noPanClassName = "nopan", fitView: fitView2 = false, fitViewOptions, connectOnClick = true, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect = true, autoPanOnNodeDrag = true, connectionRadius = 20, isValidConnection, onError, style: style2, id, nodeDragThreshold, ...rest }, ref) => {
   const rfId = id || "1";
-  return React$o.createElement(
+  return React$p.createElement(
     "div",
     { ...rest, style: { ...style2, ...wrapperStyle }, ref, className: cc(["react-flow", className]), "data-testid": "rf__wrapper", id },
-    React$o.createElement(
+    React$p.createElement(
       Wrapper,
       null,
-      React$o.createElement(GraphView$1, { onInit, onMove, onMoveStart, onMoveEnd, onNodeClick, onEdgeClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, nodeTypes, edgeTypes, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, deleteKeyCode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, onlyRenderVisibleElements, selectNodesOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onReconnect: onReconnect ?? onEdgeUpdate, onReconnectStart: onReconnectStart ?? onEdgeUpdateStart, onReconnectEnd: onReconnectEnd ?? onEdgeUpdateEnd, reconnectRadius: reconnectRadius ?? edgeUpdaterRadius, defaultMarkerColor, noDragClassName, noWheelClassName, noPanClassName, elevateEdgesOnSelect, rfId, disableKeyboardA11y, nodeOrigin, nodeExtent }),
-      React$o.createElement(StoreUpdater, { nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elementsSelectable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, snapToGrid, snapGrid, connectionMode, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDragStart, onNodeDrag, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }),
-      React$o.createElement(Wrapper$1, { onSelectionChange }),
+      React$p.createElement(GraphView$1, { onInit, onMove, onMoveStart, onMoveEnd, onNodeClick, onEdgeClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, nodeTypes, edgeTypes, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, deleteKeyCode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, onlyRenderVisibleElements, selectNodesOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onReconnect: onReconnect ?? onEdgeUpdate, onReconnectStart: onReconnectStart ?? onEdgeUpdateStart, onReconnectEnd: onReconnectEnd ?? onEdgeUpdateEnd, reconnectRadius: reconnectRadius ?? edgeUpdaterRadius, defaultMarkerColor, noDragClassName, noWheelClassName, noPanClassName, elevateEdgesOnSelect, rfId, disableKeyboardA11y, nodeOrigin, nodeExtent }),
+      React$p.createElement(StoreUpdater, { nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elementsSelectable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, snapToGrid, snapGrid, connectionMode, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDragStart, onNodeDrag, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }),
+      React$p.createElement(Wrapper$1, { onSelectionChange }),
       children,
-      React$o.createElement(Attribution, { proOptions, position: attributionPosition }),
-      React$o.createElement(A11yDescriptions, { rfId, disableKeyboardA11y })
+      React$p.createElement(Attribution, { proOptions, position: attributionPosition }),
+      React$p.createElement(A11yDescriptions, { rfId, disableKeyboardA11y })
     )
   );
 });
@@ -7664,7 +7664,7 @@ function EdgeLabelRenderer({ children }) {
 }
 function useUpdateNodeInternals() {
   const store = useStoreApi();
-  return useCallback$9((id) => {
+  return useCallback$b((id) => {
     const { domNode, updateNodeDimensions } = store.getState();
     const updateIds = Array.isArray(id) ? id : [id];
     const updates = updateIds.reduce((res, updateId) => {
@@ -7684,21 +7684,21 @@ function useEdges() {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$i(initialItems);
-    const onItemsChange = useCallback$9((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
+    const [items, setItems] = useState$j(initialItems);
+    const onItemsChange = useCallback$b((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
 }
 const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
-const React$n = await importShared('react');
-const {memo: memo$f,useRef: useRef$7,useEffect: useEffect$a} = React$n;
+const React$o = await importShared('react');
+const {memo: memo$f,useRef: useRef$9,useEffect: useEffect$b} = React$o;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
     const fill = (color || background || backgroundColor);
-    return (React$n.createElement("rect", { className: cc(['react-flow__minimap-node', { selected }, className]), x: x, y: y, rx: borderRadius, ry: borderRadius, width: width, height: height, fill: fill, stroke: strokeColor, strokeWidth: strokeWidth, shapeRendering: shapeRendering, onClick: onClick ? (event) => onClick(event, id) : undefined }));
+    return (React$o.createElement("rect", { className: cc(['react-flow__minimap-node', { selected }, className]), x: x, y: y, rx: borderRadius, ry: borderRadius, width: width, height: height, fill: fill, stroke: strokeColor, strokeWidth: strokeWidth, shapeRendering: shapeRendering, onClick: onClick ? (event) => onClick(event, id) : undefined }));
 };
 MiniMapNode.displayName = 'MiniMapNode';
 var MiniMapNode$1 = memo$f(MiniMapNode);
@@ -7717,9 +7717,9 @@ nodeComponent: NodeComponent = MiniMapNode$1, onClick, }) {
     const nodeStrokeColorFunc = getAttrFunction(nodeStrokeColor);
     const nodeClassNameFunc = getAttrFunction(nodeClassName);
     const shapeRendering = typeof window === 'undefined' || !!window.chrome ? 'crispEdges' : 'geometricPrecision';
-    return (React$n.createElement(React$n.Fragment, null, nodes.map((node) => {
+    return (React$o.createElement(React$o.Fragment, null, nodes.map((node) => {
         const { x, y } = getNodePositionWithOrigin(node, nodeOrigin).positionAbsolute;
-        return (React$n.createElement(NodeComponent, { key: node.id, x: x, y: y, width: node.width, height: node.height, style: node.style, selected: node.selected, className: nodeClassNameFunc(node), color: nodeColorFunc(node), borderRadius: nodeBorderRadius, strokeColor: nodeStrokeColorFunc(node), strokeWidth: nodeStrokeWidth, shapeRendering: shapeRendering, onClick: onClick, id: node.id }));
+        return (React$o.createElement(NodeComponent, { key: node.id, x: x, y: y, width: node.width, height: node.height, style: node.style, selected: node.selected, className: nodeClassNameFunc(node), color: nodeColorFunc(node), borderRadius: nodeBorderRadius, strokeColor: nodeStrokeColorFunc(node), strokeWidth: nodeStrokeWidth, shapeRendering: shapeRendering, onClick: onClick, id: node.id }));
     })));
 }
 var MiniMapNodes$1 = memo$f(MiniMapNodes);
@@ -7747,7 +7747,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$7(null);
+    const svg = useRef$9(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7762,9 +7762,9 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$7(0);
+    const viewScaleRef = useRef$9(0);
     viewScaleRef.current = viewScale;
-    useEffect$a(() => {
+    useEffect$b(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7820,45 +7820,45 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
             onNodeClick(event, node);
         }
         : undefined;
-    return (React$n.createElement(Panel, { position: position, style: style, className: cc(['react-flow__minimap', className]), "data-testid": "rf__minimap" },
-        React$n.createElement("svg", { width: elementWidth, height: elementHeight, viewBox: `${x} ${y} ${width} ${height}`, role: "img", "aria-labelledby": labelledBy, ref: svg, onClick: onSvgClick },
-            ariaLabel && React$n.createElement("title", { id: labelledBy }, ariaLabel),
-            React$n.createElement(MiniMapNodes$1, { onClick: onSvgNodeClick, nodeColor: nodeColor, nodeStrokeColor: nodeStrokeColor, nodeBorderRadius: nodeBorderRadius, nodeClassName: nodeClassName, nodeStrokeWidth: nodeStrokeWidth, nodeComponent: nodeComponent }),
-            React$n.createElement("path", { className: "react-flow__minimap-mask", d: `M${x - offset},${y - offset}h${width + offset * 2}v${height + offset * 2}h${-width - offset * 2}z
+    return (React$o.createElement(Panel, { position: position, style: style, className: cc(['react-flow__minimap', className]), "data-testid": "rf__minimap" },
+        React$o.createElement("svg", { width: elementWidth, height: elementHeight, viewBox: `${x} ${y} ${width} ${height}`, role: "img", "aria-labelledby": labelledBy, ref: svg, onClick: onSvgClick },
+            ariaLabel && React$o.createElement("title", { id: labelledBy }, ariaLabel),
+            React$o.createElement(MiniMapNodes$1, { onClick: onSvgNodeClick, nodeColor: nodeColor, nodeStrokeColor: nodeStrokeColor, nodeBorderRadius: nodeBorderRadius, nodeClassName: nodeClassName, nodeStrokeWidth: nodeStrokeWidth, nodeComponent: nodeComponent }),
+            React$o.createElement("path", { className: "react-flow__minimap-mask", d: `M${x - offset},${y - offset}h${width + offset * 2}v${height + offset * 2}h${-width - offset * 2}z
         M${viewBB.x},${viewBB.y}h${viewBB.width}v${viewBB.height}h${-viewBB.width}z`, fill: maskColor, fillRule: "evenodd", stroke: maskStrokeColor, strokeWidth: maskStrokeWidth, pointerEvents: "none" }))));
 }
 MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$f(MiniMap);
 
-const React$m = await importShared('react');
-const {memo: memo$e,useState: useState$h,useEffect: useEffect$9} = React$m;
+const React$n = await importShared('react');
+const {memo: memo$e,useState: useState$i,useEffect: useEffect$a} = React$n;
 
 function PlusIcon() {
-    return (React$m.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
-        React$m.createElement("path", { d: "M32 18.133H18.133V32h-4.266V18.133H0v-4.266h13.867V0h4.266v13.867H32z" })));
+    return (React$n.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
+        React$n.createElement("path", { d: "M32 18.133H18.133V32h-4.266V18.133H0v-4.266h13.867V0h4.266v13.867H32z" })));
 }
 
 function MinusIcon() {
-    return (React$m.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 5" },
-        React$m.createElement("path", { d: "M0 0h32v4.2H0z" })));
+    return (React$n.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 5" },
+        React$n.createElement("path", { d: "M0 0h32v4.2H0z" })));
 }
 
 function FitViewIcon() {
-    return (React$m.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 30" },
-        React$m.createElement("path", { d: "M3.692 4.63c0-.53.4-.938.939-.938h5.215V0H4.708C2.13 0 0 2.054 0 4.63v5.216h3.692V4.631zM27.354 0h-5.2v3.692h5.17c.53 0 .984.4.984.939v5.215H32V4.631A4.624 4.624 0 0027.354 0zm.954 24.83c0 .532-.4.94-.939.94h-5.215v3.768h5.215c2.577 0 4.631-2.13 4.631-4.707v-5.139h-3.692v5.139zm-23.677.94c-.531 0-.939-.4-.939-.94v-5.138H0v5.139c0 2.577 2.13 4.707 4.708 4.707h5.138V25.77H4.631z" })));
+    return (React$n.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 30" },
+        React$n.createElement("path", { d: "M3.692 4.63c0-.53.4-.938.939-.938h5.215V0H4.708C2.13 0 0 2.054 0 4.63v5.216h3.692V4.631zM27.354 0h-5.2v3.692h5.17c.53 0 .984.4.984.939v5.215H32V4.631A4.624 4.624 0 0027.354 0zm.954 24.83c0 .532-.4.94-.939.94h-5.215v3.768h5.215c2.577 0 4.631-2.13 4.631-4.707v-5.139h-3.692v5.139zm-23.677.94c-.531 0-.939-.4-.939-.94v-5.138H0v5.139c0 2.577 2.13 4.707 4.708 4.707h5.138V25.77H4.631z" })));
 }
 
 function LockIcon() {
-    return (React$m.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
-        React$m.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0 8 0 4.571 3.429 4.571 7.619v3.048H3.048A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047zm4.724-13.866H7.467V7.619c0-2.59 2.133-4.724 4.723-4.724 2.591 0 4.724 2.133 4.724 4.724v3.048z" })));
+    return (React$n.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
+        React$n.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0 8 0 4.571 3.429 4.571 7.619v3.048H3.048A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047zm4.724-13.866H7.467V7.619c0-2.59 2.133-4.724 4.723-4.724 2.591 0 4.724 2.133 4.724 4.724v3.048z" })));
 }
 
 function UnlockIcon() {
-    return (React$m.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
-        React$m.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0c-4.114 1.828-1.37 2.133.305 2.438 1.676.305 4.42 2.59 4.42 5.181v3.048H3.047A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047z" })));
+    return (React$n.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
+        React$n.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0c-4.114 1.828-1.37 2.133.305 2.438 1.676.305 4.42 2.59 4.42 5.181v3.048H3.047A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047z" })));
 }
 
-const ControlButton = ({ children, className, ...rest }) => (React$m.createElement("button", { type: "button", className: cc(['react-flow__controls-button', className]), ...rest }, children));
+const ControlButton = ({ children, className, ...rest }) => (React$n.createElement("button", { type: "button", className: cc(['react-flow__controls-button', className]), ...rest }, children));
 ControlButton.displayName = 'ControlButton';
 
 const selector$1 = (s) => ({
@@ -7868,10 +7868,10 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$h(false);
+    const [isVisible, setIsVisible] = useState$i(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$9(() => {
+    useEffect$a(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7897,22 +7897,22 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
         });
         onInteractiveChange?.(!isInteractive);
     };
-    return (React$m.createElement(Panel, { className: cc(['react-flow__controls', className]), position: position, style: style, "data-testid": "rf__controls" },
-        showZoom && (React$m.createElement(React$m.Fragment, null,
-            React$m.createElement(ControlButton, { onClick: onZoomInHandler, className: "react-flow__controls-zoomin", title: "zoom in", "aria-label": "zoom in", disabled: maxZoomReached },
-                React$m.createElement(PlusIcon, null)),
-            React$m.createElement(ControlButton, { onClick: onZoomOutHandler, className: "react-flow__controls-zoomout", title: "zoom out", "aria-label": "zoom out", disabled: minZoomReached },
-                React$m.createElement(MinusIcon, null)))),
-        showFitView && (React$m.createElement(ControlButton, { className: "react-flow__controls-fitview", onClick: onFitViewHandler, title: "fit view", "aria-label": "fit view" },
-            React$m.createElement(FitViewIcon, null))),
-        showInteractive && (React$m.createElement(ControlButton, { className: "react-flow__controls-interactive", onClick: onToggleInteractivity, title: "toggle interactivity", "aria-label": "toggle interactivity" }, isInteractive ? React$m.createElement(UnlockIcon, null) : React$m.createElement(LockIcon, null))),
+    return (React$n.createElement(Panel, { className: cc(['react-flow__controls', className]), position: position, style: style, "data-testid": "rf__controls" },
+        showZoom && (React$n.createElement(React$n.Fragment, null,
+            React$n.createElement(ControlButton, { onClick: onZoomInHandler, className: "react-flow__controls-zoomin", title: "zoom in", "aria-label": "zoom in", disabled: maxZoomReached },
+                React$n.createElement(PlusIcon, null)),
+            React$n.createElement(ControlButton, { onClick: onZoomOutHandler, className: "react-flow__controls-zoomout", title: "zoom out", "aria-label": "zoom out", disabled: minZoomReached },
+                React$n.createElement(MinusIcon, null)))),
+        showFitView && (React$n.createElement(ControlButton, { className: "react-flow__controls-fitview", onClick: onFitViewHandler, title: "fit view", "aria-label": "fit view" },
+            React$n.createElement(FitViewIcon, null))),
+        showInteractive && (React$n.createElement(ControlButton, { className: "react-flow__controls-interactive", onClick: onToggleInteractivity, title: "toggle interactivity", "aria-label": "toggle interactivity" }, isInteractive ? React$n.createElement(UnlockIcon, null) : React$n.createElement(LockIcon, null))),
         children));
 };
 Controls.displayName = 'Controls';
 var Controls$1 = memo$e(Controls);
 
-const React$l = await importShared('react');
-const {memo: memo$d,useRef: useRef$6} = React$l;
+const React$m = await importShared('react');
+const {memo: memo$d,useRef: useRef$8} = React$m;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7922,10 +7922,10 @@ var BackgroundVariant;
 })(BackgroundVariant || (BackgroundVariant = {}));
 
 function LinePattern({ color, dimensions, lineWidth }) {
-    return (React$l.createElement("path", { stroke: color, strokeWidth: lineWidth, d: `M${dimensions[0] / 2} 0 V${dimensions[1]} M0 ${dimensions[1] / 2} H${dimensions[0]}` }));
+    return (React$m.createElement("path", { stroke: color, strokeWidth: lineWidth, d: `M${dimensions[0] / 2} 0 V${dimensions[1]} M0 ${dimensions[1] / 2} H${dimensions[0]}` }));
 }
 function DotPattern({ color, radius }) {
-    return React$l.createElement("circle", { cx: radius, cy: radius, r: radius, fill: color });
+    return React$m.createElement("circle", { cx: radius, cy: radius, r: radius, fill: color });
 }
 
 const defaultColor = {
@@ -7944,7 +7944,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$6(null);
+    const ref = useRef$8(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -7957,7 +7957,7 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
     const patternOffset = isDots
         ? [scaledSize / offset, scaledSize / offset]
         : [patternDimensions[0] / offset, patternDimensions[1] / offset];
-    return (React$l.createElement("svg", { className: cc(['react-flow__background', className]), style: {
+    return (React$m.createElement("svg", { className: cc(['react-flow__background', className]), style: {
             ...style,
             position: 'absolute',
             width: '100%',
@@ -7965,54 +7965,54 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
             top: 0,
             left: 0,
         }, ref: ref, "data-testid": "rf__background" },
-        React$l.createElement("pattern", { id: patternId + id, x: transform[0] % scaledGap[0], y: transform[1] % scaledGap[1], width: scaledGap[0], height: scaledGap[1], patternUnits: "userSpaceOnUse", patternTransform: `translate(-${patternOffset[0]},-${patternOffset[1]})` }, isDots ? (React$l.createElement(DotPattern, { color: patternColor, radius: scaledSize / offset })) : (React$l.createElement(LinePattern, { dimensions: patternDimensions, color: patternColor, lineWidth: lineWidth }))),
-        React$l.createElement("rect", { x: "0", y: "0", width: "100%", height: "100%", fill: `url(#${patternId + id})` })));
+        React$m.createElement("pattern", { id: patternId + id, x: transform[0] % scaledGap[0], y: transform[1] % scaledGap[1], width: scaledGap[0], height: scaledGap[1], patternUnits: "userSpaceOnUse", patternTransform: `translate(-${patternOffset[0]},-${patternOffset[1]})` }, isDots ? (React$m.createElement(DotPattern, { color: patternColor, radius: scaledSize / offset })) : (React$m.createElement(LinePattern, { dimensions: patternDimensions, color: patternColor, lineWidth: lineWidth }))),
+        React$m.createElement("rect", { x: "0", y: "0", width: "100%", height: "100%", fill: `url(#${patternId + id})` })));
 }
 Background.displayName = 'Background';
 var Background$1 = memo$d(Background);
 
-const {useRef: useRef$5,useCallback: useCallback$8} = await importShared('react');
+const {useRef: useRef$7,useCallback: useCallback$a} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$5([]);
-  const redoStack = useRef$5([]);
-  const nodeCallbacks = useRef$5({});
-  const isUpdatingNodes = useRef$5(false);
-  const handleNodesChange = useCallback$8(
+  const undoStack = useRef$7([]);
+  const redoStack = useRef$7([]);
+  const nodeCallbacks = useRef$7({});
+  const isUpdatingNodes = useRef$7(false);
+  const handleNodesChange = useCallback$a(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
     [setNodes]
   );
-  const handleEdgesChange = useCallback$8(
+  const handleEdgesChange = useCallback$a(
     (changes) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
     },
     [setEdges]
   );
-  const pushToUndoStack = useCallback$8(() => {
+  const pushToUndoStack = useCallback$a(() => {
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
       edges: JSON.parse(JSON.stringify(edges))
     });
     redoStack.current = [];
   }, [nodes, edges]);
-  const safeSetNodes = useCallback$8(
+  const safeSetNodes = useCallback$a(
     (updater) => {
       pushToUndoStack();
       setNodes(updater);
     },
     [pushToUndoStack, setNodes]
   );
-  const safeSetEdges = useCallback$8(
+  const safeSetEdges = useCallback$a(
     (updater) => {
       pushToUndoStack();
       setEdges(updater);
     },
     [pushToUndoStack, setEdges]
   );
-  const handleNodeSelection = useCallback$8(
+  const handleNodeSelection = useCallback$a(
     (nodeId) => {
       if (isUpdatingNodes.current) return;
       isUpdatingNodes.current = true;
@@ -8029,7 +8029,7 @@ function useFlowNodes() {
     },
     [setNodes]
   );
-  const getNodeCallbacks = useCallback$8(
+  const getNodeCallbacks = useCallback$a(
     (nodeId, nodeType) => {
       if (nodeCallbacks.current[nodeId]) {
         return nodeCallbacks.current[nodeId];
@@ -8237,7 +8237,7 @@ function useFlowNodes() {
     },
     [handleNodeSelection, safeSetNodes]
   );
-  const onNodesDelete = useCallback$8(
+  const onNodesDelete = useCallback$a(
     (nodesToDelete) => {
       if (!nodesToDelete || nodesToDelete.length === 0) return;
       const nodeIdsToDelete = nodesToDelete.map((node) => node.id);
@@ -8318,14 +8318,14 @@ function useFlowNodes() {
       getOutgoers
     ]
   );
-  const deleteSelectedNodes = useCallback$8(
+  const deleteSelectedNodes = useCallback$a(
     (selectedNodes) => {
       if (!selectedNodes || selectedNodes.length === 0) return;
       onNodesDelete(selectedNodes);
     },
     [onNodesDelete]
   );
-  const handleAddInputNode = useCallback$8(
+  const handleAddInputNode = useCallback$a(
     (position) => {
       const id = `input_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "customInput");
@@ -8349,7 +8349,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddAINode = useCallback$8(
+  const handleAddAINode = useCallback$a(
     (position) => {
       const id = `ai_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "aiCustomInput");
@@ -8370,7 +8370,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddBrowserExtensionOutput = useCallback$8(
+  const handleAddBrowserExtensionOutput = useCallback$a(
     (position) => {
       const id = `browserExtOut_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(
@@ -8470,7 +8470,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks, setNodes]
   );
-  const handleAddBrowserExtensionInput = useCallback$8(
+  const handleAddBrowserExtensionInput = useCallback$a(
     (position) => {
       const id = `browserExtIn_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "browserExtensionInput");
@@ -8491,7 +8491,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddNode = useCallback$8(
+  const handleAddNode = useCallback$a(
     (position) => {
       const id = `default_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "default");
@@ -8511,7 +8511,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddIfElseNode = useCallback$8(
+  const handleAddIfElseNode = useCallback$a(
     (position) => {
       const id = `ifelse_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "ifElse");
@@ -8533,7 +8533,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddHTTPNode = useCallback$8(
+  const handleAddHTTPNode = useCallback$a(
     (position) => {
       const id = `http_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "http");
@@ -8556,18 +8556,35 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddLineNode = useCallback$8(
+  const handleAddLineNode = useCallback$a(
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "line");
+      const existingLineNodes = nodes.filter((node) => node.type === "line");
+      if (existingLineNodes.length > 0) {
+        if (typeof window !== "undefined" && window.notify) {
+          window.notify({
+            message: "每個 Flow 只能有一個 Line Webhook 節點",
+            type: "warning",
+            duration: 4e3
+          });
+        }
+        console.warn(
+          "嘗試添加第二個 Line 節點被阻止，現有 Line 節點:",
+          existingLineNodes.map((n) => n.id)
+        );
+        return;
+      }
       const newNode = {
         id,
         type: "line",
         data: {
-          mode: "reply",
-          // 默認為回覆模式
-          text: "",
-          // 默認空文字
+          external_service_config_id: "",
+          // 初始為空，讓用戶選擇
+          webhook_url: "",
+          // 初始為空，需要創建後才有
+          output_handles: ["text", "image"],
+          // 固定的輸出類型
           ...nodeCallbacksObject
         },
         position: position || {
@@ -8579,7 +8596,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddKnowledgeRetrievalNode = useCallback$8(
+  const handleAddKnowledgeRetrievalNode = useCallback$a(
     (position) => {
       const id = `knowledge_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "knowledgeRetrieval");
@@ -8606,7 +8623,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEndNode = useCallback$8(
+  const handleAddEndNode = useCallback$a(
     (position) => {
       const id = `end_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "end");
@@ -8627,7 +8644,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddWebhookNode = useCallback$8(
+  const handleAddWebhookNode = useCallback$a(
     (position) => {
       const id = `webhook_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "webhook");
@@ -8648,7 +8665,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddTimerNode = useCallback$8(
+  const handleAddTimerNode = useCallback$a(
     (position) => {
       const id = `timer_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "timer");
@@ -8670,7 +8687,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEventNode = useCallback$8(
+  const handleAddEventNode = useCallback$a(
     (position) => {
       const id = `event_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "event");
@@ -8692,7 +8709,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const onConnect = useCallback$8(
+  const onConnect = useCallback$a(
     (params) => {
       const sourceHandle = params.sourceHandle || "output";
       const targetNodeId = params.target;
@@ -8894,7 +8911,7 @@ function useFlowNodes() {
     },
     [nodes, safeSetNodes, safeSetEdges, edges]
   );
-  const undo = useCallback$8(() => {
+  const undo = useCallback$a(() => {
     if (undoStack.current.length === 0) return;
     redoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -8904,7 +8921,7 @@ function useFlowNodes() {
     setNodes(prev.nodes);
     setEdges(prev.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const redo = useCallback$8(() => {
+  const redo = useCallback$a(() => {
     if (redoStack.current.length === 0) return;
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -8914,7 +8931,7 @@ function useFlowNodes() {
     setNodes(next.nodes);
     setEdges(next.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const updateNodeLabel = useCallback$8(
+  const updateNodeLabel = useCallback$a(
     (id, label) => {
       safeSetNodes(
         (nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, label } } : n)
@@ -8922,11 +8939,12 @@ function useFlowNodes() {
     },
     [safeSetNodes]
   );
-  const updateNodeFunctions = useCallback$8(() => {
+  const updateNodeFunctions = useCallback$a(() => {
     const updatedNodes = [...nodes];
     let hasChanges = false;
-    console.log("開始檢查並更新所有節點的回調函數...");
+    console.log("開始檢查並更新所有節點的回調函數...", nodes);
     nodes.forEach((node, index) => {
+      console.log(node.type, node.id, node.data);
       const nodeId = node.id;
       const nodeType = node.type;
       let missingCallbacks = false;
@@ -8936,6 +8954,14 @@ function useFlowNodes() {
           break;
         case "browserExtensionInput":
           missingCallbacks = !node.data.addItem || !node.data.updateItemName || !node.data.onSelect;
+          break;
+        case "line":
+          missingCallbacks = !node.data.updateNodeData || !node.data.onSelect;
+          console.log(`Line 節點 ${nodeId} 回調檢查:`, {
+            hasUpdateNodeData: !!node.data.updateNodeData,
+            hasOnSelect: !!node.data.onSelect,
+            missingCallbacks
+          });
           break;
         default:
           missingCallbacks = !node.data.onSelect || !node.data.updateNodeData;
@@ -8996,7 +9022,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a72a1d3ffdb361333c077c59fde820b44b9b774d", "VITE_APP_BUILD_TIME": "2025-05-22T07:06:50.991Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.98"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9947d66cebf47d8ba16c6ceb820ecb0b108b4eb5", "VITE_APP_BUILD_TIME": "2025-05-27T05:33:00.407Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9064,6 +9090,8 @@ const browserNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20view
 
 const knowledgeNode = "/agent-editor/assets/icn-knowledge-BSj19GCR.svg";
 
+const lineWebhookNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206a6%206%200%200%201%206-6h20a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6z'%20fill='%23F5F5F5'/%3e%3cg%20clip-path='url(%23eoinu5f72a)'%3e%3cpath%20d='M29%2016c0-7.18-5.82-13-13-13S3%208.82%203%2016s5.82%2013%2013%2013%2013-5.82%2013-13z'%20fill='%2306C755'/%3e%3cpath%20d='M24.521%2014.658c0-3.871-3.877-7.02-8.643-7.02-4.766%200-8.643%203.149-8.643%207.02%200%203.47%203.078%206.378%207.228%206.926.282.061.665.186.761.427.068.255.078.523.029.783l-.124.74c-.038.219-.174.855.748.467.922-.389%204.977-2.934%206.79-5.024%201.254-1.375%201.854-2.773%201.854-4.319z'%20fill='%23fff'/%3e%3cpath%20d='M21.599%2016.855h-2.385a.159.159%200%200%201-.159-.159v-3.699a.159.159%200%200%201%20.16-.159h2.384a.159.159%200%200%201%20.159.16v.6a.16.16%200%200%201-.16.16h-1.62v.624h1.619a.159.159%200%200%201%20.159.159v.607a.159.159%200%200%201-.159.16h-1.62v.624h1.62a.159.159%200%200%201%20.159.159v.602a.159.159%200%200%201-.159.164l.002-.002zM12.66%2016.858a.159.159%200%200%200%20.16-.16v-.6a.16.16%200%200%200-.16-.16h-1.618v-2.94a.159.159%200%200%200-.16-.159h-.603a.16.16%200%200%200-.113.047.159.159%200%200%200-.046.112v3.697a.159.159%200%200%200%20.159.16h2.384l-.002.003zM13.83%2012.831a.462.462%200%200%200-.463.463v3.1a.463.463%200%201%200%20.925%200v-3.1a.462.462%200%200%200-.463-.463zM18.263%2012.831h-.601a.159.159%200%200%200-.16.16v2.197L15.81%2012.9a.099.099%200%200%200-.014-.016l-.01-.01-.008-.007h-.005l-.009-.006h-.004l-.01-.005h-.673a.158.158%200%200%200-.159.159v3.701a.159.159%200%200%200%20.16.159h.601a.159.159%200%200%200%20.159-.159v-2.22l1.695%202.29c.011.015.025.03.042.04l.01.007h.004l.008.004h.024a.193.193%200%200%200%20.043.005h.598a.159.159%200%200%200%20.159-.159v-3.69a.158.158%200%200%200-.159-.162z'%20fill='%2306C755'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='eoinu5f72a'%3e%3cpath%20fill='%23fff'%20transform='translate(3%203)'%20d='M0%200h26v26H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
+
 await importShared('react');
 const iconMap = {
   input: {
@@ -9081,6 +9109,10 @@ const iconMap = {
   knowledge: {
     src: knowledgeNode,
     alt: "Knowledge Icon"
+  },
+  line: {
+    src: lineWebhookNode,
+    alt: "Line Icon"
   }
 };
 const IconBase = ({ type, className = "" }) => {
@@ -9121,16 +9153,34 @@ const IconBase = ({ type, className = "" }) => {
 
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
-const React$k = await importShared('react');
-const {useState: useState$g} = React$k;
-const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
-  const [searchTerm, setSearchTerm] = useState$g("");
+const React$l = await importShared('react');
+const {useState: useState$h} = React$l;
+const NodeSidebar = ({
+  handleButtonClick,
+  onDragStart: customDragStart,
+  nodes = []
+}) => {
+  const [searchTerm, setSearchTerm] = useState$h("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
   const filterNodes = (label) => {
     if (!searchTerm) return true;
     return label.toLowerCase().includes(searchTerm.toLowerCase());
+  };
+  const hasLineNode = nodes.some((node) => node.type === "line");
+  const handleNodeClick = (nodeType) => {
+    if (nodeType === "line" && hasLineNode) {
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "每個 Flow 只能有一個 Line Webhook 節點",
+          type: "warning",
+          duration: 4e3
+        });
+      }
+      return;
+    }
+    handleButtonClick(nodeType);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-64 bg-white p-4 shadow-md h-full overflow-y-auto", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mb-3", children: [
@@ -9184,7 +9234,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "input" }) }),
           label: "Input",
-          onClick: () => handleButtonClick("input"),
+          onClick: () => handleNodeClick("input"),
           nodeType: "input",
           onDragStart: customDragStart
         }
@@ -9194,7 +9244,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
           label: "AI",
-          onClick: () => handleButtonClick("ai"),
+          onClick: () => handleNodeClick("ai"),
           nodeType: "ai",
           onDragStart: customDragStart
         }
@@ -9204,7 +9254,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
           label: "Browser Extension input",
-          onClick: () => handleButtonClick("browser extension input"),
+          onClick: () => handleNodeClick("browser extension input"),
           nodeType: "browser extension input",
           onDragStart: customDragStart
         }
@@ -9214,7 +9264,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
           label: "Browser Extension output",
-          onClick: () => handleButtonClick("browser extension output"),
+          onClick: () => handleNodeClick("browser extension output"),
           nodeType: "browser extension output",
           onDragStart: customDragStart
         }
@@ -9224,17 +9274,42 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
           label: "Knowledge Retrieval",
-          onClick: () => handleButtonClick("knowledge retrieval"),
+          onClick: () => handleNodeClick("knowledge retrieval"),
           nodeType: "knowledge retrieval",
           onDragStart: customDragStart
+        }
+      ),
+      filterNodes("line") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NodeItem,
+        {
+          color: "green",
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
+          label: "LINE",
+          onClick: () => handleNodeClick("line"),
+          nodeType: "line",
+          onDragStart: customDragStart,
+          disabled: hasLineNode,
+          disabledReason: hasLineNode ? "每個 Flow 只能有一個 Line Webhook 節點" : null
         }
       )
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
   ] });
 };
-const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
+const NodeItem = ({
+  icon,
+  label,
+  onClick,
+  nodeType,
+  onDragStart,
+  disabled = false,
+  disabledReason = null
+}) => {
   const handleDragStart = (event) => {
+    if (disabled) {
+      event.preventDefault();
+      return;
+    }
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
     if (onDragStart) {
@@ -9244,47 +9319,75 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
   const handleDragEnd = (event) => {
     event.currentTarget.classList.remove("dragging");
   };
+  const handleClick = () => {
+    if (disabled) {
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: disabledReason || "此節點類型已被禁用",
+          type: "warning",
+          duration: 3e3
+        });
+      }
+      return;
+    }
+    onClick();
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "node-item border flex items-center justify-between p-2 rounded-lg cursor-grab hover:bg-gray-50 transition-colors",
-      onClick,
-      draggable: true,
+      className: `node-item border flex items-center justify-between p-2 rounded-lg transition-colors ${disabled ? "opacity-50 cursor-not-allowed bg-gray-100" : "cursor-grab hover:bg-gray-50"}`,
+      onClick: handleClick,
+      draggable: !disabled,
       onDragStart: handleDragStart,
       onDragEnd: handleDragEnd,
       "data-node-type": nodeType,
+      title: disabled ? disabledReason : label,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center", children: icon }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 leading-none font-bold", children: label })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: `text-sm leading-none font-bold ${disabled ? "text-gray-400" : "text-gray-700"}`,
+              children: label
+            }
+          )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-400 hover:text-gray-600 ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
-            className: "flex items-center justify-center",
-            style: {
-              width: "16px",
-              height: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            },
+            className: `ml-2 ${disabled ? "text-gray-300" : "text-gray-400 hover:text-gray-600"}`,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "img",
+              "div",
               {
-                src: dragIcon,
-                width: 16,
-                height: 16,
-                className: "max-w-full max-h-full object-contain",
+                className: "flex items-center justify-center",
                 style: {
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  objectFit: "contain"
-                }
+                  width: "16px",
+                  height: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    src: dragIcon,
+                    width: 16,
+                    height: 16,
+                    className: "max-w-full max-h-full object-contain",
+                    style: {
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                      opacity: disabled ? 0.3 : 1
+                      // 禁用時降低透明度
+                    }
+                  }
+                )
               }
             )
           }
-        ) })
+        )
       ]
     }
   );
@@ -9294,10 +9397,10 @@ const workflowIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20vie
 
 const pencilIcon = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23fff'%20fill-opacity='.01'%20d='M0%200h16v16H0z'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M12.644%201.223a.533.533%200%200%200-.754%200L3.962%209.15c-.096.096-.173.21-.226.334l-1.56%203.64a.533.533%200%200%200%20.7.7l3.64-1.56c.124-.053.238-.13.334-.226l7.927-7.928a.533.533%200%200%200%200-.754l-2.133-2.133zM4.716%209.904l7.55-7.55%201.38%201.38-7.55%207.55-1.596.683-.467-.468.683-1.595z'%20fill='%231C2024'/%3e%3c/svg%3e";
 
-const React$j = await importShared('react');
-const {useState: useState$f} = React$j;
+const React$k = await importShared('react');
+const {useState: useState$g} = React$k;
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$f(true);
+  const [isEditing, setIsEditing] = useState$g(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -9385,11 +9488,11 @@ const APAAssistant = ({ title, onTitleChange }) => {
   ] }) }) });
 };
 
-const React$i = await importShared('react');
-const {memo: memo$c,useCallback: useCallback$7} = React$i;
+const React$j = await importShared('react');
+const {memo: memo$c,useCallback: useCallback$9} = React$j;
 
 const NodeWrapper = ({ children, selected, onClick }) => {
-  const handleClick = useCallback$7(
+  const handleClick = useCallback$9(
     (e) => {
       e.stopPropagation();
       if (typeof onClick === "function") {
@@ -9416,14 +9519,14 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 };
 const NodeWrapper$1 = memo$c(NodeWrapper);
 
-const React$h = await importShared('react');
-const {memo: memo$b,useCallback: useCallback$6,useEffect: useEffect$8,useState: useState$e,useRef: useRef$4} = React$h;
+const React$i = await importShared('react');
+const {memo: memo$b,useCallback: useCallback$8,useEffect: useEffect$9,useState: useState$f,useRef: useRef$6} = React$i;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
-    const nodeRef = useRef$4(null);
-    const [isInputFocused, setIsInputFocused] = useState$e(false);
-    const handleNodeClick = useCallback$6(
+    const nodeRef = useRef$6(null);
+    const [isInputFocused, setIsInputFocused] = useState$f(false);
+    const handleNodeClick = useCallback$8(
       (e) => {
         e.stopPropagation();
         if (data && typeof data.onSelect === "function") {
@@ -9432,7 +9535,7 @@ const withNodeSelection = (WrappedComponent) => {
       },
       [data]
     );
-    useEffect$8(() => {
+    useEffect$9(() => {
       const handleFocus = (e) => {
         const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
         if (isInput) {
@@ -9506,25 +9609,28 @@ function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }
 
-const React$g = await importShared('react');
-const {useRef: useRef$3,useEffect: useEffect$7,useState: useState$d} = React$g;
+const React$h = await importShared('react');
+const {useRef: useRef$5,useEffect: useEffect$8,useState: useState$e} = React$h;
 
 const AutoResizeTextarea = ({
   value,
   onChange,
+  onCompositionStart,
+  onCompositionEnd,
+  onKeyDown,
   placeholder,
   className,
   ...props
 }) => {
-  const textareaRef = useRef$3(null);
-  const [isFocused, setIsFocused] = useState$d(false);
-  useEffect$7(() => {
+  const textareaRef = useRef$5(null);
+  const [isFocused, setIsFocused] = useState$e(false);
+  useEffect$8(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${Math.max(textarea.scrollHeight, 60)}px`;
   }, [value]);
-  useEffect$7(() => {
+  useEffect$8(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleFocus = () => {
@@ -9548,7 +9654,7 @@ const AutoResizeTextarea = ({
       textarea.removeEventListener("mousedown", handleMouseDown);
     };
   }, []);
-  useEffect$7(() => {
+  useEffect$8(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleWheelCapture = (e) => {
@@ -9588,7 +9694,7 @@ const AutoResizeTextarea = ({
       });
     };
   }, [isFocused]);
-  useEffect$7(() => {
+  useEffect$8(() => {
     if (isFocused) {
       const findReactFlowNode = (element) => {
         let current = element;
@@ -9610,12 +9716,39 @@ const AutoResizeTextarea = ({
       };
     }
   }, [isFocused]);
+  const handleChange = (e) => {
+    console.log(`AutoResizeTextarea onChange: "${e.target.value}"`);
+    if (onChange) {
+      onChange(e);
+    }
+  };
+  const handleCompositionStart = (e) => {
+    console.log("AutoResizeTextarea: composition start");
+    if (onCompositionStart) {
+      onCompositionStart(e);
+    }
+  };
+  const handleCompositionEnd = (e) => {
+    console.log("AutoResizeTextarea: composition end");
+    if (onCompositionEnd) {
+      onCompositionEnd(e);
+    }
+  };
+  const handleKeyDown = (e) => {
+    console.log(`AutoResizeTextarea keyDown: ${e.key}`);
+    if (onKeyDown) {
+      onKeyDown(e);
+    }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "textarea",
     {
       ref: textareaRef,
       value,
-      onChange,
+      onChange: handleChange,
+      onCompositionStart: handleCompositionStart,
+      onCompositionEnd: handleCompositionEnd,
+      onKeyDown: handleKeyDown,
       placeholder,
       rows: 1,
       className: `
@@ -9637,12 +9770,19 @@ const AutoResizeTextarea = ({
   );
 };
 
-const React$f = await importShared('react');
-const {memo: memo$a,useReducer,useCallback: useCallback$5,useState: useState$c,useEffect: useEffect$6} = React$f;
+const React$g = await importShared('react');
+const {memo: memo$a,useReducer,useCallback: useCallback$7,useState: useState$d,useEffect: useEffect$7,useRef: useRef$4} = React$g;
 const CustomInputNode = ({ data, isConnectable, id }) => {
-  const [localFields, setLocalFields] = useState$c([]);
+  const [localFields, setLocalFields] = useState$d([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  useEffect$6(() => {
+  const isComposingInputNameRef = useRef$4(false);
+  const isComposingDefaultValueRef = useRef$4(false);
+  const isUserInputInputNameRef = useRef$4(false);
+  const isUserInputDefaultValueRef = useRef$4(false);
+  const updateTimeoutRef = useRef$4({});
+  const lastExternalInputNameRef = useRef$4("");
+  const lastExternalDefaultValueRef = useRef$4("");
+  useEffect$7(() => {
     if (Array.isArray(data.fields)) {
       const fieldToUse = data.fields.length > 0 ? [data.fields[0]] : [
         {
@@ -9650,24 +9790,49 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
           defaultValue: "Summary the input text"
         }
       ];
-      setLocalFields(fieldToUse);
+      const currentField = localFields[0];
+      const newField = fieldToUse[0];
+      console.log("CustomInputNode 數據同步檢查:", {
+        "current inputName": currentField?.inputName,
+        "new inputName": newField?.inputName,
+        "current defaultValue": currentField?.defaultValue,
+        "new defaultValue": newField?.defaultValue,
+        isUserInputInputName: isUserInputInputNameRef.current,
+        isUserInputDefaultValue: isUserInputDefaultValueRef.current
+      });
+      let shouldUpdate = false;
+      if (!isUserInputInputNameRef.current && newField.inputName !== lastExternalInputNameRef.current) {
+        lastExternalInputNameRef.current = newField.inputName;
+        shouldUpdate = true;
+      }
+      if (!isUserInputDefaultValueRef.current && newField.defaultValue !== lastExternalDefaultValueRef.current) {
+        lastExternalDefaultValueRef.current = newField.defaultValue;
+        shouldUpdate = true;
+      }
+      if (shouldUpdate || localFields.length === 0) {
+        setLocalFields(fieldToUse);
+      }
     } else {
-      setLocalFields([
+      const defaultFields = [
         {
           inputName: "input_name",
           defaultValue: "Summary the input text"
         }
-      ]);
+      ];
+      setLocalFields(defaultFields);
+      lastExternalInputNameRef.current = "input_name";
+      lastExternalDefaultValueRef.current = "Summary the input text";
     }
-  }, [data.fields]);
-  const handleUpdateFieldInputName = useCallback$5(
-    (index, value) => {
-      console.log("更新欄位名稱", {
-        hasUpdateField: typeof data.updateFieldInputName === "function",
-        index,
-        value,
-        nodeId: id
+  }, [data.fields, localFields]);
+  useEffect$7(() => {
+    return () => {
+      Object.values(updateTimeoutRef.current).forEach((timeout) => {
+        if (timeout) clearTimeout(timeout);
       });
+    };
+  }, []);
+  const handleUpdateFieldInputName = useCallback$7(
+    (index, value) => {
       if (typeof data.updateFieldInputName === "function") {
         data.updateFieldInputName(index, value);
       } else {
@@ -9690,20 +9855,11 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
-  const handleUpdateFieldDefaultValue = useCallback$5(
+  const handleUpdateFieldDefaultValue = useCallback$7(
     (index, value) => {
-      console.log("更新欄位默認值", {
-        hasUpdateDefaultValue: typeof data.updateFieldDefaultValue === "function",
-        index,
-        value,
-        nodeId: id
-      });
       if (typeof data.updateFieldDefaultValue === "function") {
         data.updateFieldDefaultValue(index, value);
       } else {
-        console.warn(
-          `節點 ${id}: updateFieldDefaultValue 函數未定義，使用本地實現`
-        );
         const updatedFields = [...localFields];
         if (index >= 0 && index < updatedFields.length) {
           updatedFields[index] = {
@@ -9720,6 +9876,126 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
+  const debouncedUpdate = useCallback$7(
+    (updateFunction, index, value, fieldType) => {
+      const timeoutKey = `${fieldType}_${index}`;
+      if (updateTimeoutRef.current[timeoutKey]) {
+        clearTimeout(updateTimeoutRef.current[timeoutKey]);
+      }
+      updateTimeoutRef.current[timeoutKey] = setTimeout(() => {
+        updateFunction(index, value);
+        setTimeout(() => {
+          if (fieldType === "inputName") {
+            isUserInputInputNameRef.current = false;
+          } else if (fieldType === "defaultValue") {
+            isUserInputDefaultValueRef.current = false;
+          }
+        }, 100);
+      }, 150);
+    },
+    []
+  );
+  const handleInputNameChange = useCallback$7(
+    (e) => {
+      const value = e.target.value;
+      isUserInputInputNameRef.current = true;
+      const updatedFields = [...localFields];
+      if (updatedFields.length > 0) {
+        updatedFields[0] = {
+          ...updatedFields[0],
+          inputName: value
+        };
+        setLocalFields(updatedFields);
+        lastExternalInputNameRef.current = value;
+      }
+      if (!isComposingInputNameRef.current) {
+        debouncedUpdate(handleUpdateFieldInputName, 0, value, "inputName");
+      }
+    },
+    [localFields, handleUpdateFieldInputName, debouncedUpdate]
+  );
+  const handleDefaultValueChange = useCallback$7(
+    (e) => {
+      const value = e.target.value;
+      isUserInputDefaultValueRef.current = true;
+      const updatedFields = [...localFields];
+      if (updatedFields.length > 0) {
+        updatedFields[0] = {
+          ...updatedFields[0],
+          defaultValue: value
+        };
+        setLocalFields(updatedFields);
+        lastExternalDefaultValueRef.current = value;
+      }
+      if (!isComposingDefaultValueRef.current) {
+        debouncedUpdate(
+          handleUpdateFieldDefaultValue,
+          0,
+          value,
+          "defaultValue"
+        );
+      }
+    },
+    [localFields, handleUpdateFieldDefaultValue, debouncedUpdate]
+  );
+  const handleInputNameCompositionStart = useCallback$7(() => {
+    isComposingInputNameRef.current = true;
+    isUserInputInputNameRef.current = true;
+    const timeoutKey = "inputName_0";
+    if (updateTimeoutRef.current[timeoutKey]) {
+      clearTimeout(updateTimeoutRef.current[timeoutKey]);
+      updateTimeoutRef.current[timeoutKey] = null;
+    }
+  }, []);
+  const handleDefaultValueCompositionStart = useCallback$7(() => {
+    isComposingDefaultValueRef.current = true;
+    isUserInputDefaultValueRef.current = true;
+    const timeoutKey = "defaultValue_0";
+    if (updateTimeoutRef.current[timeoutKey]) {
+      clearTimeout(updateTimeoutRef.current[timeoutKey]);
+      updateTimeoutRef.current[timeoutKey] = null;
+    }
+  }, []);
+  const handleInputNameCompositionEnd = useCallback$7(
+    (e) => {
+      isComposingInputNameRef.current = false;
+      const finalValue = e.target.value;
+      lastExternalInputNameRef.current = finalValue;
+      handleUpdateFieldInputName(0, finalValue);
+      setTimeout(() => {
+        isUserInputInputNameRef.current = false;
+      }, 200);
+    },
+    [handleUpdateFieldInputName]
+  );
+  const handleDefaultValueCompositionEnd = useCallback$7(
+    (e) => {
+      isComposingDefaultValueRef.current = false;
+      const finalValue = e.target.value;
+      lastExternalDefaultValueRef.current = finalValue;
+      handleUpdateFieldDefaultValue(0, finalValue);
+      setTimeout(() => {
+        isUserInputDefaultValueRef.current = false;
+      }, 200);
+    },
+    [handleUpdateFieldDefaultValue]
+  );
+  const handleInputNameKeyDown = useCallback$7((e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      isUserInputInputNameRef.current = true;
+      setTimeout(() => {
+        isUserInputInputNameRef.current = false;
+      }, 300);
+    }
+  }, []);
+  const handleDefaultValueKeyDown = useCallback$7((e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      isUserInputDefaultValueRef.current = true;
+      setTimeout(() => {
+        isUserInputDefaultValueRef.current = false;
+      }, 300);
+    }
+  }, []);
   const fields = Array.isArray(localFields) && localFields.length > 0 ? localFields : Array.isArray(data.fields) ? data.fields : [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-64 relative", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 rounded-t-lg p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
@@ -9739,7 +10015,10 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
               className: "w-full border border-gray-300 rounded p-2 text-sm",
               placeholder: "AI node prompt",
               value: fields[0].inputName || "",
-              onChange: (e) => handleUpdateFieldInputName(0, e.target.value)
+              onChange: handleInputNameChange,
+              onCompositionStart: handleInputNameCompositionStart,
+              onCompositionEnd: handleInputNameCompositionEnd,
+              onKeyDown: handleInputNameKeyDown
             }
           )
         ] }),
@@ -9749,7 +10028,10 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
             AutoResizeTextarea,
             {
               value: fields[0].defaultValue || "",
-              onChange: (e) => handleUpdateFieldDefaultValue(0, e.target.value),
+              onChange: handleDefaultValueChange,
+              onCompositionStart: handleDefaultValueCompositionStart,
+              onCompositionEnd: handleDefaultValueCompositionEnd,
+              onKeyDown: handleDefaultValueKeyDown,
               placeholder: "Summary the input text"
             }
           )
@@ -9802,7 +10084,7 @@ class TokenService {
 
   initToken() {
     try {
-      const storedToken = localStorage.getItem('api_token');
+      const storedToken = localStorage.getItem('access_token');
       if (storedToken) {
         this.token = storedToken;
         console.log('已從 localStorage 載入 API Token');
@@ -9821,7 +10103,7 @@ class TokenService {
 
     try {
       const storage = storageType === 'session' ? sessionStorage : localStorage;
-      storage.setItem('api_token', token);
+      storage.setItem('access_token', token);
     } catch (error) {
       console.error('保存 token 到 localStorage 失敗:', error);
     }
@@ -9835,10 +10117,10 @@ class TokenService {
     // 嘗試獲取 token
     if (!this.token) {
       // 優先檢查 sessionStorage
-      this.token = sessionStorage.getItem('api_token');
+      this.token = sessionStorage.getItem('access_token');
       // 如果 sessionStorage 中沒有，檢查 localStorage
       if (!this.token) {
-        this.token = localStorage.getItem('api_token');
+        this.token = localStorage.getItem('access_token');
       }
     }
 
@@ -9973,7 +10255,7 @@ class WorkflowMappingService {
       case 'timer':
         return '計時器';
       case 'line':
-        return 'LINE 訊息';
+        return 'LINE Webhook';
       case 'event':
         return '事件處理';
       default:
@@ -10583,6 +10865,28 @@ class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
+      case 'line':
+        // Line Webhook 節點輸出多種訊息類型
+        if (
+          node.data.output_handles &&
+          Array.isArray(node.data.output_handles)
+        ) {
+          node.data.output_handles.forEach((handleType) => {
+            nodeOutput[handleType] = {
+              node_id: node.id,
+              type: 'string'
+            };
+          });
+        } else {
+          // 預設輸出類型
+          ['text', 'image'].forEach((handleType) => {
+            nodeOutput[handleType] = {
+              node_id: node.id,
+              type: 'string'
+            };
+          });
+        }
+        break;
       case 'browserExtensionOutput':
         // Add a single output for the browser extension output node
         nodeOutput.output = {
@@ -11165,6 +11469,374 @@ class LLMService {
 }
 
 /**
+ * 外部服務配置管理 - 處理與外部服務（LINE、WHATSAPP等）相關的API請求
+ */
+class ExternalService {
+  constructor() {
+    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
+
+    // 服務配置相關緩存
+    this.servicesCache = new Map(); // 使用Map來儲存不同service_type的緩存
+    this.lastFetchTimes = new Map(); // 記錄每個service_type的最後獲取時間
+    this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
+    this.pendingRequests = new Map(); // 用於追蹤進行中的請求
+
+    // 支援的服務類型
+    this.supportedServiceTypes = ['LINE', 'WHATSAPP'];
+  }
+
+  /**
+   * 創建新的Webhook
+   * @param {string} flowId - 工作流ID
+   */
+  async createWebhook(flowId) {
+    try {
+      console.log(`創建新的Webhook，工作流ID: ${flowId}`);
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+
+      const response = await fetch(
+        `${this.baseUrl}/external_service/webhook/${flowId}`,
+        options
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Webhook創建成功:', data);
+      return data;
+    } catch (error) {
+      console.error('創建Webhook失敗:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 獲取指定類型的外部服務配置
+   * @param {string} serviceType - 服務類型 (LINE, WHATSAPP等)
+   * @returns {Promise<Array>} 服務配置列表
+   */
+  async getExternalServiceConfigs(serviceType) {
+    try {
+      // 驗證服務類型
+      if (!serviceType || typeof serviceType !== 'string') {
+        throw new Error('服務類型不能為空且必須是字符串');
+      }
+
+      const upperServiceType = serviceType.toUpperCase();
+
+      // 檢查是否有有效的快取
+      const now = Date.now();
+      const cacheKey = upperServiceType;
+
+      if (
+        this.servicesCache.has(cacheKey) &&
+        this.lastFetchTimes.has(cacheKey) &&
+        now - this.lastFetchTimes.get(cacheKey) < this.cacheExpiryTime
+      ) {
+        console.log(`使用快取的${upperServiceType}服務配置列表`);
+        return this.servicesCache.get(cacheKey);
+      }
+
+      // 如果已經有一個請求在進行中，則返回該請求
+      if (this.pendingRequests.has(cacheKey)) {
+        console.log(
+          `已有進行中的${upperServiceType}服務配置請求，使用相同請求`
+        );
+        return this.pendingRequests.get(cacheKey);
+      }
+
+      // 創建新請求
+      console.log(`獲取${upperServiceType}服務配置列表...`);
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+
+      const request = fetch(
+        `${this.baseUrl}/agent_designer/external_service_configs/${upperServiceType}`
+        // options
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(`API返回原始${upperServiceType}服務配置數據:`, data);
+
+          // 檢查數據是否為數組
+          if (!Array.isArray(data)) {
+            console.warn(`API返回的${upperServiceType}服務配置數據不是陣列`);
+            // 嘗試從可能的非數組格式中提取數據
+            if (
+              data &&
+              typeof data === 'object' &&
+              data.configs &&
+              Array.isArray(data.configs)
+            ) {
+              data = data.configs;
+              console.log(`從API回應中提取configs陣列:`, data);
+            } else {
+              // 如果無法提取合理的數據，則返回空陣列
+              console.warn(
+                `無法從API回應中提取合理的${upperServiceType}服務配置數據，返回空陣列`
+              );
+              data = [];
+            }
+          }
+
+          // 檢查每個服務配置對象，確保結構正確
+          const processedData = data
+            .map((config, index) => {
+              if (!config || typeof config !== 'object') {
+                console.warn(
+                  `${upperServiceType}服務配置 ${index} 無效，跳過該項目`
+                );
+                return null;
+              }
+
+              // 確保服務配置有ID
+              if (config.id === undefined || config.id === null) {
+                console.warn(
+                  `${upperServiceType}服務配置 ${index} 缺少ID，使用索引作為ID`
+                );
+                config.id = index + 1;
+              }
+
+              // 確保服務配置有名稱
+              if (!config.name) {
+                console.warn(
+                  `${upperServiceType}服務配置 ${index} 缺少名稱，使用預設名稱`
+                );
+                config.name = `${upperServiceType} Config ${config.id}`;
+              }
+
+              // 確保服務類型正確
+              if (!config.service_type) {
+                config.service_type = upperServiceType;
+              }
+
+              return config;
+            })
+            .filter((config) => config !== null); // 過濾掉無效的配置
+
+          console.log(
+            `處理後的${upperServiceType}服務配置數據:`,
+            processedData
+          );
+
+          // 更新快取
+          this.servicesCache.set(cacheKey, processedData);
+          this.lastFetchTimes.set(cacheKey, now);
+          this.pendingRequests.delete(cacheKey); // 清除進行中的請求
+
+          return processedData;
+        })
+        .catch((error) => {
+          console.error(`獲取${upperServiceType}服務配置失敗:`, error);
+          this.pendingRequests.delete(cacheKey); // 清除進行中的請求，即使出錯
+
+          // 檢查是否為 CORS 錯誤或網路錯誤
+          if (
+            error.message &&
+            (error.message.includes('NetworkError') ||
+              error.message.includes('Failed to fetch') ||
+              error.message.includes('CORS'))
+          ) {
+            console.log(
+              `疑似 CORS 或網路問題，返回空的${upperServiceType}服務配置列表`
+            );
+            return [];
+          }
+
+          // 返回空陣列，而不是拋出錯誤
+          return [];
+        });
+
+      this.pendingRequests.set(cacheKey, request);
+      return request;
+    } catch (error) {
+      console.error(`獲取${serviceType}服務配置過程中出錯:`, error);
+      const cacheKey = serviceType.toUpperCase();
+      this.pendingRequests.delete(cacheKey);
+
+      // 返回空陣列，而不是拋出錯誤
+      return [];
+    }
+  }
+
+  /**
+   * 獲取格式化後的外部服務配置選項，適用於下拉選單
+   * @param {string} serviceType - 服務類型
+   * @returns {Promise<Array>} 格式化的服務配置選項
+   */
+  async getServiceConfigOptions(serviceType) {
+    try {
+      const configs = await this.getExternalServiceConfigs(serviceType);
+      console.log(`${serviceType}服務配置數據:`, configs);
+
+      // 檢查服務配置數據是否有效
+      if (!configs || !Array.isArray(configs)) {
+        console.warn(`${serviceType}服務配置數據無效或不是陣列，返回空選項`);
+        return [];
+      }
+
+      if (configs.length === 0) {
+        console.warn(`API返回的${serviceType}服務配置陣列為空`);
+        return [];
+      }
+
+      // 將API返回的服務配置數據轉換為select選項格式
+      const options = configs
+        .map((config, index) => {
+          // 確保服務配置對象存在
+          if (!config) {
+            console.warn(
+              `遇到無效的${serviceType}服務配置數據，索引: ${index}`
+            );
+            return null;
+          }
+
+          // 記錄每個服務配置的關鍵屬性
+          console.log(`處理${serviceType}服務配置 ${index}:`, {
+            id: config.id,
+            name: config.name,
+            service_type: config.service_type,
+            description: config.description
+          });
+
+          // 取得 ID，確保是字串型別
+          const configId =
+            config.id !== undefined && config.id !== null
+              ? config.id.toString()
+              : `${index + 1}`;
+
+          // 取得顯示名稱
+          const displayLabel =
+            config.name || `${serviceType} Config ${configId}`;
+
+          // 取得描述
+          const description = config.description || '';
+
+          return {
+            value: configId,
+            label: displayLabel,
+            description: description,
+            serviceType: config.service_type || serviceType.toUpperCase(),
+            config: config.config || {},
+            updatedAt: config.updated_at,
+            userId: config.user_id
+          };
+        })
+        .filter((option) => option !== null); // 過濾掉無效的選項
+
+      console.log(`最終格式化的${serviceType}選項:`, options);
+      return options;
+    } catch (error) {
+      console.error(`獲取${serviceType}服務配置選項失敗:`, error);
+      // 返回空陣列，以防API失敗
+      return [];
+    }
+  }
+
+  /**
+   * 獲取所有支援的服務類型的配置
+   * @returns {Promise<Object>} 所有服務類型的配置對象
+   */
+  async getAllServiceConfigs() {
+    try {
+      const allConfigs = {};
+
+      // 並行獲取所有支援的服務類型配置
+      const promises = this.supportedServiceTypes.map(async (serviceType) => {
+        try {
+          const configs = await this.getExternalServiceConfigs(serviceType);
+          allConfigs[serviceType] = configs;
+        } catch (error) {
+          console.error(`獲取${serviceType}配置失敗:`, error);
+          allConfigs[serviceType] = [];
+        }
+      });
+
+      await Promise.all(promises);
+
+      console.log('所有服務配置:', allConfigs);
+      return allConfigs;
+    } catch (error) {
+      console.error('獲取所有服務配置失敗:', error);
+      // 返回空對象結構
+      const emptyConfigs = {};
+      this.supportedServiceTypes.forEach((type) => {
+        emptyConfigs[type] = [];
+      });
+      return emptyConfigs;
+    }
+  }
+
+  /**
+   * 清除特定服務類型的快取
+   * @param {string} serviceType - 服務類型
+   */
+  clearCache(serviceType = null) {
+    if (serviceType) {
+      const cacheKey = serviceType.toUpperCase();
+      this.servicesCache.delete(cacheKey);
+      this.lastFetchTimes.delete(cacheKey);
+      this.pendingRequests.delete(cacheKey);
+      console.log(`已清除${serviceType}的快取`);
+    } else {
+      // 清除所有快取
+      this.servicesCache.clear();
+      this.lastFetchTimes.clear();
+      this.pendingRequests.clear();
+      console.log('已清除所有外部服務配置快取');
+    }
+  }
+
+  /**
+   * 預加載所有支援的服務類型配置，通常在應用啟動時呼叫
+   */
+  preloadData() {
+    console.log('預加載所有外部服務配置');
+
+    this.supportedServiceTypes.forEach((serviceType) => {
+      this.getExternalServiceConfigs(serviceType).catch((err) => {
+        console.log(`預加載${serviceType}服務配置失敗:`, err);
+      });
+    });
+  }
+
+  /**
+   * 檢查服務類型是否被支援
+   * @param {string} serviceType - 服務類型
+   * @returns {boolean} 是否支援該服務類型
+   */
+  isSupportedServiceType(serviceType) {
+    return this.supportedServiceTypes.includes(serviceType?.toUpperCase());
+  }
+
+  /**
+   * 獲取支援的服務類型列表
+   * @returns {Array} 支援的服務類型陣列
+   */
+  getSupportedServiceTypes() {
+    return [...this.supportedServiceTypes];
+  }
+}
+
+/**
  * 更新後的工作流數據轉換器，使用共用的映射功能
  */
 class WorkflowDataConverter {
@@ -11416,6 +12088,18 @@ class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
+      case 'line':
+        console.log('處理 line 節點數據轉換:', node);
+        return {
+          ...baseData,
+          external_service_config_id:
+            node.parameters?.external_service_config_id?.data || '',
+          webhook_url: node.parameters?.webhook_url?.data || '',
+          // 從 node_output 推斷輸出 handles
+          output_handles: node.node_output
+            ? Object.keys(node.node_output).filter((key) => key !== 'node_id')
+            : ['text', 'image']
+        };
       case 'browser_extension_input':
         return {
           ...baseData,
@@ -11598,13 +12282,6 @@ class WorkflowDataConverter {
           hours: node.parameters?.hours?.data || 0,
           minutes: node.parameters?.minutes?.data || 0,
           seconds: node.parameters?.seconds?.data || 0
-        };
-
-      case 'line':
-        return {
-          ...baseData,
-          mode: node.parameters?.mode?.data || 'reply',
-          text: node.parameters?.text?.data || ''
         };
 
       case 'event':
@@ -11810,8 +12487,24 @@ class WorkflowDataConverter {
   static transformNodeDataToAPI(node) {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
-
+    console.log('=================', node);
     switch (node.type) {
+      case 'line':
+        console.log('處理 line 節點 API 轉換:', node.data);
+        // Line Webhook 節點參數
+        if (node.data.external_service_config_id) {
+          parameters.external_service_config_id = {
+            data:
+              parseInt(node.data.external_service_config_id) ||
+              node.data.external_service_config_id
+          };
+        }
+        if (node.data.webhook_url) {
+          parameters.webhook_url = {
+            data: node.data.webhook_url
+          };
+        }
+        break;
       case 'customInput':
       case 'input':
         // if (node.data.fields && node.data.fields.length > 0) {
@@ -11921,13 +12614,6 @@ class WorkflowDataConverter {
         parameters.hours = { data: node.data.hours || 0 };
         parameters.minutes = { data: node.data.minutes || 0 };
         parameters.seconds = { data: node.data.seconds || 0 };
-        break;
-
-      case 'line':
-        parameters.mode = { data: node.data.mode || 'reply' };
-        if (node.data.text !== undefined) {
-          parameters.text = { data: node.data.text };
-        }
         break;
 
       case 'event':
@@ -12093,11 +12779,13 @@ const workflowAPIService = new WorkflowAPIService();
 const llmService = new LLMService();
 // 將 IconUploadService 添加到導出
 const iconUploadService = new IconUploadService();
+// 創建單例實例
+const externalService = new ExternalService();
 
-const React$e = await importShared('react');
-const {memo: memo$9,useState: useState$b,useEffect: useEffect$5,useCallback: useCallback$4} = React$e;
+const React$f = await importShared('react');
+const {memo: memo$9,useState: useState$c,useEffect: useEffect$6,useCallback: useCallback$6,useRef: useRef$3} = React$f;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState$b([
+  const [modelOptions, setModelOptions] = useState$c([
     { value: "1", label: "O3-mini" },
     { value: "2", label: "O3-plus" },
     { value: "3", label: "O3-mega" },
@@ -12110,22 +12798,28 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const hasPromptConnection = edges.some(
     (edge) => edge.target === id && edge.targetHandle === "prompt-input"
   );
-  const [isLoadingModels, setIsLoadingModels] = useState$b(false);
-  const [modelLoadError, setModelLoadError] = useState$b(null);
-  const [localModel, setLocalModel] = useState$b(data?.model || "1");
-  const [promptText, setPromptText] = useState$b(data?.promptText || "");
-  useEffect$5(() => {
+  const [isLoadingModels, setIsLoadingModels] = useState$c(false);
+  const [modelLoadError, setModelLoadError] = useState$c(null);
+  const [localModel, setLocalModel] = useState$c(data?.model || "1");
+  const [promptText, setPromptText] = useState$c(data?.promptText || "");
+  const isComposingRef = useRef$3(false);
+  const updateTimeoutRef = useRef$3(null);
+  const lastExternalValueRef = useRef$3(data?.promptText || "");
+  const isUserInputRef = useRef$3(false);
+  useEffect$6(() => {
     console.log("AICustomInputNode 數據同步更新:", {
       "data.model": data?.model,
-      "data.promptText": data?.promptText
+      "data.promptText": data?.promptText,
+      "current promptText": promptText,
+      isUserInput: isUserInputRef.current,
+      isComposing: isComposingRef.current
     });
     if (data?.model && data.model !== localModel) {
-      console.log(`同步模型從 ${localModel} 到 ${data.model}`);
       setLocalModel(data.model);
     }
-    if (data?.promptText !== void 0 && data.promptText !== promptText) {
-      console.log(`同步 prompt 文本從 "${promptText}" 到 "${data.promptText}"`);
+    if (data?.promptText !== void 0 && data.promptText !== lastExternalValueRef.current && !isComposingRef.current && !isUserInputRef.current) {
       setPromptText(data.promptText);
+      lastExternalValueRef.current = data.promptText;
     }
   }, [data?.model, data?.promptText, localModel, promptText]);
   const loadModels = async () => {
@@ -12133,29 +12827,21 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     setIsLoadingModels(true);
     setModelLoadError(null);
     try {
-      console.log("開始加載模型列表");
       const options = await llmService.getModelOptions();
-      console.log("llmService.getModelOptions 返回結果:", options);
       if (options && options.length > 0) {
-        console.log("設置模型選項:", options);
         setModelOptions(options);
         const isCurrentModelValid = options.some(
           (opt) => opt.value === localModel
         );
-        console.log(`當前模型 ${localModel} 是否有效:`, isCurrentModelValid);
         if (!isCurrentModelValid) {
           let defaultModel = options[0].value;
           const defaultOption = options.find((opt) => opt.isDefault);
           if (defaultOption) {
             defaultModel = defaultOption.value;
-            console.log("找到默認模型:", defaultOption);
           }
-          console.log(`將模型從 ${localModel} 更新為 ${defaultModel}`);
           setLocalModel(defaultModel);
           updateParentState("model", defaultModel);
         }
-      } else {
-        console.warn("API未返回有效的模型選項或返回了空陣列");
       }
     } catch (error) {
       console.error("加載模型失敗:", error);
@@ -12166,45 +12852,87 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       setIsLoadingModels(false);
     }
   };
-  useEffect$5(() => {
+  useEffect$6(() => {
     loadModels();
   }, []);
-  const updateParentState = useCallback$4(
+  const updateParentState = useCallback$6(
     (key, value) => {
-      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
       if (data && typeof data.updateNodeData === "function") {
         data.updateNodeData(key, value);
-        console.log(`使用 updateNodeData 更新 ${key}`);
         return true;
       }
       if (data) {
         data[key] = value;
-        console.log(`直接修改 data.${key} = ${value}`);
         return true;
       }
-      console.warn(`無法更新父組件的 ${key}`);
       return false;
     },
     [data]
   );
-  const handleModelChange = useCallback$4(
+  const handleModelChange = useCallback$6(
     (e) => {
       const newModelValue = e.target.value;
-      console.log(`模型變更為ID: ${newModelValue}`);
       setLocalModel(newModelValue);
       updateParentState("model", newModelValue);
     },
     [updateParentState]
   );
-  const handlePromptTextChange = useCallback$4(
+  const handlePromptTextChange = useCallback$6(
     (e) => {
       const newText = e.target.value;
-      console.log(`Prompt 文本變更為: ${newText}`);
+      isUserInputRef.current = true;
       setPromptText(newText);
-      updateParentState("promptText", newText);
+      lastExternalValueRef.current = newText;
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      if (!isComposingRef.current) {
+        updateTimeoutRef.current = setTimeout(() => {
+          updateParentState("promptText", newText);
+          setTimeout(() => {
+            isUserInputRef.current = false;
+          }, 100);
+        }, 150);
+      }
     },
     [updateParentState]
   );
+  const handleCompositionStart = useCallback$6(() => {
+    isComposingRef.current = true;
+    isUserInputRef.current = true;
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
+    }
+  }, []);
+  const handleCompositionEnd = useCallback$6(
+    (e) => {
+      isComposingRef.current = false;
+      const finalText = e.target.value;
+      setPromptText(finalText);
+      lastExternalValueRef.current = finalText;
+      updateParentState("promptText", finalText);
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 200);
+    },
+    [updateParentState]
+  );
+  const handleKeyDown = useCallback$6((e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      isUserInputRef.current = true;
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 300);
+    }
+  }, []);
+  useEffect$6(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
@@ -12248,6 +12976,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           {
             value: promptText,
             onChange: handlePromptTextChange,
+            onCompositionStart: handleCompositionStart,
+            onCompositionEnd: handleCompositionEnd,
+            onKeyDown: handleKeyDown,
             placeholder: "輸入您的提示",
             className: "w-full border border-gray-300 rounded p-2 text-sm"
           }
@@ -12274,7 +13005,6 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           height: "12px",
           left: "-6px",
           top: "70%",
-          // 調整位置到 prompt 文本區域附近
           transform: "translateY(-50%)"
         },
         isConnectable
@@ -12293,7 +13023,6 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           height: "12px",
           left: "-6px",
           top: "92%",
-          // 調整位置到 context 標籤附近
           transform: "translateY(-50%)"
         },
         isConnectable
@@ -12352,17 +13081,17 @@ const Add = () => {
   );
 };
 
-const React$d = await importShared('react');
-const {memo: memo$8,useEffect: useEffect$4,useState: useState$a,useRef: useRef$2,useCallback: useCallback$3} = React$d;
+const React$e = await importShared('react');
+const {memo: memo$8,useEffect: useEffect$5,useState: useState$b,useRef: useRef$2,useCallback: useCallback$5} = React$e;
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
-  const [inputs, setInputs] = useState$a([]);
-  const [handleLabels, setHandleLabels] = useState$a({});
+  const [inputs, setInputs] = useState$b([]);
+  const [handleLabels, setHandleLabels] = useState$b({});
   const updateNodeInternals = useUpdateNodeInternals();
   const initAttempts = useRef$2(0);
   const nodeId = id || "unknown";
   const isUpdating = useRef$2(false);
   const handleHeight = 40;
-  const getNodeHeight = useCallback$3(() => {
+  const getNodeHeight = useCallback$5(() => {
     const headerHeight = 50;
     const buttonAreaHeight = 48;
     const textAreaHeight = 40;
@@ -12380,7 +13109,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
     return handleId;
   };
-  const loadLabelsFromNodeInput = useCallback$3(() => {
+  const loadLabelsFromNodeInput = useCallback$5(() => {
     if (!data.node_input) return {};
     const labels = {};
     Object.entries(data.node_input).forEach(([key, value]) => {
@@ -12393,7 +13122,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     });
     return labels;
   }, [data.node_input]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (isUpdating.current) return;
     isUpdating.current = true;
     initAttempts.current += 1;
@@ -12508,7 +13237,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       isUpdating.current = false;
     }, 200);
   }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (inputs.length > 0) {
       console.log(`inputs 更新為 ${inputs.length} 個 handle，更新內部結構`);
       setTimeout(() => {
@@ -12520,7 +13249,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }, 50);
     }
   }, [inputs, nodeId, updateNodeInternals]);
-  const connectionInfo = useCallback$3(() => {
+  const connectionInfo = useCallback$5(() => {
     const totalConnections2 = edges.filter((edge) => edge.target === id).length;
     const connectionsPerHandle2 = {};
     inputs.forEach((input) => {
@@ -12532,7 +13261,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     });
     return { totalConnections: totalConnections2, connectionsPerHandle: connectionsPerHandle2 };
   }, [edges, id, inputs]);
-  const handleAddOutput = useCallback$3(() => {
+  const handleAddOutput = useCallback$5(() => {
     let maxIndex = -1;
     inputs.forEach((input) => {
       if (input.id && input.id.startsWith("output")) {
@@ -12578,7 +13307,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
     }
   }, [inputs, data, nodeId]);
-  const handleLabelChange = useCallback$3(
+  const handleLabelChange = useCallback$5(
     (handleId, newLabel) => {
       setHandleLabels((prev) => {
         if (prev[handleId] === newLabel) return prev;
@@ -12676,7 +13405,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             top: `${topPosition + 14}px`,
             border: connectionCount > 0 ? "1px solid #D3D3D3" : "1px dashed #A0A0A0"
           };
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$d.Fragment, { children: [
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$e.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Handle$1,
               {
@@ -12762,15 +13491,15 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 };
 const BrowserExtensionOutputNode$1 = memo$8(BrowserExtensionOutputNode);
 
-const React$c = await importShared('react');
-const {memo: memo$7,useState: useState$9,useEffect: useEffect$3,useCallback: useCallback$2,useRef: useRef$1} = React$c;
+const React$d = await importShared('react');
+const {memo: memo$7,useState: useState$a,useEffect: useEffect$4,useCallback: useCallback$4,useRef: useRef$1} = React$d;
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
-  const [localItems, setLocalItems] = useState$9(data?.items || []);
-  const [isUploading, setIsUploading] = useState$9(false);
-  const [uploadError, setUploadError] = useState$9(null);
+  const [localItems, setLocalItems] = useState$a(data?.items || []);
+  const [isUploading, setIsUploading] = useState$a(false);
+  const [uploadError, setUploadError] = useState$a(null);
   const fileInputRef = useRef$1(null);
   const activeItemRef = useRef$1(null);
-  useEffect$3(() => {
+  useEffect$4(() => {
     console.log("BrowserExtensionInputNode 數據同步檢查:", {
       "data.items": data?.items,
       localItems,
@@ -12781,7 +13510,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       setLocalItems([...data.items]);
     }
   }, [data?.items]);
-  const updateParentState = useCallback$2(
+  const updateParentState = useCallback$4(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=`, value);
       if (key === "items" && data && typeof data.updateItems === "function") {
@@ -12801,14 +13530,14 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleIconClick = useCallback$2((index) => {
+  const handleIconClick = useCallback$4((index) => {
     console.log(`點擊項目 ${index} 的圖標，準備上傳新圖標`);
     activeItemRef.current = index;
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   }, []);
-  const handleFileSelect = useCallback$2(
+  const handleFileSelect = useCallback$4(
     async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -12837,7 +13566,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems]
   );
-  const getIconComponent = useCallback$2(
+  const getIconComponent = useCallback$4(
     (iconValue, index) => {
       if (iconUploadService.isIconUrl(iconValue)) {
         return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -12893,7 +13622,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [handleIconClick]
   );
-  const handleIconChange = useCallback$2(
+  const handleIconChange = useCallback$4(
     (index, iconValue) => {
       console.log(`更新項目 ${index} 的圖標為`, iconValue);
       if (index < 0 || index >= localItems.length) {
@@ -12908,7 +13637,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems, updateParentState]
   );
-  const handleNameChange = useCallback$2(
+  const handleNameChange = useCallback$4(
     (index, value) => {
       console.log(`修改項目 ${index} 的名稱為 "${value}"`);
       console.log("當前 items:", localItems);
@@ -12930,7 +13659,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localItems, updateParentState]
   );
-  const handleAddItem = useCallback$2(() => {
+  const handleAddItem = useCallback$4(() => {
     console.log("添加新項目");
     if (typeof data?.addItem === "function") {
       console.log("使用 addItem 回調函數");
@@ -12943,13 +13672,13 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     setLocalItems(updatedItems);
     updateParentState("items", updatedItems);
   }, [data, localItems, updateParentState]);
-  const calculateHandlePosition = useCallback$2((index) => {
+  const calculateHandlePosition = useCallback$4((index) => {
     const headerHeight = 46;
     const contentPadding = 16;
     const itemHeight = 140;
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
   }, []);
-  const getOutputKey = useCallback$2((item, index) => {
+  const getOutputKey = useCallback$4((item, index) => {
     return item.id || `a${index + 1}`;
   }, []);
   const items = Array.isArray(localItems) && localItems.length > 0 ? localItems : Array.isArray(data?.items) ? data.items : [];
@@ -13047,8 +13776,8 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
 };
 const BrowserExtensionInputNode$1 = memo$7(BrowserExtensionInputNode);
 
-const React$b = await importShared('react');
-const {memo: memo$6} = React$b;
+const React$c = await importShared('react');
+const {memo: memo$6} = React$c;
 const IfElseNode = ({ data, isConnectable }) => {
   const operators = [
     { value: "equals", label: "[Text] Equals" },
@@ -13163,12 +13892,12 @@ const IfElseNode = ({ data, isConnectable }) => {
 };
 const IfElseNode$1 = memo$6(IfElseNode);
 
-const React$a = await importShared('react');
-const {memo: memo$5,useState: useState$8,useEffect: useEffect$2,useCallback: useCallback$1} = React$a;
+const React$b = await importShared('react');
+const {memo: memo$5,useState: useState$9,useEffect: useEffect$3,useCallback: useCallback$3} = React$b;
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [isLoadingFiles, setIsLoadingFiles] = useState$8(false);
-  const [fileLoadError, setFileLoadError] = useState$8(null);
-  const [dataFiles, setDataFiles] = useState$8(
+  const [isLoadingFiles, setIsLoadingFiles] = useState$9(false);
+  const [fileLoadError, setFileLoadError] = useState$9(null);
+  const [dataFiles, setDataFiles] = useState$9(
     data?.availableFiles || [
       {
         id: "icdcode",
@@ -13184,11 +13913,11 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       }
     ]
   );
-  const [localSelectedFile, setLocalSelectedFile] = useState$8(
+  const [localSelectedFile, setLocalSelectedFile] = useState$9(
     data?.selectedFile || ""
   );
-  const [topK, setTopK] = useState$8(data?.topK || 5);
-  const updateParentState = useCallback$1(
+  const [topK, setTopK] = useState$9(data?.topK || 5);
+  const updateParentState = useCallback$3(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=${value}`);
       if (data && typeof data.updateNodeData === "function") {
@@ -13206,7 +13935,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleFileSelect = useCallback$1(
+  const handleFileSelect = useCallback$3(
     (event) => {
       const fileId = event.target.value;
       console.log(`選擇文件: ${fileId}`);
@@ -13215,10 +13944,10 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const getCurrentSelectedFile = useCallback$1(() => {
+  const getCurrentSelectedFile = useCallback$3(() => {
     return data?.selectedFile || localSelectedFile;
   }, [data?.selectedFile, localSelectedFile]);
-  const loadFiles = useCallback$1(async () => {
+  const loadFiles = useCallback$3(async () => {
     if (isLoadingFiles) return;
     console.log("開始加載文件列表...");
     setIsLoadingFiles(true);
@@ -13247,7 +13976,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       setIsLoadingFiles(false);
     }
   }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
-  useEffect$2(() => {
+  useEffect$3(() => {
     console.log("監測 data.selectedFile 變更：", {
       "data.selectedFile": data?.selectedFile,
       localSelectedFile,
@@ -13263,7 +13992,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       setTopK(data.topK);
     }
   }, [data?.selectedFile, data?.topK, localSelectedFile, topK, id]);
-  useEffect$2(() => {
+  useEffect$3(() => {
     loadFiles();
     console.log("KnowledgeRetrievalNode 初始化狀態:", {
       "node.id": id,
@@ -13282,7 +14011,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     dataFiles.length,
     loadFiles
   ]);
-  const handleReloadFiles = useCallback$1(() => {
+  const handleReloadFiles = useCallback$3(() => {
     if (dataFiles.length <= 2 || fileLoadError) {
       loadFiles();
     }
@@ -13383,8 +14112,8 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
 };
 const KnowledgeRetrievalNode$1 = memo$5(KnowledgeRetrievalNode);
 
-const React$9 = await importShared('react');
-const {memo: memo$4} = React$9;
+const React$a = await importShared('react');
+const {memo: memo$4} = React$a;
 const EndNode = ({ data, isConnectable }) => {
   const handleFieldChange = (field, value) => {
     if (data.updateNodeData) {
@@ -13463,13 +14192,13 @@ const EndNode = ({ data, isConnectable }) => {
 };
 const EndNode$1 = memo$4(EndNode);
 
-const React$8 = await importShared('react');
-const {memo: memo$3,useState: useState$7} = React$8;
+const React$9 = await importShared('react');
+const {memo: memo$3,useState: useState$8} = React$9;
 const WebhookNode = ({ data, isConnectable }) => {
-  const [showInput, setShowInput] = useState$7(false);
-  const [tempUrl, setTempUrl] = useState$7("");
-  const [showCopyAlert, setShowCopyAlert] = useState$7(false);
-  const [isEditing, setIsEditing] = useState$7(false);
+  const [showInput, setShowInput] = useState$8(false);
+  const [tempUrl, setTempUrl] = useState$8("");
+  const [showCopyAlert, setShowCopyAlert] = useState$8(false);
+  const [isEditing, setIsEditing] = useState$8(false);
   const handleCreateWebhook = () => {
     setShowInput(true);
   };
@@ -13672,8 +14401,8 @@ const WebhookNode = ({ data, isConnectable }) => {
 };
 const WebhookNode$1 = memo$3(WebhookNode);
 
-const React$7 = await importShared('react');
-const {memo: memo$2} = React$7;
+const React$8 = await importShared('react');
+const {memo: memo$2} = React$8;
 const HTTPNode = ({ data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-red-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
@@ -13763,99 +14492,385 @@ const HTTPNode = ({ data, isConnectable }) => {
 };
 const HTTPNode$1 = memo$2(HTTPNode);
 
-const React$6 = await importShared('react');
-const {memo: memo$1,useState: useState$6} = React$6;
-const LineNode = ({ data, isConnectable }) => {
-  const [mode, setMode] = useState$6(data.mode || "reply");
-  const handleModeChange = (newMode) => {
-    setMode(newMode);
-    if (data.updateNodeData) {
-      data.updateNodeData("mode", newMode);
+const React$7 = await importShared('react');
+const {memo: memo$1,useState: useState$7,useEffect: useEffect$2,useCallback: useCallback$2} = React$7;
+const LineNode = ({ data, isConnectable, id }) => {
+  const [selectedConfigId, setSelectedConfigId] = useState$7(
+    data?.external_service_config_id || ""
+  );
+  const [serviceConfigs, setServiceConfigs] = useState$7([]);
+  const [configLoadError, setConfigLoadError] = useState$7(null);
+  const [isLoadingConfigs, setIsLoadingConfigs] = useState$7(false);
+  const [webhookUrl, setWebhookUrl] = useState$7("https://example.com/webhook");
+  const [isCreatingWebhook, setIsCreatingWebhook] = useState$7(false);
+  const outputHandles = ["text", "image"];
+  const updateParentState = useCallback$2(
+    (key, value) => {
+      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData(key, value);
+        console.log(`使用 updateNodeData 更新 ${key}`);
+        return true;
+      }
+      if (data) {
+        data[key] = value;
+        console.log(`直接修改 data.${key} = ${value}`);
+        return true;
+      }
+      console.warn(`無法更新父組件的 ${key}`);
+      return false;
+    },
+    [data]
+  );
+  const loadServiceConfigs = useCallback$2(async () => {
+    if (isLoadingConfigs) return;
+    setIsLoadingConfigs(true);
+    setConfigLoadError(null);
+    try {
+      console.log("開始載入 LINE 服務配置...");
+      const configs = await externalService.getServiceConfigOptions("LINE");
+      console.log("載入的 LINE 服務配置:", configs);
+      if (configs && configs.length > 0) {
+        setServiceConfigs(configs);
+        const currentConfigId = data?.external_service_config_id || selectedConfigId;
+        if (currentConfigId && !configs.some((config) => config.value === currentConfigId.toString())) {
+          console.log(`當前配置 ${currentConfigId} 不在選項列表中，清空選擇`);
+          setSelectedConfigId("");
+          updateParentState("external_service_config_id", "");
+        } else if (currentConfigId) {
+          console.log(`保持當前配置: ${currentConfigId}`);
+          setSelectedConfigId(currentConfigId.toString());
+        }
+      } else {
+        console.warn("未獲取到 LINE 服務配置或配置列表為空");
+        setServiceConfigs([]);
+      }
+    } catch (error) {
+      console.error("載入 LINE 服務配置失敗:", error);
+      if (error.message && (error.message.includes("已有進行中的") || error.message.includes("進行中的請求") || error.message.includes("使用相同請求"))) {
+        console.log("正在等待其他相同請求完成...");
+      } else {
+        setConfigLoadError("無法載入服務配置，請稍後再試");
+        if (typeof window !== "undefined" && window.notify) {
+          window.notify({
+            message: "載入 LINE 服務配置失敗",
+            type: "error",
+            duration: 3e3
+          });
+        }
+      }
+    } finally {
+      setIsLoadingConfigs(false);
     }
-  };
-  const handleTextChange = (value) => {
-    if (data.updateNodeData) {
-      data.updateNodeData("text", value);
+  }, [
+    isLoadingConfigs,
+    data?.external_service_config_id,
+    selectedConfigId,
+    updateParentState
+  ]);
+  useEffect$2(() => {
+    loadServiceConfigs();
+  }, [loadServiceConfigs]);
+  useEffect$2(() => {
+    console.log("LineNode 數據同步更新:", {
+      "data.external_service_config_id": data?.external_service_config_id,
+      "data.webhook_url": data?.webhook_url,
+      selectedConfigId,
+      webhookUrl
+    });
+    if (data?.external_service_config_id !== void 0 && data.external_service_config_id !== selectedConfigId) {
+      console.log(
+        `同步配置ID從 ${selectedConfigId} 到 ${data.external_service_config_id}`
+      );
+      setSelectedConfigId(data.external_service_config_id);
     }
+    if (data?.webhook_url !== void 0 && data.webhook_url !== webhookUrl) {
+      console.log(
+        `同步 webhook URL 從 "${webhookUrl}" 到 "${data.webhook_url}"`
+      );
+      setWebhookUrl(data.webhook_url);
+    }
+  }, [
+    data?.external_service_config_id,
+    data?.webhook_url,
+    selectedConfigId,
+    webhookUrl
+  ]);
+  const handleConfigChange = useCallback$2(
+    (configId) => {
+      console.log(`配置變更為ID: ${configId}`);
+      setSelectedConfigId(configId);
+      updateParentState("external_service_config_id", configId);
+    },
+    [updateParentState]
+  );
+  const copyToClipboard = useCallback$2(async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "URL 已複製到剪貼板",
+          type: "success",
+          duration: 2e3
+        });
+      }
+    } catch (error) {
+      console.error("複製失敗:", error);
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "複製失敗",
+          type: "error",
+          duration: 3e3
+        });
+      }
+    }
+  }, []);
+  const createWebhook = useCallback$2(
+    async (flowId) => {
+      setIsCreatingWebhook(true);
+      try {
+        const result = await externalService.createWebhook(flowId);
+        const url = result.webhook_url || result.url;
+        if (url) {
+          setWebhookUrl(url);
+          if (data?.updateNodeData && typeof data.updateNodeData === "function") {
+            data.updateNodeData("webhook_url", url);
+            console.log("已將 webhook URL 更新到節點數據:", url);
+          } else {
+            console.warn("updateNodeData 不可用，無法保存 webhook URL");
+          }
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: "Webhook URL 創建成功",
+              type: "success",
+              duration: 3e3
+            });
+          }
+        } else {
+          throw new Error("後端未返回有效的 webhook URL");
+        }
+      } catch (error) {
+        console.error("創建 webhook 失敗:", error);
+        if (typeof window !== "undefined" && window.notify) {
+          window.notify({
+            message: "創建 webhook 失敗",
+            type: "error",
+            duration: 3e3
+          });
+        }
+      } finally {
+        setIsCreatingWebhook(false);
+      }
+    },
+    [selectedConfigId, data]
+  );
+  const handleCreateWebhook = useCallback$2(async () => {
+    console.log("handleCreateWebhook 被調用");
+    const flowId = data?.flowId || window.currentFlowId || data?.flow_id || localStorage.getItem("current_flow_id");
+    console.log("檢查到的 flowId:", flowId);
+    if (!flowId) {
+      console.log("沒有 flow_id，需要先保存流程");
+      const event = new CustomEvent("requestSaveFlow", {
+        detail: {
+          nodeId: id,
+          callback: (savedFlowId) => {
+            if (savedFlowId) {
+              createWebhook(savedFlowId);
+            }
+          }
+        }
+      });
+      window.dispatchEvent(event);
+      return;
+    }
+    console.log("已有 flow_id，直接創建 webhook");
+    await createWebhook(flowId);
+  }, [data, createWebhook, id]);
+  const calculateLabelWidth = (text) => {
+    const baseWidth = 24;
+    const charWidth = 8;
+    return baseWidth + text.length * charWidth;
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Line" })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: `flex-1 py-2 text-center ${mode === "reply" ? "bg-green-50 text-green-600 font-medium border-b-2 border-green-600" : "text-gray-500 border-b border-gray-300"}`,
-            onClick: () => handleModeChange("reply"),
-            children: "Reply"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: `flex-1 py-2 text-center ${mode === "push" ? "bg-green-50 text-green-600 font-medium border-b-2 border-green-600" : "text-gray-500 border-b border-gray-300"}`,
-            onClick: () => handleModeChange("push"),
-            children: "Push"
-          }
-        )
+  const getHandleColor = (handleType) => {
+    const colors = {
+      line: "#D3D3D3",
+      // emerald-500
+      node: "#00ced1"
+      // blue-500
+    };
+    return colors[handleType] || "#00ced1";
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-80", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Line Webhook" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: mode === "reply" ? "Reply Text" : "Push Text" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-medium", children: "連結密鑰" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: "w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8",
+                value: selectedConfigId,
+                onChange: (e) => handleConfigChange(e.target.value),
+                disabled: isLoadingConfigs,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: isLoadingConfigs ? "載入中..." : "選擇連結密鑰" }),
+                  serviceConfigs.map((config) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "option",
+                    {
+                      value: config.value,
+                      children: config.label
+                    },
+                    config.value
+                  ))
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "svg",
+              {
+                className: "w-4 h-4 fill-current text-gray-500",
+                viewBox: "0 0 20 20",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" })
+              }
+            ) })
+          ] })
+        ] }),
+        !webhookUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
           {
-            type: "text",
-            className: "w-full border border-gray-300 rounded p-2 text-sm",
-            placeholder: mode === "reply" ? "Reply message text" : "Push message text",
-            value: data.text || "",
-            onChange: (e) => handleTextChange(e.target.value)
+            className: "w-full bg-cyan-500 hover:bg-cyan-600 text-white rounded-md p-3 font-medium disabled:opacity-50 disabled:cursor-not-allowed",
+            onClick: handleCreateWebhook,
+            disabled: isCreatingWebhook,
+            children: isCreatingWebhook ? "創建中..." : "Create a webhook"
           }
-        )
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-medium", children: "URL:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: webhookUrl,
+                readOnly: true,
+                className: "flex-1 border border-gray-300 rounded p-2 text-sm bg-gray-50"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => copyToClipboard(webhookUrl),
+                className: "bg-cyan-500 hover:bg-cyan-600 text-white p-2 rounded",
+                title: "複製 URL",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "svg",
+                  {
+                    className: "w-4 h-4",
+                    fill: "none",
+                    stroke: "currentColor",
+                    viewBox: "0 0 24 24",
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "path",
+                      {
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        strokeWidth: 2,
+                        d: "M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a1 1 0 011 1v3M9 12l2 2 4-4"
+                      }
+                    )
+                  }
+                )
+              }
+            )
+          ] })
+        ] }) })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Handle$1,
+    webhookUrl && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 ml-2 space-y-2 pointer-events-none", children: outputHandles.map((handleType) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
       {
-        type: "target",
-        position: Position.Left,
-        id: "input",
-        style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          left: "-4px"
+        className: "flex items-center mb-4",
+        style: { pointerEvents: "none" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "w-3 h-3 rounded-full",
+              style: {
+                background: "#e5e7eb",
+                border: "1px solid #D3D3D3",
+                transform: "translateX(-6px)"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "w-4 h-0.5",
+              style: {
+                backgroundColor: getHandleColor("line"),
+                transform: "translateX(-6px)"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none",
+              style: {
+                backgroundColor: getHandleColor("node"),
+                transform: "translateX(-6px)"
+              },
+              children: handleType
+            }
+          )
+        ]
+      },
+      handleType
+    )) }),
+    webhookUrl && outputHandles.map((handleType, index) => {
+      const labelWidth = calculateLabelWidth(handleType);
+      const totalWidth = labelWidth + 8;
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Handle$1,
+        {
+          type: "source",
+          position: Position.Right,
+          id: handleType,
+          style: {
+            background: "transparent",
+            border: "none",
+            width: `${totalWidth}px`,
+            // 動態計算的寬度
+            height: "32px",
+            // 增加高度確保覆蓋
+            right: `-${totalWidth + 6}px`,
+            // 調整定位，讓圓點對齊節點邊緣
+            top: `calc(50% + ${(index - (outputHandles.length - 1) / 2) * 40}px)`,
+            // 更精確的垂直分佈
+            transform: "translateY(-50%)",
+            cursor: "crosshair",
+            zIndex: 10
+          },
+          isConnectable
         },
-        isConnectable
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Handle$1,
-      {
-        type: "source",
-        position: Position.Right,
-        id: "output",
-        style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          right: "-4px"
-        },
-        isConnectable
-      }
-    )
+        handleType
+      );
+    })
   ] });
 };
 const LineNode$1 = memo$1(LineNode);
 
-const React$5 = await importShared('react');
-const {memo,useState: useState$5} = React$5;
+const React$6 = await importShared('react');
+const {memo,useState: useState$6} = React$6;
 const TimerNode = ({ data, isConnectable }) => {
-  const [hours, setHours] = useState$5(data.hours || 0);
-  const [minutes, setMinutes] = useState$5(data.minutes || 0);
-  const [seconds, setSeconds] = useState$5(data.seconds || 0);
+  const [hours, setHours] = useState$6(data.hours || 0);
+  const [minutes, setMinutes] = useState$6(data.minutes || 0);
+  const [seconds, setSeconds] = useState$6(data.seconds || 0);
   const handleTimeChange = (type, value) => {
     if (value !== "" && !/^\d+$/.test(value)) return;
     let numValue = value === "" ? 0 : parseInt(value, 10);
@@ -14096,8 +15111,8 @@ const enhancedNodeTypes = {
   timer: withNodeSelection(TimerNode$1)
 };
 
-const React$4 = await importShared('react');
-const {useState: useState$4} = React$4;
+const React$5 = await importShared('react');
+const {useState: useState$5} = React$5;
 
 const SaveButton = ({
   onSave,
@@ -14106,8 +15121,8 @@ const SaveButton = ({
   flowId = "",
   disabled = false
 }) => {
-  const [saveState, setSaveState] = useState$4("");
-  const [errorMessage, setErrorMessage] = useState$4("");
+  const [saveState, setSaveState] = useState$5("");
+  const [errorMessage, setErrorMessage] = useState$5("");
   const isTitleValid = title && title.trim().length > 0;
   const isCreateMode = !flowId || flowId === "new";
   const triggerSave = async () => {
@@ -14286,8 +15301,8 @@ const SaveButton = ({
   ] });
 };
 
-const React$3 = await importShared('react');
-const {useState: useState$3} = React$3;
+const React$4 = await importShared('react');
+const {useState: useState$4} = React$4;
 
 // src/services/FileIOService.js
 
@@ -14795,15 +15810,15 @@ function CustomEdge({
   ] });
 }
 
-const React$2 = await importShared('react');
-const {useState: useState$2} = React$2;
+const React$3 = await importShared('react');
+const {useState: useState$3} = React$3;
 
 const LoadWorkflowButton = ({ onLoad }) => {
-  const [workflowId, setWorkflowId] = useState$2(
-    "8a97a194-0358-4375-ae07-283144197894"
+  const [workflowId, setWorkflowId] = useState$3(
+    "580daa17-0a94-4d9d-904d-8cc0e449c028"
   );
-  const [showInput, setShowInput] = useState$2(false);
-  const [loadState, setLoadState] = useState$2("");
+  const [showInput, setShowInput] = useState$3(false);
+  const [loadState, setLoadState] = useState$3("");
   const handleClick = () => {
     setShowInput(true);
   };
@@ -14993,8 +16008,8 @@ const LoadWorkflowButton = ({ onLoad }) => {
   ] });
 };
 
-const React$1 = await importShared('react');
-const {useEffect: useEffect$1,useState: useState$1} = React$1;
+const React$2 = await importShared('react');
+const {useEffect: useEffect$1,useState: useState$2} = React$2;
 
 class NotificationService {
   static listeners = [];
@@ -15019,7 +16034,7 @@ if (typeof window !== "undefined") {
   };
 }
 const Notification = () => {
-  const [notifications, setNotifications] = useState$1([]);
+  const [notifications, setNotifications] = useState$2([]);
   useEffect$1(() => {
     const unsubscribe = NotificationService.subscribe(
       (message, type, duration) => {
@@ -15037,14 +16052,148 @@ const Notification = () => {
   if (notifications.length === 0) {
     return null;
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-4 right-4 z-50 flex flex-col gap-2", children: notifications.map((notification) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "", children: notifications.map((notification) => /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
-      className: `px-4 py-2 rounded-md shadow-md text-white transition-all duration-300 max-w-sm ${notification.type === "error" ? "bg-red-500" : notification.type === "success" ? "bg-green-500" : notification.type === "warning" ? "bg-yellow-500" : "bg-blue-500"}`,
+      className: `absolute top-16 left-1/2 transform -translate-x-1/2 px-4 py-2  z-20 text-sm ${notification.type === "error" ? "bg-red-100 text-red-700 border border-red-200" : notification.type === "success" ? "bg-green-100 text-green-700 border border-green-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`,
       children: notification.message
     },
     notification.id
   )) });
+};
+
+const React$1 = await importShared('react');
+const {useState: useState$1,useCallback: useCallback$1} = React$1;
+
+const SaveFlowDialog = ({
+  isOpen,
+  onClose,
+  onSave,
+  title = "請先儲存您的 Flow"
+}) => {
+  const [flowName, setFlowName] = useState$1("");
+  const [isSaving, setIsSaving] = useState$1(false);
+  const handleSave = useCallback$1(async () => {
+    if (!flowName.trim()) {
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "請輸入流程名稱",
+          type: "error",
+          duration: 3e3
+        });
+      }
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await onSave(flowName);
+      setFlowName("");
+    } catch (error) {
+      console.error("保存流程失敗:", error);
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "保存流程失敗",
+          type: "error",
+          duration: 3e3
+        });
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }, [flowName, onSave]);
+  const handleClose = useCallback$1(() => {
+    if (!isSaving) {
+      setFlowName("");
+      onClose();
+    }
+  }, [isSaving, onClose]);
+  const handleKeyPress = useCallback$1(
+    (e) => {
+      if (e.key === "Enter" && !isSaving) {
+        handleSave();
+      }
+    },
+    [handleSave, isSaving]
+  );
+  if (!isOpen) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "bg-white rounded-lg p-6 w-96 max-w-[90vw] shadow-xl",
+      onClick: (e) => e.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium mb-4 text-gray-900", children: title }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 mb-4", children: "為了建立專屬 Webhook URL，請先儲存您的 Flow。" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-6", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Flow Name (流程名稱)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: flowName,
+              onChange: (e) => setFlowName(e.target.value),
+              onKeyPress: handleKeyPress,
+              className: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 disabled:bg-gray-100 disabled:cursor-not-allowed",
+              placeholder: "未命名的流程",
+              disabled: isSaving,
+              autoFocus: true
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end space-x-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: handleClose,
+              disabled: isSaving,
+              className: "px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed",
+              children: "取消"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: handleSave,
+              disabled: isSaving || !flowName.trim(),
+              className: "px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center",
+              children: [
+                isSaving && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "svg",
+                  {
+                    className: "animate-spin -ml-1 mr-2 h-4 w-4 text-white",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "circle",
+                        {
+                          className: "opacity-25",
+                          cx: "12",
+                          cy: "12",
+                          r: "10",
+                          stroke: "currentColor",
+                          strokeWidth: "4"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "path",
+                        {
+                          className: "opacity-75",
+                          fill: "currentColor",
+                          d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        }
+                      )
+                    ]
+                  }
+                ),
+                isSaving ? "保存中..." : "建立"
+              ]
+            }
+          )
+        ] })
+      ]
+    }
+  ) });
 };
 
 const React = await importShared('react');
@@ -15200,11 +16349,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     lastSaved: null,
     version: 1
   });
-  const [notification, setNotification] = useState({
-    show: false,
-    message: "",
-    type: "info"
-  });
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [saveDialogCallback, setSaveDialogCallback] = useState(null);
   const isInIframe = useMemo(() => {
     try {
       return window.self !== window.top;
@@ -15221,7 +16367,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return success;
     } catch (error) {
       console.error("無法載入工作流:", error);
-      showNotification("載入工作流失敗", "error");
+      window.notify({
+        message: "載入工作流失敗",
+        type: "error",
+        duration: 2e3
+      });
       return false;
     }
   }, []);
@@ -15249,11 +16399,19 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
           }
         }, 300);
-        showNotification("工作流載入成功", "success");
+        window.notify({
+          message: "工作流載入成功",
+          type: "success",
+          duration: 2e3
+        });
         return true;
       } catch (error) {
         console.error("載入工作流失敗:", error);
-        showNotification("載入工作流失敗", "error");
+        window.notify({
+          message: "載入工作流失敗",
+          type: "error",
+          duration: 2e3
+        });
         return false;
       }
     }
@@ -15335,12 +16493,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     },
     [onTitleChange]
   );
-  const showNotification = useCallback((message, type = "info") => {
-    setNotification({ show: true, message, type });
-    setTimeout(() => {
-      setNotification({ show: false, message: "", type: "info" });
-    }, 3e3);
-  }, []);
   const handleNodeTypeSelection = useCallback(
     (nodeType, position = null) => {
       const defaultPosition = {
@@ -15460,7 +16612,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       const result = await FileIOService.saveToFile(flowData, filename);
       if (result.success) {
         console.log(`檔案已儲存為：${result.filename}`);
-        showNotification(`已儲存到 ${result.filename}`, "success");
+        window.notify({
+          message: `已儲存到 ${result.filename}`,
+          type: "success",
+          duration: 2e3
+        });
         setFlowMetadata({
           ...flowMetadata,
           title: flowMetadata.title || "未命名流程",
@@ -15471,10 +16627,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return result;
     } catch (error) {
       console.error("儲存檔案時發生錯誤：", error);
-      showNotification("無法儲存檔案", "error");
+      window.notify({
+        message: "無法儲存檔案，請稍後再試",
+        type: "error",
+        duration: 3e3
+      });
       throw error;
     }
-  }, [nodes, edges, flowMetadata, showNotification]);
+  }, [nodes, edges, flowMetadata]);
   useCallback(async () => {
     if (!isInIframe) {
       return saveToLocalFile();
@@ -15501,24 +16661,29 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       const filename = `${safeTitle}_${date}.json`;
       const result = iframeBridge.requestDownload(flowData, filename);
       if (result) {
-        showNotification("已發送下載請求", "success");
+        window.notify({
+          message: `已發送下載請求`,
+          type: "success",
+          duration: 2e3
+        });
       } else {
-        showNotification("發送下載請求失敗", "error");
+        window.notify({
+          message: "發送下載請求失敗",
+          type: "error",
+          duration: 3e3
+        });
       }
       return { success: result };
     } catch (error) {
       console.error("準備下載數據時發生錯誤：", error);
-      showNotification("發送下載請求失敗", "error");
+      window.notify({
+        message: "無法發送下載請求，請稍後再試",
+        type: "error",
+        duration: 3e3
+      });
       throw error;
     }
-  }, [
-    nodes,
-    edges,
-    flowMetadata,
-    isInIframe,
-    saveToLocalFile,
-    showNotification
-  ]);
+  }, [nodes, edges, flowMetadata, isInIframe, saveToLocalFile]);
   const saveToServer = useCallback(async () => {
     setIsSaving(true);
     try {
@@ -15566,7 +16731,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       if (flowMetadata.id) {
         response = await workflowAPIService.updateWorkflow(apiData);
         console.log("FlowEditor: 更新流程成功", response);
-        showNotification("流程更新成功", "success");
+        window.notify({
+          message: "流程更新成功",
+          type: "success",
+          duration: 2e3
+        });
         setFlowMetadata((prev) => ({
           ...prev,
           lastSaved: (/* @__PURE__ */ new Date()).toISOString()
@@ -15600,7 +16769,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             console.error("向父頁面發送事件失敗：", error);
           }
         }
-        showNotification("流程創建成功", "success");
+        window.notify({
+          message: "流程創建成功",
+          type: "success",
+          duration: 2e3
+        });
       }
       if (flowIdToUse) {
         setTimeout(async () => {
@@ -15615,18 +16788,57 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return response;
     } catch (error) {
       console.error("FlowEditor: 儲存流程時發生錯誤：", error);
-      showNotification("儲存流程時發生錯誤", "error");
+      window.notify({
+        message: "無法儲存流程，請稍後再試",
+        type: "error",
+        duration: 3e3
+      });
       throw error;
     } finally {
       setIsSaving(false);
     }
-  }, [nodes, edges, flowMetadata, showNotification, handleLoadWorkflow]);
+  }, [nodes, edges, flowMetadata, handleLoadWorkflow]);
+  const handleDialogSave = useCallback(
+    async (flowName) => {
+      try {
+        setFlowMetadata((prev) => ({ ...prev, title: flowName }));
+        const result = await saveToServer();
+        setShowSaveDialog(false);
+        if (saveDialogCallback) {
+          const flowId = flowMetadata.id || result?.flow_id;
+          saveDialogCallback(flowId);
+          setSaveDialogCallback(null);
+        }
+        return {
+          success: true,
+          flow_id: flowMetadata.id || result?.flow_id,
+          ...result
+        };
+      } catch (error) {
+        console.error("對話框觸發的保存失敗:", error);
+        throw error;
+      }
+    },
+    [saveToServer, flowMetadata.id, saveDialogCallback]
+  );
+  const closeSaveDialog = useCallback(() => {
+    setShowSaveDialog(false);
+    setSaveDialogCallback(null);
+  }, []);
+  const showSaveFlowDialog = useCallback((callback) => {
+    setSaveDialogCallback(() => callback);
+    setShowSaveDialog(true);
+  }, []);
   useCallback(async () => {
     try {
       const result = await FileIOService.readFromFile();
       if (result.success && result.data) {
         console.log("檔案已載入：", result.filename);
-        showNotification(`已載入 ${result.filename}`, "success");
+        window.notify({
+          message: `已載入 ${result.filename}`,
+          type: "success",
+          duration: 2e3
+        });
         if (!result.data.nodes || !result.data.edges) {
           throw new Error("無效的流程檔案格式");
         }
@@ -15651,13 +16863,16 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return result;
     } catch (error) {
       console.error("載入檔案時發生錯誤：", error);
-      showNotification("無法載入檔案", "error");
+      window.notify({
+        message: "無法載入檔案",
+        type: "error",
+        duration: 3e3
+      });
       throw error;
     }
   }, [
     setFlowNodes,
     setFlowEdges,
-    showNotification,
     updateNodeFunctions,
     isInIframe,
     onTitleChange
@@ -15680,6 +16895,21 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       });
     }
   }, [initialTitle]);
+  useEffect(() => {
+    const handleSaveRequest = (event) => {
+      console.log("收到來自 Line 節點的保存請求", event.detail);
+      const { callback } = event.detail;
+      if (flowMetadata.id) {
+        callback(flowMetadata.id);
+      } else {
+        showSaveFlowDialog(callback);
+      }
+    };
+    window.addEventListener("requestSaveFlow", handleSaveRequest);
+    return () => {
+      window.removeEventListener("requestSaveFlow", handleSaveRequest);
+    };
+  }, [flowMetadata.id, showSaveFlowDialog]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       APAAssistant,
@@ -15689,13 +16919,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
-    notification.show && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: `absolute top-16 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-md z-20 text-sm ${notification.type === "error" ? "bg-red-100 text-red-700 border border-red-200" : notification.type === "success" ? "bg-green-100 text-green-700 border border-green-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`,
-        children: notification.message
-      }
-    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(ReactFlowProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
@@ -15732,7 +16955,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             NodeSidebar,
             {
               handleButtonClick: handleNodeTypeSelection,
-              onDragStart
+              onDragStart,
+              nodes
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -15795,7 +17019,16 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         "| Version: ",
         flowMetadata.version
       ] })
-    ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      SaveFlowDialog,
+      {
+        isOpen: showSaveDialog,
+        onClose: closeSaveDialog,
+        onSave: handleDialogSave,
+        title: "請先儲存您的 Flow"
+      }
+    )
   ] });
 });
 FlowEditor.displayName = "FlowEditor";
