@@ -1144,8 +1144,8 @@ video {
 .w-80 {
   width: 20rem;
 }
-.w-96 {
-  width: 24rem;
+.w-\[500px\] {
+  width: 500px;
 }
 .w-full {
   width: 100%;
@@ -1766,6 +1766,11 @@ code {
 .hover\:bg-cyan-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(8 145 178 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-gray-100:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:bg-gray-400:hover {
