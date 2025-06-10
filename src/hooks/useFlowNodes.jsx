@@ -736,7 +736,9 @@ export default function useFlowNodes() {
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, 'line');
-      const existingLineNodes = nodes.filter((node) => node.type === 'line');
+      const existingLineNodes = nodes.filter(
+        (node) => node.type === 'line_webhook_input'
+      );
       if (existingLineNodes.length > 0) {
         // 使用通知系統提示用戶
         if (typeof window !== 'undefined' && window.notify) {
@@ -756,7 +758,7 @@ export default function useFlowNodes() {
 
       const newNode = {
         id,
-        type: 'line',
+        type: 'line_webhook_input',
         data: {
           external_service_config_id: '', // 初始為空，讓用戶選擇
           webhook_url: '', // 初始為空，需要創建後才有
@@ -782,7 +784,7 @@ export default function useFlowNodes() {
 
       const newNode = {
         id,
-        type: 'message',
+        type: 'line_send_message',
         data: {
           // external_service_config_id: '', // 初始為空，讓用戶選擇
           // webhook_url: '', // 初始為空，需要創建後才有
@@ -1041,7 +1043,7 @@ export default function useFlowNodes() {
       }
 
       // 檢查源節點是否為Line Message節點
-      if (targetNode && targetNode.type === 'message') {
+      if (targetNode && targetNode.type === 'line_send_message') {
         console.log('源節點是LineMessage節點，檢查連線限制');
 
         // 檢查是否已有輸出連線

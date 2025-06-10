@@ -186,26 +186,53 @@ const LineNode = ({ data, isConnectable, id }) => {
     [selectedConfigId, updateParentState]
   );
 
-  // 複製 URL 到剪貼板
-  const copyToClipboard = useCallback(async (text) => {
+  // 如果你想要更簡潔的版本，可以使用這個：
+  const copyToClipboardSimple = useCallback(async (text) => {
     try {
-      await navigator.clipboard.writeText(text);
-      if (typeof window !== 'undefined' && window.notify) {
-        window.notify({
+      // 首先嘗試現代 API（如果可用且不在受限環境中）
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          window.notify?.({
+            message: 'URL 已複製到剪貼板',
+            type: 'success',
+            duration: 2000
+          });
+          return;
+        } catch (clipboardError) {
+          console.warn('Clipboard API 失敗，嘗試 fallback:', clipboardError);
+        }
+      }
+
+      // Fallback 到傳統方法
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.cssText =
+        'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        window.notify?.({
           message: 'URL 已複製到剪貼板',
           type: 'success',
           duration: 2000
         });
+      } else {
+        throw new Error('所有複製方法都失敗');
       }
     } catch (error) {
       console.error('複製失敗:', error);
-      if (typeof window !== 'undefined' && window.notify) {
-        window.notify({
-          message: '複製失敗',
-          type: 'error',
-          duration: 3000
-        });
-      }
+      window.notify?.({
+        message: '複製失敗，請手動複製 URL',
+        type: 'error',
+        duration: 3000
+      });
     }
   }, []);
 
@@ -387,7 +414,7 @@ const LineNode = ({ data, isConnectable, id }) => {
                   </div>
                 </div>
                 <button
-                  onClick={() => copyToClipboard(webhookUrl)}
+                  onClick={() => copyToClipboardSimple(webhookUrl)}
                   className='bg-cyan-500 hover:bg-cyan-600 text-white p-2 rounded'
                   title='複製 URL'>
                   <svg

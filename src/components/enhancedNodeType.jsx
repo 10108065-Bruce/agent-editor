@@ -23,9 +23,9 @@ const enhancedNodeTypes = {
   end: withNodeSelection(EndNode),
   webhook: withNodeSelection(WebhookNode),
   http: withNodeSelection(HTTPNode),
-  line: withNodeSelection(LineNode),
+  line_webhook_input: withNodeSelection(LineNode),
   timer: withNodeSelection(TimerNode),
-  message: withNodeSelection(LineMessageNode)
+  line_send_message: withNodeSelection(LineMessageNode)
 };
 
 export default enhancedNodeTypes;

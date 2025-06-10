@@ -449,10 +449,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'timer':
           handleAddTimerNode(nodePosition);
           break;
-        case 'line':
+        case 'line_webhook_input':
           handleAddLineNode(nodePosition);
           break;
-        case 'message':
+        case 'line_send_message':
           handleAddLineMessageNode(nodePosition);
           break;
         default:

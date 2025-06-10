@@ -4,12 +4,10 @@ import { tokenService } from './TokenService';
  * API 配置常數
  */
 const API_CONFIG = {
-  BASE_URL:
-    import.meta.env.VITE_API_BASE_URL ||
-    'https://api-dev.qoca-apa.quanta-research.com/v1',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://172.21.4.163:9000/v1',
   CREATE_WEBHOOK_URL:
     import.meta.env.VITE_CREATE_WEBHOOK_URL ||
-    'https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook/'
+    'https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook'
 };
 
 /**
@@ -35,9 +33,10 @@ class WorkflowMappingService {
       knowledge_retrieval: 'knowledge_retrieval',
       http: 'http',
       timer: 'timer',
-      line: 'line',
+      line: 'line_webhook_input',
       event: 'event',
-      end: 'end'
+      end: 'end',
+      message: 'line_send_message'
     };
     return operatorMap[type] || type;
   }
@@ -51,16 +50,16 @@ class WorkflowMappingService {
     const typeMap = {
       browser_extension_input: 'browserExtensionInput',
       browser_extension_output: 'browserExtensionOutput',
-      webhook: 'webhook',
       basic_input: 'customInput',
       ask_ai: 'aiCustomInput',
       ifElse: 'ifElse',
       knowledge_retrieval: 'knowledgeRetrieval',
       http: 'http',
       timer: 'timer',
-      line: 'line',
+      line: 'line_webhook_input',
       event: 'event',
-      end: 'end'
+      end: 'end',
+      message: 'line_send_message'
     };
     return typeMap[operator] || operator;
   }
@@ -124,9 +123,9 @@ class WorkflowMappingService {
         return 'HTTP 請求';
       case 'timer':
         return '計時器';
-      case 'line':
+      case 'line_webhook_input':
         return 'LINE Webhook';
-      case 'message':
+      case 'line_send_message':
         return 'LINE Message';
       case 'event':
         return '事件處理';
@@ -325,7 +324,7 @@ class WorkflowMappingService {
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
       const isAINode =
         targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
-      const isMessageNode = targetNode.type === 'message';
+      const isMessageNode = targetNode.type === 'line_send_message';
       // 特殊處理 AI 節點的 context-input
       if (isAINode && targetHandle.startsWith('context')) {
         // 對於 context-input，我們需要處理多個連接
@@ -758,6 +757,7 @@ class WorkflowMappingService {
 
     switch (node.type) {
       case 'line':
+      case 'line_webhook_input':
         // Line Webhook 節點輸出多種訊息類型
         if (
           node.data.output_handles &&
@@ -2025,7 +2025,7 @@ class WorkflowDataConverter {
       // 檢查節點類型
       const isAINode = node.operator === 'ask_ai';
       const isKnowledgeNode = node.operator === 'knowledge_retrieval';
-      const isMessageNode = node.operator === 'message';
+      const isMessageNode = node.operator === 'line_send_message';
 
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
@@ -2179,7 +2179,7 @@ class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
-      case 'line':
+      case 'line_webhook_input':
         console.log('處理 line 節點數據轉換:', node);
         return {
           ...baseData,
@@ -2579,6 +2579,7 @@ class WorkflowDataConverter {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
     switch (node.type) {
+      case 'line_webhook_input':
       case 'line':
         console.log('處理 line 節點 API 轉換:', node.data);
         // Line Webhook 節點參數

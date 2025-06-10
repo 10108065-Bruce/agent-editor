@@ -20,12 +20,12 @@ const NodeSidebar = ({
     return label.toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  // 檢查是否已存在 Line 節點
-  const hasLineNode = nodes.some((node) => node.type === 'line');
+  // 檢查是否已存在 line_webhook_input 節點
+  const hasLineNode = nodes.some((node) => node.type === 'line_webhook_input');
 
-  // 處理節點點擊，包含 Line 節點限制檢查
+  // 處理節點點擊，包含 line_webhook_input 節點限制檢查
   const handleNodeClick = (nodeType) => {
-    if (nodeType === 'line' && hasLineNode) {
+    if (nodeType === 'line_webhook_input' && hasLineNode) {
       // 顯示警告提示
       if (typeof window !== 'undefined' && window.notify) {
         window.notify({
@@ -157,8 +157,8 @@ const NodeSidebar = ({
               </div>
             }
             label='LINE'
-            onClick={() => handleNodeClick('line')}
-            nodeType='line'
+            onClick={() => handleNodeClick('line_webhook_input')}
+            nodeType='line_webhook_input'
             onDragStart={customDragStart}
             disabled={hasLineNode} // 新增：禁用狀態
             disabledReason={
@@ -175,8 +175,8 @@ const NodeSidebar = ({
               </div>
             }
             label='Send Message'
-            onClick={() => handleNodeClick('message')}
-            nodeType='message'
+            onClick={() => handleNodeClick('line_send_message')}
+            nodeType='line_send_message'
             onDragStart={customDragStart}
           />
         )}
