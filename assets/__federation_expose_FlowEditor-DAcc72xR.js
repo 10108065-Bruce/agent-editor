@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$q = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$h,useRef: useRef$a,useState: useState$k,useEffect: useEffect$d,forwardRef: forwardRef$1,useCallback: useCallback$c} = React$q;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$h,useRef: useRef$c,useState: useState$k,useEffect: useEffect$d,forwardRef: forwardRef$1,useCallback: useCallback$c} = React$q;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3917,7 +3917,7 @@ function Attribution({ proOptions, position = "bottom-right" }) {
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$a(null);
+  const edgeRef = useRef$c(null);
   const [edgeTextBbox, setEdgeTextBbox] = useState$k({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
   useEffect$d(() => {
@@ -5058,8 +5058,8 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
   const [keyPressed, setKeyPressed] = useState$k(false);
-  const modifierPressed = useRef$a(false);
-  const pressedKeys = useRef$a(/* @__PURE__ */ new Set([]));
+  const modifierPressed = useRef$c(false);
+  const pressedKeys = useRef$c(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5615,17 +5615,17 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$a();
+  const timerId = useRef$c();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$a(false);
-  const zoomedWithRightMouseButton = useRef$a(false);
-  const zoomPane = useRef$a(null);
-  const prevTransform = useRef$a({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$c(false);
+  const zoomedWithRightMouseButton = useRef$c(false);
+  const zoomPane = useRef$c(null);
+  const prevTransform = useRef$c({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$a(0);
-  const isPanScrolling = useRef$a(false);
-  const panScrollTimeout = useRef$a();
+  const mouseButton = useRef$c(0);
+  const isPanScrolling = useRef$c(false);
+  const panScrollTimeout = useRef$c();
   useResizeHandler(zoomPane);
   useEffect$d(() => {
     if (zoomPane.current) {
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$h(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$a(null);
+  const container = useRef$c(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$a(0);
-  const prevSelectedEdgesCount = useRef$a(0);
-  const containerBounds = useRef$a();
+  const prevSelectedNodesCount = useRef$c(0);
+  const prevSelectedEdgesCount = useRef$c(0);
+  const containerBounds = useRef$c();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6269,15 +6269,15 @@ function wrapSelectionDragFunc(selectionFunc) {
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
   const [dragging, setDragging] = useState$k(false);
-  const dragItems = useRef$a([]);
-  const lastPos = useRef$a({ x: null, y: null });
-  const autoPanId = useRef$a(0);
-  const containerBounds = useRef$a(null);
-  const mousePosition = useRef$a({ x: 0, y: 0 });
-  const dragEvent = useRef$a(null);
-  const autoPanStarted = useRef$a(false);
-  const dragStarted = useRef$a(false);
-  const abortDrag = useRef$a(false);
+  const dragItems = useRef$c([]);
+  const lastPos = useRef$c({ x: null, y: null });
+  const autoPanId = useRef$c(0);
+  const containerBounds = useRef$c(null);
+  const mousePosition = useRef$c({ x: 0, y: 0 });
+  const dragEvent = useRef$c(null);
+  const autoPanStarted = useRef$c(false);
+  const dragStarted = useRef$c(false);
+  const abortDrag = useRef$c(false);
   const getPointerPosition = useGetPointerPosition();
   useEffect$d(() => {
     if (nodeRef?.current) {
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$a(null);
-    const prevNodeRef = useRef$a(null);
-    const prevSourcePosition = useRef$a(sourcePosition);
-    const prevTargetPosition = useRef$a(targetPosition);
-    const prevType = useRef$a(type);
+    const nodeRef = useRef$c(null);
+    const prevNodeRef = useRef$c(null);
+    const prevSourcePosition = useRef$c(sourcePosition);
+    const prevTargetPosition = useRef$c(targetPosition);
+    const prevType = useRef$c(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6639,7 +6639,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$a(null);
+  const nodeRef = useRef$c(null);
   useEffect$d(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$a();
+  const resizeObserverRef = useRef$c();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6812,7 +6812,7 @@ const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMo
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$a(null);
+    const edgeRef = useRef$c(null);
     const [updateHover, setUpdateHover] = useState$k(false);
     const [updating, setUpdating] = useState$k(false);
     const store = useStoreApi();
@@ -7204,7 +7204,7 @@ function Viewport({ children }) {
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$a(false);
+  const isInitialized = useRef$c(false);
   useEffect$d(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
@@ -7298,7 +7298,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$a(null);
+  useRef$c(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7598,7 +7598,7 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$a(null);
+  const storeRef = useRef$c(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
@@ -7693,7 +7693,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$p = await importShared('react');
-const {memo: memo$g,useRef: useRef$9,useEffect: useEffect$c} = React$p;
+const {memo: memo$g,useRef: useRef$b,useEffect: useEffect$c} = React$p;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7747,7 +7747,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$9(null);
+    const svg = useRef$b(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7762,7 +7762,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$9(0);
+    const viewScaleRef = useRef$b(0);
     viewScaleRef.current = viewScale;
     useEffect$c(() => {
         if (svg.current) {
@@ -7912,7 +7912,7 @@ Controls.displayName = 'Controls';
 var Controls$1 = memo$f(Controls);
 
 const React$n = await importShared('react');
-const {memo: memo$e,useRef: useRef$8} = React$n;
+const {memo: memo$e,useRef: useRef$a} = React$n;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7944,7 +7944,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$8(null);
+    const ref = useRef$a(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -7971,14 +7971,14 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
 Background.displayName = 'Background';
 var Background$1 = memo$e(Background);
 
-const {useRef: useRef$7,useCallback: useCallback$b} = await importShared('react');
+const {useRef: useRef$9,useCallback: useCallback$b} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$7([]);
-  const redoStack = useRef$7([]);
-  const nodeCallbacks = useRef$7({});
-  const isUpdatingNodes = useRef$7(false);
+  const undoStack = useRef$9([]);
+  const redoStack = useRef$9([]);
+  const nodeCallbacks = useRef$9({});
+  const isUpdatingNodes = useRef$9(false);
   const handleNodesChange = useCallback$b(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
@@ -8745,6 +8745,7 @@ function useFlowNodes() {
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput = sourceNode && sourceNode.type === "browserExtensionInput";
       const isCustomInputNode = sourceNode && sourceNode.type === "customInput";
+      targetNode && targetNode.type === "message";
       if (isCustomInputNode) {
         console.log("源節點是CustomInputNode，檢查連線限制");
         const existingEdges = edges.filter(
@@ -8789,6 +8790,25 @@ function useFlowNodes() {
           if (typeof window !== "undefined" && window.notify) {
             window.notify({
               message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
+      if (targetNode && targetNode.type === "message") {
+        console.log("源節點是LineMessage節點，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.target === targetNodeId && edge.targetHandle === "message"
+        );
+        console.log(existingEdges, "existingEdges");
+        console.log(targetNodeId, "targetNodeId");
+        if (existingEdges.length > 0) {
+          console.log(`LineMessage節點已有輸出連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `LineMessage節點只能有一個輸出連線，請先刪除現有連線`,
               type: "error",
               duration: 3e3
             });
@@ -9044,7 +9064,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "e80489edac3cd4e7d03f95ade86823843c4f4c69", "VITE_APP_BUILD_TIME": "2025-05-28T03:22:37.332Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.8"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "e80489edac3cd4e7d03f95ade86823843c4f4c69", "VITE_APP_BUILD_TIME": "2025-06-10T02:10:21.892Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.9"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9313,7 +9333,7 @@ const NodeSidebar = ({
           disabledReason: hasLineNode ? "每個 Flow 只能有一個 Line Webhook 節點" : null
         }
       ),
-      filterNodes("message") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      filterNodes("send message") && /* @__PURE__ */ jsxRuntimeExports.jsx(
         NodeItem,
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
@@ -9551,11 +9571,11 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 const NodeWrapper$1 = memo$d(NodeWrapper);
 
 const React$j = await importShared('react');
-const {memo: memo$c,useCallback: useCallback$9,useEffect: useEffect$a,useState: useState$g,useRef: useRef$6} = React$j;
+const {memo: memo$c,useCallback: useCallback$9,useEffect: useEffect$a,useState: useState$g,useRef: useRef$8} = React$j;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
-    const nodeRef = useRef$6(null);
+    const nodeRef = useRef$8(null);
     const [isInputFocused, setIsInputFocused] = useState$g(false);
     const handleNodeClick = useCallback$9(
       (e) => {
@@ -9641,7 +9661,7 @@ function getDisplayName(WrappedComponent) {
 }
 
 const React$i = await importShared('react');
-const {useRef: useRef$5,useEffect: useEffect$9,useState: useState$f} = React$i;
+const {useRef: useRef$7,useEffect: useEffect$9,useState: useState$f} = React$i;
 
 const AutoResizeTextarea = ({
   value,
@@ -9653,7 +9673,7 @@ const AutoResizeTextarea = ({
   className,
   ...props
 }) => {
-  const textareaRef = useRef$5(null);
+  const textareaRef = useRef$7(null);
   const [isFocused, setIsFocused] = useState$f(false);
   useEffect$9(() => {
     const textarea = textareaRef.current;
@@ -9802,17 +9822,17 @@ const AutoResizeTextarea = ({
 };
 
 const React$h = await importShared('react');
-const {memo: memo$b,useReducer,useCallback: useCallback$8,useState: useState$e,useEffect: useEffect$8,useRef: useRef$4} = React$h;
+const {memo: memo$b,useReducer,useCallback: useCallback$8,useState: useState$e,useEffect: useEffect$8,useRef: useRef$6} = React$h;
 const CustomInputNode = ({ data, isConnectable, id }) => {
   const [localFields, setLocalFields] = useState$e([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  const isComposingInputNameRef = useRef$4(false);
-  const isComposingDefaultValueRef = useRef$4(false);
-  const isUserInputInputNameRef = useRef$4(false);
-  const isUserInputDefaultValueRef = useRef$4(false);
-  const updateTimeoutRef = useRef$4({});
-  const lastExternalInputNameRef = useRef$4("");
-  const lastExternalDefaultValueRef = useRef$4("");
+  const isComposingInputNameRef = useRef$6(false);
+  const isComposingDefaultValueRef = useRef$6(false);
+  const isUserInputInputNameRef = useRef$6(false);
+  const isUserInputDefaultValueRef = useRef$6(false);
+  const updateTimeoutRef = useRef$6({});
+  const lastExternalInputNameRef = useRef$6("");
+  const lastExternalDefaultValueRef = useRef$6("");
   useEffect$8(() => {
     if (Array.isArray(data.fields)) {
       const fieldToUse = data.fields.length > 0 ? [data.fields[0]] : [
@@ -10173,9 +10193,10 @@ class TokenService {
 
 const tokenService = new TokenService();
 
-/**
- * 工作流相關服務共用的基礎映射和轉換功能
- */
+const API_CONFIG = {
+  BASE_URL: "https://api-dev.qoca-apa.quanta-research.com/v1",
+  CREATE_WEBHOOK_URL: "https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook/"
+};
 class WorkflowMappingService {
   /**
    * 從 ReactFlow 類型獲取 API 操作符
@@ -10184,25 +10205,24 @@ class WorkflowMappingService {
    */
   static getOperatorFromType(type) {
     const operatorMap = {
-      browserExtensionInput: 'browser_extension_input',
-      browserExtensionOutput: 'browser_extension_output',
-      webhook: 'webhook',
-      customInput: 'basic_input',
-      input: 'basic_input',
-      aiCustomInput: 'ask_ai',
-      ai: 'ask_ai',
-      ifElse: 'ifElse',
-      knowledgeRetrieval: 'knowledge_retrieval',
-      knowledge_retrieval: 'knowledge_retrieval',
-      http: 'http',
-      timer: 'timer',
-      line: 'line',
-      event: 'event',
-      end: 'end'
+      browserExtensionInput: "browser_extension_input",
+      browserExtensionOutput: "browser_extension_output",
+      webhook: "webhook",
+      customInput: "basic_input",
+      input: "basic_input",
+      aiCustomInput: "ask_ai",
+      ai: "ask_ai",
+      ifElse: "ifElse",
+      knowledgeRetrieval: "knowledge_retrieval",
+      knowledge_retrieval: "knowledge_retrieval",
+      http: "http",
+      timer: "timer",
+      line: "line",
+      event: "event",
+      end: "end"
     };
     return operatorMap[type] || type;
   }
-
   /**
    * 從 API 操作符獲取 ReactFlow 類型
    * @param {string} operator - API 操作符類型
@@ -10210,22 +10230,21 @@ class WorkflowMappingService {
    */
   static getTypeFromOperator(operator) {
     const typeMap = {
-      browser_extension_input: 'browserExtensionInput',
-      browser_extension_output: 'browserExtensionOutput',
-      webhook: 'webhook',
-      basic_input: 'customInput',
-      ask_ai: 'aiCustomInput',
-      ifElse: 'ifElse',
-      knowledge_retrieval: 'knowledgeRetrieval',
-      http: 'http',
-      timer: 'timer',
-      line: 'line',
-      event: 'event',
-      end: 'end'
+      browser_extension_input: "browserExtensionInput",
+      browser_extension_output: "browserExtensionOutput",
+      webhook: "webhook",
+      basic_input: "customInput",
+      ask_ai: "aiCustomInput",
+      ifElse: "ifElse",
+      knowledge_retrieval: "knowledgeRetrieval",
+      http: "http",
+      timer: "timer",
+      line: "line",
+      event: "event",
+      end: "end"
     };
     return typeMap[operator] || operator;
   }
-
   /**
    * 從 ReactFlow 類型獲取 API 類別
    * @param {string} type - ReactFlow 節點類型
@@ -10233,26 +10252,25 @@ class WorkflowMappingService {
    */
   static getCategoryFromType(type) {
     const categoryMap = {
-      browserExtensionInput: 'starter',
-      browserExtInput: 'starter',
-      webhook: 'starter',
-      customInput: 'input',
-      input: 'input',
-      aiCustomInput: 'advanced',
-      ai: 'advanced',
-      knowledgeRetrieval: 'advanced',
-      knowledge_retrieval: 'advanced',
-      ifElse: 'logic',
-      http: 'integration',
-      timer: 'event',
-      line: 'integration',
-      event: 'event',
-      end: 'output',
-      browserExtensionOutput: 'output'
+      browserExtensionInput: "starter",
+      browserExtInput: "starter",
+      webhook: "starter",
+      customInput: "input",
+      input: "input",
+      aiCustomInput: "advanced",
+      ai: "advanced",
+      knowledgeRetrieval: "advanced",
+      knowledge_retrieval: "advanced",
+      ifElse: "logic",
+      http: "integration",
+      timer: "event",
+      line: "integration",
+      event: "event",
+      end: "output",
+      browserExtensionOutput: "output"
     };
-    return categoryMap[type] || 'advanced';
+    return categoryMap[type] || "advanced";
   }
-
   /**
    * 根據節點數據生成標籤
    * @param {Object} node - 節點數據
@@ -10260,42 +10278,38 @@ class WorkflowMappingService {
    */
   static getNodeLabel(node) {
     switch (node.operator) {
-      case 'browser_extension_input':
-        return '瀏覽器擴充輸入';
-      case 'browser_extension_output':
-        return '瀏覽器擴充輸出';
-      case 'ask_ai':
-        return `AI (${node.parameters?.llm_id?.data || 'GPT-4o'})`;
-      case 'basic_input': {
-        // 嘗試獲取第一個輸入欄位的名稱
-        const inputName =
-          node.parameters?.input_name_0?.data ||
-          node.parameters?.input_name?.data;
-        return inputName || '輸入';
+      case "browser_extension_input":
+        return "瀏覽器擴充輸入";
+      case "browser_extension_output":
+        return "瀏覽器擴充輸出";
+      case "ask_ai":
+        return `AI (${node.parameters?.llm_id?.data || "GPT-4o"})`;
+      case "basic_input": {
+        const inputName = node.parameters?.input_name_0?.data || node.parameters?.input_name?.data;
+        return inputName || "輸入";
       }
-      case 'ifElse':
-        return '條件判斷';
-      case 'knowledge_retrieval':
-        return '知識檢索';
-      case 'end':
-        return '結束';
-      case 'webhook':
-        return 'Webhook';
-      case 'http':
-        return 'HTTP 請求';
-      case 'timer':
-        return '計時器';
-      case 'line':
-        return 'LINE Webhook';
-      case 'message':
-        return 'LINE Message';
-      case 'event':
-        return '事件處理';
+      case "ifElse":
+        return "條件判斷";
+      case "knowledge_retrieval":
+        return "知識檢索";
+      case "end":
+        return "結束";
+      case "webhook":
+        return "Webhook";
+      case "http":
+        return "HTTP 請求";
+      case "timer":
+        return "計時器";
+      case "line":
+        return "LINE Webhook";
+      case "message":
+        return "LINE Message";
+      case "event":
+        return "事件處理";
       default:
         return node.operator;
     }
   }
-
   /**
    * 修正 extractNodeInputForAPI 方法，增加 return_name 支持
    * 從 ReactFlow 邊緣數據中提取節點輸入連接
@@ -10305,386 +10319,234 @@ class WorkflowMappingService {
    * @returns {Object} - API 格式的節點輸入
    */
   // 在 WorkflowServicesIntegration.js 中修改 extractNodeInputForAPI 方法
-
   static extractNodeInputForAPI(nodeId, edges, allNodes) {
     const nodeInput = {};
     console.log(`提取節點 ${nodeId} 的輸入連接`);
-
-    // 獲取目標節點
     const targetNode = allNodes.find((n) => n.id === nodeId);
     if (!targetNode) {
       console.warn(`找不到節點 ${nodeId}`);
       return nodeInput;
     }
-
-    // 檢查節點類型
-    const isBrowserExtensionOutput =
-      targetNode.type === 'browserExtensionOutput';
-
-    // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
-    if (
-      isBrowserExtensionOutput &&
-      targetNode.data &&
-      targetNode.data.inputHandles
-    ) {
+    const isBrowserExtensionOutput = targetNode.type === "browserExtensionOutput";
+    if (isBrowserExtensionOutput && targetNode.data && targetNode.data.inputHandles) {
       console.log(`處理 BrowserExtensionOutput 節點的所有 input handles`);
-
-      // 保存原始的 node_input 資訊
       const originalNodeInput = targetNode.data.node_input || {};
-
-      // 保存原始的 handleLabels 狀態，用於映射 handle ID
       const handleLabels = {};
-
-      // 首先檢查 node_input 中是否存在 return_name
       Object.entries(originalNodeInput).forEach(([key, value]) => {
         if (value && value.return_name) {
-          // 使用 processHandleId 或等效邏輯轉換 handle ID
-          const baseHandleId = key.split('_')[0]; // 簡化版的 processHandleId
+          const baseHandleId = key.split("_")[0];
           handleLabels[baseHandleId] = value.return_name;
           console.log(
             `從 node_input 讀取標籤: ${baseHandleId} => ${value.return_name}`
           );
         }
       });
-
-      // 還原 input 到 output0 的映射 (處理第一個預設 handle 的情況)
-      if (
-        originalNodeInput.input &&
-        originalNodeInput.input.return_name &&
-        !handleLabels.output0
-      ) {
+      if (originalNodeInput.input && originalNodeInput.input.return_name && !handleLabels.output0) {
         handleLabels.output0 = originalNodeInput.input.return_name;
         console.log(
           `特殊處理: 將 input.return_name (${originalNodeInput.input.return_name}) 映射到 output0`
         );
       }
-
-      // 查找所有連線到此節點的邊
-      const relevantEdges = edges.filter((edge) => edge.target === nodeId);
-
-      // 按基本 handle 分組
-      const handleGroups = {};
-      relevantEdges.forEach((edge) => {
-        // 確保有效的 targetHandle
+      const relevantEdges2 = edges.filter((edge) => edge.target === nodeId);
+      const handleGroups2 = {};
+      relevantEdges2.forEach((edge) => {
         if (!edge.targetHandle) {
           console.warn(`邊緣 ${edge.id} 沒有有效的 targetHandle，跳過`);
           return;
         }
-
-        const baseHandle = edge.targetHandle.split('_')[0];
-        if (!handleGroups[baseHandle]) {
-          handleGroups[baseHandle] = [];
+        const baseHandle = edge.targetHandle.split("_")[0];
+        if (!handleGroups2[baseHandle]) {
+          handleGroups2[baseHandle] = [];
         }
-        handleGroups[baseHandle].push(edge);
+        handleGroups2[baseHandle].push(edge);
       });
-
-      // 遍歷所有基本 handle
-      Object.keys(handleGroups).forEach((baseHandle) => {
-        const groupEdges = handleGroups[baseHandle];
-
+      Object.keys(handleGroups2).forEach((baseHandle) => {
+        const groupEdges = handleGroups2[baseHandle];
         if (groupEdges.length > 1) {
-          // 多連線情況
           groupEdges.forEach((edge, index) => {
             const inputKey = `${baseHandle}_${index + 1}`;
-
-            // 使用保存的標籤或原始的 return_name 或預設值
-            let returnName = handleLabels[baseHandle] || 'output';
-
+            let returnName = handleLabels[baseHandle] || "output";
             console.log(`多連線 Handle ${inputKey} 使用標籤值: ${returnName}`);
-
             nodeInput[inputKey] = {
               node_id: edge.source,
-              output_name: edge.sourceHandle || 'output',
-              type: 'string',
+              output_name: edge.sourceHandle || "output",
+              type: "string",
               return_name: returnName
             };
-
             console.log(
               `多連線 Handle: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
             );
           });
         } else {
-          // 單一連線情況
           const edge = groupEdges[0];
-
-          // 使用保存的標籤或預設值
-          let returnName = handleLabels[baseHandle] || 'output';
-
+          let returnName = handleLabels[baseHandle] || "output";
           console.log(
             `單一連線 Handle ${baseHandle} 使用標籤值: ${returnName}`
           );
-
           nodeInput[baseHandle] = {
             node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string',
+            output_name: edge.sourceHandle || "output",
+            type: "string",
             return_name: returnName
           };
-
           console.log(
             `單一連線 Handle: ${edge.source} -> ${nodeId}:${baseHandle} (return_name: ${returnName})`
           );
         }
       });
-
-      // 處理未連線的 handle
-      targetNode.data.inputHandles
-        .filter((handle) => !handleGroups[handle.id])
-        .forEach((handle) => {
-          const baseHandleId = handle.id;
-
-          // 使用保存的標籤或空字串
-          let returnName = handleLabels[baseHandleId] || '';
-
-          console.log(
-            `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
-          );
-
-          nodeInput[baseHandleId] = {
-            node_id: '',
-            output_name: '',
-            type: 'string',
-            data: '',
-            is_empty: true,
-            return_name: returnName
-          };
-
-          console.log(
-            `保留未連線的 handle: ${baseHandleId} (return_name: ${returnName})`
-          );
-        });
-
+      targetNode.data.inputHandles.filter((handle) => !handleGroups2[handle.id]).forEach((handle) => {
+        const baseHandleId = handle.id;
+        let returnName = handleLabels[baseHandleId] || "";
+        console.log(
+          `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
+        );
+        nodeInput[baseHandleId] = {
+          node_id: "",
+          output_name: "",
+          type: "string",
+          data: "",
+          is_empty: true,
+          return_name: returnName
+        };
+        console.log(
+          `保留未連線的 handle: ${baseHandleId} (return_name: ${returnName})`
+        );
+      });
       return nodeInput;
     }
-
-    // 獲取所有以該節點為目標的邊緣
     const relevantEdges = edges.filter((edge) => edge.target === nodeId);
     console.log(`找到 ${relevantEdges.length} 個輸入連接`);
-
-    // 如果沒有連接，直接返回空對象（普通節點）
     if (relevantEdges.length === 0) {
       return nodeInput;
     }
-
-    // 按 targetHandle 分組邊緣
     const handleGroups = {};
-
-    // 首先，分組所有邊緣
     relevantEdges.forEach((edge) => {
-      const targetHandle = edge.targetHandle || 'input';
-
-      // 初始化組
+      const targetHandle = edge.targetHandle || "input";
       if (!handleGroups[targetHandle]) {
         handleGroups[targetHandle] = [];
       }
-
-      // 添加邊緣到組
       handleGroups[targetHandle].push(edge);
     });
-
-    // 處理每個句柄組 - 保持原始處理邏輯不變
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
-      const isAINode =
-        targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
-      const isMessageNode = targetNode.type === 'message';
-      // 特殊處理 AI 節點的 context-input
-      if (isAINode && targetHandle.startsWith('context')) {
-        // 對於 context-input，我們需要處理多個連接
+      const isAINode = targetNode.type === "aiCustomInput" || targetNode.type === "ai";
+      const isMessageNode = targetNode.type === "message";
+      if (isAINode && targetHandle.startsWith("context")) {
         targetEdges.forEach((edge, index) => {
-          // 創建唯一的輸入鍵 - 兼容舊版和新版格式
           let inputKey;
-
-          // 檢查格式，支持可能的舊版格式
-          if (targetHandle === 'context-input') {
-            // 標準舊版格式
-            inputKey = targetEdges.length > 1 ? `context${index}` : 'context0';
-          } else if (targetHandle.startsWith('context-input_')) {
-            // 舊版多連接格式 (context-input_0, context-input_1)
-            const oldIndex = targetHandle.split('_')[1];
+          if (targetHandle === "context-input") {
+            inputKey = targetEdges.length > 1 ? `context${index}` : "context0";
+          } else if (targetHandle.startsWith("context-input_")) {
+            const oldIndex = targetHandle.split("_")[1];
             inputKey = `context${oldIndex}`;
-          } else if (targetHandle.startsWith('context')) {
-            // 新版格式已經是 context0, context1 等
+          } else if (targetHandle.startsWith("context")) {
             inputKey = targetHandle;
           } else {
-            // 未知格式，使用默認
             inputKey = `context${index}`;
           }
-
-          // 查找源節點以獲取 return_name
           const sourceNode = allNodes.find((n) => n.id === edge.source);
-          let returnName = edge.label || 'output';
-
-          // 根據源節點類型獲取適當的 return_name
+          let returnName = edge.label || "output";
           if (sourceNode) {
-            if (
-              sourceNode.type === 'customInput' ||
-              sourceNode.type === 'input'
-            ) {
-              // 從自定義輸入節點獲取欄位名稱
-              if (
-                sourceNode.data &&
-                sourceNode.data.fields &&
-                Array.isArray(sourceNode.data.fields)
-              ) {
-                // 修改: 不再從 sourceHandle 提取索引，而是直接使用第一個欄位
-                // 如果 sourceHandle 是 'output'，使用第一個欄位的 inputName
-                if (
-                  edge.sourceHandle === 'output' &&
-                  sourceNode.data.fields[0]
-                ) {
-                  returnName =
-                    sourceNode.data.fields[0].inputName || returnName;
-                }
-                // 保留舊版處理方式，處理 'output-N' 格式的 sourceHandle
-                else if (
-                  edge.sourceHandle &&
-                  edge.sourceHandle.startsWith('output-')
-                ) {
+            if (sourceNode.type === "customInput" || sourceNode.type === "input") {
+              if (sourceNode.data && sourceNode.data.fields && Array.isArray(sourceNode.data.fields)) {
+                if (edge.sourceHandle === "output" && sourceNode.data.fields[0]) {
+                  returnName = sourceNode.data.fields[0].inputName || returnName;
+                } else if (edge.sourceHandle && edge.sourceHandle.startsWith("output-")) {
                   const outputIndex = parseInt(
-                    edge.sourceHandle.split('-')[1] || 0
+                    edge.sourceHandle.split("-")[1] || 0
                   );
                   if (sourceNode.data.fields[outputIndex]) {
-                    returnName =
-                      sourceNode.data.fields[outputIndex].inputName ||
-                      returnName;
+                    returnName = sourceNode.data.fields[outputIndex].inputName || returnName;
                   }
                 }
               }
-            } else if (sourceNode.type === 'browserExtensionInput') {
-              // 從瀏覽器擴展輸入節點獲取項目名稱
-              if (
-                sourceNode.data &&
-                sourceNode.data.items &&
-                Array.isArray(sourceNode.data.items)
-              ) {
-                // 從 sourceHandle 中提取索引（如 output-0）
-                const outputIndex = edge.sourceHandle
-                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                  : 0;
-
-                // 獲取對應的項目名稱
+            } else if (sourceNode.type === "browserExtensionInput") {
+              if (sourceNode.data && sourceNode.data.items && Array.isArray(sourceNode.data.items)) {
+                const outputIndex = edge.sourceHandle ? parseInt(edge.sourceHandle.split("-")[1] || 0) : 0;
                 if (sourceNode.data.items[outputIndex]) {
-                  returnName =
-                    sourceNode.data.items[outputIndex].name || returnName;
+                  returnName = sourceNode.data.items[outputIndex].name || returnName;
                 }
               }
-            } else if (
-              sourceNode.type === 'aiCustomInput' ||
-              sourceNode.type === 'ai'
-            ) {
-              // AI 節點通常使用默認的 output
-              returnName = 'output';
-            } else if (sourceNode.type === 'knowledgeRetrieval') {
-              // 知識檢索節點
-              returnName = 'output';
+            } else if (sourceNode.type === "aiCustomInput" || sourceNode.type === "ai") {
+              returnName = "output";
+            } else if (sourceNode.type === "knowledgeRetrieval") {
+              returnName = "output";
             } else {
-              // 對於其他節點類型，使用 sourceHandle 或默認為 'output'
-              returnName = edge.sourceHandle || 'output';
+              returnName = edge.sourceHandle || "output";
             }
           }
-
           console.log(`源節點 ${edge.source} 的 return_name: ${returnName}`);
-
-          // 添加到 nodeInput
           nodeInput[inputKey] = {
             node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string',
+            output_name: edge.sourceHandle || "output",
+            type: "string",
             return_name: returnName
           };
-
           console.log(
             `AI節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
           );
         });
-      } // 修改處理 prompt-input
-      else if (isAINode && targetHandle === 'prompt-input') {
-        const edge = targetEdges[0]; // 只取第一個連接
-
-        // 創建唯一的輸入鍵 - 改為 "prompt"
-        const inputKey = 'prompt';
-
-        // 查找源節點以獲取 return_name
+      } else if (isAINode && targetHandle === "prompt-input") {
+        const edge = targetEdges[0];
+        const inputKey = "prompt";
         allNodes.find((n) => n.id === edge.source);
-        let returnName = edge.label || 'output';
-
-        // 添加到 nodeInput
+        let returnName = edge.label || "output";
         nodeInput[inputKey] = {
           node_id: edge.source,
-          output_name: edge.sourceHandle || 'output',
-          type: 'string',
+          output_name: edge.sourceHandle || "output",
+          type: "string",
           return_name: returnName
         };
-
         console.log(
           `AI節點Prompt連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
         );
-      } else if (isMessageNode && targetHandle.startsWith('message')) {
-        targetEdges.forEach((edge, index) => {
-          let inputKey = `message${index}`;
-          // 添加到 nodeInput
+      } else if (isMessageNode && targetHandle.startsWith("message")) {
+        targetEdges.forEach((edge) => {
+          let inputKey = `message`;
           nodeInput[inputKey] = {
             node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string'
+            output_name: edge.sourceHandle || "output",
+            type: "string"
           };
-
           console.log(
             `Message節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
           );
         });
-      }
-      // 其他節點類型的處理...
-      else {
-        // 處理多個連接到同一 handle 的情況
+      } else {
         if (targetEdges.length > 1) {
           targetEdges.forEach((edge, index) => {
-            // 創建唯一的輸入鍵
             const inputKey = `${targetHandle}_${index + 1}`;
-
-            // 添加到 nodeInput
             nodeInput[inputKey] = {
               node_id: edge.source,
-              output_name: edge.sourceHandle || 'output',
-              type: 'string'
+              output_name: edge.sourceHandle || "output",
+              type: "string"
             };
-
             console.log(
               `多重輸入連接: ${edge.source} -> ${nodeId}:${inputKey}`
             );
           });
         } else if (targetEdges.length === 1) {
-          // 單一連接，直接使用原始句柄
           const edge = targetEdges[0];
-
           nodeInput[targetHandle] = {
             node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string'
+            output_name: edge.sourceHandle || "output",
+            type: "string"
           };
-
           console.log(`輸入連接: ${edge.source} -> ${nodeId}:${targetHandle}`);
         }
       }
     });
-
     if (targetNode) {
-      const isAINode =
-        targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
-
+      const isAINode = targetNode.type === "aiCustomInput" || targetNode.type === "ai";
       if (isAINode && targetNode.data?.promptText) {
-        // 檢查是否已有連線到 prompt-input
         const hasPromptConnection = edges.some(
-          (edge) =>
-            edge.target === nodeId && edge.targetHandle === 'prompt-input'
+          (edge) => edge.target === nodeId && edge.targetHandle === "prompt-input"
         );
-
-        // 如果沒有連線到 prompt-input 但有 promptText，則創建一個特殊的 prompt 輸入
         if (!hasPromptConnection) {
           nodeInput.prompt = {
-            type: 'string',
+            type: "string",
             data: targetNode.data.promptText,
-            node_id: '' // 空 node_id 表示使用直接輸入的文本
+            node_id: ""
+            // 空 node_id 表示使用直接輸入的文本
           };
           console.log(
             `AI節點使用直接輸入的 prompt 文本: "${targetNode.data.promptText}"`
@@ -10692,33 +10554,26 @@ class WorkflowMappingService {
         }
       }
     }
-
     return nodeInput;
   }
-
   // /**
   //  * 修正 transformToReactFlowFormat 方法，確保載入時能正確處理多個連線到同一 handle
   //  */
   // static transformToReactFlowFormat(apiData) {
   //   console.log('開始轉換 API 格式為 ReactFlow 格式');
-
   //   // 處理 API 數據結構差異
   //   const flowPipeline =
   //     apiData.flow_pipeline ||
   //     (apiData.content ? apiData.content.flow_pipeline : []);
-
   //   if (!flowPipeline || !Array.isArray(flowPipeline)) {
   //     console.error('找不到有效的 flow_pipeline 數組');
   //     return { nodes: [], edges: [] };
   //   }
-
   //   const nodes = [];
   //   const edges = [];
-
   //   // 首先處理所有節點，確保在創建邊緣之前節點已存在
   //   flowPipeline.forEach((node) => {
   //     console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
-
   //     // 轉換為 ReactFlow 節點格式
   //     const reactFlowNode = {
   //       id: node.id,
@@ -10729,32 +10584,25 @@ class WorkflowMappingService {
   //       },
   //       data: this.transformNodeDataToReactFlow(node)
   //     };
-
   //     nodes.push(reactFlowNode);
   //   });
-
   //   // 對於瀏覽器擴展輸出節點，特殊處理 node_input
   //   flowPipeline.forEach((node) => {
   //     // 檢查節點類型是否為瀏覽器擴展輸出
   //     const isBrowserExtOutput = node.operator === 'browser_extension_output';
-
   //     // 檢查節點類型是否為 AI 節點
   //     const isAINode = node.operator === 'ask_ai';
-
   //     if (isBrowserExtOutput && node.node_input) {
   //       console.log(
   //         `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
   //         node.node_input
   //       );
-
   //       // 查找對應的 ReactFlow 節點
   //       const reactFlowNode = nodes.find((n) => n.id === node.id);
   //       if (!reactFlowNode) return;
-
   //       // 從 node_input 識別所有的 handle
   //       const handlePattern = /^(.+?)(?:_\d+)?$/;
   //       const handleMap = new Map();
-
   //       // 分析 node_input，提取真正的 handle ID
   //       Object.keys(node.node_input).forEach((key) => {
   //         const match = key.match(handlePattern);
@@ -10763,7 +10611,6 @@ class WorkflowMappingService {
   //           if (!handleMap.has(baseHandle)) {
   //             handleMap.set(baseHandle, []);
   //           }
-
   //           handleMap.get(baseHandle).push({
   //             fullKey: key,
   //             sourceNodeId: node.node_input[key].node_id,
@@ -10772,11 +10619,9 @@ class WorkflowMappingService {
   //           });
   //         }
   //       });
-
   //       // 確保 inputHandles 包含所有真正的 handle
   //       const inputHandles = [...(reactFlowNode.data.inputHandles || [])];
   //       const existingHandleIds = inputHandles.map((h) => h.id);
-
   //       // 添加缺失的 handle
   //       handleMap.forEach((connections, handleId) => {
   //         if (!existingHandleIds.includes(handleId)) {
@@ -10784,16 +10629,13 @@ class WorkflowMappingService {
   //           console.log(`為節點 ${node.id} 添加缺失的 handle: ${handleId}`);
   //         }
   //       });
-
   //       // 更新節點的 inputHandles
   //       reactFlowNode.data.inputHandles = inputHandles;
-
   //       // 創建所有連接
   //       handleMap.forEach((connections, handleId) => {
   //         connections.forEach((connection) => {
   //           // 創建邊緣 ID
   //           const edgeId = `${connection.sourceNodeId}-${node.id}-${handleId}-${connection.outputName}`;
-
   //           // 創建連接
   //           const edge = {
   //             id: edgeId,
@@ -10804,7 +10646,6 @@ class WorkflowMappingService {
   //             type: 'custom-edge',
   //             label: connection.returnName // 使用 return_name 作為標籤
   //           };
-
   //           edges.push(edge);
   //           console.log(
   //             `創建連接: ${edgeId} (return_name: ${connection.returnName})`
@@ -10814,16 +10655,13 @@ class WorkflowMappingService {
   //     } // 新增 AI 節點特殊處理
   //     else if (isAINode && node.node_input) {
   //       console.log(`處理AI節點 ${node.id} 的輸入:`, node.node_input);
-
   //       // 查找對應的 ReactFlow 節點
   //       const reactFlowNode = nodes.find((n) => n.id === node.id);
   //       if (!reactFlowNode) return;
-
   //       // 從 node_input 識別所有的 context handle
   //       const contextHandles = Object.keys(node.node_input).filter(
   //         (key) => key === 'context-input' || key.startsWith('context')
   //       );
-
   //       // 處理每個 context 連接
   //       contextHandles.forEach((key) => {
   //         const inputValue = node.node_input[key];
@@ -10832,7 +10670,6 @@ class WorkflowMappingService {
   //           const edgeId = `${inputValue.node_id}-${node.id}-${key}-${
   //             inputValue.output_name || 'output'
   //           }-${Date.now()}`;
-
   //           // 創建連接，統一使用 'context-input' 作為 targetHandle
   //           const edge = {
   //             id: edgeId,
@@ -10843,12 +10680,10 @@ class WorkflowMappingService {
   //             type: 'custom-edge',
   //             label: inputValue.return_name || undefined
   //           };
-
   //           edges.push(edge);
   //           console.log(`創建AI節點連接: ${edgeId}`);
   //         }
   //       });
-
   //       // 處理 prompt 連接
   //       if (node.node_input['prompt-input']) {
   //         const promptInput = node.node_input['prompt-input'];
@@ -10856,7 +10691,6 @@ class WorkflowMappingService {
   //           const edgeId = `${promptInput.node_id}-${node.id}-prompt-input-${
   //             promptInput.output_name || 'output'
   //           }`;
-
   //           const edge = {
   //             id: edgeId,
   //             source: promptInput.node_id,
@@ -10866,7 +10700,6 @@ class WorkflowMappingService {
   //             type: 'custom-edge',
   //             label: promptInput.return_name || undefined
   //           };
-
   //           edges.push(edge);
   //           console.log(`創建AI節點Prompt連接: ${edgeId}`);
   //         }
@@ -10879,7 +10712,6 @@ class WorkflowMappingService {
   //           const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
   //             inputValue.output_name || 'output'
   //           }`;
-
   //           // 創建連接
   //           const edge = {
   //             id: edgeId,
@@ -10889,17 +10721,14 @@ class WorkflowMappingService {
   //             targetHandle: inputKey,
   //             type: 'custom-edge'
   //           };
-
   //           edges.push(edge);
   //           console.log(`創建標準連接: ${edgeId}`);
   //         }
   //       });
   //     }
   //   });
-
   //   // 自動布局（如果位置都是 0,0）
   //   this.autoLayout(nodes);
-
   //   console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
   //   return { nodes, edges };
   // }
@@ -10911,113 +10740,93 @@ class WorkflowMappingService {
   static extractNodeOutputForAPI(node) {
     const nodeOutput = {};
     console.log(`提取節點 ${node.id} 的輸出`);
-
     switch (node.type) {
-      case 'line':
-        // Line Webhook 節點輸出多種訊息類型
-        if (
-          node.data.output_handles &&
-          Array.isArray(node.data.output_handles)
-        ) {
+      case "line":
+        if (node.data.output_handles && Array.isArray(node.data.output_handles)) {
           node.data.output_handles.forEach((handleType) => {
             nodeOutput[handleType] = {
               node_id: node.id,
-              type: 'string'
+              type: "string"
             };
           });
         } else {
-          // 預設輸出類型
-          ['text', 'image'].forEach((handleType) => {
+          ["text", "image"].forEach((handleType) => {
             nodeOutput[handleType] = {
               node_id: node.id,
-              type: 'string'
+              type: "string"
             };
           });
         }
         break;
-      case 'browserExtensionOutput':
-        // Add a single output for the browser extension output node
+      case "browserExtensionOutput":
         nodeOutput.output = {
           node_id: node.id,
-          type: 'string'
+          type: "string"
         };
         break;
-      case 'browserExtensionInput':
-      case 'browserExtInput':
+      case "browserExtensionInput":
+      case "browserExtInput":
         if (node.data.items && node.data.items.length > 0) {
           node.data.items.forEach((item, index) => {
             const outputKey = item.id || `a${index + 1}`;
             nodeOutput[outputKey] = {
               node_id: node.id,
-              type: 'string'
+              type: "string"
             };
           });
           console.log(`瀏覽器擴展輸入: 設置 ${node.data.items.length} 個輸出`);
         } else {
           nodeOutput.output = {
             node_id: node.id,
-            type: 'string'
+            type: "string"
           };
         }
         break;
-
-      case 'webhook':
+      case "webhook":
         nodeOutput.headers = {
           node_id: node.id,
-          type: 'json',
+          type: "json",
           data: {}
         };
         nodeOutput.payload = {
           node_id: node.id,
-          type: 'json',
+          type: "json",
           data: {}
         };
         break;
-
-      case 'customInput':
-      case 'input':
-        // 修改: 使用單一 "output" 作為 handle ID 而不是 "output-0"
+      case "customInput":
+      case "input":
         nodeOutput.output = {
           node_id: node.id,
-          type: 'string'
+          type: "string"
         };
         console.log(`輸入節點: 設置單一輸出 (output)`);
         break;
-
-      case 'ifElse':
+      case "ifElse":
         nodeOutput.true = {
           node_id: node.id,
-          type: 'boolean',
+          type: "boolean",
           data: true
         };
         nodeOutput.false = {
           node_id: node.id,
-          type: 'boolean',
+          type: "boolean",
           data: false
         };
         break;
-
       default:
-        // 預設輸出
         nodeOutput.output = {
           node_id: node.id,
-          type: 'string',
+          type: "string",
           data: {}
         };
     }
-
     return nodeOutput;
   }
 }
-
-/**
- * 更新後的工作流 API 服務，使用共用的映射功能
- */
 class WorkflowAPIService {
   constructor() {
-    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
   }
-
   /**
    * 載入工作流數據
    * @param {string} workflowId - 要載入的工作流 ID
@@ -11026,48 +10835,43 @@ class WorkflowAPIService {
   async loadWorkflow(workflowId) {
     try {
       console.log(`嘗試載入工作流 ID: ${workflowId}`);
-      // 使用 tokenService 創建帶有 Authorization 的請求配置
       const options = tokenService.createAuthHeader({
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           flow_id: workflowId
         })
       });
-
       const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/load`,
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/load`,
         options
       );
-
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       }
-
       const data = await response.json();
-      console.log('成功載入工作流數據');
+      console.log("成功載入工作流數據");
       return data;
     } catch (error) {
-      console.error('載入工作流失敗:', error);
+      console.error("載入工作流失敗:", error);
       throw error;
     }
   }
-
   /**
    * 建立工作流數據
    * @param {Object} data - 要保存的工作流數據
    * @returns {Promise<Object>} API 回應
    */
   async createWorkflow(data) {
-    console.log('創建新工作流:', data);
+    console.log("創建新工作流:", data);
     try {
       const options = tokenService.createAuthHeader({
-        method: 'POST',
+        method: "POST",
         headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json'
+          accept: "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           flow_name: data.flow_name,
@@ -11075,38 +10879,34 @@ class WorkflowAPIService {
           flow_pipeline: data.flow_pipeline
         })
       });
-
       const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/`,
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`,
         options
       );
-
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       }
-
       const responseData = await response.json();
-      console.log('工作流創建成功');
+      console.log("工作流創建成功");
       return responseData;
     } catch (error) {
-      console.error('保存工作流失敗:', error);
+      console.error("保存工作流失敗:", error);
       throw error;
     }
   }
-
   /**
    * 保存工作流數據
    * @param {Object} data - 要保存的工作流數據
    * @returns {Promise<Object>} API 回應
    */
   async updateWorkflow(data) {
-    console.log('更新工作流:', data);
+    console.log("更新工作流:", data);
     try {
       const options = tokenService.createAuthHeader({
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json'
+          accept: "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           flow_name: data.flow_name,
@@ -11116,267 +10916,193 @@ class WorkflowAPIService {
         })
       });
       const response = await fetch(
-        `${this.baseUrl}/agent_designer/workflows/`,
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`,
         options
       );
-
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       }
-
       const responseData = await response.json();
-      console.log('工作流更新成功');
+      console.log("工作流更新成功");
       return responseData;
     } catch (error) {
-      console.error('保存工作流失敗:', error);
+      console.error("保存工作流失敗:", error);
       throw error;
     }
   }
 }
-/**
- * LLM模型和知識檢索服務 - 處理與LLM模型和文件相關的API請求
- */
 class LLMService {
   constructor() {
-    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
-
-    // 模型相關緩存
     this.modelsCache = null;
     this.lastFetchTime = null;
-    this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
-    this.pendingRequest = null; // 用於追蹤進行中的請求
-
-    // 文件相關緩存
+    this.cacheExpiryTime = 10 * 60 * 1e3;
+    this.pendingRequest = null;
     this.filesCache = null;
     this.lastFilesFetchTime = null;
-    this.pendingFilesRequest = null; // 用於追蹤進行中的文件請求
+    this.pendingFilesRequest = null;
   }
-
   /**
    * 獲取所有可用的LLM模型
    * @returns {Promise<Array>} 模型列表
    */
   async getModels() {
     try {
-      // 檢查是否有有效的快取
       const now = Date.now();
-      if (
-        this.modelsCache &&
-        this.lastFetchTime &&
-        now - this.lastFetchTime < this.cacheExpiryTime
-      ) {
-        console.log('使用快取的LLM模型列表');
+      if (this.modelsCache && this.lastFetchTime && now - this.lastFetchTime < this.cacheExpiryTime) {
+        console.log("使用快取的LLM模型列表");
         return this.modelsCache;
       }
-
-      // 如果已經有一個請求在進行中，則返回該請求
       if (this.pendingRequest) {
-        console.log('已有進行中的LLM模型請求，使用相同請求');
+        console.log("已有進行中的LLM模型請求，使用相同請求");
         return this.pendingRequest;
       }
-
-      // 創建新請求
-      console.log('獲取LLM模型列表...');
+      console.log("獲取LLM模型列表...");
       const options = tokenService.createAuthHeader({
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
+          "Content-Type": "application/json",
+          Accept: "application/json"
         }
       });
       this.pendingRequest = fetch(
-        `${this.baseUrl}/agent_designer/llm/`,
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/`,
         options
-      )
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+        }
+        return response.json();
+      }).then((data) => {
+        console.log("API返回原始模型數據:", data);
+        if (!Array.isArray(data)) {
+          console.warn("API返回的模型數據不是陣列");
+          if (data && typeof data === "object" && data.models && Array.isArray(data.models)) {
+            data = data.models;
+            console.log("從API回應中提取models陣列:", data);
+          } else {
+            console.warn("無法從API回應中提取合理的模型數據，使用預設模型");
+            data = [
+              {
+                id: 1,
+                name: "O3-mini",
+                display_name: "O3-mini",
+                is_default: true
+              },
+              { id: 2, name: "O3-plus", display_name: "O3-plus" },
+              { id: 3, name: "O3-mega", display_name: "O3-mega" },
+              { id: 4, name: "O3-ultra", display_name: "O3-ultra" }
+            ];
           }
-          return response.json();
-        })
-        .then((data) => {
-          console.log('API返回原始模型數據:', data);
-
-          // 檢查數據是否為數組
-          if (!Array.isArray(data)) {
-            console.warn('API返回的模型數據不是陣列');
-            // 嘗試從可能的非數組格式中提取數據
-            if (
-              data &&
-              typeof data === 'object' &&
-              data.models &&
-              Array.isArray(data.models)
-            ) {
-              data = data.models;
-              console.log('從API回應中提取models陣列:', data);
-            } else {
-              // 如果無法提取合理的數據，則返回預設模型
-              console.warn('無法從API回應中提取合理的模型數據，使用預設模型');
-              data = [
-                {
-                  id: 1,
-                  name: 'O3-mini',
-                  display_name: 'O3-mini',
-                  is_default: true
-                },
-                { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-                { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-                { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-              ];
-            }
+        }
+        const processedData = data.map((model, index) => {
+          if (!model || typeof model !== "object") {
+            console.warn(`模型 ${index} 無效，使用替代數據`);
+            return {
+              id: index + 1,
+              name: `Model ${index + 1}`,
+              display_name: `Model ${index + 1}`,
+              is_default: index === 0
+            };
           }
-
-          // 檢查每個模型對象，確保結構正確
-          const processedData = data.map((model, index) => {
-            if (!model || typeof model !== 'object') {
-              console.warn(`模型 ${index} 無效，使用替代數據`);
-              return {
-                id: index + 1,
-                name: `Model ${index + 1}`,
-                display_name: `Model ${index + 1}`,
-                is_default: index === 0
-              };
-            }
-
-            // 確保模型有ID
-            if (model.id === undefined || model.id === null) {
-              console.warn(`模型 ${index} 缺少ID，使用索引作為ID`);
-              model.id = index + 1;
-            }
-
-            // 確保模型有名稱
-            if (!model.name && !model.display_name) {
-              console.warn(`模型 ${index} 缺少名稱，使用索引作為名稱`);
-              model.name = `Model ${model.id}`;
-            }
-
-            return model;
-          });
-
-          console.log('處理後的模型數據:', processedData);
-
-          // 更新快取
-          this.modelsCache = processedData;
-          this.lastFetchTime = now;
-          this.pendingRequest = null; // 清除進行中的請求
-
-          return processedData;
-        })
-        .catch((error) => {
-          console.error('獲取LLM模型失敗:', error);
-          this.pendingRequest = null; // 清除進行中的請求，即使出錯
-
-          // 返回預設模型，而不是拋出錯誤
-          return [
-            {
-              id: 1,
-              name: 'O3-mini',
-              display_name: 'O3-mini',
-              is_default: true
-            },
-            { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-            { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-            { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-          ];
+          if (model.id === void 0 || model.id === null) {
+            console.warn(`模型 ${index} 缺少ID，使用索引作為ID`);
+            model.id = index + 1;
+          }
+          if (!model.name && !model.display_name) {
+            console.warn(`模型 ${index} 缺少名稱，使用索引作為名稱`);
+            model.name = `Model ${model.id}`;
+          }
+          return model;
         });
-
+        console.log("處理後的模型數據:", processedData);
+        this.modelsCache = processedData;
+        this.lastFetchTime = now;
+        this.pendingRequest = null;
+        return processedData;
+      }).catch((error) => {
+        console.error("獲取LLM模型失敗:", error);
+        this.pendingRequest = null;
+        return [
+          {
+            id: 1,
+            name: "O3-mini",
+            display_name: "O3-mini",
+            is_default: true
+          },
+          { id: 2, name: "O3-plus", display_name: "O3-plus" },
+          { id: 3, name: "O3-mega", display_name: "O3-mega" },
+          { id: 4, name: "O3-ultra", display_name: "O3-ultra" }
+        ];
+      });
       return this.pendingRequest;
     } catch (error) {
-      console.error('獲取LLM模型過程中出錯:', error);
+      console.error("獲取LLM模型過程中出錯:", error);
       this.pendingRequest = null;
-
-      // 返回預設模型，而不是拋出錯誤
       return [
-        { id: 1, name: 'O3-mini', display_name: 'O3-mini', is_default: true },
-        { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-        { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-        { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+        { id: 1, name: "O3-mini", display_name: "O3-mini", is_default: true },
+        { id: 2, name: "O3-plus", display_name: "O3-plus" },
+        { id: 3, name: "O3-mega", display_name: "O3-mega" },
+        { id: 4, name: "O3-ultra", display_name: "O3-ultra" }
       ];
     }
   }
-
   /**
    * 獲取所有已完成的文件
    * @returns {Promise<Array>} 文件列表
    */
   async getCompletedFiles() {
     try {
-      // 檢查是否有有效的快取
       const now = Date.now();
-      if (
-        this.filesCache &&
-        this.lastFilesFetchTime &&
-        now - this.lastFilesFetchTime < this.cacheExpiryTime
-      ) {
-        console.log('使用快取的已完成文件列表');
+      if (this.filesCache && this.lastFilesFetchTime && now - this.lastFilesFetchTime < this.cacheExpiryTime) {
+        console.log("使用快取的已完成文件列表");
         return this.filesCache;
       }
-
-      // 如果已經有一個請求在進行中，則返回該請求
       if (this.pendingFilesRequest) {
-        console.log('已有進行中的文件列表請求，使用相同請求');
+        console.log("已有進行中的文件列表請求，使用相同請求");
         return this.pendingFilesRequest;
       }
-
-      // 創建新請求
-      console.log('獲取已完成文件列表...');
+      console.log("獲取已完成文件列表...");
       const options = tokenService.createAuthHeader({
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
+          "Content-Type": "application/json",
+          Accept: "application/json"
         }
       });
       this.pendingFilesRequest = fetch(
-        `${this.baseUrl}/agent_designer/files/completed`,
+        `${API_CONFIG.BASE_URL}/agent_designer/files/completed`,
         options
-      )
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log('成功獲取已完成文件:', data);
-
-          // 更新快取
-          this.filesCache = data;
-          this.lastFilesFetchTime = now;
-          this.pendingFilesRequest = null; // 清除進行中的請求
-
-          return data;
-        })
-        .catch((error) => {
-          console.error('獲取已完成文件失敗:', error);
-          this.pendingFilesRequest = null; // 清除進行中的請求，即使出錯
-          this.pendingFilesRequest = null;
-
-          // 檢查是否為 CORS 錯誤
-          if (
-            error.message &&
-            (error.message.includes('NetworkError') ||
-              error.message.includes('Failed to fetch'))
-          ) {
-            console.log('疑似 CORS 問題，返回預設檔案列表');
-            // 直接返回預設值而不是再次拋出錯誤
-            return [
-              { id: 1, filename: 'ICDCode.csv' },
-              { id: 2, filename: 'Cardiology_Diagnoses.csv' }
-            ];
-          }
-
-          throw error;
-        });
-
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+        }
+        return response.json();
+      }).then((data) => {
+        console.log("成功獲取已完成文件:", data);
+        this.filesCache = data;
+        this.lastFilesFetchTime = now;
+        this.pendingFilesRequest = null;
+        return data;
+      }).catch((error) => {
+        console.error("獲取已完成文件失敗:", error);
+        this.pendingFilesRequest = null;
+        this.pendingFilesRequest = null;
+        if (error.message && (error.message.includes("NetworkError") || error.message.includes("Failed to fetch"))) {
+          console.log("疑似 CORS 問題，返回預設檔案列表");
+          return [
+            { id: 1, filename: "ICDCode.csv" },
+            { id: 2, filename: "Cardiology_Diagnoses.csv" }
+          ];
+        }
+        throw error;
+      });
       return this.pendingFilesRequest;
     } catch (error) {
-      console.error('獲取已完成文件過程中出錯:', error);
+      console.error("獲取已完成文件過程中出錯:", error);
       this.pendingFilesRequest = null;
       throw error;
     }
   }
-
   /**
    * 獲取格式化後的模型選項，適用於下拉選單
    * @returns {Promise<Array>} 格式化的模型選項
@@ -11384,85 +11110,65 @@ class LLMService {
   async getModelOptions() {
     try {
       const models = await this.getModels();
-      console.log('API返回的模型數據:', models);
-
-      // 檢查模型數據是否有效
+      console.log("API返回的模型數據:", models);
       if (!models || !Array.isArray(models)) {
-        console.warn('模型數據無效或不是陣列，使用默認選項');
+        console.warn("模型數據無效或不是陣列，使用默認選項");
         return [
-          { value: '1', label: 'O3-mini' },
-          { value: '2', label: 'O3-plus' },
-          { value: '3', label: 'O3-mega' },
-          { value: '4', label: 'O3-ultra' }
+          { value: "1", label: "O3-mini" },
+          { value: "2", label: "O3-plus" },
+          { value: "3", label: "O3-mega" },
+          { value: "4", label: "O3-ultra" }
         ];
       }
-
       if (models.length === 0) {
-        console.warn('API返回的模型陣列為空，使用默認選項');
+        console.warn("API返回的模型陣列為空，使用默認選項");
         return [
-          { value: '1', label: 'O3-mini' },
-          { value: '2', label: 'O3-plus' },
-          { value: '3', label: 'O3-mega' },
-          { value: '4', label: 'O3-ultra' }
+          { value: "1", label: "O3-mini" },
+          { value: "2", label: "O3-plus" },
+          { value: "3", label: "O3-mega" },
+          { value: "4", label: "O3-ultra" }
         ];
       }
-
-      // 檢查第一個模型的結構，確認關鍵屬性
       const sampleModel = models[0];
-      console.log('模型數據結構示例:', sampleModel);
-
-      // 將API返回的模型數據轉換為select選項格式
+      console.log("模型數據結構示例:", sampleModel);
       const options = models.map((model, index) => {
-        // 確保模型對象存在
         if (!model) {
           console.warn(`遇到無效的模型數據，索引: ${index}`);
           return { value: `${index + 1}`, label: `Model ${index + 1}` };
         }
-
-        // 記錄每個模型的關鍵屬性，幫助診斷
         console.log(`處理模型 ${index}:`, {
           id: model.id,
           name: model.name,
           display_name: model.display_name,
           is_default: model.is_default
         });
-
-        // 取得 ID，確保是字串型別
-        let modelId = '1'; // 預設 ID
-        if (model.id !== undefined && model.id !== null) {
+        let modelId = "1";
+        if (model.id !== void 0 && model.id !== null) {
           modelId = model.id.toString();
         } else {
-          modelId = `${index + 1}`; // 使用索引+1作為ID
+          modelId = `${index + 1}`;
         }
-
-        // 取得顯示名稱
         const modelLabel = model.display_name || model.name;
-
-        // 如果連名稱也沒有，則使用模型ID作為顯示名稱
         const displayLabel = modelLabel || `Model ${modelId}`;
-
         return {
           value: modelId,
           label: displayLabel,
-          description: model.description || '',
+          description: model.description || "",
           isDefault: !!model.is_default
         };
       });
-
-      console.log('最終格式化的選項:', options);
+      console.log("最終格式化的選項:", options);
       return options;
     } catch (error) {
-      console.error('獲取模型選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
+      console.error("獲取模型選項失敗:", error);
       return [
-        { value: '1', label: 'O3-mini' },
-        { value: '2', label: 'O3-plus' },
-        { value: '3', label: 'O3-mega' },
-        { value: '4', label: 'O3-ultra' }
+        { value: "1", label: "O3-mini" },
+        { value: "2", label: "O3-plus" },
+        { value: "3", label: "O3-mega" },
+        { value: "4", label: "O3-ultra" }
       ];
     }
   }
-
   /**
    * 獲取格式化後的已完成文件選項，適用於下拉選單
    * @returns {Promise<Array>} 格式化的文件選項
@@ -11470,102 +11176,208 @@ class LLMService {
   async getFileOptions() {
     try {
       const files = await this.getCompletedFiles();
-
-      // 根據後端返回的格式 [{"filename": '123.csv', "id": 1}] 進行處理
       return files.map((file) => ({
-        id: file.id.toString(), // 確保ID是字符串
-        value: file.id.toString(), // 用於選項值
-        name: file.filename, // 用於顯示名稱
-        label: file.filename // 用於顯示名稱 (替代)
+        id: file.id.toString(),
+        // 確保ID是字符串
+        value: file.id.toString(),
+        // 用於選項值
+        name: file.filename,
+        // 用於顯示名稱
+        label: file.filename
+        // 用於顯示名稱 (替代)
       }));
     } catch (error) {
-      console.error('獲取文件選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
+      console.error("獲取文件選項失敗:", error);
       return [
         {
-          id: 'icdcode',
-          value: 'icdcode',
-          name: 'ICDCode.csv',
-          label: 'ICDCode.csv'
+          id: "icdcode",
+          value: "icdcode",
+          name: "ICDCode.csv",
+          label: "ICDCode.csv"
         },
         {
-          id: 'cardiology',
-          value: 'cardiology',
-          name: 'Cardiology_Diagnoses.csv',
-          label: 'Cardiology_Diagnoses.csv'
+          id: "cardiology",
+          value: "cardiology",
+          name: "Cardiology_Diagnoses.csv",
+          label: "Cardiology_Diagnoses.csv"
         }
       ];
     }
   }
-
   /**
    * 預加載模型與文件數據，通常在應用啟動時呼叫
    */
   preloadData() {
-    console.log('預加載LLM模型和文件列表');
-
-    // 預加載模型
+    console.log("預加載LLM模型和文件列表");
     this.getModels().catch((err) => {
-      console.log('預加載模型失敗:', err);
+      console.log("預加載模型失敗:", err);
     });
-
-    // 預加載文件
     this.getCompletedFiles().catch((err) => {
-      console.log('預加載文件失敗:', err);
+      console.log("預加載文件失敗:", err);
     });
   }
 }
-
-/**
- * 外部服務配置管理 - 處理與外部服務（LINE、WHATSAPP等）相關的API請求
- */
 class ExternalService {
   constructor() {
-    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
-
-    // 服務配置相關緩存
-    this.servicesCache = new Map(); // 使用Map來儲存不同service_type的緩存
-    this.lastFetchTimes = new Map(); // 記錄每個service_type的最後獲取時間
-    this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
-    this.pendingRequests = new Map(); // 用於追蹤進行中的請求
-
-    // 支援的服務類型
-    this.supportedServiceTypes = ['LINE', 'WHATSAPP'];
+    this.servicesCache = /* @__PURE__ */ new Map();
+    this.lastFetchTimes = /* @__PURE__ */ new Map();
+    this.cacheExpiryTime = 10 * 60 * 1e3;
+    this.pendingRequests = /* @__PURE__ */ new Map();
+    this.messagingTypesCache = /* @__PURE__ */ new Map();
+    this.lastMessagingTypesFetchTimes = /* @__PURE__ */ new Map();
+    this.pendingMessagingTypesRequests = /* @__PURE__ */ new Map();
+    this.supportedServiceTypes = ["LINE", "WHATSAPP"];
+    this.supportedChannelTypes = ["line"];
   }
-
   /**
    * 創建新的Webhook
    * @param {string} flowId - 工作流ID
    */
-  async createWebhook(flowId) {
+  createWebhook(flowId) {
     try {
       console.log(`創建新的Webhook，工作流ID: ${flowId}`);
-      const options = tokenService.createAuthHeader({
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
-        }
-      });
-
-      const response = await fetch(
-        `${this.baseUrl}/external_service/webhook/${flowId}`,
-        options
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Webhook創建成功:', data);
-      return data;
+      const url = `${API_CONFIG.CREATE_WEBHOOK_URL}/${flowId}`;
+      return url;
     } catch (error) {
-      console.error('創建Webhook失敗:', error);
+      console.error("創建Webhook失敗:", error);
       throw error;
     }
   }
-
+  /**
+   * 獲取指定頻道的 Messaging Types
+   * @param {string} channelType - 頻道類型 (line, telegram等)
+   * @returns {Promise<Array>} Messaging types 列表
+   */
+  async getMessagingTypes(channelType = "line") {
+    try {
+      if (!channelType || typeof channelType !== "string") {
+        throw new Error("頻道類型不能為空且必須是字符串");
+      }
+      const lowerChannelType = channelType.toLowerCase();
+      const now = Date.now();
+      const cacheKey = lowerChannelType;
+      if (this.messagingTypesCache.has(cacheKey) && this.lastMessagingTypesFetchTimes.has(cacheKey) && now - this.lastMessagingTypesFetchTimes.get(cacheKey) < this.cacheExpiryTime) {
+        console.log(`使用快取的${lowerChannelType} Messaging Types列表`);
+        return this.messagingTypesCache.get(cacheKey);
+      }
+      if (this.pendingMessagingTypesRequests.has(cacheKey)) {
+        console.log(
+          `已有進行中的${lowerChannelType} Messaging Types請求，使用相同請求`
+        );
+        return this.pendingMessagingTypesRequests.get(cacheKey);
+      }
+      console.log(`獲取${lowerChannelType} Messaging Types列表...`);
+      const options = tokenService.createAuthHeader({
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        }
+      });
+      const request = fetch(
+        `${API_CONFIG.BASE_URL}/agent_designer/channel/${lowerChannelType}/messaging_types`,
+        options
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+        }
+        return response.json();
+      }).then((data) => {
+        console.log(
+          `API返回原始${lowerChannelType} Messaging Types數據:`,
+          data
+        );
+        if (!Array.isArray(data)) {
+          console.warn(
+            `API返回的${lowerChannelType} Messaging Types數據不是陣列`
+          );
+          if (data && typeof data === "object" && data.messaging_types && Array.isArray(data.messaging_types)) {
+            data = data.messaging_types;
+            console.log(`從API回應中提取messaging_types陣列:`, data);
+          } else {
+            console.warn(
+              `無法從API回應中提取合理的${lowerChannelType} Messaging Types數據，返回預設值`
+            );
+            data = ["Reply Message", "Push Message"];
+          }
+        }
+        const processedData = data.filter((type) => type && typeof type === "string").map((type) => type.trim());
+        console.log(
+          `處理後的${lowerChannelType} Messaging Types數據:`,
+          processedData
+        );
+        this.messagingTypesCache.set(cacheKey, processedData);
+        this.lastMessagingTypesFetchTimes.set(cacheKey, now);
+        this.pendingMessagingTypesRequests.delete(cacheKey);
+        return processedData;
+      }).catch((error) => {
+        console.error(`獲取${lowerChannelType} Messaging Types失敗:`, error);
+        this.pendingMessagingTypesRequests.delete(cacheKey);
+        if (error.message && (error.message.includes("NetworkError") || error.message.includes("Failed to fetch") || error.message.includes("CORS"))) {
+          console.log(
+            `疑似 CORS 或網路問題，返回預設的${lowerChannelType} Messaging Types列表`
+          );
+          return ["Reply Message", "Push Message"];
+        }
+        return ["Reply Message", "Push Message"];
+      });
+      this.pendingMessagingTypesRequests.set(cacheKey, request);
+      return request;
+    } catch (error) {
+      console.error(`獲取${channelType} Messaging Types過程中出錯:`, error);
+      const cacheKey = channelType.toLowerCase();
+      this.pendingMessagingTypesRequests.delete(cacheKey);
+      return ["Reply Message", "Push Message"];
+    }
+  }
+  /**
+   * 獲取格式化後的 Messaging Types 選項，適用於下拉選單
+   * @param {string} channelType - 頻道類型
+   * @returns {Promise<Array>} 格式化的 messaging types 選項
+   */
+  async getMessagingTypeOptions(channelType = "line") {
+    try {
+      const messagingTypes = await this.getMessagingTypes(channelType);
+      console.log(`${channelType} Messaging Types數據:`, messagingTypes);
+      if (!messagingTypes || !Array.isArray(messagingTypes)) {
+        console.warn(
+          `${channelType} Messaging Types數據無效或不是陣列，返回預設選項`
+        );
+        return [
+          { value: "Reply Message", label: "Reply Message" },
+          { value: "Push Message", label: "Push Message" }
+        ];
+      }
+      if (messagingTypes.length === 0) {
+        console.warn(`API返回的${channelType} Messaging Types陣列為空`);
+        return [
+          { value: "Reply Message", label: "Reply Message" },
+          { value: "Push Message", label: "Push Message" }
+        ];
+      }
+      const options = messagingTypes.map((type, index) => {
+        if (!type || typeof type !== "string") {
+          console.warn(
+            `遇到無效的${channelType} Messaging Type數據，索引: ${index}`
+          );
+          return null;
+        }
+        const cleanType = type.trim();
+        return {
+          value: cleanType,
+          label: cleanType
+        };
+      }).filter((option) => option !== null);
+      console.log(`最終格式化的${channelType} Messaging Types選項:`, options);
+      return options;
+    } catch (error) {
+      console.error(`獲取${channelType} Messaging Types選項失敗:`, error);
+      return [
+        { value: "Reply Message", label: "Reply Message" },
+        { value: "Push Message", label: "Push Message" }
+      ];
+    }
+  }
   /**
    * 獲取指定類型的外部服務配置
    * @param {string} serviceType - 服務類型 (LINE, WHATSAPP等)
@@ -11573,158 +11385,104 @@ class ExternalService {
    */
   async getExternalServiceConfigs(serviceType) {
     try {
-      // 驗證服務類型
-      if (!serviceType || typeof serviceType !== 'string') {
-        throw new Error('服務類型不能為空且必須是字符串');
+      if (!serviceType || typeof serviceType !== "string") {
+        throw new Error("服務類型不能為空且必須是字符串");
       }
-
       const upperServiceType = serviceType.toUpperCase();
-
-      // 檢查是否有有效的快取
       const now = Date.now();
       const cacheKey = upperServiceType;
-
-      if (
-        this.servicesCache.has(cacheKey) &&
-        this.lastFetchTimes.has(cacheKey) &&
-        now - this.lastFetchTimes.get(cacheKey) < this.cacheExpiryTime
-      ) {
+      if (this.servicesCache.has(cacheKey) && this.lastFetchTimes.has(cacheKey) && now - this.lastFetchTimes.get(cacheKey) < this.cacheExpiryTime) {
         console.log(`使用快取的${upperServiceType}服務配置列表`);
         return this.servicesCache.get(cacheKey);
       }
-
-      // 如果已經有一個請求在進行中，則返回該請求
       if (this.pendingRequests.has(cacheKey)) {
         console.log(
           `已有進行中的${upperServiceType}服務配置請求，使用相同請求`
         );
         return this.pendingRequests.get(cacheKey);
       }
-
-      // 創建新請求
       console.log(`獲取${upperServiceType}服務配置列表...`);
       const options = tokenService.createAuthHeader({
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
+          "Content-Type": "application/json",
+          Accept: "application/json"
         }
       });
-
       const request = fetch(
-        `${this.baseUrl}/agent_designer/external_service_configs/${upperServiceType}`
-        // options
-      )
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log(`API返回原始${upperServiceType}服務配置數據:`, data);
-
-          // 檢查數據是否為數組
-          if (!Array.isArray(data)) {
-            console.warn(`API返回的${upperServiceType}服務配置數據不是陣列`);
-            // 嘗試從可能的非數組格式中提取數據
-            if (
-              data &&
-              typeof data === 'object' &&
-              data.configs &&
-              Array.isArray(data.configs)
-            ) {
-              data = data.configs;
-              console.log(`從API回應中提取configs陣列:`, data);
-            } else {
-              // 如果無法提取合理的數據，則返回空陣列
-              console.warn(
-                `無法從API回應中提取合理的${upperServiceType}服務配置數據，返回空陣列`
-              );
-              data = [];
-            }
-          }
-
-          // 檢查每個服務配置對象，確保結構正確
-          const processedData = data
-            .map((config, index) => {
-              if (!config || typeof config !== 'object') {
-                console.warn(
-                  `${upperServiceType}服務配置 ${index} 無效，跳過該項目`
-                );
-                return null;
-              }
-
-              // 確保服務配置有ID
-              if (config.id === undefined || config.id === null) {
-                console.warn(
-                  `${upperServiceType}服務配置 ${index} 缺少ID，使用索引作為ID`
-                );
-                config.id = index + 1;
-              }
-
-              // 確保服務配置有名稱
-              if (!config.name) {
-                console.warn(
-                  `${upperServiceType}服務配置 ${index} 缺少名稱，使用預設名稱`
-                );
-                config.name = `${upperServiceType} Config ${config.id}`;
-              }
-
-              // 確保服務類型正確
-              if (!config.service_type) {
-                config.service_type = upperServiceType;
-              }
-
-              return config;
-            })
-            .filter((config) => config !== null); // 過濾掉無效的配置
-
-          console.log(
-            `處理後的${upperServiceType}服務配置數據:`,
-            processedData
-          );
-
-          // 更新快取
-          this.servicesCache.set(cacheKey, processedData);
-          this.lastFetchTimes.set(cacheKey, now);
-          this.pendingRequests.delete(cacheKey); // 清除進行中的請求
-
-          return processedData;
-        })
-        .catch((error) => {
-          console.error(`獲取${upperServiceType}服務配置失敗:`, error);
-          this.pendingRequests.delete(cacheKey); // 清除進行中的請求，即使出錯
-
-          // 檢查是否為 CORS 錯誤或網路錯誤
-          if (
-            error.message &&
-            (error.message.includes('NetworkError') ||
-              error.message.includes('Failed to fetch') ||
-              error.message.includes('CORS'))
-          ) {
-            console.log(
-              `疑似 CORS 或網路問題，返回空的${upperServiceType}服務配置列表`
+        `${API_CONFIG.BASE_URL}/agent_designer/external_service_configs/${upperServiceType}`,
+        options
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+        }
+        return response.json();
+      }).then((data) => {
+        console.log(`API返回原始${upperServiceType}服務配置數據:`, data);
+        if (!Array.isArray(data)) {
+          console.warn(`API返回的${upperServiceType}服務配置數據不是陣列`);
+          if (data && typeof data === "object" && data.configs && Array.isArray(data.configs)) {
+            data = data.configs;
+            console.log(`從API回應中提取configs陣列:`, data);
+          } else {
+            console.warn(
+              `無法從API回應中提取合理的${upperServiceType}服務配置數據，返回空陣列`
             );
-            return [];
+            data = [];
           }
-
-          // 返回空陣列，而不是拋出錯誤
+        }
+        const processedData = data.map((config, index) => {
+          if (!config || typeof config !== "object") {
+            console.warn(
+              `${upperServiceType}服務配置 ${index} 無效，跳過該項目`
+            );
+            return null;
+          }
+          if (config.id === void 0 || config.id === null) {
+            console.warn(
+              `${upperServiceType}服務配置 ${index} 缺少ID，使用索引作為ID`
+            );
+            config.id = index + 1;
+          }
+          if (!config.name) {
+            console.warn(
+              `${upperServiceType}服務配置 ${index} 缺少名稱，使用預設名稱`
+            );
+            config.name = `${upperServiceType} Config ${config.id}`;
+          }
+          if (!config.service_type) {
+            config.service_type = upperServiceType;
+          }
+          return config;
+        }).filter((config) => config !== null);
+        console.log(
+          `處理後的${upperServiceType}服務配置數據:`,
+          processedData
+        );
+        this.servicesCache.set(cacheKey, processedData);
+        this.lastFetchTimes.set(cacheKey, now);
+        this.pendingRequests.delete(cacheKey);
+        return processedData;
+      }).catch((error) => {
+        console.error(`獲取${upperServiceType}服務配置失敗:`, error);
+        this.pendingRequests.delete(cacheKey);
+        if (error.message && (error.message.includes("NetworkError") || error.message.includes("Failed to fetch") || error.message.includes("CORS"))) {
+          console.log(
+            `疑似 CORS 或網路問題，返回空的${upperServiceType}服務配置列表`
+          );
           return [];
-        });
-
+        }
+        return [];
+      });
       this.pendingRequests.set(cacheKey, request);
       return request;
     } catch (error) {
       console.error(`獲取${serviceType}服務配置過程中出錯:`, error);
       const cacheKey = serviceType.toUpperCase();
       this.pendingRequests.delete(cacheKey);
-
-      // 返回空陣列，而不是拋出錯誤
       return [];
     }
   }
-
   /**
    * 獲取格式化後的外部服務配置選項，適用於下拉選單
    * @param {string} serviceType - 服務類型
@@ -11734,71 +11492,47 @@ class ExternalService {
     try {
       const configs = await this.getExternalServiceConfigs(serviceType);
       console.log(`${serviceType}服務配置數據:`, configs);
-
-      // 檢查服務配置數據是否有效
       if (!configs || !Array.isArray(configs)) {
         console.warn(`${serviceType}服務配置數據無效或不是陣列，返回空選項`);
         return [];
       }
-
       if (configs.length === 0) {
         console.warn(`API返回的${serviceType}服務配置陣列為空`);
         return [];
       }
-
-      // 將API返回的服務配置數據轉換為select選項格式
-      const options = configs
-        .map((config, index) => {
-          // 確保服務配置對象存在
-          if (!config) {
-            console.warn(
-              `遇到無效的${serviceType}服務配置數據，索引: ${index}`
-            );
-            return null;
-          }
-
-          // 記錄每個服務配置的關鍵屬性
-          console.log(`處理${serviceType}服務配置 ${index}:`, {
-            id: config.id,
-            name: config.name,
-            service_type: config.service_type,
-            description: config.description
-          });
-
-          // 取得 ID，確保是字串型別
-          const configId =
-            config.id !== undefined && config.id !== null
-              ? config.id.toString()
-              : `${index + 1}`;
-
-          // 取得顯示名稱
-          const displayLabel =
-            config.name || `${serviceType} Config ${configId}`;
-
-          // 取得描述
-          const description = config.description || '';
-
-          return {
-            value: configId,
-            label: displayLabel,
-            description: description,
-            serviceType: config.service_type || serviceType.toUpperCase(),
-            config: config.config || {},
-            updatedAt: config.updated_at,
-            userId: config.user_id
-          };
-        })
-        .filter((option) => option !== null); // 過濾掉無效的選項
-
+      const options = configs.map((config, index) => {
+        if (!config) {
+          console.warn(
+            `遇到無效的${serviceType}服務配置數據，索引: ${index}`
+          );
+          return null;
+        }
+        console.log(`處理${serviceType}服務配置 ${index}:`, {
+          id: config.id,
+          name: config.name,
+          service_type: config.service_type,
+          description: config.description
+        });
+        const configId = config.id !== void 0 && config.id !== null ? config.id.toString() : `${index + 1}`;
+        const displayLabel = config.name || `${serviceType} Config ${configId}`;
+        const description = config.description || "";
+        return {
+          value: configId,
+          label: displayLabel,
+          description,
+          serviceType: config.service_type || serviceType.toUpperCase(),
+          config: config.config || {},
+          updatedAt: config.updated_at,
+          userId: config.user_id
+        };
+      }).filter((option) => option !== null);
       console.log(`最終格式化的${serviceType}選項:`, options);
       return options;
     } catch (error) {
       console.error(`獲取${serviceType}服務配置選項失敗:`, error);
-      // 返回空陣列，以防API失敗
       return [];
     }
   }
-
   /**
    * 獲取所有支援的服務類型的配置
    * @returns {Promise<Object>} 所有服務類型的配置對象
@@ -11806,8 +11540,6 @@ class ExternalService {
   async getAllServiceConfigs() {
     try {
       const allConfigs = {};
-
-      // 並行獲取所有支援的服務類型配置
       const promises = this.supportedServiceTypes.map(async (serviceType) => {
         try {
           const configs = await this.getExternalServiceConfigs(serviceType);
@@ -11817,14 +11549,11 @@ class ExternalService {
           allConfigs[serviceType] = [];
         }
       });
-
       await Promise.all(promises);
-
-      console.log('所有服務配置:', allConfigs);
+      console.log("所有服務配置:", allConfigs);
       return allConfigs;
     } catch (error) {
-      console.error('獲取所有服務配置失敗:', error);
-      // 返回空對象結構
+      console.error("獲取所有服務配置失敗:", error);
       const emptyConfigs = {};
       this.supportedServiceTypes.forEach((type) => {
         emptyConfigs[type] = [];
@@ -11832,7 +11561,6 @@ class ExternalService {
       return emptyConfigs;
     }
   }
-
   /**
    * 清除特定服務類型的快取
    * @param {string} serviceType - 服務類型
@@ -11845,27 +11573,46 @@ class ExternalService {
       this.pendingRequests.delete(cacheKey);
       console.log(`已清除${serviceType}的快取`);
     } else {
-      // 清除所有快取
       this.servicesCache.clear();
       this.lastFetchTimes.clear();
       this.pendingRequests.clear();
-      console.log('已清除所有外部服務配置快取');
+      console.log("已清除所有外部服務配置快取");
     }
   }
-
+  /**
+   * 清除特定頻道類型的 Messaging Types 快取
+   * @param {string} channelType - 頻道類型
+   */
+  clearMessagingTypesCache(channelType = null) {
+    if (channelType) {
+      const cacheKey = channelType.toLowerCase();
+      this.messagingTypesCache.delete(cacheKey);
+      this.lastMessagingTypesFetchTimes.delete(cacheKey);
+      this.pendingMessagingTypesRequests.delete(cacheKey);
+      console.log(`已清除${channelType}的 Messaging Types 快取`);
+    } else {
+      this.messagingTypesCache.clear();
+      this.lastMessagingTypesFetchTimes.clear();
+      this.pendingMessagingTypesRequests.clear();
+      console.log("已清除所有 Messaging Types 快取");
+    }
+  }
   /**
    * 預加載所有支援的服務類型配置，通常在應用啟動時呼叫
    */
   preloadData() {
-    console.log('預加載所有外部服務配置');
-
+    console.log("預加載所有外部服務配置和 Messaging Types");
     this.supportedServiceTypes.forEach((serviceType) => {
       this.getExternalServiceConfigs(serviceType).catch((err) => {
         console.log(`預加載${serviceType}服務配置失敗:`, err);
       });
     });
+    this.supportedChannelTypes.forEach((channelType) => {
+      this.getMessagingTypes(channelType).catch((err) => {
+        console.log(`預加載${channelType} Messaging Types失敗:`, err);
+      });
+    });
   }
-
   /**
    * 檢查服務類型是否被支援
    * @param {string} serviceType - 服務類型
@@ -11874,7 +11621,14 @@ class ExternalService {
   isSupportedServiceType(serviceType) {
     return this.supportedServiceTypes.includes(serviceType?.toUpperCase());
   }
-
+  /**
+   * 檢查頻道類型是否被支援 (用於 messaging types)
+   * @param {string} channelType - 頻道類型
+   * @returns {boolean} 是否支援該頻道類型
+   */
+  isSupportedChannelType(channelType) {
+    return this.supportedChannelTypes.includes(channelType?.toLowerCase());
+  }
   /**
    * 獲取支援的服務類型列表
    * @returns {Array} 支援的服務類型陣列
@@ -11882,62 +11636,46 @@ class ExternalService {
   getSupportedServiceTypes() {
     return [...this.supportedServiceTypes];
   }
+  /**
+   * 獲取支援的頻道類型列表
+   * @returns {Array} 支援的頻道類型陣列
+   */
+  getSupportedChannelTypes() {
+    return [...this.supportedChannelTypes];
+  }
 }
-
-/**
- * 更新後的工作流數據轉換器，使用共用的映射功能
- */
 class WorkflowDataConverter {
   // 修改 transformToReactFlowFormat 方法，確保連線正確處理
   static transformToReactFlowFormat(apiData) {
-    console.log('開始轉換 API 格式為 ReactFlow 格式', apiData);
-
-    // 處理 API 數據結構差異
-    const flowPipeline =
-      apiData.flow_pipeline ||
-      (apiData.content ? apiData.content.flow_pipeline : []);
-
+    console.log("開始轉換 API 格式為 ReactFlow 格式", apiData);
+    const flowPipeline = apiData.flow_pipeline || (apiData.content ? apiData.content.flow_pipeline : []);
     if (!flowPipeline || !Array.isArray(flowPipeline)) {
-      console.error('找不到有效的 flow_pipeline 數組');
+      console.error("找不到有效的 flow_pipeline 數組");
       return { nodes: [], edges: [] };
     }
-
     const nodes = [];
     const edges = [];
-
-    // 首先處理所有節點，確保在創建邊緣之前節點已存在
     flowPipeline.forEach((node) => {
       console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
-
-      // 轉換為 ReactFlow 節點格式
       const reactFlowNode = {
         id: node.id,
         type: WorkflowMappingService.getTypeFromOperator(node.operator),
         position: {
-          x: typeof node.position_x === 'number' ? node.position_x : 0,
-          y: typeof node.position_y === 'number' ? node.position_y : 0
+          x: typeof node.position_x === "number" ? node.position_x : 0,
+          y: typeof node.position_y === "number" ? node.position_y : 0
         },
         data: this.transformNodeDataToReactFlow(node)
       };
-
-      // 特殊處理 BrowserExtensionOutput 節點
-      // 在 transformToReactFlowFormat 方法中的 BrowserExtensionOutput 節點處理邏輯
-      if (node.operator === 'browser_extension_output') {
+      if (node.operator === "browser_extension_output") {
         console.log(`特殊處理 BrowserExtensionOutput 節點: ${node.id}`);
-
-        // 從 node_input 提取所有 handle
         const inputHandles = [];
-        const handleMap = new Map(); // 用於記錄真實的 handle ID
-
-        if (node.node_input && typeof node.node_input === 'object') {
-          // 直接使用全部 handle ID
+        const handleMap = /* @__PURE__ */ new Map();
+        if (node.node_input && typeof node.node_input === "object") {
           const handlePattern = /^(output\d+)(?:_\d+)?$/;
           Object.keys(node.node_input).forEach((key) => {
             const match = key.match(handlePattern);
             if (match && match[1]) {
-              const baseHandleId = match[1]; // 提取基本 handle ID (如 output0)
-
-              // 如果這個基本 handle ID 還沒被加入，則添加
+              const baseHandleId = match[1];
               if (!handleMap.has(baseHandleId)) {
                 handleMap.set(baseHandleId, true);
                 inputHandles.push({ id: baseHandleId });
@@ -11946,19 +11684,12 @@ class WorkflowDataConverter {
                 );
               }
             } else {
-              // 非標準格式的 handle ID 直接添加
               inputHandles.push({ id: key });
               console.log(`從 node_input 提取非標準 handle ID: ${key}`);
             }
           });
         }
-
-        // 檢查是否有從參數中保存的 inputHandles
-        if (
-          node.parameters &&
-          node.parameters.inputHandles &&
-          node.parameters.inputHandles.data
-        ) {
+        if (node.parameters && node.parameters.inputHandles && node.parameters.inputHandles.data) {
           const savedHandles = node.parameters.inputHandles.data;
           if (Array.isArray(savedHandles)) {
             savedHandles.forEach((handleId) => {
@@ -11969,129 +11700,86 @@ class WorkflowDataConverter {
             });
           }
         }
-
-        // 確保至少有一個默認 handle
         if (inputHandles.length === 0) {
-          inputHandles.push({ id: 'output0' });
+          inputHandles.push({ id: "output0" });
           console.log(`添加默認 handle: output0`);
         }
-
-        // 設置節點數據
         reactFlowNode.data.inputHandles = inputHandles;
       }
-
       nodes.push(reactFlowNode);
     });
-
-    // 處理連接關係
     flowPipeline.forEach((node) => {
-      // 檢查節點類型
-      const isAINode = node.operator === 'ask_ai';
-      const isKnowledgeNode = node.operator === 'knowledge_retrieval';
-      const isMessageNode = node.operator === 'message';
-
-      // 處理節點之間的連接
+      const isAINode = node.operator === "ask_ai";
+      const isKnowledgeNode = node.operator === "knowledge_retrieval";
+      const isMessageNode = node.operator === "message";
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
-
-        // 如果是 AI 節點，檢查是否有直接輸入的提示文本
         if (isAINode) {
           const promptInput = node.node_input.prompt;
-          if (promptInput && promptInput.node_id === '') {
-            // 找到對應的 ReactFlow 節點
+          if (promptInput && promptInput.node_id === "") {
             const reactFlowNode = nodes.find((n) => n.id === node.id);
             if (reactFlowNode) {
-              // 設置直接輸入的 promptText
-              reactFlowNode.data.promptText = promptInput.data || '';
+              reactFlowNode.data.promptText = promptInput.data || "";
               console.log(
                 `設置AI節點直接輸入的提示文本: "${promptInput.data}"`
               );
             }
           }
         }
-
-        // 創建連接 - 忽略標記為 is_empty 的空連接
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          // 跳過直接輸入的提示文本，已在上面處理
-          if (inputKey === 'prompt' && inputValue.node_id === '') {
+          if (inputKey === "prompt" && inputValue.node_id === "") {
             return;
           }
-
-          // 跳過空連接（沒有源節點）
           if (!inputValue.node_id || inputValue.is_empty === true) {
             console.log(`跳過空連接: ${node.id}:${inputKey}`);
             return;
           }
-
-          // 為不同類型的節點處理特殊的 targetHandle
           let targetHandle = inputKey;
-          // 對於 BrowserExtensionOutput，處理多連線格式
-          if (node.operator === 'browser_extension_output') {
+          if (node.operator === "browser_extension_output") {
             const match = inputKey.match(/^(output\d+)(?:_\d+)?$/);
             if (match && match[1]) {
-              targetHandle = match[1]; // 使用基本 handle ID
+              targetHandle = match[1];
             }
           }
-          // AI 節點特殊處理
           if (isAINode) {
-            // 處理 context 相關的輸入鍵
-            if (inputKey.startsWith('context')) {
-              targetHandle = 'context-input';
+            if (inputKey.startsWith("context")) {
+              targetHandle = "context-input";
+            } else if (inputKey === "prompt" || inputKey === "prompt-input") {
+              targetHandle = "prompt-input";
             }
-            // 處理 prompt 相關的輸入鍵
-            else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
-              targetHandle = 'prompt-input';
-            }
-          }
-          // 知識檢索節點特殊處理
-          else if (isKnowledgeNode) {
-            // 統一使用 passage 作為目標 handle
-            if (inputKey === 'passage' || inputKey === 'input') {
-              targetHandle = 'passage';
+          } else if (isKnowledgeNode) {
+            if (inputKey === "passage" || inputKey === "input") {
+              targetHandle = "passage";
             }
           } else if (isMessageNode) {
-            // 對於消息節點，統一使用 message 作為目標 handle
-            if (inputKey.startsWith('message') || inputKey === 'input') {
-              targetHandle = 'message';
+            if (inputKey.startsWith("message") || inputKey === "input") {
+              targetHandle = "message";
             }
           }
-
-          // 為每個邊緣創建一個唯一的 ID
-          const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
-            inputValue.output_name || 'output'
-          }`;
-
+          const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${inputValue.output_name || "output"}`;
           console.log(
             `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${targetHandle}`
           );
-
-          // 確認目標節點存在
           const targetNode = nodes.find((n) => n.id === node.id);
           if (!targetNode) {
             console.warn(`找不到目標節點 ${node.id}，跳過邊緣創建`);
             return;
           }
-
-          // 創建邊緣，添加 return_name 支持
           const edge = {
             id: edgeId,
             source: inputValue.node_id,
-            sourceHandle: inputValue.output_name || 'output',
+            sourceHandle: inputValue.output_name || "output",
             target: node.id,
-            targetHandle: targetHandle,
-            type: 'custom-edge'
+            targetHandle,
+            type: "custom-edge"
           };
-
-          // 如果有 return_name 屬性，添加為標籤
           if (inputValue.return_name) {
             edge.label = inputValue.return_name;
             console.log(
               `邊緣 ${edgeId} 添加 return_name: ${inputValue.return_name}`
             );
           }
-
-          // 記錄詳細信息，幫助除錯
-          console.log('創建的邊緣詳情:', {
+          console.log("創建的邊緣詳情:", {
             id: edge.id,
             source: edge.source,
             target: edge.target,
@@ -12099,17 +11787,12 @@ class WorkflowDataConverter {
             targetHandle: edge.targetHandle,
             label: edge.label
           });
-
           edges.push(edge);
         });
       }
     });
-
     console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
-
-    // 自動布局（如果位置都是 0,0）
     this.autoLayout(nodes);
-
     return { nodes, edges };
   }
   /**
@@ -12126,68 +11809,46 @@ class WorkflowDataConverter {
       node_input: node.node_input,
       node_output: node.node_output
     };
-
-    if (node.operator === 'browser_extension_output') {
+    if (node.operator === "browser_extension_output") {
       baseData.onAddOutput = (newInputHandles) => {
-        // 類似於 handleAddBrowserExtensionOutput 中的邏輯
         console.log(`更新節點的 handle：`, newInputHandles);
-        // 實現更新邏輯
       };
-
       baseData.onRemoveHandle = (handleId) => {
-        // 實現移除 handle 的邏輯
         console.log(`準備移除 handle：${handleId}`);
       };
     }
-
-    // 根據節點類型轉換參數
     switch (node.operator) {
-      case 'line':
-        console.log('處理 line 節點數據轉換:', node);
+      case "line":
+        console.log("處理 line 節點數據轉換:", node);
         return {
           ...baseData,
-          external_service_config_id:
-            node.parameters?.external_service_config_id?.data || '',
-          webhook_url: node.parameters?.webhook_url?.data || '',
+          external_service_config_id: node.parameters?.external_service_config_id?.data || "",
+          webhook_url: node.parameters?.webhook_url?.data || "",
           // 從 node_output 推斷輸出 handles
-          output_handles: node.node_output
-            ? Object.keys(node.node_output).filter((key) => key !== 'node_id')
-            : ['text', 'image']
+          output_handles: node.node_output ? Object.keys(node.node_output).filter((key) => key !== "node_id") : ["text", "image"]
         };
-      case 'browser_extension_input':
+      case "browser_extension_input":
         return {
           ...baseData,
-          type: 'browserExtensionInput',
+          type: "browserExtensionInput",
           browser_extension_url: node.parameters?.browser_extension_url?.data,
-          items:
-            node.parameters?.functions?.map((func) => ({
-              id: func.func_id,
-              name: func.func_name,
-              icon: func.func_icon || 'document'
-            })) || []
+          items: node.parameters?.functions?.map((func) => ({
+            id: func.func_id,
+            name: func.func_name,
+            icon: func.func_icon || "document"
+          })) || []
         };
-
-      case 'browser_extension_output': {
-        // 從 node_input 提取 handle，但只有在有連線時才提取
+      case "browser_extension_output": {
         let inputHandles = [];
-
-        // 檢查是否有 node_input 數據
-        if (
-          node.node_input &&
-          typeof node.node_input === 'object' &&
-          Object.keys(node.node_input).length > 0
-        ) {
+        if (node.node_input && typeof node.node_input === "object" && Object.keys(node.node_input).length > 0) {
           console.log(
             `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
             node.node_input
           );
-
-          // 從 node_input 提取所有 handle ID
           inputHandles = Object.keys(node.node_input).map((handleId) => {
             console.log(`從 node_input 提取 handle ID: ${handleId}`);
             return { id: handleId };
           });
-
           console.log(
             `節點 ${node.id} 從 node_input 提取的 handle:`,
             inputHandles
@@ -12195,164 +11856,82 @@ class WorkflowDataConverter {
         } else {
           console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
         }
-
         return {
           ...baseData,
-          type: 'browserExtensionOutput',
-          inputHandles: inputHandles
+          type: "browserExtensionOutput",
+          inputHandles
         };
       }
-
-      case 'webhook':
+      case "webhook":
         return {
           ...baseData,
-          webhookUrl: node.parameters?.webhook_url?.data || ''
+          webhookUrl: node.parameters?.webhook_url?.data || ""
         };
-
-      case 'ask_ai': {
-        // 獲取模型ID，確保處理可能的undefined或null值 // 優先使用 llm_id，如果不存在則使用 model
-        const rawModelId =
-          node.parameters?.llm_id?.data !== undefined
-            ? node.parameters.llm_id.data
-            : node.parameters?.model?.data !== undefined
-            ? node.parameters.model.data
-            : '1';
-
-        // 確保模型ID是字符串類型
-        const modelId =
-          rawModelId !== null && rawModelId !== undefined
-            ? rawModelId.toString()
-            : '1';
-
-        // 提取 prompt 文本
-        const promptText = node.parameters?.prompt?.data || '';
-
+      case "ask_ai": {
+        const rawModelId = node.parameters?.llm_id?.data !== void 0 ? node.parameters.llm_id.data : node.parameters?.model?.data !== void 0 ? node.parameters.model.data : "1";
+        const modelId = rawModelId !== null && rawModelId !== void 0 ? rawModelId.toString() : "1";
+        const promptText = node.parameters?.prompt?.data || "";
         return {
           ...baseData,
           model: modelId,
-          promptText: promptText
+          promptText
         };
       }
-
-      case 'basic_input': {
-        // 提取參數中的欄位
-        // const fields = [];
-        // 修改: 使用固定參數名稱而不是索引
-        // 有可能有舊資料， input_name_0, default_value_0, 也要多判斷
+      case "basic_input": {
         const field = {
-          inputName:
-            node.parameters?.input_name?.data ||
-            node.parameters?.input_name_0?.data ||
-            'input_name',
-          defaultValue:
-            node.parameters?.default_value?.data ||
-            node.parameters?.default_value_0?.data ||
-            ''
+          inputName: node.parameters?.input_name?.data || node.parameters?.input_name_0?.data || "input_name",
+          defaultValue: node.parameters?.default_value?.data || node.parameters?.default_value_0?.data || ""
         };
-
         console.log(`處理 basic_input 節點:`, {
           inputName: field.inputName,
           defaultValue: field.defaultValue
         });
-        // const paramKeys = Object.keys(node.parameters || {});
-
-        // console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
-
-        // // 查找所有輸入欄位對
-        // const fieldIndicies = new Set();
-
-        // paramKeys.forEach((key) => {
-        //   if (
-        //     key.startsWith('input_name_') ||
-        //     key.startsWith('default_value_')
-        //   ) {
-        //     const match = key.match(/_(\d+)$/);
-        //     if (match && match[1]) {
-        //       fieldIndicies.add(parseInt(match[1]));
-        //     }
-        //   }
-        // });
-
-        // const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
-        // console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
-
-        // // 處理每個欄位
-        // sortedIndicies.forEach((i) => {
-        //   const field = {
-        //     inputName:
-        //       node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
-        //     defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
-        //   };
-        //   fields.push(field);
-        //   console.log(`添加欄位 ${i}:`, field);
-        // });
-
-        // // 確保至少有一個欄位
-        // if (fields.length === 0) {
-        //   const defaultField = {
-        //     inputName: 'default_input',
-        //     defaultValue: 'Enter value here'
-        //   };
-        //   fields.push(defaultField);
-        //   console.log('添加一個默認欄位:', defaultField);
-        // }
-
-        // 返回完整的資料結構，不包含回調函數
-        // 回調函數將在 updateNodeFunctions 中添加
         return {
           ...baseData,
           fields: [field]
         };
       }
-
-      case 'ifElse':
+      case "ifElse":
         return {
           ...baseData,
-          variableName: node.parameters?.variable?.data || '',
-          operator: node.parameters?.operator?.data || 'equals',
-          compareValue: node.parameters?.compare_value?.data || ''
+          variableName: node.parameters?.variable?.data || "",
+          operator: node.parameters?.operator?.data || "equals",
+          compareValue: node.parameters?.compare_value?.data || ""
         };
-
-      case 'knowledge_retrieval':
+      case "knowledge_retrieval":
         return {
           ...baseData,
-          selectedFile: node.parameters?.file_id?.data || '',
+          selectedFile: node.parameters?.file_id?.data || "",
           availableFiles: [
-            { id: 'icdcode', name: 'ICDCode.csv' },
-            { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
+            { id: "icdcode", name: "ICDCode.csv" },
+            { id: "cardiology", name: "Cardiology_Diagnoses.csv" }
           ]
         };
-
-      case 'http':
+      case "http":
         return {
           ...baseData,
-          url: node.parameters?.url?.data || '',
-          method: node.parameters?.method?.data || 'GET'
+          url: node.parameters?.url?.data || "",
+          method: node.parameters?.method?.data || "GET"
         };
-
-      case 'timer':
+      case "timer":
         return {
           ...baseData,
           hours: node.parameters?.hours?.data || 0,
           minutes: node.parameters?.minutes?.data || 0,
           seconds: node.parameters?.seconds?.data || 0
         };
-
-      case 'event':
+      case "event":
         return {
           ...baseData,
-          eventType: node.parameters?.event_type?.data || 'message',
-          eventSource: node.parameters?.event_source?.data || ''
+          eventType: node.parameters?.event_type?.data || "message",
+          eventSource: node.parameters?.event_source?.data || ""
         };
-
-      case 'end':
+      case "end":
         return {
           ...baseData,
-          outputText: node.parameters?.output_text?.data || ''
+          outputText: node.parameters?.output_text?.data || ""
         };
-
       default: {
-        // 對於未明確處理的節點類型，保留原始參數
         const transformedParams = {};
         Object.entries(node.parameters || {}).forEach(([key, value]) => {
           transformedParams[key] = value.data;
@@ -12364,112 +11943,79 @@ class WorkflowDataConverter {
       }
     }
   }
-
   /**
    * 自動布局節點（如果所有節點都在同一位置）
    * @param {Array} nodes - ReactFlow 節點數組
    */
   static autoLayout(nodes) {
-    // 檢查是否需要自動布局
-    const needsLayout =
-      nodes.length > 1 &&
-      nodes.every((node) => node.position.x === 0 && node.position.y === 0);
-
+    const needsLayout = nodes.length > 1 && nodes.every((node) => node.position.x === 0 && node.position.y === 0);
     if (needsLayout) {
-      console.log('執行自動節點布局');
-
+      console.log("執行自動節點布局");
       let currentX = 50;
       let currentY = 50;
       const xSpacing = 300;
       const ySpacing = 150;
-
-      // 對節點進行分類
-      const starterNodes = nodes.filter((node) =>
-        ['browserExtensionInput', 'webhook'].includes(node.type)
+      const starterNodes = nodes.filter(
+        (node) => ["browserExtensionInput", "webhook"].includes(node.type)
       );
-
-      const inputNodes = nodes.filter((node) =>
-        ['customInput', 'input'].includes(node.type)
+      const inputNodes = nodes.filter(
+        (node) => ["customInput", "input"].includes(node.type)
       );
-
-      const processingNodes = nodes.filter((node) =>
-        [
-          'aiCustomInput',
-          'ai',
-          'ifElse',
-          'knowledgeRetrieval',
-          'http',
-          'timer',
-          'event'
+      const processingNodes = nodes.filter(
+        (node) => [
+          "aiCustomInput",
+          "ai",
+          "ifElse",
+          "knowledgeRetrieval",
+          "http",
+          "timer",
+          "event"
         ].includes(node.type)
       );
-
-      const outputNodes = nodes.filter((node) =>
-        ['browserExtensionOutput', 'line', 'end'].includes(node.type)
+      const outputNodes = nodes.filter(
+        (node) => ["browserExtensionOutput", "line", "end"].includes(node.type)
       );
-
-      // 布局開始節點
       starterNodes.forEach((node, index) => {
         node.position.x = currentX;
         node.position.y = currentY + index * ySpacing;
       });
-
-      // 布局輸入節點
       currentX += xSpacing;
       inputNodes.forEach((node, index) => {
         node.position.x = currentX;
         node.position.y = currentY + index * ySpacing;
       });
-
-      // 布局處理節點
       currentX += xSpacing;
       processingNodes.forEach((node, index) => {
         node.position.x = currentX;
         node.position.y = currentY + index * ySpacing;
       });
-
-      // 布局輸出節點
       currentX += xSpacing;
       outputNodes.forEach((node, index) => {
         node.position.x = currentX;
         node.position.y = currentY + index * ySpacing;
       });
-
-      console.log('自動布局完成');
+      console.log("自動布局完成");
     }
   }
-
   /**
    * 修改 WorkflowDataConverter 中的 convertReactFlowToAPI 方法，修復 'nodes is not defined' 錯誤
    */
   static convertReactFlowToAPI(reactFlowData) {
-    console.log('開始轉換 ReactFlow 格式為 API 格式');
-
-    // 從 reactFlowData 中提取節點和邊緣
+    console.log("開始轉換 ReactFlow 格式為 API 格式");
     const { nodes, edges } = reactFlowData;
-
     if (!nodes || !Array.isArray(nodes)) {
-      console.error('缺少有效的節點數據');
+      console.error("缺少有效的節點數據");
       return null;
     }
-
-    // 轉換節點
     const flowPipeline = nodes.map((node) => {
       console.log(`處理節點 ${node.id}, 類型: ${node.type}`);
-
-      // 提取節點輸入連接 - 現在傳遞所有節點作為參數
       const nodeInput = WorkflowMappingService.extractNodeInputForAPI(
         node.id,
         edges,
         nodes
       );
-
-      // 提取節點輸出連接
       const nodeOutput = WorkflowMappingService.extractNodeOutputForAPI(node);
-
-      // 轉換節點數據
       const parameters = this.transformNodeDataToAPI(node);
-
       return {
         id: node.id,
         category: WorkflowMappingService.getCategoryFromType(node.type),
@@ -12477,30 +12023,26 @@ class WorkflowDataConverter {
         parameters,
         position_x: node.position.x,
         position_y: node.position.y,
-        version: node.data?.version || '0.0.1',
+        version: node.data?.version || "0.0.1",
         node_input: nodeInput,
         node_output: nodeOutput
       };
     });
-
-    // 創建最終 API 數據結構
     const apiData = {
-      flow_name: reactFlowData.title || '未命名流程',
+      flow_name: reactFlowData.title || "未命名流程",
       flow_id: reactFlowData.id || `flow_${Date.now()}`,
       content: {
-        flow_type: 'NORMAL',
+        flow_type: "NORMAL",
         headers: reactFlowData.headers || {
-          Authorization: 'Bearer your-token-here',
-          'Content-Type': 'application/json'
+          Authorization: "Bearer your-token-here",
+          "Content-Type": "application/json"
         }
       },
       flow_pipeline: flowPipeline
     };
-
-    console.log('轉換為 API 格式完成');
+    console.log("轉換為 API 格式完成");
     return apiData;
   }
-
   /**
    * 統一 AI 節點輸入鍵的格式
    * @param {string} key - 原始輸入鍵
@@ -12508,31 +12050,21 @@ class WorkflowDataConverter {
    * @returns {string} - 統一格式的輸入鍵
    */
   static normalizeAIInputKey(key, index = 0) {
-    // 處理 prompt 相關的鍵
-    if (key === 'prompt-input' || key === 'prompt') {
-      return 'prompt';
+    if (key === "prompt-input" || key === "prompt") {
+      return "prompt";
     }
-
-    // 處理 context 相關的鍵
-    if (key === 'context-input') {
-      // 單一 context 連接
-      return 'context0';
-    } else if (key.startsWith('context-input_')) {
-      // 舊版多連接格式：context-input_0, context-input_1
-      const oldIndex = key.split('_')[1];
+    if (key === "context-input") {
+      return "context0";
+    } else if (key.startsWith("context-input_")) {
+      const oldIndex = key.split("_")[1];
       return `context${oldIndex}`;
     } else if (key.match(/^context\d+$/)) {
-      // 新版格式：已經是 context0, context1 等
       return key;
-    } else if (key.startsWith('context')) {
-      // 其他 context 開頭的格式
+    } else if (key.startsWith("context")) {
       return `context${index}`;
     }
-
-    // 其他鍵保持不變
     return key;
   }
-
   /**
    * 將 ReactFlow 節點數據轉換為 API 參數格式
    * @param {Object} node - ReactFlow 節點
@@ -12541,16 +12073,13 @@ class WorkflowDataConverter {
   static transformNodeDataToAPI(node) {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
-    console.log('=================', node);
+    console.log("=================", node);
     switch (node.type) {
-      case 'line':
-        console.log('處理 line 節點 API 轉換:', node.data);
-        // Line Webhook 節點參數
+      case "line":
+        console.log("處理 line 節點 API 轉換:", node.data);
         if (node.data.external_service_config_id) {
           parameters.external_service_config_id = {
-            data:
-              parseInt(node.data.external_service_config_id) ||
-              node.data.external_service_config_id
+            data: parseInt(node.data.external_service_config_id) || node.data.external_service_config_id
           };
         }
         if (node.data.webhook_url) {
@@ -12559,62 +12088,33 @@ class WorkflowDataConverter {
           };
         }
         break;
-      case 'customInput':
-      case 'input':
-        // if (node.data.fields && node.data.fields.length > 0) {
-        //   node.data.fields.forEach((field, index) => {
-        //     parameters[`input_name_${index}`] = { data: field.inputName || '' };
-        //     parameters[`default_value_${index}`] = {
-        //       data: field.defaultValue || ''
-        //     };
-        //   });
-        //   console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
-        // } else {
-        //   console.warn(`節點 ${node.id} 沒有欄位資料`);
-        // }
-
-        // 修改: 使用固定參數名稱而不是索引
-        // 使用第一個欄位的資料，或是空字串
+      case "customInput":
+      case "input":
         if (node.data.fields && node.data.fields.length > 0) {
-          const field = node.data.fields[0]; // 只使用第一個欄位
-          parameters.input_name = { data: field.inputName || '' };
-          parameters.default_value = { data: field.defaultValue || '' };
+          const field = node.data.fields[0];
+          parameters.input_name = { data: field.inputName || "" };
+          parameters.default_value = { data: field.defaultValue || "" };
           console.log(
             `處理輸入節點參數: input_name=${field.inputName}, default_value=${field.defaultValue}`
           );
         } else {
-          // 如果沒有欄位資料，提供默認值
-          parameters.input_name = { data: 'input_name' };
-          parameters.default_value = { data: 'Summary the input text' };
+          parameters.input_name = { data: "input_name" };
+          parameters.default_value = { data: "Summary the input text" };
           console.warn(`節點 ${node.id} 沒有欄位資料，使用默認值`);
         }
         break;
-
-      case 'aiCustomInput':
-      case 'ai': {
-        // 處理可能的無效model值
-        const modelValue = node.data.model || '1';
-
-        // 確保值為字符串
-        const safeModelValue =
-          typeof modelValue !== 'string'
-            ? modelValue.toString()
-            : modelValue;
-
-        // 使用model作為llm_id - 現在存的是ID值而非名稱
+      case "aiCustomInput":
+      case "ai": {
+        const modelValue = node.data.model || "1";
+        const safeModelValue = typeof modelValue !== "string" ? modelValue.toString() : modelValue;
         parameters.llm_id = { data: Number(safeModelValue) };
-
-        // 新增處理 promptText - 當有直接輸入的提示文本時
-        // 兼容舊版：不覆蓋已有的 prompt 參數
         if (node.data.promptText && !parameters.prompt) {
           parameters.prompt = { data: node.data.promptText };
         }
-
         break;
       }
-
-      case 'browserExtensionInput':
-      case 'browserExtInput':
+      case "browserExtensionInput":
+      case "browserExtInput":
         if (node.data.browser_extension_url) {
           parameters.browser_extension_url = {
             data: node.data.browser_extension_url
@@ -12623,39 +12123,35 @@ class WorkflowDataConverter {
         if (node.data.items && node.data.items.length > 0) {
           parameters.functions = node.data.items.map((item, index) => ({
             func_id: item.id || `a${index + 1}`,
-            func_name: item.name || '',
-            func_icon: item.icon || 'document'
+            func_name: item.name || "",
+            func_icon: item.icon || "document"
           }));
         }
         break;
-
-      case 'webhook':
+      case "webhook":
         if (node.data.webhookUrl) {
           parameters.webhook_url = { data: node.data.webhookUrl };
         }
         break;
-
-      case 'knowledgeRetrieval':
-      case 'knowledge_retrieval':
+      case "knowledgeRetrieval":
+      case "knowledge_retrieval":
         if (node.data.selectedFile) {
           parameters.file_id = { data: node.data.selectedFile };
         }
-        // 添加 top_k 參數
         parameters.top_k = { data: node.data.topK || 5 };
         break;
-      case 'ifElse':
+      case "ifElse":
         if (node.data.variableName) {
           parameters.variable = { data: node.data.variableName };
         }
         if (node.data.operator) {
           parameters.operator = { data: node.data.operator };
         }
-        if (node.data.compareValue !== undefined) {
+        if (node.data.compareValue !== void 0) {
           parameters.compare_value = { data: node.data.compareValue };
         }
         break;
-
-      case 'http':
+      case "http":
         if (node.data.url) {
           parameters.url = { data: node.data.url };
         }
@@ -12663,34 +12159,24 @@ class WorkflowDataConverter {
           parameters.method = { data: node.data.method };
         }
         break;
-
-      case 'timer':
+      case "timer":
         parameters.hours = { data: node.data.hours || 0 };
         parameters.minutes = { data: node.data.minutes || 0 };
         parameters.seconds = { data: node.data.seconds || 0 };
         break;
-
-      case 'event':
-        parameters.event_type = { data: node.data.eventType || 'message' };
+      case "event":
+        parameters.event_type = { data: node.data.eventType || "message" };
         if (node.data.eventSource) {
           parameters.event_source = { data: node.data.eventSource };
         }
         break;
-
-      case 'end':
-        if (node.data.outputText !== undefined) {
+      case "end":
+        if (node.data.outputText !== void 0) {
           parameters.output_text = { data: node.data.outputText };
         }
         break;
-
-      case 'browserExtensionOutput':
-        // 重要：保存所有 inputHandles 到 parameters
-        if (
-          node.data &&
-          node.data.inputHandles &&
-          Array.isArray(node.data.inputHandles)
-        ) {
-          // 儲存 handle ID 列表
+      case "browserExtensionOutput":
+        if (node.data && node.data.inputHandles && Array.isArray(node.data.inputHandles)) {
           parameters.inputHandles = {
             data: node.data.inputHandles.map((h) => h.id)
           };
@@ -12699,47 +12185,34 @@ class WorkflowDataConverter {
           );
         }
         break;
-
       default:
-        // 對於其他類型，直接轉換非系統屬性
         if (node.data) {
           Object.entries(node.data).forEach(([key, value]) => {
-            // 排除系統屬性和函數
-            if (
-              ![
-                'label',
-                'category',
-                'operator',
-                'version',
-                'node_input',
-                'node_output',
-                'onSelect',
-                'updateNodeData',
-                'addField',
-                'updateFieldInputName',
-                'updateFieldDefaultValue'
-              ].includes(key) &&
-              typeof value !== 'function'
-            ) {
+            if (![
+              "label",
+              "category",
+              "operator",
+              "version",
+              "node_input",
+              "node_output",
+              "onSelect",
+              "updateNodeData",
+              "addField",
+              "updateFieldInputName",
+              "updateFieldDefaultValue"
+            ].includes(key) && typeof value !== "function") {
               parameters[key] = { data: value };
             }
           });
         }
     }
-
     return parameters;
   }
 }
-
-/**
- * 圖標上傳服務 - 處理與圖標上傳相關的 API 請求
- */
 class IconUploadService {
   constructor() {
-    this.baseUrl = 'https://api-dev.qoca-apa.quanta-research.com/v1';
-    this.cache = {}; // 緩存上傳過的圖標
+    this.cache = {};
   }
-
   /**
    * 上傳圖標文件到服務器
    * @param {File} file - 要上傳的文件對象
@@ -12747,77 +12220,58 @@ class IconUploadService {
    */
   async uploadIcon(file) {
     if (!file) {
-      throw new Error('未提供文件');
+      throw new Error("未提供文件");
     }
-
-    // 檢查文件類型
-    if (!file.type.startsWith('image/')) {
-      throw new Error('僅支持圖片文件');
+    if (!file.type.startsWith("image/")) {
+      throw new Error("僅支持圖片文件");
     }
-
     try {
       console.log(`開始上傳圖標: ${file.name}`);
-
-      // 創建 FormData 對象
       const formData = new FormData();
-      formData.append('file', file); // 使用正確的欄位名稱 'file'
-
-      // 發送 POST 請求
+      formData.append("file", file);
       const options = tokenService.createAuthHeader({
-        method: 'POST',
+        method: "POST",
         headers: {
-          accept: 'application/json'
+          accept: "application/json"
           // 注意：不要設置 'Content-Type': 'multipart/form-data'，
           // fetch 會自動設置正確的 boundary
         },
         body: formData
       });
       const response = await fetch(
-        `${this.baseUrl}/agent_designer/icons/`,
+        `${API_CONFIG.BASE_URL}/agent_designer/icons/`,
         options
       );
-
       if (!response.ok) {
         throw new Error(`上傳失敗: ${response.status} ${response.statusText}`);
       }
-
-      // 解析 API 回傳的資料
       const data = await response.json();
-      console.log('圖標上傳成功:', data);
-
+      console.log("圖標上傳成功:", data);
       if (!data.url) {
-        throw new Error('API 未回傳圖標 URL');
+        throw new Error("API 未回傳圖標 URL");
       }
-
-      // 將 URL 加入緩存
       this.cache[file.name] = data.url;
-
       return {
         success: true,
         url: data.url
       };
     } catch (error) {
-      console.error('上傳圖標時發生錯誤:', error);
+      console.error("上傳圖標時發生錯誤:", error);
       return {
         success: false,
-        error: error.message || '上傳圖標失敗',
+        error: error.message || "上傳圖標失敗",
         details: error
       };
     }
   }
-
   /**
    * 檢查圖標 URL 是否有效
    * @param {string} iconValue - 圖標值，可能是 URL 或預設圖標名稱
    * @returns {boolean} - 如果是有效的圖標 URL 返回 true
    */
   isIconUrl(iconValue) {
-    return (
-      typeof iconValue === 'string' &&
-      (iconValue.startsWith('http://') || iconValue.startsWith('https://'))
-    );
+    return typeof iconValue === "string" && (iconValue.startsWith("http://") || iconValue.startsWith("https://"));
   }
-
   /**
    * 從緩存中獲取圖標 URL
    * @param {string} fileName - 文件名
@@ -12827,17 +12281,13 @@ class IconUploadService {
     return this.cache[fileName] || null;
   }
 }
-
-// 創建服務實例
 const workflowAPIService = new WorkflowAPIService();
 const llmService = new LLMService();
-// 將 IconUploadService 添加到導出
 const iconUploadService = new IconUploadService();
-// 創建單例實例
 const externalService = new ExternalService();
 
 const React$g = await importShared('react');
-const {memo: memo$a,useState: useState$d,useEffect: useEffect$7,useCallback: useCallback$7,useRef: useRef$3} = React$g;
+const {memo: memo$a,useState: useState$d,useEffect: useEffect$7,useCallback: useCallback$7,useRef: useRef$5} = React$g;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
   const [modelOptions, setModelOptions] = useState$d([
     { value: "1", label: "O3-mini" },
@@ -12856,10 +12306,10 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const [modelLoadError, setModelLoadError] = useState$d(null);
   const [localModel, setLocalModel] = useState$d(data?.model || "1");
   const [promptText, setPromptText] = useState$d(data?.promptText || "");
-  const isComposingRef = useRef$3(false);
-  const updateTimeoutRef = useRef$3(null);
-  const lastExternalValueRef = useRef$3(data?.promptText || "");
-  const isUserInputRef = useRef$3(false);
+  const isComposingRef = useRef$5(false);
+  const updateTimeoutRef = useRef$5(null);
+  const lastExternalValueRef = useRef$5(data?.promptText || "");
+  const isUserInputRef = useRef$5(false);
   useEffect$7(() => {
     console.log("AICustomInputNode 數據同步更新:", {
       "data.model": data?.model,
@@ -13000,7 +12450,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "select",
             {
-              className: `w-full border border-gray-300 rounded p-2 text-sm bg-white 
+              className: `w-full border border-gray-300 rounded p-2 text-sm bg-white appearance-none
                 ${isLoadingModels ? "opacity-70 cursor-wait" : ""} 
                 ${modelLoadError ? "border-red-300" : ""}`,
               value: localModel,
@@ -13016,7 +12466,21 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               ))
             }
           ),
-          isLoadingModels && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) })
+          isLoadingModels ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              xmlns: "http://www.w3.org/2000/svg",
+              width: "16",
+              height: "16",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+            }
+          ) })
         ] }),
         modelLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: modelLoadError })
       ] }),
@@ -13136,14 +12600,14 @@ const Add = () => {
 };
 
 const React$f = await importShared('react');
-const {memo: memo$9,useEffect: useEffect$6,useState: useState$c,useRef: useRef$2,useCallback: useCallback$6} = React$f;
+const {memo: memo$9,useEffect: useEffect$6,useState: useState$c,useRef: useRef$4,useCallback: useCallback$6} = React$f;
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const [inputs, setInputs] = useState$c([]);
   const [handleLabels, setHandleLabels] = useState$c({});
   const updateNodeInternals = useUpdateNodeInternals();
-  const initAttempts = useRef$2(0);
+  const initAttempts = useRef$4(0);
   const nodeId = id || "unknown";
-  const isUpdating = useRef$2(false);
+  const isUpdating = useRef$4(false);
   const handleHeight = 40;
   const getNodeHeight = useCallback$6(() => {
     const headerHeight = 50;
@@ -13546,13 +13010,13 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 const BrowserExtensionOutputNode$1 = memo$9(BrowserExtensionOutputNode);
 
 const React$e = await importShared('react');
-const {memo: memo$8,useState: useState$b,useEffect: useEffect$5,useCallback: useCallback$5,useRef: useRef$1} = React$e;
+const {memo: memo$8,useState: useState$b,useEffect: useEffect$5,useCallback: useCallback$5,useRef: useRef$3} = React$e;
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
   const [localItems, setLocalItems] = useState$b(data?.items || []);
   const [isUploading, setIsUploading] = useState$b(false);
   const [uploadError, setUploadError] = useState$b(null);
-  const fileInputRef = useRef$1(null);
-  const activeItemRef = useRef$1(null);
+  const fileInputRef = useRef$3(null);
+  const activeItemRef = useRef$3(null);
   useEffect$5(() => {
     console.log("BrowserExtensionInputNode 數據同步檢查:", {
       "data.items": data?.items,
@@ -14547,7 +14011,7 @@ const HTTPNode = ({ data, isConnectable }) => {
 const HTTPNode$1 = memo$3(HTTPNode);
 
 const React$8 = await importShared('react');
-const {memo: memo$2,useState: useState$8,useEffect: useEffect$3,useCallback: useCallback$3} = React$8;
+const {memo: memo$2,useState: useState$8,useEffect: useEffect$3,useCallback: useCallback$3,useRef: useRef$2} = React$8;
 const LineNode = ({ data, isConnectable, id }) => {
   const [selectedConfigId, setSelectedConfigId] = useState$8(
     data?.external_service_config_id || ""
@@ -14555,21 +14019,36 @@ const LineNode = ({ data, isConnectable, id }) => {
   const [serviceConfigs, setServiceConfigs] = useState$8([]);
   const [configLoadError, setConfigLoadError] = useState$8(null);
   const [isLoadingConfigs, setIsLoadingConfigs] = useState$8(false);
-  const [webhookUrl, setWebhookUrl] = useState$8("https://example.com/webhook");
+  const [webhookUrl, setWebhookUrl] = useState$8("");
   const [isCreatingWebhook, setIsCreatingWebhook] = useState$8(false);
+  const isInitialized = useRef$2(false);
+  const lastSyncedConfigId = useRef$2(selectedConfigId);
+  const lastSyncedWebhookUrl = useRef$2(webhookUrl);
+  const isUpdating = useRef$2(false);
   const outputHandles = ["text", "image"];
   const updateParentState = useCallback$3(
     (key, value) => {
+      if (isUpdating.current) {
+        console.log(`跳過重複更新: ${key}=${value}`);
+        return false;
+      }
       console.log(`嘗試更新父組件狀態 ${key}=${value}`);
       if (data && typeof data.updateNodeData === "function") {
-        data.updateNodeData(key, value);
-        console.log(`使用 updateNodeData 更新 ${key}`);
-        return true;
-      }
-      if (data) {
-        data[key] = value;
-        console.log(`直接修改 data.${key} = ${value}`);
-        return true;
+        isUpdating.current = true;
+        try {
+          data.updateNodeData(key, value);
+          console.log(`使用 updateNodeData 更新 ${key} 成功`);
+          if (key === "external_service_config_id") {
+            lastSyncedConfigId.current = value;
+          } else if (key === "webhook_url") {
+            lastSyncedWebhookUrl.current = value;
+          }
+          return true;
+        } finally {
+          setTimeout(() => {
+            isUpdating.current = false;
+          }, 100);
+        }
       }
       console.warn(`無法更新父組件的 ${key}`);
       return false;
@@ -14577,7 +14056,10 @@ const LineNode = ({ data, isConnectable, id }) => {
     [data]
   );
   const loadServiceConfigs = useCallback$3(async () => {
-    if (isLoadingConfigs) return;
+    if (isLoadingConfigs) {
+      console.log("已在載入中，跳過重複載入");
+      return;
+    }
     setIsLoadingConfigs(true);
     setConfigLoadError(null);
     try {
@@ -14586,14 +14068,25 @@ const LineNode = ({ data, isConnectable, id }) => {
       console.log("載入的 LINE 服務配置:", configs);
       if (configs && configs.length > 0) {
         setServiceConfigs(configs);
-        const currentConfigId = data?.external_service_config_id || selectedConfigId;
-        if (currentConfigId && !configs.some((config) => config.value === currentConfigId.toString())) {
-          console.log(`當前配置 ${currentConfigId} 不在選項列表中，清空選擇`);
-          setSelectedConfigId("");
-          updateParentState("external_service_config_id", "");
-        } else if (currentConfigId) {
-          console.log(`保持當前配置: ${currentConfigId}`);
-          setSelectedConfigId(currentConfigId.toString());
+        if (!isInitialized.current) {
+          const currentConfigId = data?.external_service_config_id || selectedConfigId;
+          if (currentConfigId) {
+            const configExists = configs.some(
+              (config) => config.value === currentConfigId.toString()
+            );
+            if (!configExists) {
+              console.log(
+                `當前配置 ${currentConfigId} 不在選項列表中，清空選擇`
+              );
+              setSelectedConfigId("");
+              updateParentState("external_service_config_id", "");
+            } else {
+              console.log(`確認配置存在: ${currentConfigId}`);
+              setSelectedConfigId(currentConfigId.toString());
+              lastSyncedConfigId.current = currentConfigId.toString();
+            }
+          }
+          isInitialized.current = true;
         }
       } else {
         console.warn("未獲取到 LINE 服務配置或配置列表為空");
@@ -14601,62 +14094,55 @@ const LineNode = ({ data, isConnectable, id }) => {
       }
     } catch (error) {
       console.error("載入 LINE 服務配置失敗:", error);
-      if (error.message && (error.message.includes("已有進行中的") || error.message.includes("進行中的請求") || error.message.includes("使用相同請求"))) {
-        console.log("正在等待其他相同請求完成...");
-      } else {
-        setConfigLoadError("無法載入服務配置，請稍後再試");
-        if (typeof window !== "undefined" && window.notify) {
-          window.notify({
-            message: "載入 LINE 服務配置失敗",
-            type: "error",
-            duration: 3e3
-          });
-        }
+      setConfigLoadError("無法載入服務配置，請稍後再試");
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "載入 LINE 服務配置失敗",
+          type: "error",
+          duration: 3e3
+        });
       }
     } finally {
       setIsLoadingConfigs(false);
     }
-  }, [
-    isLoadingConfigs,
-    data?.external_service_config_id,
-    selectedConfigId,
-    updateParentState
-  ]);
+  }, []);
   useEffect$3(() => {
     loadServiceConfigs();
-  }, [loadServiceConfigs]);
+  }, []);
   useEffect$3(() => {
-    console.log("LineNode 數據同步更新:", {
-      "data.external_service_config_id": data?.external_service_config_id,
-      "data.webhook_url": data?.webhook_url,
-      selectedConfigId,
-      webhookUrl
-    });
-    if (data?.external_service_config_id !== void 0 && data.external_service_config_id !== selectedConfigId) {
+    if (isUpdating.current) return;
+    let hasChanges = false;
+    if (data?.external_service_config_id !== void 0 && data.external_service_config_id !== lastSyncedConfigId.current) {
       console.log(
-        `同步配置ID從 ${selectedConfigId} 到 ${data.external_service_config_id}`
+        `同步配置ID從 ${lastSyncedConfigId.current} 到 ${data.external_service_config_id}`
       );
       setSelectedConfigId(data.external_service_config_id);
+      lastSyncedConfigId.current = data.external_service_config_id;
+      hasChanges = true;
     }
-    if (data?.webhook_url !== void 0 && data.webhook_url !== webhookUrl) {
+    if (data?.webhook_url !== void 0 && data.webhook_url !== lastSyncedWebhookUrl.current) {
       console.log(
-        `同步 webhook URL 從 "${webhookUrl}" 到 "${data.webhook_url}"`
+        `同步 webhook URL 從 "${lastSyncedWebhookUrl.current}" 到 "${data.webhook_url}"`
       );
       setWebhookUrl(data.webhook_url);
+      lastSyncedWebhookUrl.current = data.webhook_url;
+      hasChanges = true;
     }
-  }, [
-    data?.external_service_config_id,
-    data?.webhook_url,
-    selectedConfigId,
-    webhookUrl
-  ]);
+    if (hasChanges) {
+      console.log("LineNode 數據同步完成");
+    }
+  }, [data?.external_service_config_id, data?.webhook_url]);
   const handleConfigChange = useCallback$3(
     (configId) => {
+      if (configId === selectedConfigId || isUpdating.current) {
+        console.log("配置ID未變更或正在更新中，跳過");
+        return;
+      }
       console.log(`配置變更為ID: ${configId}`);
       setSelectedConfigId(configId);
       updateParentState("external_service_config_id", configId);
     },
-    [updateParentState]
+    [selectedConfigId, updateParentState]
   );
   const copyToClipboard = useCallback$3(async (text) => {
     try {
@@ -14683,10 +14169,11 @@ const LineNode = ({ data, isConnectable, id }) => {
     async (flowId) => {
       setIsCreatingWebhook(true);
       try {
-        const result = await externalService.createWebhook(flowId);
-        const url = result.webhook_url || result.url;
+        const url = externalService.createWebhook(flowId);
+        console.log("創建 webhook 返回的 URL:", url);
         if (url) {
           setWebhookUrl(url);
+          lastSyncedWebhookUrl.current = url;
           if (data?.updateNodeData && typeof data.updateNodeData === "function") {
             data.updateNodeData("webhook_url", url);
             console.log("已將 webhook URL 更新到節點數據:", url);
@@ -14716,7 +14203,7 @@ const LineNode = ({ data, isConnectable, id }) => {
         setIsCreatingWebhook(false);
       }
     },
-    [selectedConfigId, data]
+    [data]
   );
   const handleCreateWebhook = useCallback$3(async () => {
     console.log("handleCreateWebhook 被調用");
@@ -14748,9 +14235,7 @@ const LineNode = ({ data, isConnectable, id }) => {
   const getHandleColor = (handleType) => {
     const colors = {
       line: "#D3D3D3",
-      // emerald-500
       node: "#00ced1"
-      // blue-500
     };
     return colors[handleType] || "#00ced1";
   };
@@ -14787,9 +14272,16 @@ const LineNode = ({ data, isConnectable, id }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "svg",
               {
-                className: "w-4 h-4 fill-current text-gray-500",
-                viewBox: "0 0 20 20",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" })
+                xmlns: "http://www.w3.org/2000/svg",
+                width: "16",
+                height: "16",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
               }
             ) })
           ] })
@@ -14802,18 +14294,22 @@ const LineNode = ({ data, isConnectable, id }) => {
             disabled: isCreatingWebhook,
             children: isCreatingWebhook ? "創建中..." : "Create a webhook"
           }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-medium", children: "URL:" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                value: webhookUrl,
-                readOnly: true,
-                className: "flex-1 border border-gray-300 rounded p-2 text-sm bg-gray-50"
-              }
-            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative group flex-1 max-w-[250px]", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "a",
+                {
+                  href: webhookUrl,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  className: "block text-sm bg-gray-50 text-blue-600 hover:text-blue-800 underline truncate",
+                  children: webhookUrl
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 max-w-md break-all", children: webhookUrl })
+            ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -14841,7 +14337,7 @@ const LineNode = ({ data, isConnectable, id }) => {
               }
             )
           ] })
-        ] }) })
+        ] })
       ] })
     ] }),
     webhookUrl && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 ml-2 space-y-2 pointer-events-none", children: outputHandles.map((handleType) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -14899,13 +14395,9 @@ const LineNode = ({ data, isConnectable, id }) => {
             background: "transparent",
             border: "none",
             width: `${totalWidth}px`,
-            // 動態計算的寬度
             height: "32px",
-            // 增加高度確保覆蓋
             right: `-${totalWidth + 6}px`,
-            // 調整定位，讓圓點對齊節點邊緣
             top: `calc(50% + ${(index - (outputHandles.length - 1) / 2) * 40}px)`,
-            // 更精確的垂直分佈
             transform: "translateY(-50%)",
             cursor: "crosshair",
             zIndex: 10
@@ -15152,7 +14644,7 @@ const TimerNode = ({ data, isConnectable }) => {
 const TimerNode$1 = memo$1(TimerNode);
 
 const React$6 = await importShared('react');
-const {memo,useState: useState$6,useEffect: useEffect$2,useCallback: useCallback$2} = React$6;
+const {memo,useState: useState$6,useEffect: useEffect$2,useCallback: useCallback$2,useRef: useRef$1} = React$6;
 const LineMessageNode = ({ data, isConnectable }) => {
   const [selectedConfigId, setSelectedConfigId] = useState$6(
     data?.external_service_config_id || ""
@@ -15160,18 +14652,39 @@ const LineMessageNode = ({ data, isConnectable }) => {
   const [serviceConfigs, setServiceConfigs] = useState$6([]);
   const [configLoadError, setConfigLoadError] = useState$6(null);
   const [isLoadingConfigs, setIsLoadingConfigs] = useState$6(false);
+  const [selectedMessagingType, setSelectedMessagingType] = useState$6(
+    data?.messaging_type || ""
+  );
+  const [messagingTypes, setMessagingTypes] = useState$6([]);
+  const [messagingTypesLoadError, setMessagingTypesLoadError] = useState$6(null);
+  const [isLoadingMessagingTypes, setIsLoadingMessagingTypes] = useState$6(false);
+  const isInitialized = useRef$1(false);
+  const lastSyncedConfigId = useRef$1(selectedConfigId);
+  const lastSyncedMessagingType = useRef$1(selectedMessagingType);
+  const isUpdating = useRef$1(false);
   const updateParentState = useCallback$2(
     (key, value) => {
-      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
-      if (data && typeof data.updateNodeData === "function") {
-        data.updateNodeData(key, value);
-        console.log(`使用 updateNodeData 更新 ${key}`);
-        return true;
+      if (isUpdating.current) {
+        console.log(`跳過重複更新: ${key}=${value}`);
+        return false;
       }
-      if (data) {
-        data[key] = value;
-        console.log(`直接修改 data.${key} = ${value}`);
-        return true;
+      console.log(`嘗試更新父組件狀態 ${key}=${value}`);
+      try {
+        if (data && typeof data.updateNodeData === "function") {
+          isUpdating.current = true;
+          data.updateNodeData(key, value);
+          console.log(`使用 updateNodeData 更新 ${key}`);
+          if (key === "external_service_config_id") {
+            lastSyncedConfigId.current = value;
+          } else if (key === "messaging_type") {
+            lastSyncedMessagingType.current = value;
+          }
+          return true;
+        }
+      } finally {
+        setTimeout(() => {
+          isUpdating.current = false;
+        }, 100);
       }
       console.warn(`無法更新父組件的 ${key}`);
       return false;
@@ -15179,7 +14692,10 @@ const LineMessageNode = ({ data, isConnectable }) => {
     [data]
   );
   const loadServiceConfigs = useCallback$2(async () => {
-    if (isLoadingConfigs) return;
+    if (isLoadingConfigs) {
+      console.log("已在載入服務配置中，跳過重複載入");
+      return;
+    }
     setIsLoadingConfigs(true);
     setConfigLoadError(null);
     try {
@@ -15188,14 +14704,24 @@ const LineMessageNode = ({ data, isConnectable }) => {
       console.log("載入的 LINE 服務配置:", configs);
       if (configs && configs.length > 0) {
         setServiceConfigs(configs);
-        const currentConfigId = data?.external_service_config_id || selectedConfigId;
-        if (currentConfigId && !configs.some((config) => config.value === currentConfigId.toString())) {
-          console.log(`當前配置 ${currentConfigId} 不在選項列表中，清空選擇`);
-          setSelectedConfigId("");
-          updateParentState("external_service_config_id", "");
-        } else if (currentConfigId) {
-          console.log(`保持當前配置: ${currentConfigId}`);
-          setSelectedConfigId(currentConfigId.toString());
+        if (!isInitialized.current) {
+          const currentConfigId = data?.external_service_config_id || selectedConfigId;
+          if (currentConfigId) {
+            const configExists = configs.some(
+              (config) => config.value === currentConfigId.toString()
+            );
+            if (!configExists) {
+              console.log(
+                `當前配置 ${currentConfigId} 不在選項列表中，清空選擇`
+              );
+              setSelectedConfigId("");
+              updateParentState("external_service_config_id", "");
+            } else {
+              console.log(`確認配置存在: ${currentConfigId}`);
+              setSelectedConfigId(currentConfigId.toString());
+              lastSyncedConfigId.current = currentConfigId.toString();
+            }
+          }
         }
       } else {
         console.warn("未獲取到 LINE 服務配置或配置列表為空");
@@ -15203,49 +14729,146 @@ const LineMessageNode = ({ data, isConnectable }) => {
       }
     } catch (error) {
       console.error("載入 LINE 服務配置失敗:", error);
-      if (error.message && (error.message.includes("已有進行中的") || error.message.includes("進行中的請求") || error.message.includes("使用相同請求"))) {
-        console.log("正在等待其他相同請求完成...");
-      } else {
-        setConfigLoadError("無法載入服務配置，請稍後再試");
-        if (typeof window !== "undefined" && window.notify) {
-          window.notify({
-            message: "載入 LINE 服務配置失敗",
-            type: "error",
-            duration: 3e3
-          });
-        }
+      setConfigLoadError("無法載入服務配置，請稍後再試");
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "載入 LINE 服務配置失敗",
+          type: "error",
+          duration: 3e3
+        });
       }
     } finally {
       setIsLoadingConfigs(false);
     }
-  }, [
-    isLoadingConfigs,
-    data?.external_service_config_id,
-    selectedConfigId,
-    updateParentState
-  ]);
+  }, []);
+  const loadMessagingTypes = useCallback$2(async () => {
+    if (isLoadingMessagingTypes) {
+      console.log("已在載入 Messaging Types 中，跳過重複載入");
+      return;
+    }
+    setIsLoadingMessagingTypes(true);
+    setMessagingTypesLoadError(null);
+    try {
+      console.log("開始載入 LINE Messaging Types...");
+      const types = await externalService.getMessagingTypeOptions("line");
+      console.log("載入的 LINE Messaging Types:", types);
+      if (types && types.length > 0) {
+        setMessagingTypes(types);
+        if (!isInitialized.current) {
+          const currentMessagingType = data?.messaging_type || selectedMessagingType;
+          if (currentMessagingType) {
+            const typeExists = types.some(
+              (type) => type.value === currentMessagingType
+            );
+            if (!typeExists) {
+              console.log(
+                `當前 messaging type ${currentMessagingType} 不在選項列表中，清空選擇`
+              );
+              setSelectedMessagingType("");
+              updateParentState("messaging_type", "");
+            } else {
+              console.log(`確認 messaging type 存在: ${currentMessagingType}`);
+              setSelectedMessagingType(currentMessagingType);
+              lastSyncedMessagingType.current = currentMessagingType;
+            }
+          }
+        }
+      } else {
+        console.warn("未獲取到 LINE Messaging Types，使用預設選項");
+        const defaultTypes = [
+          { value: "Reply Message", label: "Reply Message" },
+          { value: "Push Message", label: "Push Message" }
+        ];
+        setMessagingTypes(defaultTypes);
+      }
+    } catch (error) {
+      console.error("載入 LINE Messaging Types 失敗:", error);
+      if (error.message && error.message.includes("404")) {
+        console.warn("Messaging Types API 不存在 (404)，使用預設選項");
+        setMessagingTypesLoadError("API 暫不可用，使用預設選項");
+      } else {
+        setMessagingTypesLoadError("無法載入 Messaging Types，使用預設選項");
+        if (typeof window !== "undefined" && window.notify) {
+          window.notify({
+            message: "載入 LINE Messaging Types 失敗，使用預設選項",
+            type: "warning",
+            duration: 3e3
+          });
+        }
+      }
+      const defaultTypes = [
+        { value: "Reply Message", label: "Reply Message" },
+        { value: "Push Message", label: "Push Message" }
+      ];
+      setMessagingTypes(defaultTypes);
+    } finally {
+      setIsLoadingMessagingTypes(false);
+    }
+  }, []);
   useEffect$2(() => {
-    loadServiceConfigs();
-  }, [loadServiceConfigs]);
+    const initializeData = async () => {
+      await Promise.all([loadServiceConfigs(), loadMessagingTypes()]);
+      isInitialized.current = true;
+    };
+    initializeData();
+  }, []);
   useEffect$2(() => {
+    if (isUpdating.current) return;
+    let hasChanges = false;
     console.log("LineNode 數據同步更新:", {
       "data.external_service_config_id": data?.external_service_config_id,
-      selectedConfigId
+      "data.messaging_type": data?.messaging_type,
+      selectedConfigId,
+      selectedMessagingType
     });
     if (data?.external_service_config_id !== void 0 && data.external_service_config_id !== selectedConfigId) {
       console.log(
         `同步配置ID從 ${selectedConfigId} 到 ${data.external_service_config_id}`
       );
       setSelectedConfigId(data.external_service_config_id);
+      lastSyncedConfigId.current = data.external_service_config_id;
+      hasChanges = true;
     }
-  }, [data?.external_service_config_id, selectedConfigId]);
+    if (data?.messaging_type !== void 0 && data.messaging_type !== selectedMessagingType) {
+      console.log(
+        `同步 messaging type 從 ${selectedMessagingType} 到 ${data.messaging_type}`
+      );
+      setSelectedMessagingType(data.messaging_type);
+      lastSyncedMessagingType.current = data.messaging_type;
+      hasChanges = true;
+    }
+    if (hasChanges) {
+      console.log("LineNode 數據同步完成");
+    }
+  }, [
+    data?.external_service_config_id,
+    data?.messaging_type,
+    selectedConfigId,
+    selectedMessagingType
+  ]);
   const handleConfigChange = useCallback$2(
     (configId) => {
+      if (configId === selectedConfigId || isUpdating.current) {
+        console.log("配置ID未變更或正在更新中，跳過");
+        return;
+      }
       console.log(`配置變更為ID: ${configId}`);
       setSelectedConfigId(configId);
       updateParentState("external_service_config_id", configId);
     },
-    [updateParentState]
+    [selectedConfigId, updateParentState]
+  );
+  const handleMessagingTypeChange = useCallback$2(
+    (messagingType) => {
+      if (messagingType === selectedMessagingType || isUpdating.current) {
+        console.log("Messaging Type 未變更或正在更新中，跳過");
+        return;
+      }
+      console.log(`Messaging Type 變更為: ${messagingType}`);
+      setSelectedMessagingType(messagingType);
+      updateParentState("messaging_type", messagingType);
+    },
+    [selectedMessagingType, updateParentState]
   );
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-80 bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -15280,32 +14903,40 @@ const LineMessageNode = ({ data, isConnectable }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "svg",
               {
-                className: "w-4 h-4 fill-current text-gray-500",
-                viewBox: "0 0 20 20",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" })
+                xmlns: "http://www.w3.org/2000/svg",
+                width: "16",
+                height: "16",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
               }
             ) })
-          ] })
+          ] }),
+          configLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-red-500 text-xs mt-1", children: configLoadError })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-medium", children: "Messaging types" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-bold", children: "Messaging types" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
                 className: "w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8",
-                value: selectedConfigId,
-                onChange: (e) => handleConfigChange(e.target.value),
-                disabled: isLoadingConfigs,
+                value: selectedMessagingType,
+                onChange: (e) => handleMessagingTypeChange(e.target.value),
+                disabled: isLoadingMessagingTypes,
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: isLoadingConfigs ? "載入中..." : "選擇Messaging types" }),
-                  serviceConfigs.map((config) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: isLoadingMessagingTypes ? "載入中..." : "選擇 Messaging Type" }),
+                  messagingTypes.map((type) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "option",
                     {
-                      value: config.value,
-                      children: config.label
+                      value: type.value,
+                      children: type.label
                     },
-                    config.value
+                    type.value
                   ))
                 ]
               }
@@ -15313,16 +14944,24 @@ const LineMessageNode = ({ data, isConnectable }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "svg",
               {
-                className: "w-4 h-4 fill-current text-gray-500",
-                viewBox: "0 0 20 20",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" })
+                xmlns: "http://www.w3.org/2000/svg",
+                width: "16",
+                height: "16",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
               }
             ) })
-          ] })
+          ] }),
+          messagingTypesLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-red-500 text-xs mt-1", children: messagingTypesLoadError })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-1 ml-2 flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold block text-sm text-gray-700 mb-2 font-medium", children: "Message" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-1 ml-3 flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold block text-sm text-gray-700 mb-2 font-bold", children: "Message" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Handle$1,
       {
@@ -16064,7 +15703,7 @@ const {useState: useState$3} = React$3;
 
 const LoadWorkflowButton = ({ onLoad }) => {
   const [workflowId, setWorkflowId] = useState$3(
-    "580daa17-0a94-4d9d-904d-8cc0e449c028"
+    "19217351-a0b5-43b6-8a50-d17faab91b91"
   );
   const [showInput, setShowInput] = useState$3(false);
   const [loadState, setLoadState] = useState$3("");
@@ -16339,13 +15978,6 @@ const SaveFlowDialog = ({
       setFlowName("");
     } catch (error) {
       console.error("保存流程失敗:", error);
-      if (typeof window !== "undefined" && window.notify) {
-        window.notify({
-          message: "保存流程失敗",
-          type: "error",
-          duration: 3e3
-        });
-      }
     } finally {
       setIsSaving(false);
     }
@@ -16591,7 +16223,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddLineMessageNode,
     handleNodeSelection,
     setNodes: setFlowNodes,
-    setEdges: setFlowEdges
+    setEdges: setFlowEdges,
+    getNodeCallbacks
   } = useFlowNodes();
   const [flowMetadata, setFlowMetadata] = useState({
     id: null,
@@ -16630,7 +16263,20 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       try {
         const apiData = await workflowAPIService.loadWorkflow(flowId);
         const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataConverter.transformToReactFlowFormat(apiData);
-        setFlowNodes(transformedNodes);
+        const nodesWithCallbacks = transformedNodes.map((node) => {
+          console.log(`為載入的節點 ${node.id} (${node.type}) 添加回調函數`);
+          const nodeCallbacks = getNodeCallbacks(node.id, node.type);
+          console.log(nodeCallbacks);
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              // 添加回調函數到節點數據中
+              ...nodeCallbacks
+            }
+          };
+        });
+        setFlowNodes(nodesWithCallbacks);
         setFlowEdges(transformedEdges);
         debugBrowserExtensionOutput(transformedNodes, transformedEdges);
         setFlowMetadata((prev) => ({
@@ -16640,7 +16286,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           version: apiData.version || prev.version
         }));
         console.log("載入工作流後立即更新節點函數...");
-        updateNodeFunctions();
         setTimeout(() => {
           console.log("載入工作流後再次確認節點函數...");
           updateNodeFunctions();
@@ -17130,16 +16775,16 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           return newMetadata;
         });
         setShowSaveDialog(false);
-        if (saveDialogCallback) {
-          const finalFlowId = flowIdToUse || flowMetadata.id;
-          console.log("執行回調函數，flow_id:", finalFlowId);
-          saveDialogCallback(finalFlowId);
-          setSaveDialogCallback(null);
-        }
         if (flowIdToUse) {
           setTimeout(async () => {
             console.log("重新加載工作流:", flowIdToUse);
             await handleLoadWorkflow(flowIdToUse);
+            if (saveDialogCallback) {
+              const finalFlowId = flowIdToUse || flowMetadata.id;
+              console.log("執行回調函數，flow_id:", finalFlowId);
+              saveDialogCallback(finalFlowId);
+              setSaveDialogCallback(null);
+            }
           }, 1e3);
         }
         return {
