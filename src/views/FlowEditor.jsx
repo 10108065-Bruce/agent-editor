@@ -39,6 +39,7 @@ import {
 
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
 import Notification from '../components/common/Notification';
+import SaveFlowDialog from '../components/common/SaveFlowDialog';
 // 內部 ReactFlow 組件，使用 useReactFlow hook
 const ReactFlowWithControls = forwardRef(
   (
@@ -187,11 +188,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddEventNode,
     handleAddTimerNode,
     handleAddLineNode,
+    handleAddLineMessageNode,
     handleNodeSelection,
     undo,
     redo,
     setNodes: setFlowNodes,
-    setEdges: setFlowEdges
+    setEdges: setFlowEdges,
+    getNodeCallbacks
   } = useFlowNodes();
 
   // 儲存流程元資料
@@ -202,12 +205,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     version: 1
   });
 
-  // 增加通知狀態
-  const [notification, setNotification] = useState({
-    show: false,
-    message: '',
-    type: 'info'
-  });
+  // 在 FlowEditor 組件中添加保存對話框狀態和處理函數
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [saveDialogCallback, setSaveDialogCallback] = useState(null);
 
   // 檢查是否在 iframe 中
   const isInIframe = useMemo(() => {
@@ -231,7 +231,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return success;
     } catch (error) {
       console.error('無法載入工作流:', error);
-      showNotification('載入工作流失敗', 'error');
+      window.notify({
+        message: '載入工作流失敗',
+        type: 'error',
+        duration: 2000
+      });
       return false;
     }
   }, []);
@@ -245,8 +249,25 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
         const { nodes: transformedNodes, edges: transformedEdges } =
           WorkflowDataConverter.transformToReactFlowFormat(apiData);
+        // 🔧 重要修復：為載入的節點重新添加回調函數
+        const nodesWithCallbacks = transformedNodes.map((node) => {
+          console.log(`為載入的節點 ${node.id} (${node.type}) 添加回調函數`);
 
-        setFlowNodes(transformedNodes);
+          // 獲取該節點類型的回調函數
+          const nodeCallbacks = getNodeCallbacks(node.id, node.type);
+          console.log(nodeCallbacks);
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              // 添加回調函數到節點數據中
+              ...nodeCallbacks
+            }
+          };
+        });
+
+        // console.log('載入的節點（已添加回調）:', nodesWithCallbacks);
+        setFlowNodes(nodesWithCallbacks);
         setFlowEdges(transformedEdges);
 
         debugBrowserExtensionOutput(transformedNodes, transformedEdges);
@@ -260,7 +281,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
         // 重要：確保在設置節點後立即更新節點函數
         console.log('載入工作流後立即更新節點函數...');
-        updateNodeFunctions();
+        // updateNodeFunctions();
 
         // 再次確保函數更新，增加一個延遲的更新以捕獲任何同步更新可能錯過的節點
         setTimeout(() => {
@@ -277,11 +298,19 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           }
         }, 300);
 
-        showNotification('工作流載入成功', 'success');
+        window.notify({
+          message: '工作流載入成功',
+          type: 'success',
+          duration: 2000
+        });
         return true;
       } catch (error) {
         console.error('載入工作流失敗:', error);
-        showNotification('載入工作流失敗', 'error');
+        window.notify({
+          message: '載入工作流失敗',
+          type: 'error',
+          duration: 2000
+        });
         return false;
       }
     }
@@ -375,14 +404,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     [onTitleChange]
   );
 
-  // 顯示通知的輔助函數
-  const showNotification = useCallback((message, type = 'info') => {
-    setNotification({ show: true, message, type });
-    setTimeout(() => {
-      setNotification({ show: false, message: '', type: 'info' });
-    }, 3000);
-  }, []);
-
   // 處理從側邊欄選擇的節點類型，加入位置參數支持拖放
   const handleNodeTypeSelection = useCallback(
     (nodeType, position = null) => {
@@ -394,7 +415,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
       // Use provided position (from drag & drop) or default position
       const nodePosition = position || defaultPosition;
-
       switch (nodeType) {
         case 'input':
           handleAddInputNode(nodePosition);
@@ -432,6 +452,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'line':
           handleAddLineNode(nodePosition);
           break;
+        case 'message':
+          handleAddLineMessageNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -449,6 +472,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddEventNode,
       handleAddTimerNode,
       handleAddLineNode,
+      handleAddLineMessageNode,
       handleAddNode
     ]
   );
@@ -531,7 +555,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
       if (result.success) {
         console.log(`檔案已儲存為：${result.filename}`);
-        showNotification(`已儲存到 ${result.filename}`, 'success');
+        window.notify({
+          message: `已儲存到 ${result.filename}`,
+          type: 'success',
+          duration: 2000
+        });
 
         // 更新元資料
         setFlowMetadata({
@@ -545,10 +573,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return result;
     } catch (error) {
       console.error('儲存檔案時發生錯誤：', error);
-      showNotification('無法儲存檔案', 'error');
+      window.notify({
+        message: '無法儲存檔案，請稍後再試',
+        type: 'error',
+        duration: 3000
+      });
       throw error;
     }
-  }, [nodes, edges, flowMetadata, showNotification]);
+  }, [nodes, edges, flowMetadata]);
 
   /**
    * 將流程數據發送給父頁面以觸發下載
@@ -587,25 +619,30 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       const result = iframeBridge.requestDownload(flowData, filename);
 
       if (result) {
-        showNotification('已發送下載請求', 'success');
+        window.notify({
+          message: `已發送下載請求`,
+          type: 'success',
+          duration: 2000
+        });
       } else {
-        showNotification('發送下載請求失敗', 'error');
+        window.notify({
+          message: '發送下載請求失敗',
+          type: 'error',
+          duration: 3000
+        });
       }
 
       return { success: result };
     } catch (error) {
       console.error('準備下載數據時發生錯誤：', error);
-      showNotification('發送下載請求失敗', 'error');
+      window.notify({
+        message: '無法發送下載請求，請稍後再試',
+        type: 'error',
+        duration: 3000
+      });
       throw error;
     }
-  }, [
-    nodes,
-    edges,
-    flowMetadata,
-    isInIframe,
-    saveToLocalFile,
-    showNotification
-  ]);
+  }, [nodes, edges, flowMetadata, isInIframe, saveToLocalFile]);
 
   // 修改保存函數來設置保存狀態
   const saveToServer = useCallback(async () => {
@@ -667,7 +704,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         // 更新現有流程
         response = await workflowAPIService.updateWorkflow(apiData);
         console.log('FlowEditor: 更新流程成功', response);
-        showNotification('流程更新成功', 'success');
+        window.notify({
+          message: '流程更新成功',
+          type: 'success',
+          duration: 2000
+        });
 
         setFlowMetadata((prev) => ({
           ...prev,
@@ -712,7 +753,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           }
         }
 
-        showNotification('流程創建成功', 'success');
+        window.notify({
+          message: '流程創建成功',
+          type: 'success',
+          duration: 2000
+        });
       }
 
       // 使用捕獲的 flowIdToUse 而不是 flowMetadata.id
@@ -731,14 +776,164 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return response;
     } catch (error) {
       console.error('FlowEditor: 儲存流程時發生錯誤：', error);
-      showNotification('儲存流程時發生錯誤', 'error');
+      window.notify({
+        message: '無法儲存流程，請稍後再試',
+        type: 'error',
+        duration: 3000
+      });
+
       throw error;
     } finally {
       // 無論成功或失敗，都重置保存狀態
       setIsSaving(false);
     }
-  }, [nodes, edges, flowMetadata, showNotification, handleLoadWorkflow]);
+  }, [nodes, edges, flowMetadata, handleLoadWorkflow]);
 
+  // 處理對話框中的保存操作
+  const handleDialogSave = useCallback(
+    async (flowName) => {
+      console.log(`對話框觸發的保存，流程名稱: ${flowName}`);
+      console.log('當前 flowMetadata:', flowMetadata);
+
+      setIsSaving(true); // 設置保存狀態
+
+      try {
+        // 立即創建包含新標題的 flowData，不依賴狀態更新
+        const flowDataWithNewTitle = {
+          id: flowMetadata.id || `flow_${Date.now()}`,
+          title: flowName, // 直接使用對話框傳入的標題
+          version: flowMetadata.version || 1,
+          nodes,
+          edges,
+          metadata: {
+            lastModified: new Date().toISOString(),
+            savedAt: new Date().toISOString(),
+            nodeCount: nodes.length,
+            edgeCount: edges.length
+          }
+        };
+
+        console.log('創建的 flowData:', flowDataWithNewTitle);
+
+        // 將數據轉換為 API 格式
+        const apiData =
+          WorkflowDataConverter.convertReactFlowToAPI(flowDataWithNewTitle);
+
+        console.log('轉換後的 API 數據:', apiData);
+        console.log('API 中的 flow_name:', apiData.flow_name);
+
+        // 直接調用 API
+        let response;
+        let flowIdToUse = flowMetadata.id || null;
+
+        if (flowMetadata.id) {
+          // 更新現有流程
+          console.log('更新現有流程，flow_id:', flowMetadata.id);
+          response = await workflowAPIService.updateWorkflow(apiData);
+          console.log('更新流程成功:', response);
+
+          window.notify({
+            message: '流程更新成功',
+            type: 'success',
+            duration: 2000
+          });
+        } else {
+          // 創建新流程
+          console.log('創建新流程');
+          response = await workflowAPIService.createWorkflow(apiData);
+          console.log('創建流程成功:', response);
+
+          flowIdToUse = response?.flow_id;
+          console.log('獲得新的 flow_id:', flowIdToUse);
+
+          // 檢查是否在 iframe 中運行並發送事件
+          const isInIframe = window.self !== window.top;
+          if (isInIframe) {
+            console.log('在 iframe 中，發送事件到父頁面');
+            try {
+              iframeBridge.sendToParent({
+                type: 'FLOW_SAVED',
+                flowId: flowIdToUse,
+                success: true,
+                title: flowName, // 使用正確的標題
+                isNewFlow: true,
+                currentPath: window.location.pathname,
+                isNewPath: window.location.pathname.includes('/new'),
+                timestamp: new Date().toISOString()
+              });
+            } catch (error) {
+              console.error('向父頁面發送事件失敗：', error);
+            }
+          }
+
+          window.notify({
+            message: '流程創建成功',
+            type: 'success',
+            duration: 2000
+          });
+        }
+
+        // 更新本地狀態（這次是在保存成功後更新）
+        setFlowMetadata((prev) => {
+          const newMetadata = {
+            ...prev,
+            id: flowIdToUse || prev.id,
+            title: flowName, // 確保標題正確更新
+            lastSaved: new Date().toISOString()
+          };
+          console.log('更新 flowMetadata:', newMetadata);
+          return newMetadata;
+        });
+
+        // 關閉對話框
+        setShowSaveDialog(false);
+
+        // 如果有新的 flow_id，重新加載工作流
+        if (flowIdToUse) {
+          setTimeout(async () => {
+            console.log('重新加載工作流:', flowIdToUse);
+            await handleLoadWorkflow(flowIdToUse);
+            // 執行回調函數
+            if (saveDialogCallback) {
+              const finalFlowId = flowIdToUse || flowMetadata.id;
+              console.log('執行回調函數，flow_id:', finalFlowId);
+              saveDialogCallback(finalFlowId);
+              setSaveDialogCallback(null);
+            }
+          }, 1000);
+        }
+
+        return {
+          success: true,
+          flow_id: flowIdToUse || flowMetadata.id,
+          ...response
+        };
+      } catch (error) {
+        console.error('對話框觸發的保存失敗:', error);
+        window.notify({
+          message: '無法儲存流程，請稍後再試',
+          type: 'error',
+          duration: 3000
+        });
+        throw error;
+      } finally {
+        setIsSaving(false); // 重置保存狀態
+      }
+    },
+    [nodes, edges, flowMetadata, saveDialogCallback, handleLoadWorkflow]
+  );
+
+  // 關閉保存對話框
+  const closeSaveDialog = useCallback(() => {
+    setShowSaveDialog(false);
+    setSaveDialogCallback(null);
+  }, []);
+
+  // 顯示保存對話框的函數
+  const showSaveFlowDialog = useCallback((callback) => {
+    setSaveDialogCallback(() => callback); // 保存回調函數
+    setShowSaveDialog(true);
+  }, []);
   /**
    * 從本地檔案載入流程資料
    */
@@ -749,7 +944,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
       if (result.success && result.data) {
         console.log('檔案已載入：', result.filename);
-        showNotification(`已載入 ${result.filename}`, 'success');
+        window.notify({
+          message: `已載入 ${result.filename}`,
+          type: 'success',
+          duration: 2000
+        });
 
         // 驗證載入的資料是否具有所需的結構
         if (!result.data.nodes || !result.data.edges) {
@@ -790,13 +989,16 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return result;
     } catch (error) {
       console.error('載入檔案時發生錯誤：', error);
-      showNotification('無法載入檔案', 'error');
+      window.notify({
+        message: '無法載入檔案',
+        type: 'error',
+        duration: 3000
+      });
       throw error;
     }
   }, [
     setFlowNodes,
     setFlowEdges,
-    showNotification,
     updateNodeFunctions,
     isInIframe,
     onTitleChange
@@ -825,7 +1027,27 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       });
     }
   }, [initialTitle]); // Only depends on initialTitle
+  useEffect(() => {
+    // 監聽來自 Line 節點的保存請求
+    const handleSaveRequest = (event) => {
+      console.log('收到來自 Line 節點的保存請求', event.detail);
+      const { callback } = event.detail;
 
+      if (flowMetadata.id) {
+        // 如果已經有 flow_id，直接執行回調
+        callback(flowMetadata.id);
+      } else {
+        // 如果沒有 flow_id，顯示保存對話框
+        showSaveFlowDialog(callback);
+      }
+    };
+
+    window.addEventListener('requestSaveFlow', handleSaveRequest);
+
+    return () => {
+      window.removeEventListener('requestSaveFlow', handleSaveRequest);
+    };
+  }, [flowMetadata.id, showSaveFlowDialog]);
   return (
     <div className='relative w-full h-screen'>
       {/* APA Assistant at top */}
@@ -836,20 +1058,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
       {/* 添加通知系統 */}
       <Notification />
-
-      {/* Notification */}
-      {notification.show && (
-        <div
-          className={`absolute top-16 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-md z-20 text-sm ${
-            notification.type === 'error'
-              ? 'bg-red-100 text-red-700 border border-red-200'
-              : notification.type === 'success'
-              ? 'bg-green-100 text-green-700 border border-green-200'
-              : 'bg-blue-100 text-blue-700 border border-blue-200'
-          }`}>
-          {notification.message}
-        </div>
-      )}
 
       {/* Full-screen ReactFlow wrapped in ReactFlowProvider */}
       <ReactFlowProvider>
@@ -884,6 +1092,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         <NodeSidebar
           handleButtonClick={handleNodeTypeSelection}
           onDragStart={onDragStart}
+          nodes={nodes}
         />
 
         {/* Sidebar toggle button */}
@@ -957,6 +1166,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           </div>
         )}
       </div>
+      {/* 保存流程對話框 - 添加在最後，確保 z-index 最高 */}
+      <SaveFlowDialog
+        isOpen={showSaveDialog}
+        onClose={closeSaveDialog}
+        onSave={handleDialogSave}
+        title='請先儲存您的 Flow'
+      />
     </div>
   );
 });

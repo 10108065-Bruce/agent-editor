@@ -736,13 +736,57 @@ export default function useFlowNodes() {
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, 'line');
+      const existingLineNodes = nodes.filter((node) => node.type === 'line');
+      if (existingLineNodes.length > 0) {
+        // 使用通知系統提示用戶
+        if (typeof window !== 'undefined' && window.notify) {
+          window.notify({
+            message: '每個 Flow 只能有一個 Line Webhook 節點',
+            type: 'warning',
+            duration: 4000
+          });
+        }
+
+        console.warn(
+          '嘗試添加第二個 Line 節點被阻止，現有 Line 節點:',
+          existingLineNodes.map((n) => n.id)
+        );
+        return; // 阻止添加新的 Line 節點
+      }
 
       const newNode = {
         id,
         type: 'line',
         data: {
-          mode: 'reply', // 默認為回覆模式
-          text: '', // 默認空文字
+          external_service_config_id: '', // 初始為空，讓用戶選擇
+          webhook_url: '', // 初始為空，需要創建後才有
+          output_handles: ['text', 'image'], // 固定的輸出類型
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
+  // 添加 Line Message節點
+  const handleAddLineMessageNode = useCallback(
+    (position) => {
+      const id = `message_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'message');
+
+      const newNode = {
+        id,
+        type: 'message',
+        data: {
+          // external_service_config_id: '', // 初始為空，讓用戶選擇
+          // webhook_url: '', // 初始為空，需要創建後才有
+          // output_handles: ['text', 'image'], // 固定的輸出類型
           ...nodeCallbacksObject
         },
         position: position || {
@@ -987,6 +1031,34 @@ export default function useFlowNodes() {
           if (typeof window !== 'undefined' && window.notify) {
             window.notify({
               message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
+
+      // 檢查源節點是否為Line Message節點
+      if (targetNode && targetNode.type === 'message') {
+        console.log('源節點是LineMessage節點，檢查連線限制');
+
+        // 檢查是否已有輸出連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === 'message'
+        );
+        console.log(existingEdges, 'existingEdges');
+        console.log(targetNodeId, 'targetNodeId');
+
+        if (existingEdges.length > 0) {
+          console.log(`LineMessage節點已有輸出連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `LineMessage節點只能有一個輸出連線，請先刪除現有連線`,
               type: 'error',
               duration: 3000
             });
@@ -1288,6 +1360,14 @@ export default function useFlowNodes() {
             !node.data.updateItemName ||
             !node.data.onSelect;
           break;
+        case 'line': // 新增 Line 節點的檢查
+          missingCallbacks = !node.data.updateNodeData || !node.data.onSelect;
+          console.log(`Line 節點 ${nodeId} 回調檢查:`, {
+            hasUpdateNodeData: !!node.data.updateNodeData,
+            hasOnSelect: !!node.data.onSelect,
+            missingCallbacks
+          });
+          break;
         default:
           missingCallbacks = !node.data.onSelect || !node.data.updateNodeData;
           break;
@@ -1343,6 +1423,7 @@ export default function useFlowNodes() {
     handleAddWebhookNode,
     handleAddHTTPNode,
     handleAddLineNode,
+    handleAddLineMessageNode,
     handleAddEventNode,
     updateNodeFunctions,
     handleAddEndNode,

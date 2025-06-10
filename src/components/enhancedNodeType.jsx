@@ -10,6 +10,7 @@ import WebhookNode from './nodes/WebhookNode';
 import HTTPNode from './nodes/HTTPNode';
 import LineNode from './nodes/LineNode';
 import TimerNode from './nodes/TimerNode';
+import LineMessageNode from './nodes/MessageNode';
 
 // Apply the withNodeSelection HOC to each node type
 const enhancedNodeTypes = {
@@ -23,7 +24,8 @@ const enhancedNodeTypes = {
   webhook: withNodeSelection(WebhookNode),
   http: withNodeSelection(HTTPNode),
   line: withNodeSelection(LineNode),
-  timer: withNodeSelection(TimerNode)
+  timer: withNodeSelection(TimerNode),
+  message: withNodeSelection(LineMessageNode)
 };
 
 export default enhancedNodeTypes;

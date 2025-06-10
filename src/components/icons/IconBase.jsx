@@ -3,6 +3,7 @@ import iconInputNode from '../../assets/icon-input-node.svg';
 import iconAINode from '../../assets/icon-ai-node.svg';
 import browserNode from '../../assets/icon-qoca-node.svg';
 import knowledgeNode from '../../assets/icn-knowledge.svg';
+import lineWebhookNode from '../../assets/icn-line-node.svg';
 
 // Map of icon types to their respective assets
 const iconMap = {
@@ -21,6 +22,10 @@ const iconMap = {
   knowledge: {
     src: knowledgeNode,
     alt: 'Knowledge Icon'
+  },
+  line: {
+    src: lineWebhookNode,
+    alt: 'Line Icon'
   }
 };
 

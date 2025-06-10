@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import VersionDisplay from '../../components/VersionDisplay';
 import IconBase from '../icons/IconBase';
 import dragIcon from '../../assets/icon-drag-handle-line.svg';
-const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
+
+const NodeSidebar = ({
+  handleButtonClick,
+  onDragStart: customDragStart,
+  nodes = []
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (e) => {
@@ -13,6 +18,26 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
   const filterNodes = (label) => {
     if (!searchTerm) return true;
     return label.toLowerCase().includes(searchTerm.toLowerCase());
+  };
+
+  // 檢查是否已存在 Line 節點
+  const hasLineNode = nodes.some((node) => node.type === 'line');
+
+  // 處理節點點擊，包含 Line 節點限制檢查
+  const handleNodeClick = (nodeType) => {
+    if (nodeType === 'line' && hasLineNode) {
+      // 顯示警告提示
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: '每個 Flow 只能有一個 Line Webhook 節點',
+          type: 'warning',
+          duration: 4000
+        });
+      }
+      return; // 阻止添加
+    }
+
+    handleButtonClick(nodeType);
   };
 
   return (
@@ -60,38 +85,11 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
               </div>
             }
             label='Input'
-            onClick={() => handleButtonClick('input')}
+            onClick={() => handleNodeClick('input')}
             nodeType='input'
             onDragStart={customDragStart}
           />
         )}
-
-        {/* {filterNodes('If/Else') && (
-          <NodeItem
-            color='purple'
-            icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <path d='M16 3h5v5'></path>
-                <path d='M8 3H3v5'></path>
-                <path d='M3 16v5h5'></path>
-                <path d='M16 21h5v-5'></path>
-              </svg>
-            }
-            label='If/Else'
-            onClick={() => handleButtonClick('if/else')}
-            nodeType='if/else'
-            onDragStart={customDragStart}
-          />
-        )} */}
 
         {filterNodes('AI') && (
           <NodeItem
@@ -101,7 +99,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
               </div>
             }
             label='AI'
-            onClick={() => handleButtonClick('ai')}
+            onClick={() => handleNodeClick('ai')}
             nodeType='ai'
             onDragStart={customDragStart}
           />
@@ -115,7 +113,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
               </div>
             }
             label='Browser Extension input'
-            onClick={() => handleButtonClick('browser extension input')}
+            onClick={() => handleNodeClick('browser extension input')}
             nodeType='browser extension input'
             onDragStart={customDragStart}
           />
@@ -129,7 +127,7 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
               </div>
             }
             label='Browser Extension output'
-            onClick={() => handleButtonClick('browser extension output')}
+            onClick={() => handleNodeClick('browser extension output')}
             nodeType='browser extension output'
             onDragStart={customDragStart}
           />
@@ -143,159 +141,68 @@ const NodeSidebar = ({ handleButtonClick, onDragStart: customDragStart }) => {
               </div>
             }
             label='Knowledge Retrieval'
-            onClick={() => handleButtonClick('knowledge retrieval')}
+            onClick={() => handleNodeClick('knowledge retrieval')}
             nodeType='knowledge retrieval'
             onDragStart={customDragStart}
           />
         )}
-        {/* 新的結束節點 */}
-        {/* {filterNodes('End') && (
+
+        {/* Line 節點 - 添加禁用狀態 */}
+        {filterNodes('line') && (
           <NodeItem
             color='green'
             icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <circle
-                  cx='12'
-                  cy='12'
-                  r='10'></circle>
-                <polyline points='16 12 12 8 8 12'></polyline>
-                <line
-                  x1='12'
-                  y1='16'
-                  x2='12'
-                  y2='8'></line>
-              </svg>
-            }
-            label='End'
-            onClick={() => handleButtonClick('end')}
-            nodeType='end'
-            onDragStart={customDragStart}
-          />
-        )} */}
-        {/* Webhook 節點 */}
-        {/* {filterNodes('Webhook') && (
-          <NodeItem
-            color='red'
-            icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <path d='M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.03.39-1.42 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49'></path>
-                <path d='M13.41 10.59c-.39-.39-.39-1.03 0-1.42.39-.39 1.03-.39 1.42 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49'></path>
-              </svg>
-            }
-            label='Webhook'
-            onClick={() => handleButtonClick('webhook')}
-            nodeType='webhook'
-            onDragStart={customDragStart}
-          />
-        )} */}
-        {/* HTTP 節點 */}
-        {/* {filterNodes('http') && (
-          <NodeItem
-            color='red'
-            icon={
-              <div className='w-11 h-8 bg-red-100 flex items-center justify-center overflow-hidden'>
-                <span className='text-[8px] font-bold text-red-500 text-center'>
-                  HTTP
-                </span>
+              <div>
+                <IconBase type='line' />
               </div>
             }
-            label='HTTP'
-            onClick={() => handleButtonClick('http')}
-            nodeType='http'
-            onDragStart={customDragStart}
-          />
-        )} */}
-        {/* 事件節點 */}
-        {/* {filterNodes('timer') && (
-          <NodeItem
-            color='purple'
-            icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <circle
-                  cx='12'
-                  cy='12'
-                  r='10'
-                />
-                <polyline points='12 6 12 12 16 14' />
-              </svg>
-            }
-            label='Timer'
-            onClick={() => handleButtonClick('timer')}
-            nodeType='timer'
-            onDragStart={customDragStart}
-          />
-        )} */}
-        {/* 計時器節點 */}
-        {/* {filterNodes('event') && (
-          <NodeItem
-            color='red'
-            icon={
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <polygon points='13 2 3 14 12 14 11 22 21 10 13 10 13 2' />
-              </svg>
-            }
-            label='Event'
-            onClick={() => handleButtonClick('event')}
-            nodeType='event'
-            onDragStart={customDragStart}
-          />
-        )} */}
-        {/* Line 節點 */}
-        {/* {filterNodes('line') && (
-          <NodeItem
-            color='green'
-            icon={<LineIcon className='w-8 h-8 text-white-500' />}
             label='LINE'
-            onClick={() => handleButtonClick('line')}
+            onClick={() => handleNodeClick('line')}
             nodeType='line'
             onDragStart={customDragStart}
+            disabled={hasLineNode} // 新增：禁用狀態
+            disabledReason={
+              hasLineNode ? '每個 Flow 只能有一個 Line Webhook 節點' : null
+            } // 新增：禁用原因
           />
-        )} */}
+        )}
+        {/* Line Message 節點 */}
+        {filterNodes('send message') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='line' />
+              </div>
+            }
+            label='Send Message'
+            onClick={() => handleNodeClick('message')}
+            nodeType='message'
+            onDragStart={customDragStart}
+          />
+        )}
       </div>
       <VersionDisplay />
     </div>
   );
 };
 
-const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
+const NodeItem = ({
+  icon,
+  label,
+  onClick,
+  nodeType,
+  onDragStart,
+  disabled = false,
+  disabledReason = null
+}) => {
   // 处理拖拽事件
   const handleDragStart = (event) => {
+    // 如果節點被禁用，阻止拖拽
+    if (disabled) {
+      event.preventDefault();
+      return;
+    }
+
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
 
@@ -310,23 +217,54 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
     event.currentTarget.classList.remove('dragging');
   };
 
+  // 處理點擊事件
+  const handleClick = () => {
+    if (disabled) {
+      // 如果節點被禁用，顯示禁用原因
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: disabledReason || '此節點類型已被禁用',
+          type: 'warning',
+          duration: 3000
+        });
+      }
+      return;
+    }
+
+    onClick();
+  };
+
   return (
     <div
-      className='node-item border flex items-center justify-between p-2 rounded-lg cursor-grab hover:bg-gray-50 transition-colors'
-      onClick={onClick}
-      draggable
+      className={`node-item border flex items-center justify-between p-2 rounded-lg transition-colors ${
+        disabled
+          ? 'opacity-50 cursor-not-allowed bg-gray-100'
+          : 'cursor-grab hover:bg-gray-50'
+      }`}
+      onClick={handleClick}
+      draggable={!disabled} // 禁用時不可拖拽
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      data-node-type={nodeType}>
+      data-node-type={nodeType}
+      title={disabled ? disabledReason : label} // 顯示工具提示
+    >
       <div className='flex items-center'>
         <div className='w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center'>
           {icon}
         </div>
-        <span className='text-sm text-gray-700 leading-none font-bold'>
+        <span
+          className={`text-sm leading-none font-bold ${
+            disabled ? 'text-gray-400' : 'text-gray-700'
+          }`}>
           {label}
         </span>
+        {/* 顯示禁用圖標 */}
+        {/* {disabled && <span className='ml-2 text-red-500 text-xs'>🚫</span>} */}
       </div>
-      <div className='text-gray-400 hover:text-gray-600 ml-2'>
+      <div
+        className={`ml-2 ${
+          disabled ? 'text-gray-300' : 'text-gray-400 hover:text-gray-600'
+        }`}>
         <div
           className={'flex items-center justify-center'}
           style={{
@@ -344,7 +282,8 @@ const NodeItem = ({ icon, label, onClick, nodeType, onDragStart }) => {
             style={{
               maxWidth: '100%',
               maxHeight: '100%',
-              objectFit: 'contain'
+              objectFit: 'contain',
+              opacity: disabled ? 0.3 : 1 // 禁用時降低透明度
             }}
           />
         </div>
