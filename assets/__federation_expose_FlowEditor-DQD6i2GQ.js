@@ -8560,11 +8560,9 @@ function useFlowNodes() {
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "line");
-      console.log(nodes);
       const existingLineNodes = nodes.filter(
         (node) => node.type === "line_webhook_input"
       );
-      console.log(existingLineNodes);
       if (existingLineNodes.length > 0) {
         if (typeof window !== "undefined" && window.notify) {
           window.notify({
@@ -9067,7 +9065,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c621a4eab8b839a2b03e6a17c1c4c17ecffd356", "VITE_APP_BUILD_TIME": "2025-06-10T06:28:55.529Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.13"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c621a4eab8b839a2b03e6a17c1c4c17ecffd356", "VITE_APP_BUILD_TIME": "2025-06-10T06:43:38.687Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.14"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9341,8 +9339,8 @@ const NodeSidebar = ({
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
           label: "Send Message",
-          onClick: () => handleNodeClick("message"),
-          nodeType: "message",
+          onClick: () => handleNodeClick("line_send_message"),
+          nodeType: "line_send_message",
           onDragStart: customDragStart
         }
       )
@@ -10433,7 +10431,7 @@ class WorkflowMappingService {
     });
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
       const isAINode = targetNode.type === "aiCustomInput" || targetNode.type === "ai";
-      const isMessageNode = targetNode.type === "message";
+      const isMessageNode = targetNode.type === "line_send_message";
       if (isAINode && targetHandle.startsWith("context")) {
         targetEdges.forEach((edge, index) => {
           let inputKey;
@@ -11823,7 +11821,7 @@ class WorkflowDataConverter {
       };
     }
     switch (node.operator) {
-      case "line_send_message":
+      case "line_webhook_input":
         console.log("處理 line 節點數據轉換:", node);
         return {
           ...baseData,
@@ -14265,32 +14263,6 @@ const LineNode = ({ data, isConnectable, id }) => {
     return colors[handleType] || "#00ced1";
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "button",
-      {
-        onClick: () => copyToClipboardSimple("12312312123123"),
-        className: "bg-cyan-500 hover:bg-cyan-600 text-white p-2 rounded",
-        title: "複製 URL",
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "svg",
-          {
-            className: "w-4 h-4",
-            fill: "none",
-            stroke: "currentColor",
-            viewBox: "0 0 24 24",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "path",
-              {
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                strokeWidth: 2,
-                d: "M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a1 1 0 011 1v3M9 12l2 2 4-4"
-              }
-            )
-          }
-        )
-      }
-    ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-80", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
@@ -16446,7 +16418,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         y: Math.random() * 400
       };
       const nodePosition = position || defaultPosition;
-      console.log(nodeType);
       switch (nodeType) {
         case "input":
           handleAddInputNode(nodePosition);
@@ -16484,7 +16455,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case "line_webhook_input":
           handleAddLineNode(nodePosition);
           break;
-        case "message":
+        case "line_send_message":
           handleAddLineMessageNode(nodePosition);
           break;
         default:
