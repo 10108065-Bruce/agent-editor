@@ -8560,7 +8560,11 @@ function useFlowNodes() {
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "line");
-      const existingLineNodes = nodes.filter((node) => node.type === "line");
+      console.log(nodes);
+      const existingLineNodes = nodes.filter(
+        (node) => node.type === "line_webhook_input"
+      );
+      console.log(existingLineNodes);
       if (existingLineNodes.length > 0) {
         if (typeof window !== "undefined" && window.notify) {
           window.notify({
@@ -8577,7 +8581,7 @@ function useFlowNodes() {
       }
       const newNode = {
         id,
-        type: "line",
+        type: "line_webhook_input",
         data: {
           external_service_config_id: "",
           // 初始為空，讓用戶選擇
@@ -8602,7 +8606,7 @@ function useFlowNodes() {
       const nodeCallbacksObject = getNodeCallbacks(id, "message");
       const newNode = {
         id,
-        type: "message",
+        type: "line_send_message",
         data: {
           // external_service_config_id: '', // 初始為空，讓用戶選擇
           // webhook_url: '', // 初始為空，需要創建後才有
@@ -8745,7 +8749,6 @@ function useFlowNodes() {
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput = sourceNode && sourceNode.type === "browserExtensionInput";
       const isCustomInputNode = sourceNode && sourceNode.type === "customInput";
-      targetNode && targetNode.type === "message";
       if (isCustomInputNode) {
         console.log("源節點是CustomInputNode，檢查連線限制");
         const existingEdges = edges.filter(
@@ -8797,7 +8800,7 @@ function useFlowNodes() {
           return;
         }
       }
-      if (targetNode && targetNode.type === "message") {
+      if (targetNode && targetNode.type === "line_send_message") {
         console.log("源節點是LineMessage節點，檢查連線限制");
         const existingEdges = edges.filter(
           (edge) => edge.target === targetNodeId && edge.targetHandle === "message"
@@ -9064,7 +9067,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "e80489edac3cd4e7d03f95ade86823843c4f4c69", "VITE_APP_BUILD_TIME": "2025-06-10T02:10:21.892Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.9"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c621a4eab8b839a2b03e6a17c1c4c17ecffd356", "VITE_APP_BUILD_TIME": "2025-06-10T06:10:03.614Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.10"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9209,9 +9212,11 @@ const NodeSidebar = ({
     if (!searchTerm) return true;
     return label.toLowerCase().includes(searchTerm.toLowerCase());
   };
-  const hasLineNode = nodes.some((node) => node.type === "line");
+  const hasLineNode = nodes.some((node) => node.type === "line_webhook_input");
   const handleNodeClick = (nodeType) => {
-    if (nodeType === "line" && hasLineNode) {
+    console.log("hasLineNode:", nodes);
+    console.log(nodeType, hasLineNode);
+    if (nodeType === "line_webhook_input" && hasLineNode) {
       if (typeof window !== "undefined" && window.notify) {
         window.notify({
           message: "每個 Flow 只能有一個 Line Webhook 節點",
@@ -9326,8 +9331,8 @@ const NodeSidebar = ({
           color: "green",
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
           label: "LINE",
-          onClick: () => handleNodeClick("line"),
-          nodeType: "line",
+          onClick: () => handleNodeClick("line_webhook_input"),
+          nodeType: "line_webhook_input",
           onDragStart: customDragStart,
           disabled: hasLineNode,
           disabledReason: hasLineNode ? "每個 Flow 只能有一個 Line Webhook 節點" : null
@@ -10195,7 +10200,7 @@ const tokenService = new TokenService();
 
 const API_CONFIG = {
   BASE_URL: "https://api-dev.qoca-apa.quanta-research.com/v1",
-  CREATE_WEBHOOK_URL: "https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook/"
+  CREATE_WEBHOOK_URL: "https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook"
 };
 class WorkflowMappingService {
   /**
@@ -10217,9 +10222,10 @@ class WorkflowMappingService {
       knowledge_retrieval: "knowledge_retrieval",
       http: "http",
       timer: "timer",
-      line: "line",
+      line: "line_webhook_input",
       event: "event",
-      end: "end"
+      end: "end",
+      message: "line_send_message"
     };
     return operatorMap[type] || type;
   }
@@ -10232,16 +10238,16 @@ class WorkflowMappingService {
     const typeMap = {
       browser_extension_input: "browserExtensionInput",
       browser_extension_output: "browserExtensionOutput",
-      webhook: "webhook",
       basic_input: "customInput",
       ask_ai: "aiCustomInput",
       ifElse: "ifElse",
       knowledge_retrieval: "knowledgeRetrieval",
       http: "http",
       timer: "timer",
-      line: "line",
+      line: "line_webhook_input",
       event: "event",
-      end: "end"
+      end: "end",
+      message: "line_send_message"
     };
     return typeMap[operator] || operator;
   }
@@ -10300,9 +10306,9 @@ class WorkflowMappingService {
         return "HTTP 請求";
       case "timer":
         return "計時器";
-      case "line":
+      case "line_webhook_input":
         return "LINE Webhook";
-      case "message":
+      case "line_send_message":
         return "LINE Message";
       case "event":
         return "事件處理";
@@ -10742,6 +10748,7 @@ class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
     switch (node.type) {
       case "line":
+      case "line_webhook_input":
         if (node.data.output_handles && Array.isArray(node.data.output_handles)) {
           node.data.output_handles.forEach((handleType) => {
             nodeOutput[handleType] = {
@@ -11711,7 +11718,7 @@ class WorkflowDataConverter {
     flowPipeline.forEach((node) => {
       const isAINode = node.operator === "ask_ai";
       const isKnowledgeNode = node.operator === "knowledge_retrieval";
-      const isMessageNode = node.operator === "message";
+      const isMessageNode = node.operator === "line_send_message";
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
         if (isAINode) {
@@ -11818,7 +11825,7 @@ class WorkflowDataConverter {
       };
     }
     switch (node.operator) {
-      case "line":
+      case "line_send_message":
         console.log("處理 line 節點數據轉換:", node);
         return {
           ...baseData,
@@ -12073,8 +12080,8 @@ class WorkflowDataConverter {
   static transformNodeDataToAPI(node) {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
-    console.log("=================", node);
     switch (node.type) {
+      case "line_webhook_input":
       case "line":
         console.log("處理 line 節點 API 轉換:", node.data);
         if (node.data.external_service_config_id) {
@@ -14144,25 +14151,45 @@ const LineNode = ({ data, isConnectable, id }) => {
     },
     [selectedConfigId, updateParentState]
   );
-  const copyToClipboard = useCallback$3(async (text) => {
+  const copyToClipboardSimple = useCallback$3(async (text) => {
     try {
-      await navigator.clipboard.writeText(text);
-      if (typeof window !== "undefined" && window.notify) {
-        window.notify({
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          window.notify?.({
+            message: "URL 已複製到剪貼板",
+            type: "success",
+            duration: 2e3
+          });
+          return;
+        } catch (clipboardError) {
+          console.warn("Clipboard API 失敗，嘗試 fallback:", clipboardError);
+        }
+      }
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+      if (successful) {
+        window.notify?.({
           message: "URL 已複製到剪貼板",
           type: "success",
           duration: 2e3
         });
+      } else {
+        throw new Error("所有複製方法都失敗");
       }
     } catch (error) {
       console.error("複製失敗:", error);
-      if (typeof window !== "undefined" && window.notify) {
-        window.notify({
-          message: "複製失敗",
-          type: "error",
-          duration: 3e3
-        });
-      }
+      window.notify?.({
+        message: "複製失敗，請手動複製 URL",
+        type: "error",
+        duration: 3e3
+      });
     }
   }, []);
   const createWebhook = useCallback$3(
@@ -14313,7 +14340,7 @@ const LineNode = ({ data, isConnectable, id }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => copyToClipboard(webhookUrl),
+                onClick: () => copyToClipboardSimple(webhookUrl),
                 className: "bg-cyan-500 hover:bg-cyan-600 text-white p-2 rounded",
                 title: "複製 URL",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -14994,9 +15021,9 @@ const enhancedNodeTypes = {
   end: withNodeSelection(EndNode$1),
   webhook: withNodeSelection(WebhookNode$1),
   http: withNodeSelection(HTTPNode$1),
-  line: withNodeSelection(LineNode$1),
+  line_webhook_input: withNodeSelection(LineNode$1),
   timer: withNodeSelection(TimerNode$1),
-  message: withNodeSelection(LineMessageNode$1)
+  line_send_message: withNodeSelection(LineMessageNode$1)
 };
 
 const React$5 = await importShared('react');
@@ -16395,6 +16422,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         y: Math.random() * 400
       };
       const nodePosition = position || defaultPosition;
+      console.log(nodeType);
       switch (nodeType) {
         case "input":
           handleAddInputNode(nodePosition);
@@ -16429,7 +16457,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case "timer":
           handleAddTimerNode(nodePosition);
           break;
-        case "line":
+        case "line_webhook_input":
           handleAddLineNode(nodePosition);
           break;
         case "message":
