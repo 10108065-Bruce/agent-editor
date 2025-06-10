@@ -9067,7 +9067,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c621a4eab8b839a2b03e6a17c1c4c17ecffd356", "VITE_APP_BUILD_TIME": "2025-06-10T06:16:23.422Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.12"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c621a4eab8b839a2b03e6a17c1c4c17ecffd356", "VITE_APP_BUILD_TIME": "2025-06-10T06:28:55.529Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.13"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -9214,8 +9214,6 @@ const NodeSidebar = ({
   };
   const hasLineNode = nodes.some((node) => node.type === "line_webhook_input");
   const handleNodeClick = (nodeType) => {
-    console.log("hasLineNode:", nodes);
-    console.log(nodeType, hasLineNode);
     if (nodeType === "line_webhook_input" && hasLineNode) {
       if (typeof window !== "undefined" && window.notify) {
         window.notify({
@@ -14267,6 +14265,32 @@ const LineNode = ({ data, isConnectable, id }) => {
     return colors[handleType] || "#00ced1";
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        onClick: () => copyToClipboardSimple("12312312123123"),
+        className: "bg-cyan-500 hover:bg-cyan-600 text-white p-2 rounded",
+        title: "複製 URL",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "svg",
+          {
+            className: "w-4 h-4",
+            fill: "none",
+            stroke: "currentColor",
+            viewBox: "0 0 24 24",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                strokeWidth: 2,
+                d: "M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a1 1 0 011 1v3M9 12l2 2 4-4"
+              }
+            )
+          }
+        )
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-80", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
