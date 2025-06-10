@@ -9067,7 +9067,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c621a4eab8b839a2b03e6a17c1c4c17ecffd356", "VITE_APP_BUILD_TIME": "2025-06-10T06:15:41.071Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.11"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c621a4eab8b839a2b03e6a17c1c4c17ecffd356", "VITE_APP_BUILD_TIME": "2025-06-10T06:16:23.422Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.12"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -10199,7 +10199,7 @@ class TokenService {
 const tokenService = new TokenService();
 
 const API_CONFIG = {
-  BASE_URL: "https://api-dev.qoca-apa.quanta-research.com/v1",
+  BASE_URL: "http://172.21.4.163:9000/v1",
   CREATE_WEBHOOK_URL: "https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook"
 };
 class WorkflowMappingService {
