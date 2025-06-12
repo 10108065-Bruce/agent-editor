@@ -1,7 +1,7 @@
 {
   "name": "drawing-app",
   "private": true,
-  "version": "0.1.46.14",
+  "version": "0.1.46.15",
   "type": "module",
   "scripts": {
     "predev": "node scripts/create-dev-env-config.js",
@@ -29,6 +29,7 @@
     "deploy:major": "npm run build:major && gh-pages -d dist --dotfiles"
   },
   "dependencies": {
+    "dagre": "^0.8.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-modal": "^3.16.3",

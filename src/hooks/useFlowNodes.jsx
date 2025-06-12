@@ -10,6 +10,14 @@ import {
   getIncomers,
   getOutgoers
 } from 'reactflow';
+import dagre from 'dagre';
+import {
+  calculateNodeDimensions,
+  getOptimizedLayoutConfig,
+  analyzeConnectionComplexity,
+  estimateLayoutCanvasSize,
+  validateLayoutQuality
+} from '../utils/nodeDimensions';
 
 export default function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
@@ -18,6 +26,131 @@ export default function useFlowNodes() {
   const redoStack = useRef([]);
   const nodeCallbacks = useRef({});
   const isUpdatingNodes = useRef(false);
+
+  // dagre 自動排版函數
+  const handleAutoLayout = useCallback(
+    async (direction = 'TB') => {
+      console.log(`開始執行自動排版，方向: ${direction}`);
+
+      if (nodes.length === 0) {
+        console.log('沒有節點，跳過自動排版');
+        return;
+      }
+
+      try {
+        // 分析連線複雜度
+        const complexityAnalysis = analyzeConnectionComplexity(nodes, edges);
+        console.log('連線複雜度分析:', complexityAnalysis);
+
+        // 創建新的 dagre 圖
+        const dagreGraph = new dagre.graphlib.Graph();
+        dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+        // 使用優化的配置
+        const layoutConfig = getOptimizedLayoutConfig(
+          direction,
+          complexityAnalysis
+        );
+        dagreGraph.setGraph(layoutConfig);
+
+        console.log('優化的 Dagre 配置:', layoutConfig);
+        console.log('複雜度建議:', complexityAnalysis.recommendations);
+
+        // 添加節點到 dagre 圖中，使用動態尺寸計算
+        nodes.forEach((node) => {
+          const dimensions = calculateNodeDimensions(node);
+          console.log(
+            `節點 ${node.id} (${node.type}): ${dimensions.width}x${dimensions.height}`
+          );
+
+          dagreGraph.setNode(node.id, {
+            width: dimensions.width,
+            height: dimensions.height
+          });
+        });
+
+        // 添加邊緣到 dagre 圖中
+        edges.forEach((edge) => {
+          dagreGraph.setEdge(edge.source, edge.target);
+          console.log(`邊緣: ${edge.source} -> ${edge.target}`);
+        });
+
+        // 執行自動排版
+        dagre.layout(dagreGraph);
+
+        // 獲取新的節點位置並更新
+        const updatedNodes = nodes.map((node) => {
+          const nodeWithPosition = dagreGraph.node(node.id);
+
+          if (nodeWithPosition) {
+            const dimensions = calculateNodeDimensions(node);
+
+            // dagre 返回的是中心點位置，需要轉換為左上角位置
+            const newX = Math.round(nodeWithPosition.x - dimensions.width / 2);
+            const newY = Math.round(nodeWithPosition.y - dimensions.height / 2);
+
+            return {
+              ...node,
+              position: {
+                x: newX,
+                y: newY
+              }
+            };
+          }
+
+          return node;
+        });
+
+        // 批量更新節點位置
+        setNodes(updatedNodes);
+
+        // 驗證排版質量
+        const qualityReport = validateLayoutQuality(updatedNodes, direction);
+
+        // 根據質量給出不同的通知
+        // if (qualityReport.hasOverlaps) {
+        //   console.warn(`發現 ${qualityReport.overlapCount} 個節點重疊`);
+
+        //   if (typeof window !== 'undefined' && window.notify) {
+        //     window.notify({
+        //       message: `排版完成，但發現 ${qualityReport.overlapCount} 個節點重疊，建議手動調整或嘗試其他方向`,
+        //       type: 'warning',
+        //       duration: 4000
+        //     });
+        //   }
+        // } else if (complexityAnalysis.crossingPotential[direction] > 0) {
+        //   if (typeof window !== 'undefined' && window.notify) {
+        //     window.notify({
+        //       message: `排版完成，但可能存在連線交叉，建議檢查流程邏輯`,
+        //       type: 'info',
+        //       duration: 3000
+        //     });
+        //   }
+        // }
+
+        // 預估畫布尺寸並打印信息
+        const canvasSize = estimateLayoutCanvasSize(updatedNodes, direction);
+        // 延遲一下再縮放到適合大小
+        setTimeout(() => {
+          console.log('觸發視圖縮放');
+          const event = new CustomEvent('autoLayoutComplete', {
+            detail: {
+              direction,
+              nodeCount: nodes.length,
+              canvasSize,
+              qualityReport,
+              complexityAnalysis
+            }
+          });
+          window.dispatchEvent(event);
+        }, 300);
+      } catch (error) {
+        console.error('自動排版失敗:', error);
+        throw error;
+      }
+    },
+    [nodes, edges, setNodes]
+  );
 
   // 優化過的節點變更處理函數，保持節點移動的流暢性
   const handleNodesChange = useCallback(
@@ -312,7 +445,7 @@ export default function useFlowNodes() {
       nodeCallbacks.current[nodeId] = callbacks;
       return callbacks;
     },
-    [handleNodeSelection, safeSetNodes]
+    [handleNodeSelection, safeSetNodes, safeSetEdges]
   );
 
   // 對於 onNodesDelete 函數，也需要進行對應修改
@@ -334,10 +467,6 @@ export default function useFlowNodes() {
         // 找到有邊緣從此節點出去的節點（後續節點）
         const outgoers = getOutgoers(nodeToDelete, nodes, edges);
 
-        // 處理常規節點的連接
-        // 修改 useFlowNodes.jsx 的 onNodesDelete 函數中對 AI 節點的處理部分
-
-        // 在 onNodesDelete 函數中，找到處理連接重建的代碼段落，進行修改
         // 處理常規節點的連接
         // 對於每個前置節點，創建與所有後續節點的新連接
         incomers.forEach((incomer) => {
@@ -437,15 +566,7 @@ export default function useFlowNodes() {
         nds.filter((node) => !nodeIdsToDelete.includes(node.id))
       );
     },
-    [
-      nodes,
-      edges,
-      safeSetEdges,
-      safeSetNodes,
-      getConnectedEdges,
-      getIncomers,
-      getOutgoers
-    ]
+    [nodes, edges, safeSetEdges, safeSetNodes]
   );
 
   const deleteSelectedNodes = useCallback(
@@ -514,7 +635,6 @@ export default function useFlowNodes() {
   );
 
   // 更新 useFlowNodes.jsx 中的 handleAddBrowserExtensionOutput 函數
-
   const handleAddBrowserExtensionOutput = useCallback(
     (position) => {
       const id = `browserExtOut_${Date.now()}`;
@@ -538,7 +658,8 @@ export default function useFlowNodes() {
               output_name: '',
               type: 'string',
               data: '',
-              is_empty: true
+              is_empty: true,
+              return_name: ''
             }
           },
           // 新增一個通用的 onAddOutput 方法
@@ -572,7 +693,8 @@ export default function useFlowNodes() {
                         output_name: '',
                         type: 'string',
                         data: '',
-                        is_empty: true
+                        is_empty: true,
+                        return_name: ''
                       };
                       return acc;
                     }, {})
@@ -773,7 +895,7 @@ export default function useFlowNodes() {
 
       safeSetNodes((nds) => [...nds, newNode]);
     },
-    [safeSetNodes, getNodeCallbacks]
+    [safeSetNodes, getNodeCallbacks, nodes]
   );
 
   // 添加 Line Message節點
@@ -786,9 +908,6 @@ export default function useFlowNodes() {
         id,
         type: 'line_send_message',
         data: {
-          // external_service_config_id: '', // 初始為空，讓用戶選擇
-          // webhook_url: '', // 初始為空，需要創建後才有
-          // output_handles: ['text', 'image'], // 固定的輸出類型
           ...nodeCallbacksObject
         },
         position: position || {
@@ -905,8 +1024,7 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
-  // 事件節點佔位符
-  // 添加定時器節點
+  // 添加事件節點
   const handleAddEventNode = useCallback(
     (position) => {
       const id = `event_${Date.now()}`;
@@ -932,7 +1050,7 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
-  // 1. 修改 useFlowNodes.jsx 中的 onConnect 函數
+  // 連接處理函數
   const onConnect = useCallback(
     (params) => {
       // 提取連接參數
@@ -959,10 +1077,10 @@ export default function useFlowNodes() {
       const isBrowserExtensionInput =
         sourceNode && sourceNode.type === 'browserExtensionInput';
 
-      // 新增: 檢查源節點是否為CustomInputNode
+      // 檢查源節點是否為CustomInputNode
       const isCustomInputNode = sourceNode && sourceNode.type === 'customInput';
 
-      // 新增: 如果是CustomInputNode，檢查輸出連線限制
+      // 如果是CustomInputNode，檢查輸出連線限制
       if (isCustomInputNode) {
         console.log('源節點是CustomInputNode，檢查連線限制');
 
@@ -987,8 +1105,6 @@ export default function useFlowNodes() {
           return; // 不創建新連線
         }
       }
-      // 在 onConnect 函數中添加對知識檢索節點的連線限制
-      // 找到 onConnect 函數並添加以下代碼（在檢查 CustomInputNode 後）
 
       // 檢查知識檢索節點的連線限制
       if (targetNode && targetNode.type === 'knowledgeRetrieval') {
@@ -1042,25 +1158,23 @@ export default function useFlowNodes() {
         }
       }
 
-      // 檢查源節點是否為Line Message節點
+      // 檢查目標節點是否為Line Message節點
       if (targetNode && targetNode.type === 'line_send_message') {
-        console.log('源節點是LineMessage節點，檢查連線限制');
+        console.log('目標是LineMessage節點，檢查連線限制');
 
-        // 檢查是否已有輸出連線
+        // 檢查是否已有輸入連線
         const existingEdges = edges.filter(
           (edge) =>
             edge.target === targetNodeId && edge.targetHandle === 'message'
         );
-        console.log(existingEdges, 'existingEdges');
-        console.log(targetNodeId, 'targetNodeId');
 
         if (existingEdges.length > 0) {
-          console.log(`LineMessage節點已有輸出連線，拒絕新連線`);
+          console.log(`LineMessage節點已有輸入連線，拒絕新連線`);
 
           // 使用通知系統提示用戶
           if (typeof window !== 'undefined' && window.notify) {
             window.notify({
-              message: `LineMessage節點只能有一個輸出連線，請先刪除現有連線`,
+              message: `LineMessage節點只能有一個輸入連線，請先刪除現有連線`,
               type: 'error',
               duration: 3000
             });
@@ -1074,7 +1188,7 @@ export default function useFlowNodes() {
       if (isAINode) {
         console.log('目標是AI節點，檢查連線限制');
 
-        // 修改：允許多個連接到 context-input，但仍限制 prompt-input 只能有一個連線
+        // 允許多個連接到 context-input，但仍限制 prompt-input 只能有一個連線
         if (targetHandle === 'prompt-input') {
           // 檢查 prompt-input 是否已經有連線
           const existingEdges = edges.filter(
@@ -1103,36 +1217,10 @@ export default function useFlowNodes() {
 
       // 處理瀏覽器擴展輸出節點
       if (isBrowserExtensionOutput) {
-        // 原有的處理邏輯...
         console.log('目標是瀏覽器擴展輸出節點');
-
-        // 處理特殊的 'new-connection' handle，或目標 handle 不存在的情況
-        // const existingEdges = edges.filter(
-        //   (edge) =>
-        //     edge.target === targetNodeId && edge.targetHandle === targetHandle
-        // );
-
-        // 暫時先限制
-        // if (existingEdges.length > 0) {
-        //   console.log(`已有連線，拒絕新連線`);
-
-        //   // 使用通知系統提示用戶
-        //   if (typeof window !== 'undefined' && window.notify) {
-        //     window.notify({
-        //       message: `已有連線，請先刪除現有連線`,
-        //       type: 'error',
-        //       duration: 3000
-        //     });
-        //   }
-        //   return;
-        // }
 
         if (targetHandle === 'new-connection' || !targetHandle) {
           // 創建新的 handle ID
-          targetHandle = `input_${Date.now()}`;
-          console.log(`創建新的 handle: ${targetHandle}`);
-
-          // 確保目標節點有 inputHandles 數組
           const currentHandles = targetNode.data.inputHandles || [];
 
           // 找出最大索引
@@ -1159,7 +1247,6 @@ export default function useFlowNodes() {
                 const newHandles = [...currentHandles, { id: targetHandle }];
                 console.log(`更新節點 ${targetNodeId} 的 handles:`, newHandles);
 
-                // 為了確保連線和 handle 同步創建，在同一操作中一起更新
                 return {
                   ...node,
                   data: {
@@ -1173,14 +1260,8 @@ export default function useFlowNodes() {
           );
         }
 
-        // 創建新的邊緣 - 對於瀏覽器擴展輸出節點，我們總是允許多個連接到同一個 handle
+        // 創建新的邊緣
         safeSetEdges((eds) => {
-          // 檢查 eds 是否為數組
-          if (!Array.isArray(eds)) {
-            console.error('edges 不是數組:', eds);
-            return [];
-          }
-
           // 檢查是否已存在完全相同的連接
           const connectionExists = eds.some(
             (edge) =>
@@ -1217,7 +1298,6 @@ export default function useFlowNodes() {
         // 給 React Flow 一些時間來更新 handle
         setTimeout(() => {
           try {
-            // 手動刷新節點
             const event = new CustomEvent('nodeInternalsChanged', {
               detail: { id: targetNodeId }
             });
@@ -1244,7 +1324,6 @@ export default function useFlowNodes() {
           // 如果源節點是瀏覽器擴展輸入節點，設置邊的標籤為對應項目的名稱
           if (isBrowserExtensionInput && sourceNode?.data?.items) {
             // 從 sourceHandle 獲取正確的項目
-            // sourceHandle 現在可能是 'a1', 'a2' 等格式
             const itemIndex = sourceNode.data.items.findIndex((item, idx) => {
               const outputKey = item.id || `a${idx + 1}`;
               return outputKey === sourceHandle;
@@ -1258,11 +1337,6 @@ export default function useFlowNodes() {
 
           // 使用 addEdge 函數添加邊緣
           safeSetEdges((currentEdges) => {
-            if (!Array.isArray(currentEdges)) {
-              console.error('當前 edges 不是數組:', currentEdges);
-              return [];
-            }
-
             // 創建新邊緣
             return addEdge(edgeConfig, currentEdges);
           });
@@ -1271,11 +1345,6 @@ export default function useFlowNodes() {
 
           // 手動創建邊緣作為備用方案
           safeSetEdges((eds) => {
-            if (!Array.isArray(eds)) {
-              console.error('edges 不是數組:', eds);
-              return [];
-            }
-
             const edgeId = `${params.source}-${targetNodeId}-${
               targetHandle || 'input'
             }-${sourceHandle}-${Date.now()}`;
@@ -1294,7 +1363,7 @@ export default function useFlowNodes() {
         }
       }
     },
-    [nodes, safeSetNodes, safeSetEdges, edges]
+    [nodes, edges, safeSetNodes, safeSetEdges]
   );
 
   // 撤銷功能
@@ -1362,13 +1431,16 @@ export default function useFlowNodes() {
             !node.data.updateItemName ||
             !node.data.onSelect;
           break;
-        case 'line': // 新增 Line 節點的檢查
+        case 'line_webhook_input': // 修正 Line 節點的檢查
           missingCallbacks = !node.data.updateNodeData || !node.data.onSelect;
           console.log(`Line 節點 ${nodeId} 回調檢查:`, {
             hasUpdateNodeData: !!node.data.updateNodeData,
             hasOnSelect: !!node.data.onSelect,
             missingCallbacks
           });
+          break;
+        case 'line_send_message': // 添加 Line Message 節點的檢查
+          missingCallbacks = !node.data.updateNodeData || !node.data.onSelect;
           break;
         default:
           missingCallbacks = !node.data.onSelect || !node.data.updateNodeData;
@@ -1409,7 +1481,7 @@ export default function useFlowNodes() {
     setNodes: safeSetNodes,
     edges,
     setEdges: safeSetEdges,
-    onNodesChange: handleNodesChange, // 使用優化過的變更處理器
+    onNodesChange: handleNodesChange,
     onEdgesChange: handleEdgesChange,
     onConnect,
     onNodesDelete,
@@ -1433,6 +1505,7 @@ export default function useFlowNodes() {
     handleNodeSelection,
     undo,
     redo,
-    getNodeCallbacks
+    getNodeCallbacks,
+    handleAutoLayout // 新增的自動排版函數
   };
 }

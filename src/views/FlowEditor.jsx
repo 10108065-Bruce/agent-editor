@@ -40,6 +40,8 @@ import {
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
 import Notification from '../components/common/Notification';
 import SaveFlowDialog from '../components/common/SaveFlowDialog';
+import AutoLayoutButton from '../components/buttons/AutoLayoutButton';
+
 // 內部 ReactFlow 組件，使用 useReactFlow hook
 const ReactFlowWithControls = forwardRef(
   (
@@ -194,7 +196,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     redo,
     setNodes: setFlowNodes,
     setEdges: setFlowEdges,
-    getNodeCallbacks
+    getNodeCallbacks,
+    handleAutoLayout
   } = useFlowNodes();
 
   // 儲存流程元資料
@@ -1143,6 +1146,17 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               // <SaveFileButton onSave={saveToLocalFile} />
               <SaveFileButton onSave={saveToServer} />
             )} */}
+          </div>
+
+          {/* Separator */}
+          <div className='h-10 w-px bg-gray-300 self-center'></div>
+
+          {/* Auto Layout Button */}
+          <div className='ml-2'>
+            <AutoLayoutButton
+              onLayout={handleAutoLayout}
+              disabled={isSaving || nodes.length === 0}
+            />
           </div>
 
           {/* Separator */}
