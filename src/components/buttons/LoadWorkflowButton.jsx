@@ -1,17 +1,19 @@
-// src/components/buttons/LoadWorkflowButton.jsx
 import React, { useState } from 'react';
+import BaseButton from './BaseButton';
 
-/**
- * 載入工作流按鈕組件 - 與SaveButton風格一致
- *
- * @param {Function} onLoad - 執行實際載入工作流作業的函數
- */
+import {
+  CheckIcon,
+  ErrorIcon,
+  LoadingSpinner
+} from '../../components/common/Icons';
+import { useButtonState } from '../../hooks/useButtonState';
+
 const LoadWorkflowButton = ({ onLoad }) => {
   const [workflowId, setWorkflowId] = useState(
     '19217351-a0b5-43b6-8a50-d17faab91b91'
   );
   const [showInput, setShowInput] = useState(false);
-  const [loadState, setLoadState] = useState(''); // '', 'loading', 'loaded', 'error'
+  const { state, setLoading, setSuccess, setError } = useButtonState();
 
   const handleClick = () => {
     setShowInput(true);
@@ -22,21 +24,14 @@ const LoadWorkflowButton = ({ onLoad }) => {
     if (!workflowId || typeof onLoad !== 'function') return;
 
     try {
-      setLoadState('loading');
+      setLoading();
       await onLoad(workflowId);
-      setLoadState('loaded');
-      setTimeout(() => {
-        setLoadState('');
-      }, 2000);
-
+      setSuccess();
       setWorkflowId('');
       setShowInput(false);
     } catch (error) {
       console.error('載入工作流失敗:', error);
-      setLoadState('error');
-      setTimeout(() => {
-        setLoadState('');
-      }, 2000);
+      setError();
     }
   };
 
@@ -45,109 +40,51 @@ const LoadWorkflowButton = ({ onLoad }) => {
     setShowInput(false);
   };
 
-  // 根據狀態決定按鈕樣式
-  const getButtonStyles = () => {
-    switch (loadState) {
-      case 'loading':
-        return 'bg-[#00ced1] opacity-70 text-white';
-      case 'loaded':
-        return 'bg-[#00ced1] text-white';
-      case 'error':
-        return 'bg-red-500 text-white';
-      default:
-        return 'bg-[#00ced1] text-white';
+  const getButtonStyle = () => {
+    if (state === 'loading') return 'loading';
+    if (state === 'success') return 'success';
+    if (state === 'error') return 'error';
+    return 'primary';
+  };
+
+  const getButtonContent = () => {
+    if (state === 'loading') {
+      return (
+        <div className='flex items-center justify-center space-x-1'>
+          <LoadingSpinner />
+          <span>載入中...</span>
+        </div>
+      );
     }
+    if (state === 'success') {
+      return (
+        <div className='flex items-center justify-center space-x-1'>
+          <CheckIcon />
+          <span>已載入</span>
+        </div>
+      );
+    }
+    if (state === 'error') {
+      return (
+        <div className='flex items-center justify-center space-x-1'>
+          <ErrorIcon />
+          <span>錯誤</span>
+        </div>
+      );
+    }
+    return <span>測試用</span>;
   };
 
   return (
     <div className='relative'>
-      <div
-        className='inline-block bg-white rounded-full shadow-md'
-        style={{
-          padding: '10px 13px',
-          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
-        }}>
-        <button
-          className={`rounded-full text-sm font-medium ${getButtonStyles()}`}
-          onClick={handleClick}
-          disabled={loadState === 'loading'}
-          title='載入工作流'
-          style={{
-            width: '85px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-          {loadState === 'loading' ? (
-            <div className='flex items-center justify-center space-x-1'>
-              <svg
-                className='animate-spin'
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <path d='M21 12a9 9 0 1 1-6.219-8.56'></path>
-              </svg>
-              <span>載入中...</span>
-            </div>
-          ) : loadState === 'loaded' ? (
-            <div className='flex items-center justify-center space-x-1'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <path d='M20 6L9 17l-5-5'></path>
-              </svg>
-              <span>已載入</span>
-            </div>
-          ) : loadState === 'error' ? (
-            <div className='flex items-center justify-center space-x-1'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <circle
-                  cx='12'
-                  cy='12'
-                  r='10'></circle>
-                <line
-                  x1='12'
-                  y1='8'
-                  x2='12'
-                  y2='12'></line>
-                <line
-                  x1='12'
-                  y1='16'
-                  x2='12.01'
-                  y2='16'></line>
-              </svg>
-              <span>錯誤</span>
-            </div>
-          ) : (
-            <span>測試用</span>
-          )}
-        </button>
-      </div>
+      <BaseButton
+        onClick={handleClick}
+        disabled={state === 'loading'}
+        title='載入工作流'
+        buttonStyle={getButtonStyle()}>
+        {getButtonContent()}
+      </BaseButton>
 
-      {/* 彈出的輸入表單 */}
       {showInput && (
         <div className='absolute top-full left-0 mt-2 p-3 bg-white rounded-md shadow-lg border border-gray-200 z-20 w-64'>
           <form
