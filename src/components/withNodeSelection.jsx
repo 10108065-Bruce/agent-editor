@@ -1,15 +1,15 @@
 import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
 import NodeWrapper from './NodeWrapper';
 
-// Higher-order component to add selection capabilities to any node component
+// 高階元件，為任何節點元件新增選擇功能
 const withNodeSelection = (WrappedComponent) => {
-  // Create a new component with selection functionality
+  // 建立一個具有選擇功能的新元件
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
     const nodeRef = useRef(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
 
-    // Memoize the click handler to prevent unnecessary renders
+    // 記憶化點擊處理函數以防止不必要的渲染
     const handleNodeClick = useCallback(
       (e) => {
         e.stopPropagation();
@@ -21,9 +21,9 @@ const withNodeSelection = (WrappedComponent) => {
       [data]
     );
 
-    // 添加全局事件监听器，检测输入框焦点状态
+    // 新增全域事件監聽器，檢測輸入框焦點狀態
     useEffect(() => {
-      // 当输入框获得焦点时，禁用节点拖动
+      // 當輸入框獲得焦點時，禁用節點拖動
       const handleFocus = (e) => {
         const isInput =
           e.target.tagName === 'INPUT' ||
@@ -33,20 +33,20 @@ const withNodeSelection = (WrappedComponent) => {
         if (isInput) {
           setIsInputFocused(true);
 
-          // 找到当前节点元素并添加不可拖动标记
+          // 找到當前節點元素並新增不可拖動標記
           const nodeElement = findReactFlowNode(e.target);
           if (nodeElement) {
-            // 保存原始的可拖动状态
+            // 儲存原始的可拖動狀態
             nodeElement._originalDraggable = nodeElement.draggable;
             nodeElement.draggable = false;
 
-            // 添加CSS类，用来处理ReactFlow的拖动
+            // 新增CSS類，用來處理ReactFlow的拖動
             nodeElement.classList.add('nodrag');
           }
         }
       };
 
-      // 当输入框失去焦点时，恢复节点拖动
+      // 當輸入框失去焦點時，恢復節點拖動
       const handleBlur = (e) => {
         const isInput =
           e.target.tagName === 'INPUT' ||
@@ -56,44 +56,44 @@ const withNodeSelection = (WrappedComponent) => {
         if (isInput) {
           setIsInputFocused(false);
 
-          // 找到当前节点元素并恢复拖动
+          // 找到當前節點元素並恢復拖動
           const nodeElement = findReactFlowNode(e.target);
           if (nodeElement) {
-            // 恢复原始的可拖动状态
+            // 恢復原始的可拖動狀態
             if (nodeElement._originalDraggable !== undefined) {
               nodeElement.draggable = nodeElement._originalDraggable;
               delete nodeElement._originalDraggable;
             }
 
-            // 移除CSS类
+            // 移除CSS類
             nodeElement.classList.remove('nodrag');
           }
         }
       };
 
-      // 添加鼠标按下事件处理，用于阻止输入框聚焦时的拖动
+      // 新增滑鼠按下事件處理，用於阻止輸入框聚焦時的拖動
       const handleMouseDown = (e) => {
         if (isInputFocused) {
-          // 如果当前有输入框处于聚焦状态，阻止事件冒泡以防止节点拖动
+          // 如果當前有輸入框處於聚焦狀態，阻止事件冒泡以防止節點拖動
           e.stopPropagation();
         }
       };
 
-      // 添加事件监听
+      // 新增事件監聽
       document.addEventListener('focusin', handleFocus, true);
       document.addEventListener('focusout', handleBlur, true);
 
-      // 如果有节点引用，添加鼠标按下事件监听
+      // 如果有節點參考，新增滑鼠按下事件監聽
       if (nodeRef.current) {
         nodeRef.current.addEventListener('mousedown', handleMouseDown, true);
       }
 
-      // 清理函数
+      // 清理函數
       return () => {
         document.removeEventListener('focusin', handleFocus, true);
         document.removeEventListener('focusout', handleBlur, true);
 
-        // 如果有节点引用，移除事件监听
+        // 如果有節點參考，移除事件監聽
         if (nodeRef.current) {
           nodeRef.current.removeEventListener(
             'mousedown',
@@ -104,17 +104,17 @@ const withNodeSelection = (WrappedComponent) => {
       };
     }, [isInputFocused]);
 
-    // 工具函数：从输入元素向上查找ReactFlow节点
+    // 工具函數：從輸入元素向上查找ReactFlow節點
     function findReactFlowNode(element) {
       let current = element;
-      // 向上查找直到找到react-flow__node类或到达文档根
+      // 向上查找直到找到react-flow__node類或到達文件根
       while (current && !current.classList?.contains('react-flow__node')) {
         current = current.parentElement;
       }
       return current;
     }
 
-    // Render the wrapped component inside our NodeWrapper
+    // 渲染包裹元件，並放置在NodeWrapper內
     return (
       <div ref={nodeRef}>
         <NodeWrapper
@@ -126,16 +126,16 @@ const withNodeSelection = (WrappedComponent) => {
     );
   };
 
-  // Set display name for debugging
+  // 設定顯示名稱以便除錯
   WithNodeSelection.displayName = `withNodeSelection(${getDisplayName(
     WrappedComponent
   )})`;
 
-  // Memoize the component to prevent unnecessary re-renders
+  // 記憶化元件以防止不必要的重新渲染
   return memo(WithNodeSelection);
 };
 
-// Helper function to get display name of component
+// 輔助函數：取得元件的顯示名稱
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }

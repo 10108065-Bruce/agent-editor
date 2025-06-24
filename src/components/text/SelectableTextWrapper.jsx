@@ -2,30 +2,30 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { useReactFlow } from 'reactflow';
 
 /**
- * 文本选择包装器组件
- * 解决在节点中选择文本时会移动节点的问题
+ * 文字選擇包裝器元件
+ * 解決在節點中選擇文字時會移動節點的問題
  *
- * @param {Object} props - 组件属性
- * @param {ReactNode} props.children - 需要支持选择的子元素
- * @param {string} props.className - 额外的CSS类名
- * @returns {JSX.Element} 可选择文本的包装组件
+ * @param {Object} props - 元件屬性
+ * @param {ReactNode} props.children - 需要支援選擇的子元素
+ * @param {string} props.className - 額外的CSS類別名稱
+ * @returns {JSX.Element} 可選擇文字的包裝元件
  */
 const SelectableTextWrapper = ({ children, className = '', ...rest }) => {
-  // 获取ReactFlow实例以控制节点可拖动状态
+  // 取得ReactFlow實例以控制節點可拖曳狀態
   const { setNodesDraggable } = useReactFlow();
 
-  // 跟踪是否正在进行文本选择
+  // 追蹤是否正在進行文字選擇
   const [isSelecting, setIsSelecting] = useState(false);
 
-  // 鼠标按下时的初始位置
+  // 滑鼠按下時的初始位置
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 
-  // 处理鼠标按下事件
+  // 處理滑鼠按下事件
   const handleMouseDown = useCallback((e) => {
-    // 只处理左键点击
+    // 只處理左鍵點擊
     if (e.button !== 0) return;
 
-    // 如果点击的是输入元素，不禁用拖动
+    // 如果點擊的是輸入元素，不禁用拖曳
     if (
       e.target.tagName === 'INPUT' ||
       e.target.tagName === 'TEXTAREA' ||
@@ -35,27 +35,27 @@ const SelectableTextWrapper = ({ children, className = '', ...rest }) => {
       return;
     }
 
-    // 记录初始点击位置
+    // 記錄初始點擊位置
     setStartPos({ x: e.clientX, y: e.clientY });
 
-    // 此时还不确定是否是选择文本，所以不立即禁用拖动
+    // 此時還不確定是否是選擇文字，所以不立即禁用拖曳
   }, []);
 
-  // 处理鼠标移动事件
+  // 處理滑鼠移動事件
   const handleMouseMove = useCallback(
     (e) => {
-      // 只有当鼠标按下时才处理
+      // 只有當滑鼠按下時才處理
       if (e.buttons !== 1) return;
 
-      // 计算鼠标移动距离
+      // 計算滑鼠移動距離
       const dx = Math.abs(e.clientX - startPos.x);
       const dy = Math.abs(e.clientY - startPos.y);
 
-      // 如果移动超过阈值，认为是选择文本操作
+      // 如果移動超過閾值，認為是選擇文字操作
       if (dx > 3 || dy > 3) {
         if (!isSelecting) {
           setIsSelecting(true);
-          // 禁用节点拖动
+          // 禁用節點拖曳
           setNodesDraggable(false);
         }
       }
@@ -63,10 +63,10 @@ const SelectableTextWrapper = ({ children, className = '', ...rest }) => {
     [isSelecting, startPos, setNodesDraggable]
   );
 
-  // 处理鼠标释放事件
+  // 處理滑鼠釋放事件
   const handleMouseUp = useCallback(() => {
     if (isSelecting) {
-      // 延迟启用节点拖动，确保文本选择完成
+      // 延遲啟用節點拖曳，確保文字選擇完成
       setTimeout(() => {
         setIsSelecting(false);
         setNodesDraggable(true);
@@ -74,7 +74,7 @@ const SelectableTextWrapper = ({ children, className = '', ...rest }) => {
     }
   }, [isSelecting, setNodesDraggable]);
 
-  // 清理函数 - 确保在组件卸载时恢复节点拖动功能
+  // 清理函數 - 確保在元件卸載時恢復節點拖曳功能
   useEffect(() => {
     return () => {
       if (isSelecting) {
