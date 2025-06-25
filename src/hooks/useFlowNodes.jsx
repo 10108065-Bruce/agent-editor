@@ -235,6 +235,29 @@ export default function useFlowNodes() {
 
       // 根據節點類型的特定回調
       switch (nodeType) {
+        case 'extractData':
+        case 'extract_data':
+          callbacks.updateNodeData = (key, value) => {
+            console.log(
+              `更新 Extract Data 節點 ${nodeId} 的 ${key} 資料:`,
+              value
+            );
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === nodeId) {
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      [key]: value
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          };
+          break;
         case 'customInput':
           callbacks.addField = () => {
             safeSetNodes((nds) =>
@@ -921,6 +944,38 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 添加 Extract data 節點
+  const handleAddExtractDataNode = useCallback(
+    (position) => {
+      const id = `extract_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'extractData');
+
+      const newNode = {
+        id,
+        type: 'extract_data',
+        data: {
+          model: '1', // 預設模型 ID
+          columns: [
+            {
+              name: 'fasting_blood_sugar',
+              type: 'text',
+              description:
+                '> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl'
+            }
+          ],
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
   // 添加知識檢索節點
   const handleAddKnowledgeRetrievalNode = useCallback(
     (position) => {
@@ -1072,6 +1127,10 @@ export default function useFlowNodes() {
         targetNode &&
         (targetNode.type === 'aiCustomInput' || targetNode.type === 'ai');
 
+      // 檢查目標節點是否為Extract Data節點
+      const isExtractDataNode =
+        targetNode && targetNode.type === 'extract_data';
+
       // 檢查源節點類型
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput =
@@ -1158,6 +1217,32 @@ export default function useFlowNodes() {
         }
       }
 
+      // 檢查源節點是否為extractData節點，只能有一個輸出
+      if (sourceNode && sourceNode.type === 'extract_data') {
+        console.log('源節點是Extract Data節點，檢查連線限制');
+
+        // 檢查是否已有輸出連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.source === params.source && edge.sourceHandle === 'output'
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`Extract Data節點已有輸出連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `Extract Data節點只能有一個輸出連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
+
       // 檢查目標節點是否為Line Message節點
       if (targetNode && targetNode.type === 'line_send_message') {
         console.log('目標是LineMessage節點，檢查連線限制');
@@ -1213,6 +1298,32 @@ export default function useFlowNodes() {
           }
         }
         // context-input 允許多個連線，所以不進行檢查
+      }
+
+      // 檢查 Extract Data 節點的連線限制
+      if (isExtractDataNode) {
+        console.log('目標是Extract Data節點，檢查連線限制');
+        // 檢查是否已有輸入連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId &&
+            edge.targetHandle === 'context-input'
+        );
+        console.log(existingEdges);
+        if (existingEdges.length > 0) {
+          console.log(`Extract Data節點已有輸入連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `Extract Data節點只能有一個輸入連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
       }
 
       // 處理瀏覽器擴展輸出節點
@@ -1503,6 +1614,7 @@ export default function useFlowNodes() {
     handleAddEndNode,
     handleAddTimerNode,
     handleNodeSelection,
+    handleAddExtractDataNode,
     undo,
     redo,
     getNodeCallbacks,

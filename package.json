@@ -1,7 +1,7 @@
 {
   "name": "drawing-app",
   "private": true,
-  "version": "0.1.46.15",
+  "version": "0.1.47.0",
   "type": "module",
   "scripts": {
     "predev": "node scripts/create-dev-env-config.js",

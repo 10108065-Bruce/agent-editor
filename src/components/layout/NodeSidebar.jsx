@@ -180,6 +180,20 @@ const NodeSidebar = ({
             onDragStart={customDragStart}
           />
         )}
+        {/* extract node */}
+        {filterNodes('Extract Data Node') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='ai' />
+              </div>
+            }
+            label='Extract Data'
+            onClick={() => handleNodeClick('extract_data')}
+            nodeType='extract_data'
+            onDragStart={customDragStart}
+          />
+        )}
       </div>
       <VersionDisplay />
     </div>

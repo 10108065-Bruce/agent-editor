@@ -36,7 +36,9 @@ class WorkflowMappingService {
       line: 'line_webhook_input',
       event: 'event',
       end: 'end',
-      message: 'line_send_message'
+      message: 'line_send_message',
+      extract_data: 'extract_data',
+      extractData: 'extract_data'
     };
     return operatorMap[type] || type;
   }
@@ -59,7 +61,8 @@ class WorkflowMappingService {
       line: 'line_webhook_input',
       event: 'event',
       end: 'end',
-      message: 'line_send_message'
+      message: 'line_send_message',
+      extract_data: 'extract_data'
     };
     return typeMap[operator] || operator;
   }
@@ -86,7 +89,9 @@ class WorkflowMappingService {
       line: 'integration',
       event: 'event',
       end: 'output',
-      browserExtensionOutput: 'output'
+      browserExtensionOutput: 'output',
+      extract_data: 'advanced',
+      extractData: 'advanced'
     };
     return categoryMap[type] || 'advanced';
   }
@@ -129,6 +134,8 @@ class WorkflowMappingService {
         return 'LINE Message';
       case 'event':
         return '事件處理';
+      case 'extract_data':
+        return '資料提取';
       default:
         return node.operator;
     }
@@ -325,6 +332,8 @@ class WorkflowMappingService {
       const isAINode =
         targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
       const isMessageNode = targetNode.type === 'line_send_message';
+      const isExtractDataNode = targetNode.type === 'extract_data';
+
       // 特殊處理 AI 節點的 context-input
       if (isAINode && targetHandle.startsWith('context')) {
         // 對於 context-input，我們需要處理多個連接
@@ -474,6 +483,22 @@ class WorkflowMappingService {
 
           console.log(
             `Message節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
+          );
+        });
+      } else if (isExtractDataNode && targetHandle === 'context-input') {
+        // 處理 Extract Data 節點的輸入
+        targetEdges.forEach((edge) => {
+          const inputKey = 'context_to_extract_from';
+
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+
+          console.log(
+            `Extract Data節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
           );
         });
       }
@@ -838,6 +863,14 @@ class WorkflowMappingService {
           node_id: node.id,
           type: 'boolean',
           data: false
+        };
+        break;
+      case 'extract_data':
+      case 'extractData':
+        // Extract Data 節點的輸出
+        nodeOutput.output = {
+          node_id: node.id,
+          type: 'json' // Extract Data 輸出為 JSON 格式
         };
         break;
 
@@ -2026,6 +2059,7 @@ class WorkflowDataConverter {
       const isAINode = node.operator === 'ask_ai';
       const isKnowledgeNode = node.operator === 'knowledge_retrieval';
       const isMessageNode = node.operator === 'line_send_message';
+      const isExtractDataNode = node.operator === 'extract_data';
 
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
@@ -2090,6 +2124,14 @@ class WorkflowDataConverter {
             // 對於消息節點，統一使用 message 作為目標 handle
             if (inputKey.startsWith('message') || inputKey === 'input') {
               targetHandle = 'message';
+            }
+          } else if (isExtractDataNode) {
+            // 對於 Extract Data 節點，統一使用 context-input 作為目標 handle
+            if (
+              inputKey === 'context_to_extract_from' ||
+              inputKey === 'input'
+            ) {
+              targetHandle = 'context-input';
             }
           }
 
@@ -2179,6 +2221,17 @@ class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
+      case 'extract_data': {
+        // Extract Data 節點的數據轉換
+        const columnsData = node.parameters?.columns?.data || [];
+        const columns = Array.isArray(columnsData) ? columnsData : [];
+
+        return {
+          ...baseData,
+          model: node.parameters?.llm_id?.data?.toString() || '1',
+          columns: columns
+        };
+      }
       case 'line_webhook_input':
         console.log('處理 line 節點數據轉換:', node);
         return {
@@ -2437,7 +2490,8 @@ class WorkflowDataConverter {
           'knowledgeRetrieval',
           'http',
           'timer',
-          'event'
+          'event',
+          'extract_data'
         ].includes(node.type)
       );
 
@@ -2736,7 +2790,52 @@ class WorkflowDataConverter {
           );
         }
         break;
+      case 'extract_data':
+      case 'extractData':
+        // Extract Data 節點參數
+        if (node.data.model) {
+          const modelValue = node.data.model || '1';
+          const safeModelValue =
+            typeof modelValue !== 'string'
+              ? modelValue.toString()
+              : modelValue || '1';
+          parameters.llm_id = { data: Number(safeModelValue) };
+        }
 
+        // 處理 columns 數據
+        if (node.data.columns && Array.isArray(node.data.columns)) {
+          parameters.columns = { data: node.data.columns };
+
+          // 生成 example JSON 字符串
+          const exampleObj = {};
+          node.data.columns.forEach((column) => {
+            switch (column.type) {
+              case 'number':
+                exampleObj[column.name] = 0;
+                break;
+              case 'boolean':
+                exampleObj[column.name] = false;
+                break;
+              default: // text
+                exampleObj[column.name] = '';
+                break;
+            }
+          });
+          parameters.example = { data: JSON.stringify(exampleObj) };
+        } else {
+          // 預設 columns 和 example
+          parameters.columns = {
+            data: [
+              {
+                name: 'fasting_blood_sugar',
+                type: 'text',
+                description: '> 120 mg/dl'
+              }
+            ]
+          };
+          parameters.example = { data: '{"fasting_blood_sugar": ""}' };
+        }
+        break;
       default:
         // 對於其他類型，直接轉換非系統屬性
         if (node.data) {

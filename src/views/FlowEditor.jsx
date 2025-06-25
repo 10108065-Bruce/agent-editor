@@ -191,6 +191,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddTimerNode,
     handleAddLineNode,
     handleAddLineMessageNode,
+    handleAddExtractDataNode,
     handleNodeSelection,
     undo,
     redo,
@@ -458,6 +459,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'line_send_message':
           handleAddLineMessageNode(nodePosition);
           break;
+        case 'extract_data':
+          handleAddExtractDataNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -476,6 +480,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddTimerNode,
       handleAddLineNode,
       handleAddLineMessageNode,
+      handleAddExtractDataNode,
       handleAddNode
     ]
   );

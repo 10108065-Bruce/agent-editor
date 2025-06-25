@@ -43,6 +43,28 @@ export const calculateNodeDimensions = (node) => {
       };
     }
 
+    case 'extract_data': {
+      // 新增：根據 columns 數量動態調整 ExtractDataNode 高度
+      const columnCount = node.data?.columns?.length || 0;
+      const baseExtractHeight = 280; // 基礎高度（包含header、model選擇、context等）
+
+      if (columnCount === 0) {
+        // 沒有欄位時顯示提示區域
+        return {
+          width: 386, // w-98 = 3846x
+          height: baseExtractHeight + 60 // 提示區域高度
+        };
+      }
+
+      // 每個欄位大約需要 80px 高度（包含間距）
+      const columnsHeight = columnCount * 80;
+
+      return {
+        width: 384, // w-96 = 384px，與實際組件寬度一致
+        height: baseExtractHeight + columnsHeight + 40 // 額外留一些緩衝空間
+      };
+    }
+
     case 'line_webhook_input':
       return {
         width: 320, // Line 節點較寬
@@ -118,6 +140,7 @@ export const getNodeDimensionsMap = () => {
     aiCustomInput: { width: 256, height: 220 },
     browserExtensionInput: { width: 256, height: 320 },
     browserExtensionOutput: { width: 256, height: 280 },
+    extract_data: { width: 384, height: 340 }, // 新增：ExtractDataNode 的基本尺寸
     ifElse: { width: 256, height: 180 },
     knowledgeRetrieval: { width: 256, height: 160 },
     end: { width: 256, height: 140 },
@@ -150,11 +173,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 120, // 增加垂直間距
-        edgesep: 80, // 增加邊緣間距
-        ranksep: 200, // 大幅增加水平間距
-        marginx: 120,
-        marginy: 120,
+        nodesep: 140, // 增加垂直間距，考慮到 ExtractDataNode 的較大尺寸
+        edgesep: 90, // 增加邊緣間距
+        ranksep: 220, // 大幅增加水平間距，適應較寬的節點
+        marginx: 140,
+        marginy: 140,
         acyclicer: 'greedy', // 使用貪婪算法減少循環
         ranker: 'tight-tree' // 緊密樹狀排列
       };
@@ -163,11 +186,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UR', // 上右對齊
-        nodesep: 120,
-        edgesep: 80,
-        ranksep: 200,
-        marginx: 120,
-        marginy: 120,
+        nodesep: 140,
+        edgesep: 90,
+        ranksep: 220,
+        marginx: 140,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -176,11 +199,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 150, // 增加水平間距，避免寬節點交叉
-        edgesep: 60,
-        ranksep: 140, // 增加垂直間距
-        marginx: 120,
-        marginy: 100,
+        nodesep: 170, // 增加水平間距，適應 ExtractDataNode 的較大寬度
+        edgesep: 70,
+        ranksep: 160, // 增加垂直間距，適應動態高度的節點
+        marginx: 140,
+        marginy: 120,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -189,11 +212,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'DL', // 下左對齊
-        nodesep: 150,
-        edgesep: 60,
-        ranksep: 140,
-        marginx: 120,
-        marginy: 100,
+        nodesep: 170,
+        edgesep: 70,
+        ranksep: 160,
+        marginx: 140,
+        marginy: 120,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -202,11 +225,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL',
-        nodesep: 120,
-        edgesep: 60,
-        ranksep: 140,
-        marginx: 100,
-        marginy: 100,
+        nodesep: 140,
+        edgesep: 70,
+        ranksep: 160,
+        marginx: 120,
+        marginy: 120,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -254,28 +277,45 @@ export const estimateLayoutCanvasSize = (nodes, direction = 'TB') => {
   const canvasSpace = calculateCanvasSpace(nodes);
   const layoutConfig = getLayoutConfig(direction);
 
+  // 檢查是否有大尺寸節點（如 ExtractDataNode）
+  const hasLargeNodes = nodes.some((node) => {
+    const dimensions = calculateNodeDimensions(node);
+    return dimensions.width > 300 || dimensions.height > 300;
+  });
+
+  // 如果有大尺寸節點，增加額外的緩衝空間
+  const sizeFactor = hasLargeNodes ? 1.3 : 1.0;
+
   // 基於方向計算預估尺寸
   if (direction === 'LR' || direction === 'RL') {
     // 水平排列：寬度較大，高度較小
     return {
-      estimatedWidth:
-        canvasSpace.totalWidth +
-        (nodes.length - 1) * layoutConfig.ranksep +
-        layoutConfig.marginx * 2,
-      estimatedHeight:
-        canvasSpace.avgHeight * Math.ceil(Math.sqrt(nodes.length)) +
-        layoutConfig.marginy * 2
+      estimatedWidth: Math.round(
+        (canvasSpace.totalWidth +
+          (nodes.length - 1) * layoutConfig.ranksep +
+          layoutConfig.marginx * 2) *
+          sizeFactor
+      ),
+      estimatedHeight: Math.round(
+        (canvasSpace.avgHeight * Math.ceil(Math.sqrt(nodes.length)) +
+          layoutConfig.marginy * 2) *
+          sizeFactor
+      )
     };
   } else {
     // 垂直排列：高度較大，寬度較小
     return {
-      estimatedWidth:
-        canvasSpace.avgWidth * Math.ceil(Math.sqrt(nodes.length)) +
-        layoutConfig.marginx * 2,
-      estimatedHeight:
-        canvasSpace.totalHeight +
-        (nodes.length - 1) * layoutConfig.ranksep +
-        layoutConfig.marginy * 2
+      estimatedWidth: Math.round(
+        (canvasSpace.avgWidth * Math.ceil(Math.sqrt(nodes.length)) +
+          layoutConfig.marginx * 2) *
+          sizeFactor
+      ),
+      estimatedHeight: Math.round(
+        (canvasSpace.totalHeight +
+          (nodes.length - 1) * layoutConfig.ranksep +
+          layoutConfig.marginy * 2) *
+          sizeFactor
+      )
     };
   }
 };
@@ -365,6 +405,12 @@ export const analyzeConnectionComplexity = (nodes, edges) => {
     recommendations: []
   };
 
+  // 檢查是否有大尺寸節點
+  const hasLargeNodes = nodes.some((node) => {
+    const dimensions = calculateNodeDimensions(node);
+    return dimensions.width > 300 || dimensions.height > 300;
+  });
+
   // 計算每個方向的潛在交叉數量
   const directions = ['TB', 'LR', 'BT', 'RL'];
 
@@ -421,6 +467,21 @@ export const analyzeConnectionComplexity = (nodes, edges) => {
 
   if (analysis.nodeCount > 10) {
     analysis.recommendations.push('大型流程：建議分階段排版或使用分層佈局');
+  }
+
+  // 針對大尺寸節點的特殊建議
+  if (hasLargeNodes) {
+    analysis.recommendations.push(
+      '包含大尺寸節點：建議使用 TB 或 BT 方向以獲得最佳顯示效果'
+    );
+
+    // 如果有大尺寸節點，稍微傾向於垂直佈局
+    if (
+      analysis.crossingPotential['TB'] <=
+      analysis.crossingPotential['LR'] + 1
+    ) {
+      analysis.recommendedDirection = 'TB';
+    }
   }
 
   const maxCrossing = Math.max(...Object.values(analysis.crossingPotential));
