@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$r = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$h,useRef: useRef$d,useState: useState$l,useEffect: useEffect$e,forwardRef: forwardRef$1,useCallback: useCallback$c} = React$r;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$i,useRef: useRef$d,useState: useState$m,useEffect: useEffect$f,forwardRef: forwardRef$1,useCallback: useCallback$d} = React$r;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3918,9 +3918,9 @@ function Attribution({ proOptions, position = "bottom-right" }) {
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
   const edgeRef = useRef$d(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$l({ x: 0, y: 0, width: 0, height: 0 });
+  const [edgeTextBbox, setEdgeTextBbox] = useState$m({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -3942,7 +3942,7 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
     children
   );
 };
-var EdgeText$1 = memo$h(EdgeText);
+var EdgeText$1 = memo$i(EdgeText);
 const getDimensions = (node) => ({
   width: node.offsetWidth,
   height: node.offsetHeight
@@ -4126,7 +4126,7 @@ function getSimpleBezierPath({ sourceX, sourceY, sourcePosition = Position.Botto
     offsetY
   ];
 }
-const SimpleBezierEdge = memo$h(({ sourceX, sourceY, targetX, targetY, sourcePosition = Position.Bottom, targetPosition = Position.Top, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth }) => {
+const SimpleBezierEdge = memo$i(({ sourceX, sourceY, targetX, targetY, sourcePosition = Position.Bottom, targetPosition = Position.Top, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth }) => {
   const [path, labelX, labelY] = getSimpleBezierPath({
     sourceX,
     sourceY,
@@ -4275,7 +4275,7 @@ function getSmoothStepPath({ sourceX, sourceY, sourcePosition = Position.Bottom,
   }, "");
   return [path, labelX, labelY, offsetX, offsetY];
 }
-const SmoothStepEdge = memo$h(({ sourceX, sourceY, targetX, targetY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, sourcePosition = Position.Bottom, targetPosition = Position.Top, markerEnd, markerStart, pathOptions, interactionWidth }) => {
+const SmoothStepEdge = memo$i(({ sourceX, sourceY, targetX, targetY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, sourcePosition = Position.Bottom, targetPosition = Position.Top, markerEnd, markerStart, pathOptions, interactionWidth }) => {
   const [path, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -4289,7 +4289,7 @@ const SmoothStepEdge = memo$h(({ sourceX, sourceY, targetX, targetY, label, labe
   return React$r.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 SmoothStepEdge.displayName = "SmoothStepEdge";
-const StepEdge = memo$h((props) => React$r.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
+const StepEdge = memo$i((props) => React$r.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
 StepEdge.displayName = "StepEdge";
 function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
   const [labelX, labelY, offsetX, offsetY] = getEdgeCenter({
@@ -4300,7 +4300,7 @@ function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
   });
   return [`M ${sourceX},${sourceY}L ${targetX},${targetY}`, labelX, labelY, offsetX, offsetY];
 }
-const StraightEdge = memo$h(({ sourceX, sourceY, targetX, targetY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth }) => {
+const StraightEdge = memo$i(({ sourceX, sourceY, targetX, targetY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth }) => {
   const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
   return React$r.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
@@ -4358,7 +4358,7 @@ function getBezierPath({ sourceX, sourceY, sourcePosition = Position.Bottom, tar
     offsetY
   ];
 }
-const BezierEdge = memo$h(({ sourceX, sourceY, targetX, targetY, sourcePosition = Position.Bottom, targetPosition = Position.Top, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, pathOptions, interactionWidth }) => {
+const BezierEdge = memo$i(({ sourceX, sourceY, targetX, targetY, sourcePosition = Position.Bottom, targetPosition = Position.Top, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, pathOptions, interactionWidth }) => {
   const [path, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -4883,7 +4883,7 @@ const Handle = forwardRef$1(({ type = "source", position = Position.Top, isValid
   ]), onMouseDown: onPointerDown, onTouchStart: onPointerDown, onClick: connectOnClick ? onClick : void 0, ref, ...rest }, children);
 });
 Handle.displayName = "Handle";
-var Handle$1 = memo$h(Handle);
+var Handle$1 = memo$i(Handle);
 const DefaultNode = ({ data, isConnectable, targetPosition = Position.Top, sourcePosition = Position.Bottom }) => {
   return React$r.createElement(
     React$r.Fragment,
@@ -4894,7 +4894,7 @@ const DefaultNode = ({ data, isConnectable, targetPosition = Position.Top, sourc
   );
 };
 DefaultNode.displayName = "DefaultNode";
-var DefaultNode$1 = memo$h(DefaultNode);
+var DefaultNode$1 = memo$i(DefaultNode);
 const InputNode = ({ data, isConnectable, sourcePosition = Position.Bottom }) => React$r.createElement(
   React$r.Fragment,
   null,
@@ -4902,7 +4902,7 @@ const InputNode = ({ data, isConnectable, sourcePosition = Position.Bottom }) =>
   React$r.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
 );
 InputNode.displayName = "InputNode";
-var InputNode$1 = memo$h(InputNode);
+var InputNode$1 = memo$i(InputNode);
 const OutputNode = ({ data, isConnectable, targetPosition = Position.Top }) => React$r.createElement(
   React$r.Fragment,
   null,
@@ -4910,7 +4910,7 @@ const OutputNode = ({ data, isConnectable, targetPosition = Position.Top }) => R
   data?.label
 );
 OutputNode.displayName = "OutputNode";
-var OutputNode$1 = memo$h(OutputNode);
+var OutputNode$1 = memo$i(OutputNode);
 const GroupNode = () => null;
 GroupNode.displayName = "GroupNode";
 const selector$e = (s) => ({
@@ -4921,10 +4921,10 @@ const selectId = (obj) => obj.id;
 function areEqual(a, b) {
   return shallow$1(a.selectedNodes.map(selectId), b.selectedNodes.map(selectId)) && shallow$1(a.selectedEdges.map(selectId), b.selectedEdges.map(selectId));
 }
-const SelectionListener = memo$h(({ onSelectionChange }) => {
+const SelectionListener = memo$i(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$e(() => {
+  useEffect$f(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$e(() => {
+  useEffect$f(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5057,7 +5057,7 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$l(false);
+  const [keyPressed, setKeyPressed] = useState$m(false);
   const modifierPressed = useRef$d(false);
   const pressedKeys = useRef$d(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$e(() => {
+  useEffect$f(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5350,21 +5350,21 @@ const useViewportHelper = () => {
 function useReactFlow() {
   const viewportHelper = useViewportHelper();
   const store = useStoreApi();
-  const getNodes = useCallback$c(() => {
+  const getNodes = useCallback$d(() => {
     return store.getState().getNodes().map((n) => ({ ...n }));
   }, []);
-  const getNode = useCallback$c((id) => {
+  const getNode = useCallback$d((id) => {
     return store.getState().nodeInternals.get(id);
   }, []);
-  const getEdges = useCallback$c(() => {
+  const getEdges = useCallback$d(() => {
     const { edges = [] } = store.getState();
     return edges.map((e) => ({ ...e }));
   }, []);
-  const getEdge = useCallback$c((id) => {
+  const getEdge = useCallback$d((id) => {
     const { edges = [] } = store.getState();
     return edges.find((e) => e.id === id);
   }, []);
-  const setNodes = useCallback$c((payload) => {
+  const setNodes = useCallback$d((payload) => {
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     const nodes = getNodes2();
     const nextNodes = typeof payload === "function" ? payload(nodes) : payload;
@@ -5375,7 +5375,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const setEdges = useCallback$c((payload) => {
+  const setEdges = useCallback$d((payload) => {
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     const nextEdges = typeof payload === "function" ? payload(edges) : payload;
     if (hasDefaultEdges) {
@@ -5385,7 +5385,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const addNodes = useCallback$c((payload) => {
+  const addNodes = useCallback$d((payload) => {
     const nodes = Array.isArray(payload) ? payload : [payload];
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     if (hasDefaultNodes) {
@@ -5397,7 +5397,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const addEdges = useCallback$c((payload) => {
+  const addEdges = useCallback$d((payload) => {
     const nextEdges = Array.isArray(payload) ? payload : [payload];
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     if (hasDefaultEdges) {
@@ -5407,7 +5407,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const toObject = useCallback$c(() => {
+  const toObject = useCallback$d(() => {
     const { getNodes: getNodes2, edges = [], transform } = store.getState();
     const [x, y, zoom2] = transform;
     return {
@@ -5420,7 +5420,7 @@ function useReactFlow() {
       }
     };
   }, []);
-  const deleteElements = useCallback$c(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
+  const deleteElements = useCallback$d(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
     const { nodeInternals, getNodes: getNodes2, edges, hasDefaultNodes, hasDefaultEdges, onNodesDelete, onEdgesDelete, onNodesChange, onEdgesChange } = store.getState();
     const nodeIds = (nodesDeleted || []).map((node) => node.id);
     const edgeIds = (edgesDeleted || []).map((edge) => edge.id);
@@ -5477,7 +5477,7 @@ function useReactFlow() {
       }
     }
   }, []);
-  const getNodeRect = useCallback$c((nodeOrRect) => {
+  const getNodeRect = useCallback$d((nodeOrRect) => {
     const isRect = isRectObject(nodeOrRect);
     const node = isRect ? null : store.getState().nodeInternals.get(nodeOrRect.id);
     if (!isRect && !node) {
@@ -5486,7 +5486,7 @@ function useReactFlow() {
     const nodeRect = isRect ? nodeOrRect : nodeToRect(node);
     return [nodeRect, node, isRect];
   }, []);
-  const getIntersectingNodes = useCallback$c((nodeOrRect, partially = true, nodes) => {
+  const getIntersectingNodes = useCallback$d((nodeOrRect, partially = true, nodes) => {
     const [nodeRect, node, isRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return [];
@@ -5501,7 +5501,7 @@ function useReactFlow() {
       return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
     });
   }, []);
-  const isNodeIntersecting = useCallback$c((nodeOrRect, area, partially = true) => {
+  const isNodeIntersecting = useCallback$d((nodeOrRect, area, partially = true) => {
     const [nodeRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return false;
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$e(() => {
+  useEffect$f(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$e(() => {
+  useEffect$f(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5627,7 +5627,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
   const isPanScrolling = useRef$d(false);
   const panScrollTimeout = useRef$d();
   useResizeHandler(zoomPane);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -5985,7 +5985,7 @@ const selector$8 = (s) => ({
   elementsSelectable: s.elementsSelectable,
   dragging: s.paneDragging
 });
-const Pane = memo$h(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
+const Pane = memo$i(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
   const container = useRef$d(null);
   const store = useStoreApi();
   const prevSelectedNodesCount = useRef$d(0);
@@ -6247,7 +6247,7 @@ function handleNodeClick({ id, store, unselect = false, nodeRef }) {
 }
 function useGetPointerPosition() {
   const store = useStoreApi();
-  const getPointerPosition = useCallback$c(({ sourceEvent }) => {
+  const getPointerPosition = useCallback$d(({ sourceEvent }) => {
     const { transform, snapGrid, snapToGrid } = store.getState();
     const x = sourceEvent.touches ? sourceEvent.touches[0].clientX : sourceEvent.clientX;
     const y = sourceEvent.touches ? sourceEvent.touches[0].clientY : sourceEvent.clientY;
@@ -6268,7 +6268,7 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$l(false);
+  const [dragging, setDragging] = useState$m(false);
   const dragItems = useRef$d([]);
   const lastPos = useRef$d({ x: null, y: null });
   const autoPanId = useRef$d(0);
@@ -6279,7 +6279,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
   const dragStarted = useRef$d(false);
   const abortDrag = useRef$d(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6457,7 +6457,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
 }
 function useUpdateNodePositions() {
   const store = useStoreApi();
-  const updatePositions = useCallback$c((params) => {
+  const updatePositions = useCallback$d((params) => {
     const { nodeInternals, nodeExtent, updateNodePositions, getNodes, snapToGrid, snapGrid, onError, nodesDraggable } = store.getState();
     const selectedNodes = getNodes().filter((n) => n.selected && (n.draggable || nodesDraggable && typeof n.draggable === "undefined"));
     const xVelo = snapToGrid ? snapGrid[0] : 5;
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$e(() => {
+    useEffect$f(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$e(() => {
+    useEffect$f(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$e(() => {
+    useEffect$f(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6625,7 +6625,7 @@ var wrapNode = (NodeComponent) => {
     );
   };
   NodeWrapper.displayName = "NodeWrapper";
-  return memo$h(NodeWrapper);
+  return memo$i(NodeWrapper);
 };
 const selector$7 = (s) => {
   const selectedNodes = s.getNodes().filter((n) => n.selected);
@@ -6640,7 +6640,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
   const nodeRef = useRef$d(null);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6679,7 +6679,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
     } })
   );
 }
-var NodesSelection$1 = memo$h(NodesSelection);
+var NodesSelection$1 = memo$i(NodesSelection);
 const selector$6 = (s) => s.nodesSelectionActive;
 const FlowRenderer = ({ children, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneContextMenu, onPaneScroll, deleteKeyCode, onMove, onMoveStart, onMoveEnd, selectionKeyCode, selectionOnDrag, selectionMode, onSelectionStart, onSelectionEnd, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, elementsSelectable, zoomOnScroll, zoomOnPinch, panOnScroll: _panOnScroll, panOnScrollSpeed, panOnScrollMode, zoomOnDoubleClick, panOnDrag: _panOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, onSelectionContextMenu, noWheelClassName, noPanClassName, disableKeyboardA11y }) => {
   const nodesSelectionActive = useStore(selector$6);
@@ -6701,9 +6701,9 @@ const FlowRenderer = ({ children, onPaneClick, onPaneMouseEnter, onPaneMouseMove
   );
 };
 FlowRenderer.displayName = "FlowRenderer";
-var FlowRenderer$1 = memo$h(FlowRenderer);
+var FlowRenderer$1 = memo$i(FlowRenderer);
 function useVisibleNodes(onlyRenderVisible) {
-  const nodes = useStore(useCallback$c((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
+  const nodes = useStore(useCallback$d((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
   return nodes;
 }
 function createNodeTypes(nodeTypes) {
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$e(() => {
+  useEffect$f(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -6792,7 +6792,7 @@ const NodeRenderer = (props) => {
   }));
 };
 NodeRenderer.displayName = "NodeRenderer";
-var NodeRenderer$1 = memo$h(NodeRenderer);
+var NodeRenderer$1 = memo$i(NodeRenderer);
 const shiftX = (x, shift, position) => {
   if (position === Position.Left)
     return x - shift;
@@ -6813,8 +6813,8 @@ const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
     const edgeRef = useRef$d(null);
-    const [updateHover, setUpdateHover] = useState$l(false);
-    const [updating, setUpdating] = useState$l(false);
+    const [updateHover, setUpdateHover] = useState$m(false);
+    const [updating, setUpdating] = useState$m(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -6911,7 +6911,7 @@ var wrapEdge = (EdgeComponent) => {
     );
   };
   EdgeWrapper.displayName = "EdgeWrapper";
-  return memo$h(EdgeWrapper);
+  return memo$i(EdgeWrapper);
 };
 function createEdgeTypes(edgeTypes) {
   const standardTypes = {
@@ -7053,7 +7053,7 @@ function groupEdgesByZLevel(edges, nodeInternals, elevateEdgesOnSelect = false) 
   return edgeTree;
 }
 function useVisibleEdges(onlyRenderVisible, nodeInternals, elevateEdgesOnSelect) {
-  const edges = useStore(useCallback$c((s) => {
+  const edges = useStore(useCallback$d((s) => {
     if (!onlyRenderVisible) {
       return s.edges;
     }
@@ -7132,14 +7132,14 @@ const markerSelector = ({ defaultColor, rfId }) => (s) => {
 };
 const MarkerDefinitions = ({ defaultColor, rfId }) => {
   const markers = useStore(
-    useCallback$c(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
+    useCallback$d(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
     // the id includes all marker options, so we just need to look at that part of the marker
     (a, b) => !(a.length !== b.length || a.some((m, i) => m.id !== b[i].id))
   );
   return React$r.createElement("defs", null, markers.map((marker) => React$r.createElement(Marker, { id: marker.id, key: marker.id, type: marker.type, color: marker.color, width: marker.width, height: marker.height, markerUnits: marker.markerUnits, strokeWidth: marker.strokeWidth, orient: marker.orient })));
 };
 MarkerDefinitions.displayName = "MarkerDefinitions";
-var MarkerDefinitions$1 = memo$h(MarkerDefinitions);
+var MarkerDefinitions$1 = memo$i(MarkerDefinitions);
 const selector$4 = (s) => ({
   nodesConnectable: s.nodesConnectable,
   edgesFocusable: s.edgesFocusable,
@@ -7196,7 +7196,7 @@ const EdgeRenderer = ({ defaultMarkerColor, onlyRenderVisibleElements, elevateEd
   );
 };
 EdgeRenderer.displayName = "EdgeRenderer";
-var EdgeRenderer$1 = memo$h(EdgeRenderer);
+var EdgeRenderer$1 = memo$i(EdgeRenderer);
 const selector$3 = (s) => `translate(${s.transform[0]}px,${s.transform[1]}px) scale(${s.transform[2]})`;
 function Viewport({ children }) {
   const transform = useStore(selector$3);
@@ -7205,7 +7205,7 @@ function Viewport({ children }) {
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
   const isInitialized = useRef$d(false);
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7219,7 +7219,7 @@ const oppositePosition = {
   [Position.Bottom]: Position.Top
 };
 const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLineType.Bezier, CustomComponent, connectionStatus }) => {
-  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$c((s) => ({
+  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$d((s) => ({
     fromNode: s.nodeInternals.get(nodeId),
     handleId: s.connectionHandleId,
     toX: (s.connectionPosition.x - s.transform[0]) / s.transform[2],
@@ -7326,7 +7326,7 @@ const GraphView = ({ nodeTypes, edgeTypes, onMove, onMoveStart, onMoveEnd, onIni
   );
 };
 GraphView.displayName = "GraphView";
-var GraphView$1 = memo$h(GraphView);
+var GraphView$1 = memo$i(GraphView);
 const infiniteExtent = [
   [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY],
   [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY]
@@ -7664,7 +7664,7 @@ function EdgeLabelRenderer({ children }) {
 }
 function useUpdateNodeInternals() {
   const store = useStoreApi();
-  return useCallback$c((id) => {
+  return useCallback$d((id) => {
     const { domNode, updateNodeDimensions } = store.getState();
     const updateIds = Array.isArray(id) ? id : [id];
     const updates = updateIds.reduce((res, updateId) => {
@@ -7684,8 +7684,8 @@ function useEdges() {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$l(initialItems);
-    const onItemsChange = useCallback$c((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
+    const [items, setItems] = useState$m(initialItems);
+    const onItemsChange = useCallback$d((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
 }
@@ -7693,7 +7693,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$q = await importShared('react');
-const {memo: memo$g,useRef: useRef$c,useEffect: useEffect$d} = React$q;
+const {memo: memo$h,useRef: useRef$c,useEffect: useEffect$e} = React$q;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7701,7 +7701,7 @@ const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strok
     return (React$q.createElement("rect", { className: cc(['react-flow__minimap-node', { selected }, className]), x: x, y: y, rx: borderRadius, ry: borderRadius, width: width, height: height, fill: fill, stroke: strokeColor, strokeWidth: strokeWidth, shapeRendering: shapeRendering, onClick: onClick ? (event) => onClick(event, id) : undefined }));
 };
 MiniMapNode.displayName = 'MiniMapNode';
-var MiniMapNode$1 = memo$g(MiniMapNode);
+var MiniMapNode$1 = memo$h(MiniMapNode);
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 const selector$1$1 = (s) => s.nodeOrigin;
@@ -7722,7 +7722,7 @@ nodeComponent: NodeComponent = MiniMapNode$1, onClick, }) {
         return (React$q.createElement(NodeComponent, { key: node.id, x: x, y: y, width: node.width, height: node.height, style: node.style, selected: node.selected, className: nodeClassNameFunc(node), color: nodeColorFunc(node), borderRadius: nodeBorderRadius, strokeColor: nodeStrokeColorFunc(node), strokeWidth: nodeStrokeWidth, shapeRendering: shapeRendering, onClick: onClick, id: node.id }));
     })));
 }
-var MiniMapNodes$1 = memo$g(MiniMapNodes);
+var MiniMapNodes$1 = memo$h(MiniMapNodes);
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 const defaultWidth = 200;
@@ -7764,7 +7764,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
     const viewScaleRef = useRef$c(0);
     viewScaleRef.current = viewScale;
-    useEffect$d(() => {
+    useEffect$e(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7828,10 +7828,10 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
         M${viewBB.x},${viewBB.y}h${viewBB.width}v${viewBB.height}h${-viewBB.width}z`, fill: maskColor, fillRule: "evenodd", stroke: maskStrokeColor, strokeWidth: maskStrokeWidth, pointerEvents: "none" }))));
 }
 MiniMap.displayName = 'MiniMap';
-var MiniMap$1 = memo$g(MiniMap);
+var MiniMap$1 = memo$h(MiniMap);
 
 const React$p = await importShared('react');
-const {memo: memo$f,useState: useState$k,useEffect: useEffect$c} = React$p;
+const {memo: memo$g,useState: useState$l,useEffect: useEffect$d} = React$p;
 
 function PlusIcon() {
     return (React$p.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7868,10 +7868,10 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$k(false);
+    const [isVisible, setIsVisible] = useState$l(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$c(() => {
+    useEffect$d(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7909,10 +7909,10 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
         children));
 };
 Controls.displayName = 'Controls';
-var Controls$1 = memo$f(Controls);
+var Controls$1 = memo$g(Controls);
 
 const React$o = await importShared('react');
-const {memo: memo$e,useRef: useRef$b} = React$o;
+const {memo: memo$f,useRef: useRef$b} = React$o;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7969,7 +7969,7 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
         React$o.createElement("rect", { x: "0", y: "0", width: "100%", height: "100%", fill: `url(#${patternId + id})` })));
 }
 Background.displayName = 'Background';
-var Background$1 = memo$e(Background);
+var Background$1 = memo$f(Background);
 
 function commonjsRequire(path) {
 	throw new Error('Could not dynamically require "' + path + '". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.');
@@ -21656,6 +21656,28 @@ const calculateNodeDimensions = (node) => {
       };
     }
 
+    case 'extract_data': {
+      // 新增：根據 columns 數量動態調整 ExtractDataNode 高度
+      const columnCount = node.data?.columns?.length || 0;
+      const baseExtractHeight = 280; // 基礎高度（包含header、model選擇、context等）
+
+      if (columnCount === 0) {
+        // 沒有欄位時顯示提示區域
+        return {
+          width: 386, // w-98 = 3846x
+          height: baseExtractHeight + 60 // 提示區域高度
+        };
+      }
+
+      // 每個欄位大約需要 80px 高度（包含間距）
+      const columnsHeight = columnCount * 80;
+
+      return {
+        width: 384, // w-96 = 384px，與實際組件寬度一致
+        height: baseExtractHeight + columnsHeight + 40 // 額外留一些緩衝空間
+      };
+    }
+
     case 'line_webhook_input':
       return {
         width: 320, // Line 節點較寬
@@ -21740,11 +21762,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 120, // 增加垂直間距
-        edgesep: 80, // 增加邊緣間距
-        ranksep: 200, // 大幅增加水平間距
-        marginx: 120,
-        marginy: 120,
+        nodesep: 140, // 增加垂直間距，考慮到 ExtractDataNode 的較大尺寸
+        edgesep: 90, // 增加邊緣間距
+        ranksep: 220, // 大幅增加水平間距，適應較寬的節點
+        marginx: 140,
+        marginy: 140,
         acyclicer: 'greedy', // 使用貪婪算法減少循環
         ranker: 'tight-tree' // 緊密樹狀排列
       };
@@ -21753,11 +21775,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UR', // 上右對齊
-        nodesep: 120,
-        edgesep: 80,
-        ranksep: 200,
-        marginx: 120,
-        marginy: 120,
+        nodesep: 140,
+        edgesep: 90,
+        ranksep: 220,
+        marginx: 140,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21766,11 +21788,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 150, // 增加水平間距，避免寬節點交叉
-        edgesep: 60,
-        ranksep: 140, // 增加垂直間距
-        marginx: 120,
-        marginy: 100,
+        nodesep: 170, // 增加水平間距，適應 ExtractDataNode 的較大寬度
+        edgesep: 70,
+        ranksep: 160, // 增加垂直間距，適應動態高度的節點
+        marginx: 140,
+        marginy: 120,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21779,11 +21801,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'DL', // 下左對齊
-        nodesep: 150,
-        edgesep: 60,
-        ranksep: 140,
-        marginx: 120,
-        marginy: 100,
+        nodesep: 170,
+        edgesep: 70,
+        ranksep: 160,
+        marginx: 140,
+        marginy: 120,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21792,11 +21814,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL',
-        nodesep: 120,
-        edgesep: 60,
-        ranksep: 140,
-        marginx: 100,
-        marginy: 100,
+        nodesep: 140,
+        edgesep: 70,
+        ranksep: 160,
+        marginx: 120,
+        marginy: 120,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21844,28 +21866,45 @@ const estimateLayoutCanvasSize = (nodes, direction = 'TB') => {
   const canvasSpace = calculateCanvasSpace(nodes);
   const layoutConfig = getLayoutConfig(direction);
 
+  // 檢查是否有大尺寸節點（如 ExtractDataNode）
+  const hasLargeNodes = nodes.some((node) => {
+    const dimensions = calculateNodeDimensions(node);
+    return dimensions.width > 300 || dimensions.height > 300;
+  });
+
+  // 如果有大尺寸節點，增加額外的緩衝空間
+  const sizeFactor = hasLargeNodes ? 1.3 : 1.0;
+
   // 基於方向計算預估尺寸
   if (direction === 'LR' || direction === 'RL') {
     // 水平排列：寬度較大，高度較小
     return {
-      estimatedWidth:
-        canvasSpace.totalWidth +
-        (nodes.length - 1) * layoutConfig.ranksep +
-        layoutConfig.marginx * 2,
-      estimatedHeight:
-        canvasSpace.avgHeight * Math.ceil(Math.sqrt(nodes.length)) +
-        layoutConfig.marginy * 2
+      estimatedWidth: Math.round(
+        (canvasSpace.totalWidth +
+          (nodes.length - 1) * layoutConfig.ranksep +
+          layoutConfig.marginx * 2) *
+          sizeFactor
+      ),
+      estimatedHeight: Math.round(
+        (canvasSpace.avgHeight * Math.ceil(Math.sqrt(nodes.length)) +
+          layoutConfig.marginy * 2) *
+          sizeFactor
+      )
     };
   } else {
     // 垂直排列：高度較大，寬度較小
     return {
-      estimatedWidth:
-        canvasSpace.avgWidth * Math.ceil(Math.sqrt(nodes.length)) +
-        layoutConfig.marginx * 2,
-      estimatedHeight:
-        canvasSpace.totalHeight +
-        (nodes.length - 1) * layoutConfig.ranksep +
-        layoutConfig.marginy * 2
+      estimatedWidth: Math.round(
+        (canvasSpace.avgWidth * Math.ceil(Math.sqrt(nodes.length)) +
+          layoutConfig.marginx * 2) *
+          sizeFactor
+      ),
+      estimatedHeight: Math.round(
+        (canvasSpace.totalHeight +
+          (nodes.length - 1) * layoutConfig.ranksep +
+          layoutConfig.marginy * 2) *
+          sizeFactor
+      )
     };
   }
 };
@@ -21955,6 +21994,12 @@ const analyzeConnectionComplexity = (nodes, edges) => {
     recommendations: []
   };
 
+  // 檢查是否有大尺寸節點
+  const hasLargeNodes = nodes.some((node) => {
+    const dimensions = calculateNodeDimensions(node);
+    return dimensions.width > 300 || dimensions.height > 300;
+  });
+
   // 計算每個方向的潛在交叉數量
   const directions = ['TB', 'LR', 'BT', 'RL'];
 
@@ -22011,6 +22056,21 @@ const analyzeConnectionComplexity = (nodes, edges) => {
 
   if (analysis.nodeCount > 10) {
     analysis.recommendations.push('大型流程：建議分階段排版或使用分層佈局');
+  }
+
+  // 針對大尺寸節點的特殊建議
+  if (hasLargeNodes) {
+    analysis.recommendations.push(
+      '包含大尺寸節點：建議使用 TB 或 BT 方向以獲得最佳顯示效果'
+    );
+
+    // 如果有大尺寸節點，稍微傾向於垂直佈局
+    if (
+      analysis.crossingPotential['TB'] <=
+      analysis.crossingPotential['LR'] + 1
+    ) {
+      analysis.recommendedDirection = 'TB';
+    }
   }
 
   const maxCrossing = Math.max(...Object.values(analysis.crossingPotential));
@@ -22097,7 +22157,7 @@ const validateLayoutQuality = (nodes, direction) => {
   };
 };
 
-const {useRef: useRef$a,useCallback: useCallback$b} = await importShared('react');
+const {useRef: useRef$a,useCallback: useCallback$c} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -22105,7 +22165,7 @@ function useFlowNodes() {
   const redoStack = useRef$a([]);
   const nodeCallbacks = useRef$a({});
   const isUpdatingNodes = useRef$a(false);
-  const handleAutoLayout = useCallback$b(
+  const handleAutoLayout = useCallback$c(
     async (direction = "TB") => {
       console.log(`開始執行自動排版，方向: ${direction}`);
       if (nodes.length === 0) {
@@ -22178,40 +22238,40 @@ function useFlowNodes() {
     },
     [nodes, edges, setNodes]
   );
-  const handleNodesChange = useCallback$b(
+  const handleNodesChange = useCallback$c(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
     [setNodes]
   );
-  const handleEdgesChange = useCallback$b(
+  const handleEdgesChange = useCallback$c(
     (changes) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
     },
     [setEdges]
   );
-  const pushToUndoStack = useCallback$b(() => {
+  const pushToUndoStack = useCallback$c(() => {
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
       edges: JSON.parse(JSON.stringify(edges))
     });
     redoStack.current = [];
   }, [nodes, edges]);
-  const safeSetNodes = useCallback$b(
+  const safeSetNodes = useCallback$c(
     (updater) => {
       pushToUndoStack();
       setNodes(updater);
     },
     [pushToUndoStack, setNodes]
   );
-  const safeSetEdges = useCallback$b(
+  const safeSetEdges = useCallback$c(
     (updater) => {
       pushToUndoStack();
       setEdges(updater);
     },
     [pushToUndoStack, setEdges]
   );
-  const handleNodeSelection = useCallback$b(
+  const handleNodeSelection = useCallback$c(
     (nodeId) => {
       if (isUpdatingNodes.current) return;
       isUpdatingNodes.current = true;
@@ -22228,7 +22288,7 @@ function useFlowNodes() {
     },
     [setNodes]
   );
-  const getNodeCallbacks = useCallback$b(
+  const getNodeCallbacks = useCallback$c(
     (nodeId, nodeType) => {
       if (nodeCallbacks.current[nodeId]) {
         return nodeCallbacks.current[nodeId];
@@ -22238,6 +22298,29 @@ function useFlowNodes() {
         handleNodeSelection(nodeId);
       };
       switch (nodeType) {
+        case "extractData":
+        case "extract_data":
+          callbacks.updateNodeData = (key, value) => {
+            console.log(
+              `更新 Extract Data 節點 ${nodeId} 的 ${key} 資料:`,
+              value
+            );
+            safeSetNodes(
+              (nds) => nds.map((node) => {
+                if (node.id === nodeId) {
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      [key]: value
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          };
+          break;
         case "customInput":
           callbacks.addField = () => {
             safeSetNodes(
@@ -22436,7 +22519,7 @@ function useFlowNodes() {
     },
     [handleNodeSelection, safeSetNodes, safeSetEdges]
   );
-  const onNodesDelete = useCallback$b(
+  const onNodesDelete = useCallback$c(
     (nodesToDelete) => {
       if (!nodesToDelete || nodesToDelete.length === 0) return;
       const nodeIdsToDelete = nodesToDelete.map((node) => node.id);
@@ -22509,14 +22592,14 @@ function useFlowNodes() {
     },
     [nodes, edges, safeSetEdges, safeSetNodes]
   );
-  const deleteSelectedNodes = useCallback$b(
+  const deleteSelectedNodes = useCallback$c(
     (selectedNodes) => {
       if (!selectedNodes || selectedNodes.length === 0) return;
       onNodesDelete(selectedNodes);
     },
     [onNodesDelete]
   );
-  const handleAddInputNode = useCallback$b(
+  const handleAddInputNode = useCallback$c(
     (position) => {
       const id = `input_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "customInput");
@@ -22540,7 +22623,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddAINode = useCallback$b(
+  const handleAddAINode = useCallback$c(
     (position) => {
       const id = `ai_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "aiCustomInput");
@@ -22561,7 +22644,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddBrowserExtensionOutput = useCallback$b(
+  const handleAddBrowserExtensionOutput = useCallback$c(
     (position) => {
       const id = `browserExtOut_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(
@@ -22663,7 +22746,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks, setNodes]
   );
-  const handleAddBrowserExtensionInput = useCallback$b(
+  const handleAddBrowserExtensionInput = useCallback$c(
     (position) => {
       const id = `browserExtIn_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "browserExtensionInput");
@@ -22684,7 +22767,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddNode = useCallback$b(
+  const handleAddNode = useCallback$c(
     (position) => {
       const id = `default_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "default");
@@ -22704,7 +22787,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddIfElseNode = useCallback$b(
+  const handleAddIfElseNode = useCallback$c(
     (position) => {
       const id = `ifelse_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "ifElse");
@@ -22726,7 +22809,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddHTTPNode = useCallback$b(
+  const handleAddHTTPNode = useCallback$c(
     (position) => {
       const id = `http_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "http");
@@ -22749,7 +22832,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddLineNode = useCallback$b(
+  const handleAddLineNode = useCallback$c(
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "line");
@@ -22791,7 +22874,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks, nodes]
   );
-  const handleAddLineMessageNode = useCallback$b(
+  const handleAddLineMessageNode = useCallback$c(
     (position) => {
       const id = `message_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "message");
@@ -22810,7 +22893,35 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddKnowledgeRetrievalNode = useCallback$b(
+  const handleAddExtractDataNode = useCallback$c(
+    (position) => {
+      const id = `extract_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, "extractData");
+      const newNode = {
+        id,
+        type: "extract_data",
+        data: {
+          model: "1",
+          // 預設模型 ID
+          columns: [
+            {
+              name: "fasting_blood_sugar",
+              type: "text",
+              description: "> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl"
+            }
+          ],
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+  const handleAddKnowledgeRetrievalNode = useCallback$c(
     (position) => {
       const id = `knowledge_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "knowledgeRetrieval");
@@ -22837,7 +22948,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEndNode = useCallback$b(
+  const handleAddEndNode = useCallback$c(
     (position) => {
       const id = `end_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "end");
@@ -22858,7 +22969,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddWebhookNode = useCallback$b(
+  const handleAddWebhookNode = useCallback$c(
     (position) => {
       const id = `webhook_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "webhook");
@@ -22879,7 +22990,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddTimerNode = useCallback$b(
+  const handleAddTimerNode = useCallback$c(
     (position) => {
       const id = `timer_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "timer");
@@ -22901,7 +23012,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEventNode = useCallback$b(
+  const handleAddEventNode = useCallback$c(
     (position) => {
       const id = `event_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "event");
@@ -22923,7 +23034,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const onConnect = useCallback$b(
+  const onConnect = useCallback$c(
     (params) => {
       const sourceHandle = params.sourceHandle || "output";
       const targetNodeId = params.target;
@@ -22934,6 +23045,7 @@ function useFlowNodes() {
       const targetNode = nodes.find((node) => node.id === targetNodeId);
       const isBrowserExtensionOutput = targetNode && targetNode.type === "browserExtensionOutput";
       const isAINode = targetNode && (targetNode.type === "aiCustomInput" || targetNode.type === "ai");
+      const isExtractDataNode = targetNode && targetNode.type === "extract_data";
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput = sourceNode && sourceNode.type === "browserExtensionInput";
       const isCustomInputNode = sourceNode && sourceNode.type === "customInput";
@@ -22988,6 +23100,23 @@ function useFlowNodes() {
           return;
         }
       }
+      if (sourceNode && sourceNode.type === "extract_data") {
+        console.log("源節點是Extract Data節點，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.source === params.source && edge.sourceHandle === "output"
+        );
+        if (existingEdges.length > 0) {
+          console.log(`Extract Data節點已有輸出連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `Extract Data節點只能有一個輸出連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
       if (targetNode && targetNode.type === "line_send_message") {
         console.log("目標是LineMessage節點，檢查連線限制");
         const existingEdges = edges.filter(
@@ -23022,6 +23151,24 @@ function useFlowNodes() {
             }
             return;
           }
+        }
+      }
+      if (isExtractDataNode) {
+        console.log("目標是Extract Data節點，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.target === targetNodeId && edge.targetHandle === "context-input"
+        );
+        console.log(existingEdges);
+        if (existingEdges.length > 0) {
+          console.log(`Extract Data節點已有輸入連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `Extract Data節點只能有一個輸入連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
         }
       }
       if (isBrowserExtensionOutput) {
@@ -23128,7 +23275,7 @@ function useFlowNodes() {
     },
     [nodes, edges, safeSetNodes, safeSetEdges]
   );
-  const undo = useCallback$b(() => {
+  const undo = useCallback$c(() => {
     if (undoStack.current.length === 0) return;
     redoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -23138,7 +23285,7 @@ function useFlowNodes() {
     setNodes(prev.nodes);
     setEdges(prev.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const redo = useCallback$b(() => {
+  const redo = useCallback$c(() => {
     if (redoStack.current.length === 0) return;
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -23148,7 +23295,7 @@ function useFlowNodes() {
     setNodes(next.nodes);
     setEdges(next.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const updateNodeLabel = useCallback$b(
+  const updateNodeLabel = useCallback$c(
     (id, label) => {
       safeSetNodes(
         (nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, label } } : n)
@@ -23156,7 +23303,7 @@ function useFlowNodes() {
     },
     [safeSetNodes]
   );
-  const updateNodeFunctions = useCallback$b(() => {
+  const updateNodeFunctions = useCallback$c(() => {
     const updatedNodes = [...nodes];
     let hasChanges = false;
     console.log("開始檢查並更新所有節點的回調函數...");
@@ -23235,6 +23382,7 @@ function useFlowNodes() {
     handleAddEndNode,
     handleAddTimerNode,
     handleNodeSelection,
+    handleAddExtractDataNode,
     undo,
     redo,
     getNodeCallbacks,
@@ -23243,7 +23391,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "03917542cfda6b4f816729368bbe8cfaaf9a749a", "VITE_APP_BUILD_TIME": "2025-06-12T06:32:24.739Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.46.15"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f2f2095c9b0c82c9396dd34df8b91fefc84056ff", "VITE_APP_BUILD_TIME": "2025-06-25T05:39:36.035Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.2.0.1"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -23374,13 +23522,13 @@ const IconBase = ({ type, className = "" }) => {
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
 const React$n = await importShared('react');
-const {useState: useState$j} = React$n;
+const {useState: useState$k} = React$n;
 const NodeSidebar = ({
   handleButtonClick,
   onDragStart: customDragStart,
   nodes = []
 }) => {
-  const [searchTerm, setSearchTerm] = useState$j("");
+  const [searchTerm, setSearchTerm] = useState$k("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -23521,6 +23669,16 @@ const NodeSidebar = ({
           nodeType: "line_send_message",
           onDragStart: customDragStart
         }
+      ),
+      filterNodes("Extract Data Node") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NodeItem,
+        {
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
+          label: "Extract Data",
+          onClick: () => handleNodeClick("extract_data"),
+          nodeType: "extract_data",
+          onDragStart: customDragStart
+        }
       )
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
@@ -23628,9 +23786,9 @@ const workflowIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20vie
 const pencilIcon = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23fff'%20fill-opacity='.01'%20d='M0%200h16v16H0z'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M12.644%201.223a.533.533%200%200%200-.754%200L3.962%209.15c-.096.096-.173.21-.226.334l-1.56%203.64a.533.533%200%200%200%20.7.7l3.64-1.56c.124-.053.238-.13.334-.226l7.927-7.928a.533.533%200%200%200%200-.754l-2.133-2.133zM4.716%209.904l7.55-7.55%201.38%201.38-7.55%207.55-1.596.683-.467-.468.683-1.595z'%20fill='%231C2024'/%3e%3c/svg%3e";
 
 const React$m = await importShared('react');
-const {useState: useState$i} = React$m;
+const {useState: useState$j} = React$m;
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$i(true);
+  const [isEditing, setIsEditing] = useState$j(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -23719,10 +23877,10 @@ const APAAssistant = ({ title, onTitleChange }) => {
 };
 
 const React$l = await importShared('react');
-const {memo: memo$d,useCallback: useCallback$a} = React$l;
+const {memo: memo$e,useCallback: useCallback$b} = React$l;
 
 const NodeWrapper = ({ children, selected, onClick }) => {
-  const handleClick = useCallback$a(
+  const handleClick = useCallback$b(
     (e) => {
       e.stopPropagation();
       if (typeof onClick === "function") {
@@ -23747,16 +23905,16 @@ const NodeWrapper = ({ children, selected, onClick }) => {
     }
   );
 };
-const NodeWrapper$1 = memo$d(NodeWrapper);
+const NodeWrapper$1 = memo$e(NodeWrapper);
 
 const React$k = await importShared('react');
-const {memo: memo$c,useCallback: useCallback$9,useEffect: useEffect$b,useState: useState$h,useRef: useRef$9} = React$k;
+const {memo: memo$d,useCallback: useCallback$a,useEffect: useEffect$c,useState: useState$i,useRef: useRef$9} = React$k;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
     const nodeRef = useRef$9(null);
-    const [isInputFocused, setIsInputFocused] = useState$h(false);
-    const handleNodeClick = useCallback$9(
+    const [isInputFocused, setIsInputFocused] = useState$i(false);
+    const handleNodeClick = useCallback$a(
       (e) => {
         e.stopPropagation();
         if (data && typeof data.onSelect === "function") {
@@ -23765,7 +23923,7 @@ const withNodeSelection = (WrappedComponent) => {
       },
       [data]
     );
-    useEffect$b(() => {
+    useEffect$c(() => {
       const handleFocus = (e) => {
         const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
         if (isInput) {
@@ -23833,14 +23991,14 @@ const withNodeSelection = (WrappedComponent) => {
   WithNodeSelection.displayName = `withNodeSelection(${getDisplayName(
     WrappedComponent
   )})`;
-  return memo$c(WithNodeSelection);
+  return memo$d(WithNodeSelection);
 };
 function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }
 
 const React$j = await importShared('react');
-const {useRef: useRef$8,useEffect: useEffect$a,useState: useState$g} = React$j;
+const {useRef: useRef$8,useEffect: useEffect$b,useState: useState$h} = React$j;
 
 const AutoResizeTextarea = ({
   value,
@@ -23853,14 +24011,14 @@ const AutoResizeTextarea = ({
   ...props
 }) => {
   const textareaRef = useRef$8(null);
-  const [isFocused, setIsFocused] = useState$g(false);
-  useEffect$a(() => {
+  const [isFocused, setIsFocused] = useState$h(false);
+  useEffect$b(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${Math.max(textarea.scrollHeight, 60)}px`;
   }, [value]);
-  useEffect$a(() => {
+  useEffect$b(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleFocus = () => {
@@ -23884,7 +24042,7 @@ const AutoResizeTextarea = ({
       textarea.removeEventListener("mousedown", handleMouseDown);
     };
   }, []);
-  useEffect$a(() => {
+  useEffect$b(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleWheelCapture = (e) => {
@@ -23924,7 +24082,7 @@ const AutoResizeTextarea = ({
       });
     };
   }, [isFocused]);
-  useEffect$a(() => {
+  useEffect$b(() => {
     if (isFocused) {
       const findReactFlowNode = (element) => {
         let current = element;
@@ -24001,9 +24159,9 @@ const AutoResizeTextarea = ({
 };
 
 const React$i = await importShared('react');
-const {memo: memo$b,useReducer,useCallback: useCallback$8,useState: useState$f,useEffect: useEffect$9,useRef: useRef$7} = React$i;
+const {memo: memo$c,useReducer,useCallback: useCallback$9,useState: useState$g,useEffect: useEffect$a,useRef: useRef$7} = React$i;
 const CustomInputNode = ({ data, isConnectable, id }) => {
-  const [localFields, setLocalFields] = useState$f([]);
+  const [localFields, setLocalFields] = useState$g([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const isComposingInputNameRef = useRef$7(false);
   const isComposingDefaultValueRef = useRef$7(false);
@@ -24012,7 +24170,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   const updateTimeoutRef = useRef$7({});
   const lastExternalInputNameRef = useRef$7("");
   const lastExternalDefaultValueRef = useRef$7("");
-  useEffect$9(() => {
+  useEffect$a(() => {
     if (Array.isArray(data.fields)) {
       const fieldToUse = data.fields.length > 0 ? [data.fields[0]] : [
         {
@@ -24054,14 +24212,14 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       lastExternalDefaultValueRef.current = "Summary the input text";
     }
   }, [data.fields, localFields]);
-  useEffect$9(() => {
+  useEffect$a(() => {
     return () => {
       Object.values(updateTimeoutRef.current).forEach((timeout) => {
         if (timeout) clearTimeout(timeout);
       });
     };
   }, []);
-  const handleUpdateFieldInputName = useCallback$8(
+  const handleUpdateFieldInputName = useCallback$9(
     (index, value) => {
       if (typeof data.updateFieldInputName === "function") {
         data.updateFieldInputName(index, value);
@@ -24085,7 +24243,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
-  const handleUpdateFieldDefaultValue = useCallback$8(
+  const handleUpdateFieldDefaultValue = useCallback$9(
     (index, value) => {
       if (typeof data.updateFieldDefaultValue === "function") {
         data.updateFieldDefaultValue(index, value);
@@ -24106,7 +24264,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
-  const debouncedUpdate = useCallback$8(
+  const debouncedUpdate = useCallback$9(
     (updateFunction, index, value, fieldType) => {
       const timeoutKey = `${fieldType}_${index}`;
       if (updateTimeoutRef.current[timeoutKey]) {
@@ -24125,7 +24283,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     []
   );
-  const handleInputNameChange = useCallback$8(
+  const handleInputNameChange = useCallback$9(
     (e) => {
       const value = e.target.value;
       isUserInputInputNameRef.current = true;
@@ -24144,7 +24302,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [localFields, handleUpdateFieldInputName, debouncedUpdate]
   );
-  const handleDefaultValueChange = useCallback$8(
+  const handleDefaultValueChange = useCallback$9(
     (e) => {
       const value = e.target.value;
       isUserInputDefaultValueRef.current = true;
@@ -24168,7 +24326,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [localFields, handleUpdateFieldDefaultValue, debouncedUpdate]
   );
-  const handleInputNameCompositionStart = useCallback$8(() => {
+  const handleInputNameCompositionStart = useCallback$9(() => {
     isComposingInputNameRef.current = true;
     isUserInputInputNameRef.current = true;
     const timeoutKey = "inputName_0";
@@ -24177,7 +24335,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current[timeoutKey] = null;
     }
   }, []);
-  const handleDefaultValueCompositionStart = useCallback$8(() => {
+  const handleDefaultValueCompositionStart = useCallback$9(() => {
     isComposingDefaultValueRef.current = true;
     isUserInputDefaultValueRef.current = true;
     const timeoutKey = "defaultValue_0";
@@ -24186,7 +24344,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current[timeoutKey] = null;
     }
   }, []);
-  const handleInputNameCompositionEnd = useCallback$8(
+  const handleInputNameCompositionEnd = useCallback$9(
     (e) => {
       isComposingInputNameRef.current = false;
       const finalValue = e.target.value;
@@ -24198,7 +24356,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [handleUpdateFieldInputName]
   );
-  const handleDefaultValueCompositionEnd = useCallback$8(
+  const handleDefaultValueCompositionEnd = useCallback$9(
     (e) => {
       isComposingDefaultValueRef.current = false;
       const finalValue = e.target.value;
@@ -24210,7 +24368,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [handleUpdateFieldDefaultValue]
   );
-  const handleInputNameKeyDown = useCallback$8((e) => {
+  const handleInputNameKeyDown = useCallback$9((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputInputNameRef.current = true;
       setTimeout(() => {
@@ -24218,7 +24376,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  const handleDefaultValueKeyDown = useCallback$8((e) => {
+  const handleDefaultValueKeyDown = useCallback$9((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputDefaultValueRef.current = true;
       setTimeout(() => {
@@ -24301,7 +24459,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     ] }) })
   ] });
 };
-const CustomInputNode$1 = memo$b(CustomInputNode);
+const CustomInputNode$1 = memo$c(CustomInputNode);
 
 // TokenService.js 簡化版
 
@@ -24399,7 +24557,9 @@ class WorkflowMappingService {
       line: "line_webhook_input",
       event: "event",
       end: "end",
-      message: "line_send_message"
+      message: "line_send_message",
+      extract_data: "extract_data",
+      extractData: "extract_data"
     };
     return operatorMap[type] || type;
   }
@@ -24421,7 +24581,8 @@ class WorkflowMappingService {
       line: "line_webhook_input",
       event: "event",
       end: "end",
-      message: "line_send_message"
+      message: "line_send_message",
+      extract_data: "extract_data"
     };
     return typeMap[operator] || operator;
   }
@@ -24447,7 +24608,9 @@ class WorkflowMappingService {
       line: "integration",
       event: "event",
       end: "output",
-      browserExtensionOutput: "output"
+      browserExtensionOutput: "output",
+      extract_data: "advanced",
+      extractData: "advanced"
     };
     return categoryMap[type] || "advanced";
   }
@@ -24486,6 +24649,8 @@ class WorkflowMappingService {
         return "LINE Message";
       case "event":
         return "事件處理";
+      case "extract_data":
+        return "資料提取";
       default:
         return node.operator;
     }
@@ -24610,6 +24775,7 @@ class WorkflowMappingService {
     Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
       const isAINode = targetNode.type === "aiCustomInput" || targetNode.type === "ai";
       const isMessageNode = targetNode.type === "line_send_message";
+      const isExtractDataNode = targetNode.type === "extract_data";
       if (isAINode && targetHandle.startsWith("context")) {
         targetEdges.forEach((edge, index) => {
           let inputKey;
@@ -24689,6 +24855,18 @@ class WorkflowMappingService {
           };
           console.log(
             `Message節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
+          );
+        });
+      } else if (isExtractDataNode && targetHandle === "context-input") {
+        targetEdges.forEach((edge) => {
+          const inputKey = "context_to_extract_from";
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || "output",
+            type: "string"
+          };
+          console.log(
+            `Extract Data節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
           );
         });
       } else {
@@ -24993,6 +25171,14 @@ class WorkflowMappingService {
           node_id: node.id,
           type: "boolean",
           data: false
+        };
+        break;
+      case "extract_data":
+      case "extractData":
+        nodeOutput.output = {
+          node_id: node.id,
+          type: "json"
+          // Extract Data 輸出為 JSON 格式
         };
         break;
       default:
@@ -25893,6 +26079,7 @@ class WorkflowDataConverter {
       const isAINode = node.operator === "ask_ai";
       const isKnowledgeNode = node.operator === "knowledge_retrieval";
       const isMessageNode = node.operator === "line_send_message";
+      const isExtractDataNode = node.operator === "extract_data";
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
         if (isAINode) {
@@ -25935,6 +26122,10 @@ class WorkflowDataConverter {
           } else if (isMessageNode) {
             if (inputKey.startsWith("message") || inputKey === "input") {
               targetHandle = "message";
+            }
+          } else if (isExtractDataNode) {
+            if (inputKey === "context_to_extract_from" || inputKey === "input") {
+              targetHandle = "context-input";
             }
           }
           const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${inputValue.output_name || "output"}`;
@@ -25999,6 +26190,15 @@ class WorkflowDataConverter {
       };
     }
     switch (node.operator) {
+      case "extract_data": {
+        const columnsData = node.parameters?.columns?.data || [];
+        const columns = Array.isArray(columnsData) ? columnsData : [];
+        return {
+          ...baseData,
+          model: node.parameters?.llm_id?.data?.toString() || "1",
+          columns
+        };
+      }
       case "line_webhook_input":
         console.log("處理 line 節點數據轉換:", node);
         return {
@@ -26150,7 +26350,8 @@ class WorkflowDataConverter {
           "knowledgeRetrieval",
           "http",
           "timer",
-          "event"
+          "event",
+          "extract_data"
         ].includes(node.type)
       );
       const outputNodes = nodes.filter(
@@ -26366,6 +26567,43 @@ class WorkflowDataConverter {
           );
         }
         break;
+      case "extract_data":
+      case "extractData":
+        if (node.data.model) {
+          const modelValue = node.data.model || "1";
+          const safeModelValue = typeof modelValue !== "string" ? modelValue.toString() : modelValue;
+          parameters.llm_id = { data: Number(safeModelValue) };
+        }
+        if (node.data.columns && Array.isArray(node.data.columns)) {
+          parameters.columns = { data: node.data.columns };
+          const exampleObj = {};
+          node.data.columns.forEach((column) => {
+            switch (column.type) {
+              case "number":
+                exampleObj[column.name] = 0;
+                break;
+              case "boolean":
+                exampleObj[column.name] = false;
+                break;
+              default:
+                exampleObj[column.name] = "";
+                break;
+            }
+          });
+          parameters.example = { data: JSON.stringify(exampleObj) };
+        } else {
+          parameters.columns = {
+            data: [
+              {
+                name: "fasting_blood_sugar",
+                type: "text",
+                description: "> 120 mg/dl"
+              }
+            ]
+          };
+          parameters.example = { data: '{"fasting_blood_sugar": ""}' };
+        }
+        break;
       default:
         if (node.data) {
           Object.entries(node.data).forEach(([key, value]) => {
@@ -26468,9 +26706,9 @@ const iconUploadService = new IconUploadService();
 const externalService = new ExternalService();
 
 const React$h = await importShared('react');
-const {memo: memo$a,useState: useState$e,useEffect: useEffect$8,useCallback: useCallback$7,useRef: useRef$6} = React$h;
+const {memo: memo$b,useState: useState$f,useEffect: useEffect$9,useCallback: useCallback$8,useRef: useRef$6} = React$h;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState$e([
+  const [modelOptions, setModelOptions] = useState$f([
     { value: "1", label: "O3-mini" },
     { value: "2", label: "O3-plus" },
     { value: "3", label: "O3-mega" },
@@ -26483,15 +26721,15 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const hasPromptConnection = edges.some(
     (edge) => edge.target === id && edge.targetHandle === "prompt-input"
   );
-  const [isLoadingModels, setIsLoadingModels] = useState$e(false);
-  const [modelLoadError, setModelLoadError] = useState$e(null);
-  const [localModel, setLocalModel] = useState$e(data?.model || "1");
-  const [promptText, setPromptText] = useState$e(data?.promptText || "");
+  const [isLoadingModels, setIsLoadingModels] = useState$f(false);
+  const [modelLoadError, setModelLoadError] = useState$f(null);
+  const [localModel, setLocalModel] = useState$f(data?.model || "1");
+  const [promptText, setPromptText] = useState$f(data?.promptText || "");
   const isComposingRef = useRef$6(false);
   const updateTimeoutRef = useRef$6(null);
   const lastExternalValueRef = useRef$6(data?.promptText || "");
   const isUserInputRef = useRef$6(false);
-  useEffect$8(() => {
+  useEffect$9(() => {
     console.log("AICustomInputNode 數據同步更新:", {
       "data.model": data?.model,
       "data.promptText": data?.promptText,
@@ -26537,10 +26775,10 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       setIsLoadingModels(false);
     }
   };
-  useEffect$8(() => {
+  useEffect$9(() => {
     loadModels();
   }, []);
-  const updateParentState = useCallback$7(
+  const updateParentState = useCallback$8(
     (key, value) => {
       if (data && typeof data.updateNodeData === "function") {
         data.updateNodeData(key, value);
@@ -26554,7 +26792,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleModelChange = useCallback$7(
+  const handleModelChange = useCallback$8(
     (e) => {
       const newModelValue = e.target.value;
       setLocalModel(newModelValue);
@@ -26562,7 +26800,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handlePromptTextChange = useCallback$7(
+  const handlePromptTextChange = useCallback$8(
     (e) => {
       const newText = e.target.value;
       isUserInputRef.current = true;
@@ -26582,7 +26820,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleCompositionStart = useCallback$7(() => {
+  const handleCompositionStart = useCallback$8(() => {
     isComposingRef.current = true;
     isUserInputRef.current = true;
     if (updateTimeoutRef.current) {
@@ -26590,7 +26828,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current = null;
     }
   }, []);
-  const handleCompositionEnd = useCallback$7(
+  const handleCompositionEnd = useCallback$8(
     (e) => {
       isComposingRef.current = false;
       const finalText = e.target.value;
@@ -26603,7 +26841,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleKeyDown = useCallback$7((e) => {
+  const handleKeyDown = useCallback$8((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputRef.current = true;
       setTimeout(() => {
@@ -26611,7 +26849,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  useEffect$8(() => {
+  useEffect$9(() => {
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
@@ -26745,7 +26983,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     )
   ] });
 };
-const AICustomInputNode$1 = memo$a(AICustomInputNode);
+const AICustomInputNode$1 = memo$b(AICustomInputNode);
 
 const add = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23l9ob8qnlxa)'%3e%3cpath%20d='M8%200a8%208%200%200%200-8%208%208%208%200%200%200%208%208%208%208%200%200%200%208-8%208%208%200%200%200-8-8zm4.666%208.666A.664.664%200%200%201%2012%209.33H9.334V12a.664.664%200%200%201-.665.666H7.334A.666.666%200%200%201%206.67%2012V9.334H4a.666.666%200%200%201-.666-.665V7.334c0-.368.297-.665.666-.665h2.666V4c0-.369.296-.666.665-.666h1.335c.368%200%20.665.3.665.666v2.666H12c.369%200%20.666.3.666.665v1.335z'%20fill='%23fff'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='l9ob8qnlxa'%3e%3cpath%20fill='%23fff'%20d='M0%200h16v16H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
 
@@ -26781,16 +27019,16 @@ const Add = () => {
 };
 
 const React$g = await importShared('react');
-const {memo: memo$9,useEffect: useEffect$7,useState: useState$d,useRef: useRef$5,useCallback: useCallback$6} = React$g;
+const {memo: memo$a,useEffect: useEffect$8,useState: useState$e,useRef: useRef$5,useCallback: useCallback$7} = React$g;
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
-  const [inputs, setInputs] = useState$d([]);
-  const [handleLabels, setHandleLabels] = useState$d({});
+  const [inputs, setInputs] = useState$e([]);
+  const [handleLabels, setHandleLabels] = useState$e({});
   const updateNodeInternals = useUpdateNodeInternals();
   const initAttempts = useRef$5(0);
   const nodeId = id || "unknown";
   const isUpdating = useRef$5(false);
   const handleHeight = 40;
-  const getNodeHeight = useCallback$6(() => {
+  const getNodeHeight = useCallback$7(() => {
     const headerHeight = 50;
     const buttonAreaHeight = 48;
     const textAreaHeight = 40;
@@ -26808,7 +27046,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
     return handleId;
   };
-  const loadLabelsFromNodeInput = useCallback$6(() => {
+  const loadLabelsFromNodeInput = useCallback$7(() => {
     if (!data.node_input) return {};
     const labels = {};
     Object.entries(data.node_input).forEach(([key, value]) => {
@@ -26821,7 +27059,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     });
     return labels;
   }, [data.node_input]);
-  useEffect$7(() => {
+  useEffect$8(() => {
     if (isUpdating.current) return;
     isUpdating.current = true;
     initAttempts.current += 1;
@@ -26936,7 +27174,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       isUpdating.current = false;
     }, 200);
   }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
-  useEffect$7(() => {
+  useEffect$8(() => {
     if (inputs.length > 0) {
       console.log(`inputs 更新為 ${inputs.length} 個 handle，更新內部結構`);
       setTimeout(() => {
@@ -26948,7 +27186,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }, 50);
     }
   }, [inputs, nodeId, updateNodeInternals]);
-  const connectionInfo = useCallback$6(() => {
+  const connectionInfo = useCallback$7(() => {
     const totalConnections2 = edges.filter((edge) => edge.target === id).length;
     const connectionsPerHandle2 = {};
     inputs.forEach((input) => {
@@ -26960,7 +27198,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     });
     return { totalConnections: totalConnections2, connectionsPerHandle: connectionsPerHandle2 };
   }, [edges, id, inputs]);
-  const handleAddOutput = useCallback$6(() => {
+  const handleAddOutput = useCallback$7(() => {
     let maxIndex = -1;
     inputs.forEach((input) => {
       if (input.id && input.id.startsWith("output")) {
@@ -27006,7 +27244,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
     }
   }, [inputs, data, nodeId]);
-  const handleLabelChange = useCallback$6(
+  const handleLabelChange = useCallback$7(
     (handleId, newLabel) => {
       setHandleLabels((prev) => {
         if (prev[handleId] === newLabel) return prev;
@@ -27188,17 +27426,17 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
   );
 };
-const BrowserExtensionOutputNode$1 = memo$9(BrowserExtensionOutputNode);
+const BrowserExtensionOutputNode$1 = memo$a(BrowserExtensionOutputNode);
 
 const React$f = await importShared('react');
-const {memo: memo$8,useState: useState$c,useEffect: useEffect$6,useCallback: useCallback$5,useRef: useRef$4} = React$f;
+const {memo: memo$9,useState: useState$d,useEffect: useEffect$7,useCallback: useCallback$6,useRef: useRef$4} = React$f;
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
-  const [localItems, setLocalItems] = useState$c(data?.items || []);
-  const [isUploading, setIsUploading] = useState$c(false);
-  const [uploadError, setUploadError] = useState$c(null);
+  const [localItems, setLocalItems] = useState$d(data?.items || []);
+  const [isUploading, setIsUploading] = useState$d(false);
+  const [uploadError, setUploadError] = useState$d(null);
   const fileInputRef = useRef$4(null);
   const activeItemRef = useRef$4(null);
-  useEffect$6(() => {
+  useEffect$7(() => {
     console.log("BrowserExtensionInputNode 數據同步檢查:", {
       "data.items": data?.items,
       localItems,
@@ -27209,7 +27447,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       setLocalItems([...data.items]);
     }
   }, [data?.items]);
-  const updateParentState = useCallback$5(
+  const updateParentState = useCallback$6(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=`, value);
       if (key === "items" && data && typeof data.updateItems === "function") {
@@ -27229,14 +27467,14 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleIconClick = useCallback$5((index) => {
+  const handleIconClick = useCallback$6((index) => {
     console.log(`點擊項目 ${index} 的圖標，準備上傳新圖標`);
     activeItemRef.current = index;
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   }, []);
-  const handleFileSelect = useCallback$5(
+  const handleFileSelect = useCallback$6(
     async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -27265,7 +27503,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems]
   );
-  const getIconComponent = useCallback$5(
+  const getIconComponent = useCallback$6(
     (iconValue, index) => {
       if (iconUploadService.isIconUrl(iconValue)) {
         return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -27321,7 +27559,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [handleIconClick]
   );
-  const handleIconChange = useCallback$5(
+  const handleIconChange = useCallback$6(
     (index, iconValue) => {
       console.log(`更新項目 ${index} 的圖標為`, iconValue);
       if (index < 0 || index >= localItems.length) {
@@ -27336,7 +27574,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems, updateParentState]
   );
-  const handleNameChange = useCallback$5(
+  const handleNameChange = useCallback$6(
     (index, value) => {
       console.log(`修改項目 ${index} 的名稱為 "${value}"`);
       console.log("當前 items:", localItems);
@@ -27358,7 +27596,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localItems, updateParentState]
   );
-  const handleAddItem = useCallback$5(() => {
+  const handleAddItem = useCallback$6(() => {
     console.log("添加新項目");
     if (typeof data?.addItem === "function") {
       console.log("使用 addItem 回調函數");
@@ -27371,13 +27609,13 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     setLocalItems(updatedItems);
     updateParentState("items", updatedItems);
   }, [data, localItems, updateParentState]);
-  const calculateHandlePosition = useCallback$5((index) => {
+  const calculateHandlePosition = useCallback$6((index) => {
     const headerHeight = 46;
     const contentPadding = 16;
     const itemHeight = 140;
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
   }, []);
-  const getOutputKey = useCallback$5((item, index) => {
+  const getOutputKey = useCallback$6((item, index) => {
     return item.id || `a${index + 1}`;
   }, []);
   const items = Array.isArray(localItems) && localItems.length > 0 ? localItems : Array.isArray(data?.items) ? data.items : [];
@@ -27473,10 +27711,10 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     })
   ] });
 };
-const BrowserExtensionInputNode$1 = memo$8(BrowserExtensionInputNode);
+const BrowserExtensionInputNode$1 = memo$9(BrowserExtensionInputNode);
 
 const React$e = await importShared('react');
-const {memo: memo$7} = React$e;
+const {memo: memo$8} = React$e;
 const IfElseNode = ({ data, isConnectable }) => {
   const operators = [
     { value: "equals", label: "[Text] Equals" },
@@ -27589,14 +27827,14 @@ const IfElseNode = ({ data, isConnectable }) => {
     )
   ] });
 };
-const IfElseNode$1 = memo$7(IfElseNode);
+const IfElseNode$1 = memo$8(IfElseNode);
 
 const React$d = await importShared('react');
-const {memo: memo$6,useState: useState$b,useEffect: useEffect$5,useCallback: useCallback$4} = React$d;
+const {memo: memo$7,useState: useState$c,useEffect: useEffect$6,useCallback: useCallback$5} = React$d;
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [isLoadingFiles, setIsLoadingFiles] = useState$b(false);
-  const [fileLoadError, setFileLoadError] = useState$b(null);
-  const [dataFiles, setDataFiles] = useState$b(
+  const [isLoadingFiles, setIsLoadingFiles] = useState$c(false);
+  const [fileLoadError, setFileLoadError] = useState$c(null);
+  const [dataFiles, setDataFiles] = useState$c(
     data?.availableFiles || [
       {
         id: "icdcode",
@@ -27612,11 +27850,11 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       }
     ]
   );
-  const [localSelectedFile, setLocalSelectedFile] = useState$b(
+  const [localSelectedFile, setLocalSelectedFile] = useState$c(
     data?.selectedFile || ""
   );
-  const [topK, setTopK] = useState$b(data?.topK || 5);
-  const updateParentState = useCallback$4(
+  const [topK, setTopK] = useState$c(data?.topK || 5);
+  const updateParentState = useCallback$5(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=${value}`);
       if (data && typeof data.updateNodeData === "function") {
@@ -27634,7 +27872,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleFileSelect = useCallback$4(
+  const handleFileSelect = useCallback$5(
     (event) => {
       const fileId = event.target.value;
       console.log(`選擇文件: ${fileId}`);
@@ -27643,10 +27881,10 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const getCurrentSelectedFile = useCallback$4(() => {
+  const getCurrentSelectedFile = useCallback$5(() => {
     return data?.selectedFile || localSelectedFile;
   }, [data?.selectedFile, localSelectedFile]);
-  const loadFiles = useCallback$4(async () => {
+  const loadFiles = useCallback$5(async () => {
     if (isLoadingFiles) return;
     console.log("開始加載文件列表...");
     setIsLoadingFiles(true);
@@ -27675,7 +27913,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       setIsLoadingFiles(false);
     }
   }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
-  useEffect$5(() => {
+  useEffect$6(() => {
     console.log("監測 data.selectedFile 變更：", {
       "data.selectedFile": data?.selectedFile,
       localSelectedFile,
@@ -27691,7 +27929,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       setTopK(data.topK);
     }
   }, [data?.selectedFile, data?.topK, localSelectedFile, topK, id]);
-  useEffect$5(() => {
+  useEffect$6(() => {
     loadFiles();
     console.log("KnowledgeRetrievalNode 初始化狀態:", {
       "node.id": id,
@@ -27710,7 +27948,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     dataFiles.length,
     loadFiles
   ]);
-  const handleReloadFiles = useCallback$4(() => {
+  const handleReloadFiles = useCallback$5(() => {
     if (dataFiles.length <= 2 || fileLoadError) {
       loadFiles();
     }
@@ -27809,10 +28047,10 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     )
   ] });
 };
-const KnowledgeRetrievalNode$1 = memo$6(KnowledgeRetrievalNode);
+const KnowledgeRetrievalNode$1 = memo$7(KnowledgeRetrievalNode);
 
 const React$c = await importShared('react');
-const {memo: memo$5} = React$c;
+const {memo: memo$6} = React$c;
 const EndNode = ({ data, isConnectable }) => {
   const handleFieldChange = (field, value) => {
     if (data.updateNodeData) {
@@ -27889,15 +28127,15 @@ const EndNode = ({ data, isConnectable }) => {
     )
   ] });
 };
-const EndNode$1 = memo$5(EndNode);
+const EndNode$1 = memo$6(EndNode);
 
 const React$b = await importShared('react');
-const {memo: memo$4,useState: useState$a} = React$b;
+const {memo: memo$5,useState: useState$b} = React$b;
 const WebhookNode = ({ data, isConnectable }) => {
-  const [showInput, setShowInput] = useState$a(false);
-  const [tempUrl, setTempUrl] = useState$a("");
-  const [showCopyAlert, setShowCopyAlert] = useState$a(false);
-  const [isEditing, setIsEditing] = useState$a(false);
+  const [showInput, setShowInput] = useState$b(false);
+  const [tempUrl, setTempUrl] = useState$b("");
+  const [showCopyAlert, setShowCopyAlert] = useState$b(false);
+  const [isEditing, setIsEditing] = useState$b(false);
   const handleCreateWebhook = () => {
     setShowInput(true);
   };
@@ -28098,10 +28336,10 @@ const WebhookNode = ({ data, isConnectable }) => {
     )
   ] });
 };
-const WebhookNode$1 = memo$4(WebhookNode);
+const WebhookNode$1 = memo$5(WebhookNode);
 
 const React$a = await importShared('react');
-const {memo: memo$3} = React$a;
+const {memo: memo$4} = React$a;
 const HTTPNode = ({ data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-red-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
@@ -28189,25 +28427,25 @@ const HTTPNode = ({ data, isConnectable }) => {
     )
   ] });
 };
-const HTTPNode$1 = memo$3(HTTPNode);
+const HTTPNode$1 = memo$4(HTTPNode);
 
 const React$9 = await importShared('react');
-const {memo: memo$2,useState: useState$9,useEffect: useEffect$4,useCallback: useCallback$3,useRef: useRef$3} = React$9;
+const {memo: memo$3,useState: useState$a,useEffect: useEffect$5,useCallback: useCallback$4,useRef: useRef$3} = React$9;
 const LineNode = ({ data, isConnectable, id }) => {
-  const [selectedConfigId, setSelectedConfigId] = useState$9(
+  const [selectedConfigId, setSelectedConfigId] = useState$a(
     data?.external_service_config_id || ""
   );
-  const [serviceConfigs, setServiceConfigs] = useState$9([]);
-  const [configLoadError, setConfigLoadError] = useState$9(null);
-  const [isLoadingConfigs, setIsLoadingConfigs] = useState$9(false);
-  const [webhookUrl, setWebhookUrl] = useState$9("");
-  const [isCreatingWebhook, setIsCreatingWebhook] = useState$9(false);
+  const [serviceConfigs, setServiceConfigs] = useState$a([]);
+  const [configLoadError, setConfigLoadError] = useState$a(null);
+  const [isLoadingConfigs, setIsLoadingConfigs] = useState$a(false);
+  const [webhookUrl, setWebhookUrl] = useState$a("");
+  const [isCreatingWebhook, setIsCreatingWebhook] = useState$a(false);
   const isInitialized = useRef$3(false);
   const lastSyncedConfigId = useRef$3(selectedConfigId);
   const lastSyncedWebhookUrl = useRef$3(webhookUrl);
   const isUpdating = useRef$3(false);
   const outputHandles = ["text", "image"];
-  const updateParentState = useCallback$3(
+  const updateParentState = useCallback$4(
     (key, value) => {
       if (isUpdating.current) {
         console.log(`跳過重複更新: ${key}=${value}`);
@@ -28236,7 +28474,7 @@ const LineNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const loadServiceConfigs = useCallback$3(async () => {
+  const loadServiceConfigs = useCallback$4(async () => {
     if (isLoadingConfigs) {
       console.log("已在載入中，跳過重複載入");
       return;
@@ -28287,10 +28525,10 @@ const LineNode = ({ data, isConnectable, id }) => {
       setIsLoadingConfigs(false);
     }
   }, []);
-  useEffect$4(() => {
+  useEffect$5(() => {
     loadServiceConfigs();
   }, []);
-  useEffect$4(() => {
+  useEffect$5(() => {
     if (isUpdating.current) return;
     let hasChanges = false;
     if (data?.external_service_config_id !== void 0 && data.external_service_config_id !== lastSyncedConfigId.current) {
@@ -28313,7 +28551,7 @@ const LineNode = ({ data, isConnectable, id }) => {
       console.log("LineNode 數據同步完成");
     }
   }, [data?.external_service_config_id, data?.webhook_url]);
-  const handleConfigChange = useCallback$3(
+  const handleConfigChange = useCallback$4(
     (configId) => {
       if (configId === selectedConfigId || isUpdating.current) {
         console.log("配置ID未變更或正在更新中，跳過");
@@ -28325,7 +28563,7 @@ const LineNode = ({ data, isConnectable, id }) => {
     },
     [selectedConfigId, updateParentState]
   );
-  const copyToClipboardSimple = useCallback$3(async (text) => {
+  const copyToClipboardSimple = useCallback$4(async (text) => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         try {
@@ -28366,7 +28604,7 @@ const LineNode = ({ data, isConnectable, id }) => {
       });
     }
   }, []);
-  const createWebhook = useCallback$3(
+  const createWebhook = useCallback$4(
     async (flowId) => {
       setIsCreatingWebhook(true);
       try {
@@ -28406,7 +28644,7 @@ const LineNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleCreateWebhook = useCallback$3(async () => {
+  const handleCreateWebhook = useCallback$4(async () => {
     console.log("handleCreateWebhook 被調用");
     const flowId = data?.flowId || window.currentFlowId || data?.flow_id || localStorage.getItem("current_flow_id");
     console.log("檢查到的 flowId:", flowId);
@@ -28610,14 +28848,14 @@ const LineNode = ({ data, isConnectable, id }) => {
     })
   ] });
 };
-const LineNode$1 = memo$2(LineNode);
+const LineNode$1 = memo$3(LineNode);
 
 const React$8 = await importShared('react');
-const {memo: memo$1,useState: useState$8} = React$8;
+const {memo: memo$2,useState: useState$9} = React$8;
 const TimerNode = ({ data, isConnectable }) => {
-  const [hours, setHours] = useState$8(data.hours || 0);
-  const [minutes, setMinutes] = useState$8(data.minutes || 0);
-  const [seconds, setSeconds] = useState$8(data.seconds || 0);
+  const [hours, setHours] = useState$9(data.hours || 0);
+  const [minutes, setMinutes] = useState$9(data.minutes || 0);
+  const [seconds, setSeconds] = useState$9(data.seconds || 0);
   const handleTimeChange = (type, value) => {
     if (value !== "" && !/^\d+$/.test(value)) return;
     let numValue = value === "" ? 0 : parseInt(value, 10);
@@ -28842,28 +29080,28 @@ const TimerNode = ({ data, isConnectable }) => {
     )
   ] });
 };
-const TimerNode$1 = memo$1(TimerNode);
+const TimerNode$1 = memo$2(TimerNode);
 
 const React$7 = await importShared('react');
-const {memo,useState: useState$7,useEffect: useEffect$3,useCallback: useCallback$2,useRef: useRef$2} = React$7;
+const {memo: memo$1,useState: useState$8,useEffect: useEffect$4,useCallback: useCallback$3,useRef: useRef$2} = React$7;
 const LineMessageNode = ({ data, isConnectable }) => {
-  const [selectedConfigId, setSelectedConfigId] = useState$7(
+  const [selectedConfigId, setSelectedConfigId] = useState$8(
     data?.external_service_config_id || ""
   );
-  const [serviceConfigs, setServiceConfigs] = useState$7([]);
-  const [configLoadError, setConfigLoadError] = useState$7(null);
-  const [isLoadingConfigs, setIsLoadingConfigs] = useState$7(false);
-  const [selectedMessagingType, setSelectedMessagingType] = useState$7(
+  const [serviceConfigs, setServiceConfigs] = useState$8([]);
+  const [configLoadError, setConfigLoadError] = useState$8(null);
+  const [isLoadingConfigs, setIsLoadingConfigs] = useState$8(false);
+  const [selectedMessagingType, setSelectedMessagingType] = useState$8(
     data?.messaging_type || ""
   );
-  const [messagingTypes, setMessagingTypes] = useState$7([]);
-  const [messagingTypesLoadError, setMessagingTypesLoadError] = useState$7(null);
-  const [isLoadingMessagingTypes, setIsLoadingMessagingTypes] = useState$7(false);
+  const [messagingTypes, setMessagingTypes] = useState$8([]);
+  const [messagingTypesLoadError, setMessagingTypesLoadError] = useState$8(null);
+  const [isLoadingMessagingTypes, setIsLoadingMessagingTypes] = useState$8(false);
   const isInitialized = useRef$2(false);
   const lastSyncedConfigId = useRef$2(selectedConfigId);
   const lastSyncedMessagingType = useRef$2(selectedMessagingType);
   const isUpdating = useRef$2(false);
-  const updateParentState = useCallback$2(
+  const updateParentState = useCallback$3(
     (key, value) => {
       if (isUpdating.current) {
         console.log(`跳過重複更新: ${key}=${value}`);
@@ -28892,7 +29130,7 @@ const LineMessageNode = ({ data, isConnectable }) => {
     },
     [data]
   );
-  const loadServiceConfigs = useCallback$2(async () => {
+  const loadServiceConfigs = useCallback$3(async () => {
     if (isLoadingConfigs) {
       console.log("已在載入服務配置中，跳過重複載入");
       return;
@@ -28942,7 +29180,7 @@ const LineMessageNode = ({ data, isConnectable }) => {
       setIsLoadingConfigs(false);
     }
   }, []);
-  const loadMessagingTypes = useCallback$2(async () => {
+  const loadMessagingTypes = useCallback$3(async () => {
     if (isLoadingMessagingTypes) {
       console.log("已在載入 Messaging Types 中，跳過重複載入");
       return;
@@ -29006,14 +29244,14 @@ const LineMessageNode = ({ data, isConnectable }) => {
       setIsLoadingMessagingTypes(false);
     }
   }, []);
-  useEffect$3(() => {
+  useEffect$4(() => {
     const initializeData = async () => {
       await Promise.all([loadServiceConfigs(), loadMessagingTypes()]);
       isInitialized.current = true;
     };
     initializeData();
   }, []);
-  useEffect$3(() => {
+  useEffect$4(() => {
     if (isUpdating.current) return;
     let hasChanges = false;
     console.log("LineNode 數據同步更新:", {
@@ -29047,7 +29285,7 @@ const LineMessageNode = ({ data, isConnectable }) => {
     selectedConfigId,
     selectedMessagingType
   ]);
-  const handleConfigChange = useCallback$2(
+  const handleConfigChange = useCallback$3(
     (configId) => {
       if (configId === selectedConfigId || isUpdating.current) {
         console.log("配置ID未變更或正在更新中，跳過");
@@ -29059,7 +29297,7 @@ const LineMessageNode = ({ data, isConnectable }) => {
     },
     [selectedConfigId, updateParentState]
   );
-  const handleMessagingTypeChange = useCallback$2(
+  const handleMessagingTypeChange = useCallback$3(
     (messagingType) => {
       if (messagingType === selectedMessagingType || isUpdating.current) {
         console.log("Messaging Type 未變更或正在更新中，跳過");
@@ -29183,7 +29421,308 @@ const LineMessageNode = ({ data, isConnectable }) => {
     )
   ] });
 };
-const LineMessageNode$1 = memo(LineMessageNode);
+const LineMessageNode$1 = memo$1(LineMessageNode);
+
+const React$6 = await importShared('react');
+const {memo,useState: useState$7,useEffect: useEffect$3,useCallback: useCallback$2} = React$6;
+const ExtractDataNode = ({ data, isConnectable }) => {
+  const [modelOptions, setModelOptions] = useState$7([
+    { value: "1", label: "O3-mini" },
+    { value: "2", label: "O3-plus" },
+    { value: "3", label: "O3-mega" },
+    { value: "4", label: "O3-ultra" }
+  ]);
+  const [isLoadingModels, setIsLoadingModels] = useState$7(false);
+  const [modelLoadError, setModelLoadError] = useState$7(null);
+  const [localModel, setLocalModel] = useState$7(data?.model || "1");
+  const [columns, setColumns] = useState$7(data?.columns || []);
+  useEffect$3(() => {
+    if (data?.model && data.model !== localModel) {
+      setLocalModel(data.model);
+    }
+  }, [data?.model, localModel]);
+  useEffect$3(() => {
+    if (data?.columns && JSON.stringify(data.columns) !== JSON.stringify(columns)) {
+      setColumns(data.columns);
+    }
+  }, [data?.columns, columns]);
+  const loadModels = async () => {
+    if (isLoadingModels) return;
+    setIsLoadingModels(true);
+    setModelLoadError(null);
+    try {
+      const options = await llmService.getModelOptions();
+      if (options && options.length > 0) {
+        setModelOptions(options);
+        const isCurrentModelValid = options.some(
+          (opt) => opt.value === localModel
+        );
+        if (!isCurrentModelValid) {
+          let defaultModel = options[0].value;
+          const defaultOption = options.find((opt) => opt.isDefault);
+          if (defaultOption) {
+            defaultModel = defaultOption.value;
+          }
+          setLocalModel(defaultModel);
+          updateParentState("model", defaultModel);
+        }
+      }
+    } catch (error) {
+      console.error("加載模型失敗:", error);
+      if (!(error.message && (error.message.includes("已有進行中的LLM模型請求") || error.message.includes("進行中的請求") || error.message.includes("使用相同請求")))) {
+        setModelLoadError("無法載入模型列表，請稍後再試");
+      }
+    } finally {
+      setIsLoadingModels(false);
+    }
+  };
+  useEffect$3(() => {
+    loadModels();
+  }, []);
+  const updateParentState = useCallback$2(
+    (key, value) => {
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData(key, value);
+        return true;
+      }
+      if (data) {
+        data[key] = value;
+        return true;
+      }
+      return false;
+    },
+    [data]
+  );
+  const handleModelChange = useCallback$2(
+    (e) => {
+      const newModelValue = e.target.value;
+      setLocalModel(newModelValue);
+      updateParentState("model", newModelValue);
+    },
+    [updateParentState]
+  );
+  const handleAddColumn = useCallback$2(() => {
+    const newColumn = {
+      name: "請輸入欄位名稱",
+      type: "text",
+      description: ""
+    };
+    const newColumns = [...columns, newColumn];
+    setColumns(newColumns);
+    updateParentState("columns", newColumns);
+    console.log("新增欄位", newColumn);
+  }, [columns, updateParentState]);
+  const handleDeleteColumn = useCallback$2(
+    (index) => {
+      const newColumns = columns.filter((_, i) => i !== index);
+      setColumns(newColumns);
+      updateParentState("columns", newColumns);
+      console.log("刪除欄位", index);
+    },
+    [columns, updateParentState]
+  );
+  const handleColumnNameChange = useCallback$2(
+    (index, value) => {
+      const newColumns = [...columns];
+      newColumns[index].name = value;
+      setColumns(newColumns);
+      updateParentState("columns", newColumns);
+    },
+    [columns, updateParentState]
+  );
+  const handleColumnTypeChange = useCallback$2(
+    (index, value) => {
+      const newColumns = [...columns];
+      newColumns[index].type = value;
+      setColumns(newColumns);
+      updateParentState("columns", newColumns);
+    },
+    [columns, updateParentState]
+  );
+  const handleColumnDescriptionChange = useCallback$2(
+    (index, value) => {
+      const newColumns = [...columns];
+      newColumns[index].description = value;
+      setColumns(newColumns);
+      updateParentState("columns", newColumns);
+    },
+    [columns, updateParentState]
+  );
+  const typeOptions = [
+    { value: "text", label: "text" },
+    { value: "number", label: "number" },
+    { value: "boolean", label: "boolean" }
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-98 max-w-lg", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Data Extractor" })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Model" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "select",
+            {
+              className: `w-full border border-gray-300 rounded p-2 text-sm bg-white appearance-none
+                ${isLoadingModels ? "opacity-70 cursor-wait" : ""} 
+                ${modelLoadError ? "border-red-300" : ""}`,
+              value: localModel,
+              onChange: handleModelChange,
+              disabled: isLoadingModels,
+              children: modelOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "option",
+                {
+                  value: option.value,
+                  children: option.label
+                },
+                option.value
+              ))
+            }
+          ),
+          isLoadingModels ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              xmlns: "http://www.w3.org/2000/svg",
+              width: "16",
+              height: "16",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+            }
+          ) })
+        ] }),
+        modelLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: modelLoadError })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Context" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-bold", children: "Data" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: columns.map((column, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "grid grid-cols-12 gap-2 items-start bg-gray-50 border border-gray-200 rounded p-2",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-600 mb-1 font-bold", children: "名稱" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: column.name,
+                    onChange: (e) => handleColumnNameChange(index, e.target.value),
+                    className: "w-full border border-gray-300 rounded px-2 py-1 text-xs",
+                    placeholder: "欄位名稱"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-600 mb-1 font-bold", children: "類型" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "select",
+                  {
+                    value: column.type,
+                    onChange: (e) => handleColumnTypeChange(index, e.target.value),
+                    className: "w-full border border-gray-300 rounded px-2 py-1 text-xs bg-white",
+                    children: typeOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "option",
+                      {
+                        value: option.value,
+                        children: option.label
+                      },
+                      option.value
+                    ))
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-600 mb-1 font-bold", children: "描述" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "textarea",
+                  {
+                    value: column.description,
+                    onChange: (e) => handleColumnDescriptionChange(index, e.target.value),
+                    className: "w-full border border-gray-300 rounded px-2 py-1 text-xs resize-none min-h-[24px] max-h-[60px] overflow-hidden",
+                    placeholder: "描述",
+                    rows: "1",
+                    style: {
+                      height: `${Math.min(
+                        Math.max(
+                          24,
+                          column.description.split("\n").length * 20 + 4
+                        ),
+                        60
+                      )}px`
+                    },
+                    maxLength: "200"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-1 flex justify-center items-center h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => handleDeleteColumn(index),
+                  className: "text-black-500 hover:text-teal-600 text-sm p-1",
+                  title: "刪除欄位",
+                  children: "✕"
+                }
+              ) })
+            ]
+          },
+          index
+        )) }),
+        columns.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center text-gray-500 text-sm py-4 border-2 border-dashed border-gray-300 rounded", children: "點擊下方按鈕新增資料欄位" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center",
+          onClick: handleAddColumn,
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Handle$1,
+      {
+        type: "target",
+        position: Position.Left,
+        id: "context-input",
+        style: {
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          left: "-6px",
+          transform: "translateY(-50%)"
+        },
+        isConnectable
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Handle$1,
+      {
+        type: "source",
+        position: Position.Right,
+        id: "output",
+        style: {
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          right: "-6px"
+        },
+        isConnectable
+      }
+    )
+  ] });
+};
+const ExtractDataNode$1 = memo(ExtractDataNode);
 
 const enhancedNodeTypes = {
   customInput: withNodeSelection(CustomInputNode$1),
@@ -29197,12 +29736,190 @@ const enhancedNodeTypes = {
   http: withNodeSelection(HTTPNode$1),
   line_webhook_input: withNodeSelection(LineNode$1),
   timer: withNodeSelection(TimerNode$1),
-  line_send_message: withNodeSelection(LineMessageNode$1)
+  line_send_message: withNodeSelection(LineMessageNode$1),
+  extract_data: withNodeSelection(ExtractDataNode$1)
 };
 
-const React$6 = await importShared('react');
-const {useState: useState$6} = React$6;
+await importShared('react');
 
+const BaseButton = ({
+  children,
+  onClick,
+  disabled = false,
+  title = "",
+  className = "",
+  width = "85px",
+  buttonStyle = "primary",
+  loading = false
+}) => {
+  const getButtonStyles = () => {
+    if (disabled) {
+      return "bg-gray-400 text-white cursor-not-allowed";
+    }
+    switch (buttonStyle) {
+      case "loading":
+        return "bg-[#00ced1] opacity-70 text-white";
+      case "success":
+        return "bg-[#00ced1] text-white";
+      case "error":
+        return "bg-red-500 text-white";
+      default:
+        return "bg-[#00ced1] text-white hover:bg-[#00b8bb] transition-colors";
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative inline-block", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "inline-block bg-white rounded-full shadow-md",
+      style: {
+        padding: "10px 13px",
+        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          className: `rounded-full text-sm font-medium ${getButtonStyles()} ${className}`,
+          onClick,
+          disabled: disabled || loading,
+          title,
+          style: {
+            width,
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          },
+          children
+        }
+      )
+    }
+  ) });
+};
+
+await importShared('react');
+
+const LoadingSpinner = ({ size = 16 }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "svg",
+  {
+    className: "animate-spin",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
+  }
+);
+const CheckIcon = ({ size = 16 }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 6L9 17l-5-5" })
+  }
+);
+const ErrorIcon = ({ size = 16 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "12",
+          cy: "12",
+          r: "10"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "12",
+          y1: "8",
+          x2: "12",
+          y2: "12"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "12",
+          y1: "16",
+          x2: "12.01",
+          y2: "16"
+        }
+      )
+    ]
+  }
+);
+
+const {useState: useState$6} = await importShared('react');
+
+
+/**
+ * 按鈕狀態管理 Hook
+ */
+const useButtonState = (resetDelay = 2000) => {
+  const [state, setState] = useState$6('');
+  const [errorMessage, setErrorMessage] = useState$6('');
+
+  const setLoading = () => {
+    setState('loading');
+    setErrorMessage('');
+  };
+
+  const setSuccess = () => {
+    setState('success');
+    setTimeout(() => setState(''), resetDelay);
+  };
+
+  const setError = (message = '') => {
+    setState('error');
+    setErrorMessage(message);
+    setTimeout(() => {
+      setState('');
+      setErrorMessage('');
+    }, resetDelay);
+  };
+
+  const reset = () => {
+    setState('');
+    setErrorMessage('');
+  };
+
+  return {
+    state,
+    errorMessage,
+    setLoading,
+    setSuccess,
+    setError,
+    reset,
+    isLoading: state === 'loading',
+    isSuccess: state === 'success',
+    isError: state === 'error'
+  };
+};
+
+await importShared('react');
 const SaveButton = ({
   onSave,
   className = "",
@@ -29210,180 +29927,69 @@ const SaveButton = ({
   flowId = "",
   disabled = false
 }) => {
-  const [saveState, setSaveState] = useState$6("");
-  const [errorMessage, setErrorMessage] = useState$6("");
+  const { state, errorMessage, setLoading, setSuccess, setError } = useButtonState();
   const isTitleValid = title && title.trim().length > 0;
   const isCreateMode = !flowId || flowId === "new";
   const triggerSave = async () => {
     if (!isTitleValid) {
-      setSaveState("error");
-      setErrorMessage("請先輸入標題");
-      setTimeout(() => {
-        setSaveState("");
-        setErrorMessage("");
-      }, 2e3);
+      setError("請先輸入標題");
       return;
     }
-    if (saveState === "saving") return;
-    setSaveState("saving");
-    setErrorMessage("");
+    if (state === "loading") return;
+    setLoading();
     try {
       await onSave();
-      setSaveState("saved");
-      setTimeout(() => {
-        setSaveState("");
-      }, 2e3);
+      setSuccess();
     } catch (error) {
       console.error("儲存按鈕：儲存作業期間發生錯誤：", error);
-      setSaveState("error");
-      setErrorMessage("儲存失敗");
-      setTimeout(() => {
-        setSaveState("");
-        setErrorMessage("");
-      }, 2e3);
+      setError("儲存失敗");
     }
   };
-  const getButtonStyles = () => {
-    if (disabled || !isTitleValid && !saveState) {
-      return "bg-gray-400 text-white cursor-not-allowed";
-    }
-    switch (saveState) {
-      case "saving":
-        return "bg-[#00ced1] opacity-70 text-white";
-      case "saved":
-        return "bg-[#00ced1] text-white";
-      case "error":
-        return "bg-red-500 text-white";
-      default:
-        return "bg-[#00ced1] text-white";
-    }
+  const getButtonStyle = () => {
+    if (disabled || !isTitleValid && !state) return "disabled";
+    if (state === "loading") return "loading";
+    if (state === "success") return "success";
+    if (state === "error") return "error";
+    return "primary";
   };
   const getButtonTitle = () => {
-    if (!isTitleValid && !saveState) {
-      return "請先輸入標題";
-    }
-    if (disabled) {
-      return "目前無法儲存";
-    }
+    if (!isTitleValid && !state) return "請先輸入標題";
+    if (disabled) return "目前無法儲存";
     return isCreateMode ? "建立新流程" : "儲存現有流程";
   };
-  const getButtonText = () => {
-    if (saveState === "saving") {
+  const getButtonContent = () => {
+    if (state === "loading") {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "svg",
-          {
-            className: "animate-spin",
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "16",
-            height: "16",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
-          }
-        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isCreateMode ? "建立中..." : "儲存中..." })
       ] });
-    } else if (saveState === "saved") {
+    }
+    if (state === "success") {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "16",
-            height: "16",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 6L9 17l-5-5" })
-          }
-        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isCreateMode ? "已建立" : "已儲存" })
       ] });
-    } else if (saveState === "error") {
+    }
+    if (state === "error") {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "svg",
-          {
-            xmlns: "http://www.w3.org/2000/svg",
-            width: "16",
-            height: "16",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "circle",
-                {
-                  cx: "12",
-                  cy: "12",
-                  r: "10"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "8",
-                  x2: "12",
-                  y2: "12"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "line",
-                {
-                  x1: "12",
-                  y1: "16",
-                  x2: "12.01",
-                  y2: "16"
-                }
-              )
-            ]
-          }
-        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorIcon, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
       ] });
-    } else {
-      return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isCreateMode ? "Create" : "Save" });
     }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isCreateMode ? "Create" : "Save" });
   };
   const buttonWidth = isCreateMode ? "92px" : "85px";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative inline-block", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
+      BaseButton,
       {
-        className: "inline-block bg-white rounded-full shadow-md",
-        style: {
-          padding: "10px 13px",
-          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
-        },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: `rounded-full text-sm font-medium ${getButtonStyles()} ${className}`,
-            onClick: triggerSave,
-            disabled: saveState === "saving" || disabled || !isTitleValid && !saveState,
-            title: getButtonTitle(),
-            style: {
-              width: buttonWidth,
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            },
-            children: getButtonText()
-          }
-        )
+        onClick: triggerSave,
+        disabled: disabled || !isTitleValid && !state,
+        title: getButtonTitle(),
+        className,
+        width: buttonWidth,
+        buttonStyle: getButtonStyle(),
+        children: getButtonContent()
       }
     ),
     errorMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs whitespace-nowrap", children: errorMessage })
@@ -29901,13 +30507,12 @@ function CustomEdge({
 
 const React$4 = await importShared('react');
 const {useState: useState$4} = React$4;
-
 const LoadWorkflowButton = ({ onLoad }) => {
   const [workflowId, setWorkflowId] = useState$4(
     "19217351-a0b5-43b6-8a50-d17faab91b91"
   );
   const [showInput, setShowInput] = useState$4(false);
-  const [loadState, setLoadState] = useState$4("");
+  const { state, setLoading, setSuccess, setError } = useButtonState();
   const handleClick = () => {
     setShowInput(true);
   };
@@ -29915,143 +30520,56 @@ const LoadWorkflowButton = ({ onLoad }) => {
     e.preventDefault();
     if (!workflowId || typeof onLoad !== "function") return;
     try {
-      setLoadState("loading");
+      setLoading();
       await onLoad(workflowId);
-      setLoadState("loaded");
-      setTimeout(() => {
-        setLoadState("");
-      }, 2e3);
+      setSuccess();
       setWorkflowId("");
       setShowInput(false);
     } catch (error) {
       console.error("載入工作流失敗:", error);
-      setLoadState("error");
-      setTimeout(() => {
-        setLoadState("");
-      }, 2e3);
+      setError();
     }
   };
   const handleCancel = () => {
     setWorkflowId("");
     setShowInput(false);
   };
-  const getButtonStyles = () => {
-    switch (loadState) {
-      case "loading":
-        return "bg-[#00ced1] opacity-70 text-white";
-      case "loaded":
-        return "bg-[#00ced1] text-white";
-      case "error":
-        return "bg-red-500 text-white";
-      default:
-        return "bg-[#00ced1] text-white";
+  const getButtonStyle = () => {
+    if (state === "loading") return "loading";
+    if (state === "success") return "success";
+    if (state === "error") return "error";
+    return "primary";
+  };
+  const getButtonContent = () => {
+    if (state === "loading") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "載入中..." })
+      ] });
     }
+    if (state === "success") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "已載入" })
+      ] });
+    }
+    if (state === "error") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorIcon, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
+      ] });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "測試用" });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
+      BaseButton,
       {
-        className: "inline-block bg-white rounded-full shadow-md",
-        style: {
-          padding: "10px 13px",
-          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
-        },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: `rounded-full text-sm font-medium ${getButtonStyles()}`,
-            onClick: handleClick,
-            disabled: loadState === "loading",
-            title: "載入工作流",
-            style: {
-              width: "85px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            },
-            children: loadState === "loading" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "svg",
-                {
-                  className: "animate-spin",
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "載入中..." })
-            ] }) : loadState === "loaded" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "svg",
-                {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 6L9 17l-5-5" })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "已載入" })
-            ] }) : loadState === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "svg",
-                {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "circle",
-                      {
-                        cx: "12",
-                        cy: "12",
-                        r: "10"
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "line",
-                      {
-                        x1: "12",
-                        y1: "8",
-                        x2: "12",
-                        y2: "12"
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "line",
-                      {
-                        x1: "12",
-                        y1: "16",
-                        x2: "12.01",
-                        y2: "16"
-                      }
-                    )
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "測試用" })
-          }
-        )
+        onClick: handleClick,
+        disabled: state === "loading",
+        title: "載入工作流",
+        buttonStyle: getButtonStyle(),
+        children: getButtonContent()
       }
     ),
     showInput && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 mt-2 p-3 bg-white rounded-md shadow-lg border border-gray-200 z-20 w-64", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -30278,13 +30796,26 @@ const SaveFlowDialog = ({
   ) });
 };
 
+/**
+ * 通知系統 Hook
+ */
+const useNotification = () => {
+  const notify = (message, type = 'info', duration = 2000) => {
+    if (typeof window !== 'undefined' && window.notify) {
+      window.notify({ message, type, duration });
+    }
+  };
+
+  return { notify };
+};
+
 const React$1 = await importShared('react');
 const {useState: useState$1,useRef: useRef$1,useEffect: useEffect$1} = React$1;
-
 const AutoLayoutButton = ({ onLayout, disabled = false }) => {
   const [layoutDirection, setLayoutDirection] = useState$1("LR");
   const [showDirectionMenu, setShowDirectionMenu] = useState$1(false);
-  const [isLayouting, setIsLayouting] = useState$1(false);
+  const { state, setLoading, setSuccess, setError } = useButtonState();
+  const { notify } = useNotification();
   const dropdownRef = useRef$1(null);
   const directions = [
     {
@@ -30305,7 +30836,12 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
       icon: "↑",
       description: "從底部向頂部排列"
     },
-    { value: "RL", label: "右到左", icon: "←", description: "從右側向左側排列" }
+    {
+      value: "RL",
+      label: "右到左",
+      icon: "←",
+      description: "從右側向左側排列"
+    }
   ];
   useEffect$1(() => {
     const handleClickOutside = (event) => {
@@ -30314,63 +30850,31 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  const handleLayout = async () => {
+  const executeLayout = async (direction) => {
     if (disabled || !onLayout) return;
     try {
-      setIsLayouting(true);
-      console.log(`執行自動排版，方向: ${layoutDirection}`);
-      await onLayout(layoutDirection);
-      if (typeof window !== "undefined" && window.notify) {
-        window.notify({
-          message: `自動排版完成 (${directions.find((d) => d.value === layoutDirection)?.label})`,
-          type: "success",
-          duration: 2e3
-        });
-      }
+      setLoading();
+      console.log(`執行自動排版，方向: ${direction}`);
+      await onLayout(direction);
+      setSuccess();
+      notify(
+        `自動排版完成 (${directions.find((d) => d.value === direction)?.label})`,
+        "success"
+      );
     } catch (error) {
       console.error("自動排版失敗:", error);
-      if (typeof window !== "undefined" && window.notify) {
-        window.notify({
-          message: "自動排版失敗，請檢查節點連接",
-          type: "error",
-          duration: 3e3
-        });
-      }
-    } finally {
-      setIsLayouting(false);
+      setError();
+      notify("自動排版失敗，請檢查節點連接", "error", 3e3);
     }
   };
+  const handleLayout = () => executeLayout(layoutDirection);
   const handleDirectionChange = async (direction) => {
     setLayoutDirection(direction);
     setShowDirectionMenu(false);
-    if (onLayout && !disabled && !isLayouting) {
-      try {
-        setIsLayouting(true);
-        console.log(`切換並執行自動排版，方向: ${direction}`);
-        await onLayout(direction);
-        if (typeof window !== "undefined" && window.notify) {
-          window.notify({
-            message: `自動排版完成 (${directions.find((d) => d.value === direction)?.label})`,
-            type: "success",
-            duration: 2e3
-          });
-        }
-      } catch (error) {
-        console.error("自動排版失敗:", error);
-        if (typeof window !== "undefined" && window.notify) {
-          window.notify({
-            message: "自動排版失敗，請檢查節點連接",
-            type: "error",
-            duration: 3e3
-          });
-        }
-      } finally {
-        setIsLayouting(false);
-      }
+    if (onLayout && !disabled && state !== "loading") {
+      await executeLayout(direction);
     }
   };
   const toggleDropdown = (e) => {
@@ -30378,6 +30882,51 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
     setShowDirectionMenu(!showDirectionMenu);
   };
   const currentDirection = directions.find((d) => d.value === layoutDirection);
+  const getButtonStyle = () => {
+    if (disabled || state === "loading") return "disabled";
+    return "primary";
+  };
+  const getButtonContent = () => {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center w-full", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "16px", marginRight: "6px" }, children: currentDirection?.icon }),
+        state === "loading" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, { size: 14 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "排版中" })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "自動排版" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "flex items-center justify-center ml-2 pl-2 border-l border-white/30",
+          onClick: toggleDropdown,
+          style: {
+            cursor: disabled || state === "loading" ? "not-allowed" : "pointer",
+            opacity: disabled || state === "loading" ? 0.5 : 1
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              xmlns: "http://www.w3.org/2000/svg",
+              width: "12",
+              height: "12",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              style: {
+                transform: showDirectionMenu ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease"
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+            }
+          )
+        }
+      )
+    ] });
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -30385,84 +30934,17 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
       ref: dropdownRef,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
+          BaseButton,
           {
-            className: "inline-block bg-white rounded-full shadow-md",
-            style: {
-              padding: "10px 13px",
-              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
-            },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: `rounded-full text-sm font-medium flex items-center justify-center space-x-2 ${disabled || isLayouting ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-[#00ced1] text-white hover:bg-[#00b8bb] transition-colors"}`,
-                onClick: handleLayout,
-                disabled: disabled || isLayouting,
-                title: `自動排版 (${currentDirection?.label}) - ${currentDirection?.description}`,
-                style: {
-                  width: "120px",
-                  height: "40px",
-                  position: "relative"
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "16px", marginRight: "6px" }, children: currentDirection?.icon }),
-                    isLayouting ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-1", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "svg",
-                        {
-                          className: "animate-spin",
-                          xmlns: "http://www.w3.org/2000/svg",
-                          width: "14",
-                          height: "14",
-                          viewBox: "0 0 24 24",
-                          fill: "none",
-                          stroke: "currentColor",
-                          strokeWidth: "2",
-                          strokeLinecap: "round",
-                          strokeLinejoin: "round",
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "排版中" })
-                    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "自動排版" })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      className: "flex items-center justify-center ml-2 pl-2 border-l border-white/30",
-                      onClick: toggleDropdown,
-                      style: {
-                        cursor: disabled || isLayouting ? "not-allowed" : "pointer",
-                        opacity: disabled || isLayouting ? 0.5 : 1
-                      },
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "svg",
-                        {
-                          xmlns: "http://www.w3.org/2000/svg",
-                          width: "12",
-                          height: "12",
-                          viewBox: "0 0 24 24",
-                          fill: "none",
-                          stroke: "currentColor",
-                          strokeWidth: "2",
-                          strokeLinecap: "round",
-                          strokeLinejoin: "round",
-                          style: {
-                            transform: showDirectionMenu ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.2s ease"
-                          },
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
-                        }
-                      )
-                    }
-                  )
-                ]
-              }
-            )
+            onClick: handleLayout,
+            disabled,
+            title: `自動排版 (${currentDirection?.label}) - ${currentDirection?.description}`,
+            width: "120px",
+            buttonStyle: getButtonStyle(),
+            children: getButtonContent()
           }
         ),
-        showDirectionMenu && !disabled && !isLayouting && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-full left-0 mt-2 p-2 bg-white rounded-md shadow-lg border border-gray-200 z-30 min-w-[200px]", children: [
+        showDirectionMenu && !disabled && state !== "loading" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-full left-0 mt-2 p-2 bg-white rounded-md shadow-lg border border-gray-200 z-30 min-w-[200px]", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600 mb-2 px-2 font-medium", children: "選擇排版方向並自動執行:" }),
           directions.map((direction) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
@@ -30476,22 +30958,7 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: direction.label }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: direction.description })
                 ] }),
-                layoutDirection === direction.value && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "svg",
-                  {
-                    className: "ml-auto",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    width: "16",
-                    height: "16",
-                    viewBox: "0 0 24 24",
-                    fill: "none",
-                    stroke: "currentColor",
-                    strokeWidth: "2",
-                    strokeLinecap: "round",
-                    strokeLinejoin: "round",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "20 6 9 17 4 12" })
-                  }
-                )
+                layoutDirection === direction.value && /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, { className: "ml-auto" })
               ]
             },
             direction.value
@@ -30647,6 +31114,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddTimerNode,
     handleAddLineNode,
     handleAddLineMessageNode,
+    handleAddExtractDataNode,
     handleNodeSelection,
     setNodes: setFlowNodes,
     setEdges: setFlowEdges,
@@ -30862,6 +31330,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case "line_send_message":
           handleAddLineMessageNode(nodePosition);
           break;
+        case "extract_data":
+          handleAddExtractDataNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -30880,6 +31351,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddTimerNode,
       handleAddLineNode,
       handleAddLineMessageNode,
+      handleAddExtractDataNode,
       handleAddNode
     ]
   );
