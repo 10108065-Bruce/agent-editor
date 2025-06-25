@@ -1,5 +1,5 @@
 // hooks/useFlowNodes.js
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import {
   useNodesState,
   useEdgesState,
@@ -1371,10 +1371,41 @@ export default function useFlowNodes() {
           );
         }
 
-        // 創建新的邊緣
-        safeSetEdges((eds) => {
-          // 檢查是否已存在完全相同的連接
-          const connectionExists = eds.some(
+        // 檢查是否已存在完全相同的連接
+        const connectionExists = edges.some(
+          (edge) =>
+            edge.source === params.source &&
+            edge.target === targetNodeId &&
+            edge.targetHandle === targetHandle &&
+            edge.sourceHandle === sourceHandle
+        );
+
+        if (connectionExists) {
+          console.log(`連接已存在，不重複創建`);
+          return; // 直接返回，不創建新連接
+        }
+
+        // 創建唯一的邊緣 ID
+        const edgeId = `${
+          params.source
+        }-${targetNodeId}-${targetHandle}-${sourceHandle}-${Date.now()}`;
+
+        // 創建新連接
+        const newEdge = {
+          id: edgeId,
+          source: params.source,
+          target: targetNodeId,
+          sourceHandle: sourceHandle,
+          targetHandle: targetHandle,
+          type: 'custom-edge'
+        };
+
+        console.log(`創建新連接:`, newEdge);
+
+        // 直接使用 setEdges 避免 safeSetEdges 可能的重複調用問題
+        setEdges((currentEdges) => {
+          // 在更新函數內部再次檢查，防止競態條件
+          const exists = currentEdges.some(
             (edge) =>
               edge.source === params.source &&
               edge.target === targetNodeId &&
@@ -1382,28 +1413,12 @@ export default function useFlowNodes() {
               edge.sourceHandle === sourceHandle
           );
 
-          if (connectionExists) {
-            console.log(`連接已存在，不重複創建`);
-            return eds;
+          if (exists) {
+            console.log(`在 setEdges 中發現連接已存在，跳過`);
+            return currentEdges;
           }
 
-          // 創建唯一的邊緣 ID
-          const edgeId = `${
-            params.source
-          }-${targetNodeId}-${targetHandle}-${sourceHandle}-${Date.now()}`;
-
-          // 創建新連接
-          const newEdge = {
-            id: edgeId,
-            source: params.source,
-            target: targetNodeId,
-            sourceHandle: sourceHandle,
-            targetHandle: targetHandle,
-            type: 'custom-edge'
-          };
-
-          console.log(`創建新連接:`, newEdge);
-          return [...eds, newEdge];
+          return [...currentEdges, newEdge];
         });
 
         // 給 React Flow 一些時間來更新 handle
@@ -1417,61 +1432,64 @@ export default function useFlowNodes() {
             console.error('無法刷新節點:', error);
           }
         }, 10);
-      } else {
-        // 對於其他節點，使用標準邏輯
-        try {
-          // 創建新的邊緣 ID，確保唯一性
+
+        // 重要：對於瀏覽器擴展輸出節點，在這裡直接返回，避免執行下面的通用邏輯
+        return;
+      }
+
+      // 對於其他節點，使用標準邏輯
+      try {
+        // 創建新的邊緣 ID，確保唯一性
+        const edgeId = `${params.source}-${targetNodeId}-${
+          targetHandle || 'input'
+        }-${sourceHandle}-${Date.now()}`;
+
+        // 創建新的邊緣配置，處理來自 browserExtensionInput 的連接
+        let edgeConfig = {
+          ...params,
+          id: edgeId,
+          type: 'custom-edge'
+        };
+
+        // 如果源節點是瀏覽器擴展輸入節點，設置邊的標籤為對應項目的名稱
+        if (isBrowserExtensionInput && sourceNode?.data?.items) {
+          // 從 sourceHandle 獲取正確的項目
+          const itemIndex = sourceNode.data.items.findIndex((item, idx) => {
+            const outputKey = item.id || `a${idx + 1}`;
+            return outputKey === sourceHandle;
+          });
+
+          if (itemIndex !== -1 && sourceNode.data.items[itemIndex]) {
+            edgeConfig.label = sourceNode.data.items[itemIndex].name || '';
+            console.log(`設置連接標籤為項目名稱: ${edgeConfig.label}`);
+          }
+        }
+
+        // 使用 addEdge 函數添加邊緣
+        safeSetEdges((currentEdges) => {
+          // 創建新邊緣
+          return addEdge(edgeConfig, currentEdges);
+        });
+      } catch (error) {
+        console.error('在使用 addEdge 時出錯:', error);
+
+        // 手動創建邊緣作為備用方案
+        safeSetEdges((eds) => {
           const edgeId = `${params.source}-${targetNodeId}-${
             targetHandle || 'input'
           }-${sourceHandle}-${Date.now()}`;
 
-          // 創建新的邊緣配置，處理來自 browserExtensionInput 的連接
-          let edgeConfig = {
-            ...params,
+          const newEdge = {
             id: edgeId,
+            source: params.source,
+            target: targetNodeId,
+            sourceHandle: sourceHandle,
+            targetHandle: targetHandle || 'input',
             type: 'custom-edge'
           };
 
-          // 如果源節點是瀏覽器擴展輸入節點，設置邊的標籤為對應項目的名稱
-          if (isBrowserExtensionInput && sourceNode?.data?.items) {
-            // 從 sourceHandle 獲取正確的項目
-            const itemIndex = sourceNode.data.items.findIndex((item, idx) => {
-              const outputKey = item.id || `a${idx + 1}`;
-              return outputKey === sourceHandle;
-            });
-
-            if (itemIndex !== -1 && sourceNode.data.items[itemIndex]) {
-              edgeConfig.label = sourceNode.data.items[itemIndex].name || '';
-              console.log(`設置連接標籤為項目名稱: ${edgeConfig.label}`);
-            }
-          }
-
-          // 使用 addEdge 函數添加邊緣
-          safeSetEdges((currentEdges) => {
-            // 創建新邊緣
-            return addEdge(edgeConfig, currentEdges);
-          });
-        } catch (error) {
-          console.error('在使用 addEdge 時出錯:', error);
-
-          // 手動創建邊緣作為備用方案
-          safeSetEdges((eds) => {
-            const edgeId = `${params.source}-${targetNodeId}-${
-              targetHandle || 'input'
-            }-${sourceHandle}-${Date.now()}`;
-
-            const newEdge = {
-              id: edgeId,
-              source: params.source,
-              target: targetNodeId,
-              sourceHandle: sourceHandle,
-              targetHandle: targetHandle || 'input',
-              type: 'custom-edge'
-            };
-
-            return [...eds, newEdge];
-          });
-        }
+          return [...eds, newEdge];
+        });
       }
     },
     [nodes, edges, safeSetNodes, safeSetEdges]
@@ -1587,6 +1605,57 @@ export default function useFlowNodes() {
     }
   }, [nodes, getNodeCallbacks, setNodes]);
 
+  const deleteEdgesByHandle = useCallback(
+    (nodeId, handleId) => {
+      console.log(`刪除與節點 ${nodeId} handle ${handleId} 相關的所有邊緣`);
+
+      // 找出所有連接到指定節點和 handle 的邊緣
+      const edgesToDelete = edges.filter((edge) => {
+        const isTargetMatch =
+          edge.target === nodeId && edge.targetHandle === handleId;
+
+        // 也要處理多連線格式的邊緣（例如 output0_1, output0_2）
+        const isMultiConnectionMatch =
+          edge.target === nodeId &&
+          edge.targetHandle &&
+          edge.targetHandle.startsWith(handleId + '_');
+
+        return isTargetMatch || isMultiConnectionMatch;
+      });
+
+      if (edgesToDelete.length > 0) {
+        console.log(
+          `找到 ${edgesToDelete.length} 個要刪除的邊緣:`,
+          edgesToDelete.map((e) => e.id)
+        );
+
+        // 從邊緣列表中移除這些邊緣
+        safeSetEdges((currentEdges) =>
+          currentEdges.filter(
+            (edge) => !edgesToDelete.some((toDelete) => toDelete.id === edge.id)
+          )
+        );
+      } else {
+        console.log(`沒有找到與 ${nodeId}:${handleId} 相關的邊緣`);
+      }
+    },
+    [edges, safeSetEdges]
+  );
+  // 在 useFlowNodes hook 的 useEffect 中註冊全域函數
+  useEffect(() => {
+    // 將 deleteEdgesByHandle 函數註冊到 window 對象，供組件使用
+    if (typeof window !== 'undefined') {
+      window.deleteEdgesByHandle = deleteEdgesByHandle;
+    }
+
+    // 清理函數
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.deleteEdgesByHandle;
+      }
+    };
+  }, [deleteEdgesByHandle]);
+
   return {
     nodes,
     setNodes: safeSetNodes,
@@ -1618,6 +1687,7 @@ export default function useFlowNodes() {
     undo,
     redo,
     getNodeCallbacks,
-    handleAutoLayout // 新增的自動排版函數
+    handleAutoLayout, // 新增的自動排版函數
+    deleteEdgesByHandle // 新增
   };
 }

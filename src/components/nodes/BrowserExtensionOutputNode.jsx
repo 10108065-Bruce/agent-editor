@@ -254,26 +254,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
   }, [inputs, nodeId, updateNodeInternals]);
 
-  // 計算連接到該節點的連線數量和每個 handle 的連線詳情
-  const connectionInfo = useCallback(() => {
-    // 計算總連接數
-    const totalConnections = edges.filter((edge) => edge.target === id).length;
-
-    // 計算每個 handle 的連接數
-    const connectionsPerHandle = {};
-
-    inputs.forEach((input) => {
-      const handleId = input.id;
-      const connectionsToHandle = edges.filter(
-        (edge) => edge.target === id && edge.targetHandle === handleId
-      ).length;
-
-      connectionsPerHandle[handleId] = connectionsToHandle;
-    });
-
-    return { totalConnections, connectionsPerHandle };
-  }, [edges, id, inputs]);
-
   // 處理新增輸出按鈕點擊
   const handleAddOutput = useCallback(() => {
     // 查找當前最大的輸出索引，以便生成下一個序號
@@ -335,7 +315,75 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
   }, [inputs, data, nodeId]);
 
-  // 處理標籤變更的函數 - 避免無限循環
+  // 新增：處理刪除輸入 handle 的函數
+  const handleDeleteInput = useCallback(
+    (handleId) => {
+      // 過濾掉要刪除的 handle
+      const newInputs = inputs.filter((input) => input.id !== handleId);
+
+      console.log(`刪除 handle (${nodeId}):`, handleId);
+
+      // 更新本地狀態
+      setInputs(newInputs);
+
+      // 從 node_input 中刪除對應項目
+      if (data.node_input) {
+        const updatedNodeInput = { ...data.node_input };
+
+        // 刪除所有與此 handle 相關的項目（包括多連線格式）
+        Object.keys(updatedNodeInput).forEach((key) => {
+          const baseHandleId = processHandleId(key);
+          if (baseHandleId === handleId) {
+            delete updatedNodeInput[key];
+            console.log(`從 node_input 中刪除 ${key}`);
+          }
+        });
+
+        data.node_input = updatedNodeInput;
+      }
+
+      // 更新 inputHandles
+      data.inputHandles = newInputs;
+
+      // 同時也嘗試更新參數
+      if (data.parameters && data.parameters.inputHandles) {
+        data.parameters.inputHandles.data = newInputs.map((h) => h.id);
+      }
+
+      // 從標籤狀態中刪除
+      setHandleLabels((prev) => {
+        const updated = { ...prev };
+        delete updated[handleId];
+        return updated;
+      });
+
+      // 自動斷開與此 handle 相關的所有連線
+      if (typeof window !== 'undefined' && window.deleteEdgesByHandle) {
+        window.deleteEdgesByHandle(nodeId, handleId);
+      }
+
+      // 如果有回調函數，也嘗試調用
+      if (data.onRemoveHandle) {
+        try {
+          data.onRemoveHandle(handleId);
+        } catch (err) {
+          console.warn(`調用 onRemoveHandle 時出錯:`, err);
+        }
+      }
+
+      // 通知父組件更新節點數據
+      if (data.updateNodeData) {
+        try {
+          data.updateNodeData('inputHandles', newInputs);
+          data.updateNodeData('node_input', data.node_input);
+        } catch (err) {
+          console.warn('更新節點數據時出錯:', err);
+        }
+      }
+    },
+    [inputs, data, nodeId]
+  );
+
   // 處理標籤變更的函數 - 避免無限循環
   const handleLabelChange = useCallback(
     (handleId, newLabel) => {
@@ -427,9 +475,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     transition: 'height 0.3s ease'
   };
 
-  // 取得連線信息
-  const { totalConnections, connectionsPerHandle } = connectionInfo();
-
   return (
     <div
       className='rounded-lg shadow-md overflow-visible w-64 bg-white'
@@ -454,19 +499,15 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         const startY = 65; // 白色部分開始的位置
         const topPosition = startY + index * handleHeight;
 
-        // 獲取此 handle 的連線數量
-        const connectionCount = connectionsPerHandle[input.id] || 0;
-
         // 根據是否有連線設置不同的樣式
         const handleStyle = {
-          background: connectionCount > 0 ? '#e5e7eb' : '#f3f4f6',
-          borderColor: connectionCount > 0 ? '#D3D3D3' : '#E0E0E0',
+          background: '#e5e7eb',
+          borderColor: '#D3D3D3',
           width: '12px',
           height: '12px',
           left: '-6px',
           top: `${topPosition + 14}px`,
-          border:
-            connectionCount > 0 ? '1px solid #D3D3D3' : '1px dashed #A0A0A0'
+          border: '1px solid #D3D3D3'
         };
 
         return (
@@ -480,29 +521,35 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
               isConnectable={isConnectable}
             />
 
-            {/* 可編輯的標籤 - 替換原有的靜態標籤 */}
+            {/* 輸入欄位和刪除按鈕的容器 */}
             <div
-              className='absolute flex'
+              className='absolute flex items-center'
               style={{ left: '10px', top: `${topPosition}px` }}>
+              {/* 可編輯的標籤 */}
               <input
                 type='text'
-                className='text-sm border border-gray-300 rounded px-2 py-1 w-55 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none'
+                className='text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 focus:outline-none'
                 placeholder='請輸入'
                 value={handleLabels[input.id] || ''}
                 onChange={(e) => handleLabelChange(input.id, e.target.value)}
                 title={`輸入 ${input.id} 的標籤（將儲存為 return_name）`}
                 style={{
-                  height: '30px', // 增加高度到30px
-                  lineHeight: '28px', // 調整行高以便文字垂直居中
-                  fontSize: '14px', // 增加字體大小到14px
-                  width: '180px' // 設定固定寬度
+                  height: '30px',
+                  lineHeight: '28px',
+                  fontSize: '14px',
+                  width: '190px' // 調整寬度為刪除按鈕留空間
                 }}
               />
-              {connectionCount > 0 ? (
-                <span className='text-xs text-gray-500 ml-1 mt-1'>
-                  ({connectionCount})
-                </span>
-              ) : null}
+
+              {/* 刪除按鈕 */}
+              {inputs.length > 1 && (
+                <button
+                  onClick={() => handleDeleteInput(input.id)}
+                  className='ml-2 text-gray-500 hover:text-teal-600 text-sm p-1 w-6 h-6 flex items-center justify-center'
+                  title='刪除此輸入'>
+                  ✕
+                </button>
+              )}
             </div>
           </React.Fragment>
         );
@@ -522,11 +569,10 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           <AddIcon />
         </button>
 
-        {/* 顯示輸入點的數量和連線數量 */}
+        {/* 顯示輸入點的數量，移除連線數量資訊 */}
         {inputs.length > 0 && (
           <div className='text-xs text-gray-600 mt-2'>
             <div>已有 {inputs.length} 個輸入點</div>
-            <div>共連線 {totalConnections} 個</div>
           </div>
         )}
       </div>
