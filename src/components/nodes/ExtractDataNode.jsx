@@ -1,7 +1,7 @@
 // 改進的 Extract Data 節點 - 支援多欄位配置（橫向佈局）
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
-import { llmService } from '../../services/WorkflowServicesIntegration';
+import { llmService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 

@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
-import { llmService } from '../../services/WorkflowServicesIntegration';
+import { llmService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {

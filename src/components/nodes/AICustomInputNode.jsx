@@ -1,7 +1,7 @@
 // 改進的 AI 節點 IME 處理方案
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position, useEdges } from 'reactflow';
-import { llmService } from '../../services/WorkflowServicesIntegration';
+import { llmService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
 

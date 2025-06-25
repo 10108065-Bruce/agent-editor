@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
-import { iconUploadService } from '../../services/WorkflowServicesIntegration';
+import { iconUploadService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {

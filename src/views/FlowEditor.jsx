@@ -32,10 +32,7 @@ import { iframeBridge } from '../services/IFrameBridgeService';
 
 import 'reactflow/dist/style.css';
 import { CustomEdge } from '../components/CustomEdge';
-import {
-  WorkflowDataConverter,
-  workflowAPIService
-} from '../services/WorkflowServicesIntegration';
+import { WorkflowDataConverter, workflowAPIService } from '../services/index';
 
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
 import Notification from '../components/common/Notification';

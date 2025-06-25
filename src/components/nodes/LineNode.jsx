@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
-import { externalService } from '../../services/WorkflowServicesIntegration';
+import { externalService } from '../../services/index';
 
 const LineNode = ({ data, isConnectable, id }) => {
   // 狀態管理
