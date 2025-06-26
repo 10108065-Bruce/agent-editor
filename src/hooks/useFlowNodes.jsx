@@ -957,10 +957,9 @@ export default function useFlowNodes() {
           model: '1', // 預設模型 ID
           columns: [
             {
-              name: 'fasting_blood_sugar',
+              name: '',
               type: 'text',
-              description:
-                '> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl'
+              description: ''
             }
           ],
           ...nodeCallbacksObject

@@ -109,7 +109,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
   // 新增欄位
   const handleAddColumn = useCallback(() => {
     const newColumn = {
-      name: '請輸入欄位名稱',
+      name: '',
       type: 'text',
       description: ''
     };
@@ -264,7 +264,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
                       handleColumnNameChange(index, e.target.value)
                     }
                     className='w-full border border-gray-300 rounded px-2 py-1 text-xs'
-                    placeholder='欄位名稱'
+                    placeholder='請輸入欄位名稱...'
                   />
                 </div>
 
@@ -300,7 +300,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
                       handleColumnDescriptionChange(index, e.target.value)
                     }
                     className='w-full border border-gray-300 rounded px-2 py-1 text-xs resize-none min-h-[24px] max-h-[60px] overflow-hidden'
-                    placeholder='描述'
+                    placeholder='請描述提取內容/規則...'
                     rows='1'
                     style={{
                       height: `${Math.min(
