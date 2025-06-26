@@ -1,4 +1,4 @@
-// 改進的 Extract Data 節點 - 支援多欄位配置（橫向佈局）
+// 改進的 Extract Data 節點 - 支援多欄位配置（橫向佈局）- 使用結構化輸出API
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
 import { llmService } from '../../services/index';
@@ -6,18 +6,21 @@ import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 
 const ExtractDataNode = ({ data, isConnectable }) => {
+  // 更改為使用結構化輸出模型選項
   const [modelOptions, setModelOptions] = useState([
-    { value: '1', label: 'O3-mini' },
-    { value: '2', label: 'O3-plus' },
-    { value: '3', label: 'O3-mega' },
-    { value: '4', label: 'O3-ultra' }
+    {
+      value: '0',
+      label: 'GPT-4o',
+      description: 'OpenAI GPT-4o 支援結構化輸出',
+      provider: 'AZURE_OPENAI'
+    }
   ]);
 
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelLoadError, setModelLoadError] = useState(null);
-  const [localModel, setLocalModel] = useState(data?.model || '1');
+  const [localModel, setLocalModel] = useState(data?.model || '0');
 
-  // 新增：管理 columns 狀態 - 一開始沒有任何資料
+  // 管理 columns 狀態 - 一開始沒有任何資料
   const [columns, setColumns] = useState(data?.columns || []);
 
   // 改進的同步邏輯
@@ -37,6 +40,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
     }
   }, [data?.columns, columns]);
 
+  // 更改為載入結構化輸出模型
   const loadModels = async () => {
     if (isLoadingModels) return;
 
@@ -44,7 +48,10 @@ const ExtractDataNode = ({ data, isConnectable }) => {
     setModelLoadError(null);
 
     try {
-      const options = await llmService.getModelOptions();
+      console.log('開始加載結構化輸出模型...');
+      const options = await llmService.getStructuredOutputModelOptions();
+      console.log('獲取到的結構化輸出模型選項:', options);
+
       if (options && options.length > 0) {
         setModelOptions(options);
         const isCurrentModelValid = options.some(
@@ -52,26 +59,24 @@ const ExtractDataNode = ({ data, isConnectable }) => {
         );
 
         if (!isCurrentModelValid) {
-          let defaultModel = options[0].value;
-          const defaultOption = options.find((opt) => opt.isDefault);
-          if (defaultOption) {
-            defaultModel = defaultOption.value;
-          }
+          // 使用第一個可用的結構化輸出模型作為預設
+          const defaultModel = options[0].value;
           setLocalModel(defaultModel);
           updateParentState('model', defaultModel);
+          console.log('選擇預設結構化輸出模型:', defaultModel);
         }
       }
     } catch (error) {
-      console.error('加載模型失敗:', error);
+      console.error('加載結構化輸出模型失敗:', error);
       if (
         !(
           error.message &&
-          (error.message.includes('已有進行中的LLM模型請求') ||
+          (error.message.includes('已有進行中的結構化輸出模型請求') ||
             error.message.includes('進行中的請求') ||
             error.message.includes('使用相同請求'))
         )
       ) {
-        setModelLoadError('無法載入模型列表，請稍後再試');
+        setModelLoadError('無法載入結構化輸出模型列表，請稍後再試');
       }
     } finally {
       setIsLoadingModels(false);
@@ -102,6 +107,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
       const newModelValue = e.target.value;
       setLocalModel(newModelValue);
       updateParentState('model', newModelValue);
+      console.log('切換結構化輸出模型:', newModelValue);
     },
     [updateParentState]
   );
@@ -170,6 +176,14 @@ const ExtractDataNode = ({ data, isConnectable }) => {
     { value: 'boolean', label: 'boolean' }
   ];
 
+  // 根據選中的模型獲取提供者信息
+  const getSelectedModelInfo = () => {
+    const selectedModel = modelOptions.find(
+      (option) => option.value === localModel
+    );
+    return selectedModel || modelOptions[0];
+  };
+
   return (
     <div className='rounded-lg shadow-md overflow-hidden w-98 max-w-lg'>
       {/* Header section */}
@@ -186,7 +200,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
 
       {/* Content area */}
       <div className='bg-white p-4'>
-        {/* Model selection */}
+        {/* Model selection - 更新標題和說明 */}
         <div className='mb-4'>
           <label className='block text-sm text-gray-700 mb-1 font-bold'>
             Model
@@ -202,8 +216,9 @@ const ExtractDataNode = ({ data, isConnectable }) => {
               {modelOptions.map((option) => (
                 <option
                   key={option.value}
-                  value={option.value}>
-                  {option.label}
+                  value={option.value}
+                  title={option.description}>
+                  {option.label} {option.provider ? `(${option.provider})` : ''}
                 </option>
               ))}
             </select>
@@ -231,6 +246,14 @@ const ExtractDataNode = ({ data, isConnectable }) => {
           {modelLoadError && (
             <p className='text-xs text-red-500 mt-1'>{modelLoadError}</p>
           )}
+          {/* 顯示選中模型的描述 */}
+          {/* {!isLoadingModels &&
+            !modelLoadError &&
+            getSelectedModelInfo().description && (
+              <p className='text-xs text-gray-600 mt-1'>
+                {getSelectedModelInfo().description}
+              </p>
+            )} */}
         </div>
 
         {/* Context section */}

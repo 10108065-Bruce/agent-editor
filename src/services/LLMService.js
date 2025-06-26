@@ -16,6 +16,11 @@ export class LLMService {
     this.filesCache = null;
     this.lastFilesFetchTime = null;
     this.pendingFilesRequest = null; // 用於追蹤進行中的文件請求
+
+    // 新增：結構化輸出模型相關緩存
+    this.structuredOutputModelsCache = null;
+    this.lastStructuredOutputFetchTime = null;
+    this.pendingStructuredOutputRequest = null; // 用於追蹤進行中的結構化輸出請求
   }
 
   /**
@@ -157,6 +162,135 @@ export class LLMService {
         { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
         { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
         { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
+      ];
+    }
+  }
+
+  /**
+   * 新增：獲取支援結構化輸出的LLM模型
+   * @returns {Promise<Array>} 結構化輸出模型列表
+   */
+  async getStructuredOutputModels() {
+    try {
+      // 檢查是否有有效的快取
+      const now = Date.now();
+      if (
+        this.structuredOutputModelsCache &&
+        this.lastStructuredOutputFetchTime &&
+        now - this.lastStructuredOutputFetchTime < this.cacheExpiryTime
+      ) {
+        console.log('使用快取的結構化輸出模型列表');
+        return this.structuredOutputModelsCache;
+      }
+
+      // 如果已經有一個請求在進行中，則返回該請求
+      if (this.pendingStructuredOutputRequest) {
+        console.log('已有進行中的結構化輸出模型請求，使用相同請求');
+        return this.pendingStructuredOutputRequest;
+      }
+
+      // 創建新請求
+      console.log('獲取結構化輸出模型列表...');
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+      this.pendingStructuredOutputRequest = fetch(
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/structured-output`,
+        options
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('API返回原始結構化輸出模型數據:', data);
+
+          // 檢查數據是否為數組
+          if (!Array.isArray(data)) {
+            console.warn('API返回的結構化輸出模型數據不是陣列');
+            // 返回預設模型
+            data = [
+              {
+                id: 0,
+                display_name: 'GPT-4o',
+                description: 'OpenAI GPT-4o 支援結構化輸出',
+                provider: 'AZURE_OPENAI'
+              }
+            ];
+          }
+
+          // 檢查每個模型對象，確保結構正確
+          const processedData = data.map((model, index) => {
+            if (!model || typeof model !== 'object') {
+              console.warn(`結構化輸出模型 ${index} 無效，使用替代數據`);
+              return {
+                id: index,
+                display_name: `Structured Model ${index}`,
+                description: `結構化輸出模型 ${index}`,
+                provider: 'AZURE_OPENAI'
+              };
+            }
+
+            // 確保模型有ID
+            if (model.id === undefined || model.id === null) {
+              console.warn(`結構化輸出模型 ${index} 缺少ID，使用索引作為ID`);
+              model.id = index;
+            }
+
+            // 確保模型有顯示名稱
+            if (!model.display_name) {
+              console.warn(
+                `結構化輸出模型 ${index} 缺少顯示名稱，使用預設名稱`
+              );
+              model.display_name = `Structured Model ${model.id}`;
+            }
+
+            return model;
+          });
+
+          console.log('處理後的結構化輸出模型數據:', processedData);
+
+          // 更新快取
+          this.structuredOutputModelsCache = processedData;
+          this.lastStructuredOutputFetchTime = now;
+          this.pendingStructuredOutputRequest = null; // 清除進行中的請求
+
+          return processedData;
+        })
+        .catch((error) => {
+          console.error('獲取結構化輸出模型失敗:', error);
+          this.pendingStructuredOutputRequest = null; // 清除進行中的請求，即使出錯
+
+          // 返回預設模型，而不是拋出錯誤
+          return [
+            {
+              id: 0,
+              display_name: 'GPT-4o',
+              description: 'OpenAI GPT-4o 支援結構化輸出',
+              provider: 'AZURE_OPENAI'
+            }
+          ];
+        });
+
+      return this.pendingStructuredOutputRequest;
+    } catch (error) {
+      console.error('獲取結構化輸出模型過程中出錯:', error);
+      this.pendingStructuredOutputRequest = null;
+
+      // 返回預設模型，而不是拋出錯誤
+      return [
+        {
+          id: 0,
+          display_name: 'GPT-4o',
+          description: 'OpenAI GPT-4o 支援結構化輸出',
+          provider: 'AZURE_OPENAI'
+        }
       ];
     }
   }
@@ -330,6 +464,97 @@ export class LLMService {
   }
 
   /**
+   * 新增：獲取格式化後的結構化輸出模型選項，適用於下拉選單
+   * @returns {Promise<Array>} 格式化的結構化輸出模型選項
+   */
+  async getStructuredOutputModelOptions() {
+    try {
+      const models = await this.getStructuredOutputModels();
+      console.log('API返回的結構化輸出模型數據:', models);
+
+      // 檢查模型數據是否有效
+      if (!models || !Array.isArray(models)) {
+        console.warn('結構化輸出模型數據無效或不是陣列，使用默認選項');
+        return [
+          {
+            value: '0',
+            label: 'GPT-4o',
+            description: 'OpenAI GPT-4o 支援結構化輸出',
+            provider: 'AZURE_OPENAI'
+          }
+        ];
+      }
+
+      if (models.length === 0) {
+        console.warn('API返回的結構化輸出模型陣列為空，使用默認選項');
+        return [
+          {
+            value: '0',
+            label: 'GPT-4o',
+            description: 'OpenAI GPT-4o 支援結構化輸出',
+            provider: 'AZURE_OPENAI'
+          }
+        ];
+      }
+
+      // 將API返回的結構化輸出模型數據轉換為select選項格式
+      const options = models.map((model, index) => {
+        // 確保模型對象存在
+        if (!model) {
+          console.warn(`遇到無效的結構化輸出模型數據，索引: ${index}`);
+          return {
+            value: `${index}`,
+            label: `Structured Model ${index}`,
+            description: '',
+            provider: 'AZURE_OPENAI'
+          };
+        }
+
+        // 記錄每個模型的關鍵屬性，幫助診斷
+        console.log(`處理結構化輸出模型 ${index}:`, {
+          id: model.id,
+          display_name: model.display_name,
+          description: model.description,
+          provider: model.provider
+        });
+
+        // 取得 ID，確保是字串型別
+        let modelId = '0'; // 預設 ID
+        if (model.id !== undefined && model.id !== null) {
+          modelId = model.id.toString();
+        } else {
+          modelId = `${index}`; // 使用索引作為ID
+        }
+
+        // 取得顯示名稱
+        const displayLabel =
+          model.display_name || `Structured Model ${modelId}`;
+
+        return {
+          value: modelId,
+          label: displayLabel,
+          description: model.description || '',
+          provider: model.provider || 'AZURE_OPENAI'
+        };
+      });
+
+      console.log('最終格式化的結構化輸出選項:', options);
+      return options;
+    } catch (error) {
+      console.error('獲取結構化輸出模型選項失敗:', error);
+      // 返回一些默認選項，以防API失敗
+      return [
+        {
+          value: '0',
+          label: 'GPT-4o',
+          description: 'OpenAI GPT-4o 支援結構化輸出',
+          provider: 'AZURE_OPENAI'
+        }
+      ];
+    }
+  }
+
+  /**
    * 獲取格式化後的已完成文件選項，適用於下拉選單
    * @returns {Promise<Array>} 格式化的文件選項
    */
@@ -368,11 +593,16 @@ export class LLMService {
    * 預加載模型與文件數據，通常在應用啟動時呼叫
    */
   preloadData() {
-    console.log('預加載LLM模型和文件列表');
+    console.log('預加載LLM模型、結構化輸出模型和文件列表');
 
     // 預加載模型
     this.getModels().catch((err) => {
       console.log('預加載模型失敗:', err);
+    });
+
+    // 預加載結構化輸出模型
+    this.getStructuredOutputModels().catch((err) => {
+      console.log('預加載結構化輸出模型失敗:', err);
     });
 
     // 預加載文件
