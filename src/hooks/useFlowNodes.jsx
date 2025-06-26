@@ -1243,30 +1243,30 @@ export default function useFlowNodes() {
       }
 
       // 檢查目標節點是否為Line Message節點
-      if (targetNode && targetNode.type === 'line_send_message') {
-        console.log('目標是LineMessage節點，檢查連線限制');
+      // if (targetNode && targetNode.type === 'line_send_message') {
+      //   console.log('目標是LineMessage節點，檢查連線限制');
 
-        // 檢查是否已有輸入連線
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.target === targetNodeId && edge.targetHandle === 'message'
-        );
+      //   // 檢查是否已有輸入連線
+      //   const existingEdges = edges.filter(
+      //     (edge) =>
+      //       edge.target === targetNodeId && edge.targetHandle === 'message'
+      //   );
 
-        if (existingEdges.length > 0) {
-          console.log(`LineMessage節點已有輸入連線，拒絕新連線`);
+      //   if (existingEdges.length > 0) {
+      //     console.log(`LineMessage節點已有輸入連線，拒絕新連線`);
 
-          // 使用通知系統提示用戶
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `LineMessage節點只能有一個輸入連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
-          }
+      //     // 使用通知系統提示用戶
+      //     if (typeof window !== 'undefined' && window.notify) {
+      //       window.notify({
+      //         message: `LineMessage節點只能有一個輸入連線，請先刪除現有連線`,
+      //         type: 'error',
+      //         duration: 3000
+      //       });
+      //     }
 
-          return; // 不創建新連線
-        }
-      }
+      //     return; // 不創建新連線
+      //   }
+      // }
 
       // 處理AI節點的連線限制
       if (isAINode) {
