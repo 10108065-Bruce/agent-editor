@@ -22905,9 +22905,9 @@ function useFlowNodes() {
           // 預設模型 ID
           columns: [
             {
-              name: "fasting_blood_sugar",
+              name: "",
               type: "text",
-              description: "> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl> 120 mg/dl"
+              description: ""
             }
           ],
           ...nodeCallbacksObject
@@ -23434,7 +23434,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "874192e18d299364c863f535c10b29bd5ca0206d", "VITE_APP_BUILD_TIME": "2025-06-25T08:13:58.832Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.1"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "e8060e00afc3dc40f6f7a9644be1c77b171cc05e", "VITE_APP_BUILD_TIME": "2025-06-26T01:18:57.914Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.2"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -30361,7 +30361,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
   );
   const handleAddColumn = useCallback$2(() => {
     const newColumn = {
-      name: "請輸入欄位名稱",
+      name: "",
       type: "text",
       description: ""
     };
@@ -30475,7 +30475,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
                     value: column.name,
                     onChange: (e) => handleColumnNameChange(index, e.target.value),
                     className: "w-full border border-gray-300 rounded px-2 py-1 text-xs",
-                    placeholder: "欄位名稱"
+                    placeholder: "請輸入欄位名稱..."
                   }
                 )
               ] }),
@@ -30506,7 +30506,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
                     value: column.description,
                     onChange: (e) => handleColumnDescriptionChange(index, e.target.value),
                     className: "w-full border border-gray-300 rounded px-2 py-1 text-xs resize-none min-h-[24px] max-h-[60px] overflow-hidden",
-                    placeholder: "描述",
+                    placeholder: "請描述提取內容/規則...",
                     rows: "1",
                     style: {
                       height: `${Math.min(
