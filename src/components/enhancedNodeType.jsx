@@ -12,6 +12,7 @@ import LineNode from './nodes/LineNode';
 import TimerNode from './nodes/TimerNode';
 import LineMessageNode from './nodes/MessageNode';
 import ExtractDataNode from './nodes/ExtractDataNode';
+import QOCAAimNode from './nodes/QOCAAimNode';
 
 // Apply the withNodeSelection HOC to each node type
 const enhancedNodeTypes = {
@@ -27,7 +28,8 @@ const enhancedNodeTypes = {
   line_webhook_input: withNodeSelection(LineNode),
   timer: withNodeSelection(TimerNode),
   line_send_message: withNodeSelection(LineMessageNode),
-  extract_data: withNodeSelection(ExtractDataNode)
+  extract_data: withNodeSelection(ExtractDataNode),
+  qoca_aim: withNodeSelection(QOCAAimNode)
 };
 
 export default enhancedNodeTypes;

@@ -26,7 +26,8 @@ export class WorkflowMappingService {
       end: 'end',
       message: 'line_send_message',
       extract_data: 'extract_data',
-      extractData: 'extract_data'
+      extractData: 'extract_data',
+      qoca_aim: 'qoca_aim'
     };
     return operatorMap[type] || type;
   }
@@ -50,7 +51,8 @@ export class WorkflowMappingService {
       event: 'event',
       end: 'end',
       message: 'line_send_message',
-      extract_data: 'extract_data'
+      extract_data: 'extract_data',
+      qoca_aim: 'qoca_aim'
     };
     return typeMap[operator] || operator;
   }
@@ -79,7 +81,8 @@ export class WorkflowMappingService {
       end: 'output',
       browserExtensionOutput: 'output',
       extract_data: 'advanced',
-      extractData: 'advanced'
+      extractData: 'advanced',
+      qoca_aim: 'advanced'
     };
     return categoryMap[type] || 'advanced';
   }
@@ -96,7 +99,7 @@ export class WorkflowMappingService {
       case 'browser_extension_output':
         return '瀏覽器擴充輸出';
       case 'ask_ai':
-        return `AI (${node.parameters?.llm_id?.data || 'GPT-4o'})`;
+        return `AI (${node.parameters?.llm_id?.data || ''})`;
       case 'basic_input': {
         // 嘗試獲取第一個輸入欄位的名稱
         const inputName =
@@ -573,6 +576,31 @@ export class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
+      case 'qocaAim':
+      case 'qoca_aim': {
+        // QOCA AIM 節點輸出 - 根據節點數據判斷
+        const isExplainEnabled =
+          node.data?.enableExplain ?? node.data?.enable_explain?.data ?? true; // 預設為 true
+
+        if (isExplainEnabled) {
+          // 當解釋功能開啟時，有 text 和 images 輸出
+          nodeOutput.text = {
+            node_id: node.id,
+            type: 'string'
+          };
+          nodeOutput.images = {
+            node_id: node.id,
+            type: 'string'
+          };
+        } else {
+          // 當解釋功能關閉時，只有基本輸出
+          nodeOutput.output = {
+            node_id: node.id,
+            type: 'string'
+          };
+        }
+        break;
+      }
       case 'line':
       case 'line_webhook_input':
         // Line Webhook 節點輸出多種訊息類型

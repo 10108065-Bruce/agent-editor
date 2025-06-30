@@ -194,6 +194,20 @@ const NodeSidebar = ({
             onDragStart={customDragStart}
           />
         )}
+        {/* QOCA aim node */}
+        {filterNodes('QOCA aim Node') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='aim' />
+              </div>
+            }
+            label='QOCA aim'
+            onClick={() => handleNodeClick('qoca_aim')}
+            nodeType='qoca_aim'
+            onDragStart={customDragStart}
+          />
+        )}
       </div>
       <VersionDisplay />
     </div>

@@ -486,7 +486,27 @@ export class WorkflowDataConverter {
           ...baseData,
           outputText: node.parameters?.output_text?.data || ''
         };
+      case 'qoca_aim': {
+        console.log(
+          'transformNodeDataToReactFlow - qoca_aim 節點參數:',
+          node.parameters
+        );
 
+        // 確保正確讀取所有參數
+        const nodeData = {
+          ...baseData,
+          selectedAim: node.parameters?.aim_ml_id?.data || '',
+          trainingId: node.parameters?.training_id?.data || 0,
+          simulatorId: node.parameters?.simulator_id?.data || '',
+          enableExplain: node.parameters?.enable_explain?.data ?? true,
+          llmId: node.parameters?.llm_id?.data || 0,
+          promptText: node.parameters?.prompt?.data || ''
+        };
+
+        console.log('QOCA AIM 節點轉換後的數據:', nodeData);
+
+        return nodeData;
+      }
       default: {
         // 對於未明確處理的節點類型，保留原始參數
         const transformedParams = {};
@@ -882,6 +902,63 @@ export class WorkflowDataConverter {
           parameters.example = { data: '{"fasting_blood_sugar": ""}' };
         }
         break;
+      case 'qocaAim':
+      case 'qoca_aim': {
+        // QOCA AIM 節點參數轉換
+        // aim_ml_id 參數
+        if (node.data.selectedAim || node.data.aim_ml_id) {
+          const aimValue =
+            node.data.selectedAim || node.data.aim_ml_id?.data || '';
+          if (aimValue) {
+            parameters.aim_ml_id = { data: aimValue };
+          }
+        }
+
+        // training_id 參數
+        if (node.data.trainingId !== undefined || node.data.training_id) {
+          const trainingValue =
+            node.data.trainingId ?? node.data.training_id?.data ?? 0;
+          parameters.training_id = { data: trainingValue };
+        }
+
+        // simulator_id 參數
+        if (node.data.simulatorId || node.data.simulator_id) {
+          const simulatorValue =
+            node.data.simulatorId || node.data.simulator_id?.data || '';
+          parameters.simulator_id = { data: simulatorValue };
+        }
+
+        // enable_explain 參數 (預設為 true)
+        const enableExplainValue =
+          node.data.enableExplain ?? node.data.enable_explain?.data ?? true;
+        parameters.enable_explain = { data: enableExplainValue };
+
+        // 只有當 enable_explain 為 true 時才處理以下參數
+        if (enableExplainValue) {
+          // llm_id 參數 - 現在支援 LLM Vision 模型 ID
+          if (node.data.llmId !== undefined || node.data.llm_id) {
+            const llmValue = node.data.llmId ?? node.data.llm_id?.data ?? 1;
+            // 確保 llmValue 是數字類型，適用於 LLM Vision API 的 id 欄位
+            const numericLlmValue =
+              typeof llmValue === 'string' ? parseInt(llmValue) : llmValue;
+            parameters.llm_id = { data: numericLlmValue };
+          }
+
+          // prompt 參數
+          if (node.data.promptText || node.data.prompt) {
+            const promptValue =
+              node.data.promptText || node.data.prompt?.data || '';
+            parameters.prompt = {
+              type: 'string',
+              data: promptValue,
+              node_id: node.id || ''
+            };
+          }
+        }
+
+        console.log('QOCA AIM 節點轉換後的參數:', parameters);
+        break;
+      }
       default:
         // 對於其他類型，直接轉換非系統屬性
         if (node.data) {

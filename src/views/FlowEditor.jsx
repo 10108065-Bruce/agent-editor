@@ -189,6 +189,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddLineNode,
     handleAddLineMessageNode,
     handleAddExtractDataNode,
+    handleAddQOCAAimNode,
     handleNodeSelection,
     undo,
     redo,
@@ -459,6 +460,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'extract_data':
           handleAddExtractDataNode(nodePosition);
           break;
+        case 'qoca_aim':
+          handleAddQOCAAimNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -478,6 +482,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddLineNode,
       handleAddLineMessageNode,
       handleAddExtractDataNode,
+      handleAddQOCAAimNode,
       handleAddNode
     ]
   );

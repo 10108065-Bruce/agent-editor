@@ -10,15 +10,17 @@ export { LLMService } from './LLMService';
 export { ExternalService } from './ExternalService';
 export { WorkflowDataConverter } from './WorkflowDataConverter';
 export { IconUploadService } from './IconUploadService';
-
+export { AIMService } from './AIMService';
 // 創建服務實例並導出
 import { WorkflowAPIService } from './WorkflowAPIService';
 import { LLMService } from './LLMService';
 import { ExternalService } from './ExternalService';
 import { IconUploadService } from './IconUploadService';
+import { AIMService } from './AIMService';
 
 // 創建單例實例
 export const workflowAPIService = new WorkflowAPIService();
 export const llmService = new LLMService();
 export const externalService = new ExternalService();
 export const iconUploadService = new IconUploadService();
+export const aimService = new AIMService();

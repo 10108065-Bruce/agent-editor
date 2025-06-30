@@ -995,6 +995,28 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 添加 QOCA aim 節點
+  const handleAddQOCAAimNode = useCallback(
+    (position) => {
+      const id = `qoca_aim_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'qoca_aim');
+      const newNode = {
+        id,
+        type: 'qoca_aim',
+        data: {
+          aim: '', // 默認空 AIM
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
   // 添加 Extract data 節點
   const handleAddExtractDataNode = useCallback(
     (position) => {
@@ -1770,6 +1792,7 @@ export default function useFlowNodes() {
     handleAddTimerNode,
     handleNodeSelection,
     handleAddExtractDataNode,
+    handleAddQOCAAimNode,
     undo,
     redo,
     getNodeCallbacks,
