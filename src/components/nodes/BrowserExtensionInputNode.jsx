@@ -3,6 +3,7 @@ import { Handle, Position } from 'reactflow';
 import { iconUploadService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
+
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
   // 本地狀態管理
   const [localItems, setLocalItems] = useState(data?.items || []);
@@ -220,6 +221,62 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     [data, localItems, updateParentState]
   );
 
+  // 處理刪除項目的函數
+  const handleDeleteItem = useCallback(
+    (index) => {
+      console.log(`準備刪除項目 ${index}`);
+
+      // 確保索引在有效範圍內
+      if (index < 0 || index >= localItems.length) {
+        console.warn(`項目索引 ${index} 超出範圍`);
+        return;
+      }
+
+      // 不允許刪除最後一個項目
+      if (localItems.length <= 1) {
+        console.warn('不能刪除最後一個項目');
+        if (typeof window !== 'undefined' && window.notify) {
+          window.notify({
+            message: '至少需要保留一個項目',
+            type: 'warning',
+            duration: 3000
+          });
+        }
+        return;
+      }
+
+      // 獲取要刪除的項目資訊
+      const itemToDelete = localItems[index];
+      const itemOutputKey = itemToDelete.id || `a${index + 1}`;
+
+      console.log(`刪除項目: ${itemToDelete.name}, 輸出鍵: ${itemOutputKey}`);
+
+      // 斷開與此項目相關的所有連線
+      if (typeof window !== 'undefined' && window.deleteEdgesBySourceHandle) {
+        window.deleteEdgesBySourceHandle(id, itemOutputKey);
+      }
+
+      // 過濾掉要刪除的項目，但保持其他項目的原有 ID 不變
+      const updatedItems = localItems.filter((_, idx) => idx !== index);
+
+      console.log('刪除後的項目列表:', updatedItems);
+
+      // 更新本地狀態
+      setLocalItems(updatedItems);
+
+      // 更新父組件狀態
+      updateParentState('items', updatedItems);
+
+      // 直接調用 useFlowNodes 中的 deleteItem 回調，但不讓它重複處理
+      // 傳遞 -1 作為特殊標記，表示已經在組件內部處理完畢
+      if (typeof data?.deleteItem === 'function') {
+        console.log('通知 deleteItem 回調函數 (已處理標記)');
+        data.deleteItem(-1); // 使用 -1 作為已處理標記
+      }
+    },
+    [localItems, updateParentState, data, id]
+  );
+
   // 添加新項目的函數
   const handleAddItem = useCallback(() => {
     console.log('添加新項目');
@@ -302,6 +359,17 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
             <div
               key={idx}
               className='mb-4 last:mb-2 relative'>
+              {/* 刪除按鈕 - 放在右上角 */}
+              {items.length > 1 && (
+                <button
+                  onClick={() => handleDeleteItem(idx)}
+                  className='absolute top-0 right-0 text-gray-400 hover:text-teal-500 text-sm p-1 w-6 h-6 flex items-center justify-center z-10'
+                  title='刪除此項目'
+                  style={{ fontSize: '14px' }}>
+                  ✕
+                </button>
+              )}
+
               <div className='mb-2'>
                 <label className='block text-sm text-gray-700 mb-1 font-bold'>
                   name

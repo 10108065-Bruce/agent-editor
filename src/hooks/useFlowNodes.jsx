@@ -350,7 +350,7 @@ export default function useFlowNodes() {
                       ...node.data,
                       items: [
                         ...currentItems,
-                        { id: newItemId, name: 'New Item', icon: 'document' }
+                        { id: newItemId, name: '', icon: 'document' }
                       ]
                     }
                   };
@@ -369,6 +369,57 @@ export default function useFlowNodes() {
                     ...updatedItems[index],
                     name
                   };
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      items: updatedItems
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          };
+
+          // 刪除項目的回調函數
+          callbacks.deleteItem = (index) => {
+            // 如果 index 是 -1，表示組件內部已經處理完畢，只需要記錄日志
+            if (index === -1) {
+              console.log(`deleteItem 回調收到已處理標記，跳過重複處理`);
+              return;
+            }
+
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === nodeId) {
+                  const currentItems = node.data.items || [];
+
+                  // 不允許刪除最後一個項目
+                  if (currentItems.length <= 1) {
+                    console.warn('不能刪除最後一個項目');
+                    return node;
+                  }
+
+                  // 獲取要刪除的項目資訊，用於斷開連線
+                  const itemToDelete = currentItems[index];
+                  const itemOutputKey = itemToDelete.id || `a${index + 1}`;
+
+                  // 斷開與此項目相關的所有連線
+                  if (
+                    typeof window !== 'undefined' &&
+                    window.deleteEdgesBySourceHandle
+                  ) {
+                    window.deleteEdgesBySourceHandle(nodeId, itemOutputKey);
+                  }
+
+                  // 過濾掉要刪除的項目，保持其他項目的原有 ID 不變
+                  const updatedItems = currentItems.filter(
+                    (_, idx) => idx !== index
+                  );
+
+                  console.log(`節點 ${nodeId} 刪除項目後的列表:`, updatedItems);
+
                   return {
                     ...node,
                     data: {
@@ -1604,6 +1655,40 @@ export default function useFlowNodes() {
     }
   }, [nodes, getNodeCallbacks, setNodes]);
 
+  // 處理根據 sourceHandle 刪除邊緣的函數
+  const deleteEdgesBySourceHandle = useCallback(
+    (nodeId, sourceHandle) => {
+      console.log(
+        `刪除與節點 ${nodeId} sourceHandle ${sourceHandle} 相關的所有邊緣`
+      );
+
+      // 找出所有從指定節點和 sourceHandle 發出的邊緣
+      const edgesToDelete = edges.filter((edge) => {
+        const isSourceMatch =
+          edge.source === nodeId && edge.sourceHandle === sourceHandle;
+
+        return isSourceMatch;
+      });
+
+      if (edgesToDelete.length > 0) {
+        console.log(
+          `找到 ${edgesToDelete.length} 個要刪除的邊緣:`,
+          edgesToDelete.map((e) => e.id)
+        );
+
+        // 從邊緣列表中移除這些邊緣
+        safeSetEdges((currentEdges) =>
+          currentEdges.filter(
+            (edge) => !edgesToDelete.some((toDelete) => toDelete.id === edge.id)
+          )
+        );
+      } else {
+        console.log(`沒有找到與 ${nodeId}:${sourceHandle} 相關的邊緣`);
+      }
+    },
+    [edges, safeSetEdges]
+  );
+
   const deleteEdgesByHandle = useCallback(
     (nodeId, handleId) => {
       console.log(`刪除與節點 ${nodeId} handle ${handleId} 相關的所有邊緣`);
@@ -1645,15 +1730,17 @@ export default function useFlowNodes() {
     // 將 deleteEdgesByHandle 函數註冊到 window 對象，供組件使用
     if (typeof window !== 'undefined') {
       window.deleteEdgesByHandle = deleteEdgesByHandle;
+      window.deleteEdgesBySourceHandle = deleteEdgesBySourceHandle;
     }
 
     // 清理函數
     return () => {
       if (typeof window !== 'undefined') {
         delete window.deleteEdgesByHandle;
+        delete window.deleteEdgesBySourceHandle;
       }
     };
-  }, [deleteEdgesByHandle]);
+  }, [deleteEdgesByHandle, deleteEdgesBySourceHandle]);
 
   return {
     nodes,
@@ -1687,6 +1774,7 @@ export default function useFlowNodes() {
     redo,
     getNodeCallbacks,
     handleAutoLayout, // 新增的自動排版函數
-    deleteEdgesByHandle // 新增
+    deleteEdgesByHandle,
+    deleteEdgesBySourceHandle
   };
 }

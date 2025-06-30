@@ -392,15 +392,22 @@ export class WorkflowMappingService {
                 sourceNode.data.items &&
                 Array.isArray(sourceNode.data.items)
               ) {
-                // 從 sourceHandle 中提取索引（如 output-0）
-                const outputIndex = edge.sourceHandle
-                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                  : 0;
+                // 根據 sourceHandle (如 a1, a2, a3, a4) 找到對應的項目
+                const targetItem = sourceNode.data.items.find(
+                  (item) => item.id === edge.sourceHandle
+                );
 
-                // 獲取對應的項目名稱
-                if (sourceNode.data.items[outputIndex]) {
-                  returnName =
-                    sourceNode.data.items[outputIndex].name || returnName;
+                if (targetItem && targetItem.name) {
+                  returnName = targetItem.name;
+                } else {
+                  // 如果找不到對應項目，嘗試從索引獲取
+                  const itemIndex = sourceNode.data.items.findIndex(
+                    (item) => item.id === edge.sourceHandle
+                  );
+                  if (itemIndex !== -1 && sourceNode.data.items[itemIndex]) {
+                    returnName =
+                      sourceNode.data.items[itemIndex].name || returnName;
+                  }
                 }
               }
             } else if (
