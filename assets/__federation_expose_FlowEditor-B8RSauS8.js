@@ -22407,7 +22407,7 @@ function useFlowNodes() {
                       ...node.data,
                       items: [
                         ...currentItems,
-                        { id: newItemId, name: "New Item", icon: "document" }
+                        { id: newItemId, name: "", icon: "document" }
                       ]
                     }
                   };
@@ -22425,6 +22425,40 @@ function useFlowNodes() {
                     ...updatedItems[index],
                     name
                   };
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      items: updatedItems
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          };
+          callbacks.deleteItem = (index) => {
+            if (index === -1) {
+              console.log(`deleteItem 回調收到已處理標記，跳過重複處理`);
+              return;
+            }
+            safeSetNodes(
+              (nds) => nds.map((node) => {
+                if (node.id === nodeId) {
+                  const currentItems = node.data.items || [];
+                  if (currentItems.length <= 1) {
+                    console.warn("不能刪除最後一個項目");
+                    return node;
+                  }
+                  const itemToDelete = currentItems[index];
+                  const itemOutputKey = itemToDelete.id || `a${index + 1}`;
+                  if (typeof window !== "undefined" && window.deleteEdgesBySourceHandle) {
+                    window.deleteEdgesBySourceHandle(nodeId, itemOutputKey);
+                  }
+                  const updatedItems = currentItems.filter(
+                    (_, idx) => idx !== index
+                  );
+                  console.log(`節點 ${nodeId} 刪除項目後的列表:`, updatedItems);
                   return {
                     ...node,
                     data: {
@@ -23117,23 +23151,6 @@ function useFlowNodes() {
           return;
         }
       }
-      if (targetNode && targetNode.type === "line_send_message") {
-        console.log("目標是LineMessage節點，檢查連線限制");
-        const existingEdges = edges.filter(
-          (edge) => edge.target === targetNodeId && edge.targetHandle === "message"
-        );
-        if (existingEdges.length > 0) {
-          console.log(`LineMessage節點已有輸入連線，拒絕新連線`);
-          if (typeof window !== "undefined" && window.notify) {
-            window.notify({
-              message: `LineMessage節點只能有一個輸入連線，請先刪除現有連線`,
-              type: "error",
-              duration: 3e3
-            });
-          }
-          return;
-        }
-      }
       if (isAINode) {
         console.log("目標是AI節點，檢查連線限制");
         if (targetHandle === "prompt-input") {
@@ -23362,6 +23379,31 @@ function useFlowNodes() {
       console.log("所有節點回調函數已經是最新，無需更新。");
     }
   }, [nodes, getNodeCallbacks, setNodes]);
+  const deleteEdgesBySourceHandle = useCallback$c(
+    (nodeId, sourceHandle) => {
+      console.log(
+        `刪除與節點 ${nodeId} sourceHandle ${sourceHandle} 相關的所有邊緣`
+      );
+      const edgesToDelete = edges.filter((edge) => {
+        const isSourceMatch = edge.source === nodeId && edge.sourceHandle === sourceHandle;
+        return isSourceMatch;
+      });
+      if (edgesToDelete.length > 0) {
+        console.log(
+          `找到 ${edgesToDelete.length} 個要刪除的邊緣:`,
+          edgesToDelete.map((e) => e.id)
+        );
+        safeSetEdges(
+          (currentEdges) => currentEdges.filter(
+            (edge) => !edgesToDelete.some((toDelete) => toDelete.id === edge.id)
+          )
+        );
+      } else {
+        console.log(`沒有找到與 ${nodeId}:${sourceHandle} 相關的邊緣`);
+      }
+    },
+    [edges, safeSetEdges]
+  );
   const deleteEdgesByHandle = useCallback$c(
     (nodeId, handleId) => {
       console.log(`刪除與節點 ${nodeId} handle ${handleId} 相關的所有邊緣`);
@@ -23389,13 +23431,15 @@ function useFlowNodes() {
   useEffect$d(() => {
     if (typeof window !== "undefined") {
       window.deleteEdgesByHandle = deleteEdgesByHandle;
+      window.deleteEdgesBySourceHandle = deleteEdgesBySourceHandle;
     }
     return () => {
       if (typeof window !== "undefined") {
         delete window.deleteEdgesByHandle;
+        delete window.deleteEdgesBySourceHandle;
       }
     };
-  }, [deleteEdgesByHandle]);
+  }, [deleteEdgesByHandle, deleteEdgesBySourceHandle]);
   return {
     nodes,
     setNodes: safeSetNodes,
@@ -23429,12 +23473,12 @@ function useFlowNodes() {
     getNodeCallbacks,
     handleAutoLayout,
     // 新增的自動排版函數
-    deleteEdgesByHandle
-    // 新增
+    deleteEdgesByHandle,
+    deleteEdgesBySourceHandle
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4867cee5af43cd4bb323c44da0b4067759fd01a8", "VITE_APP_BUILD_TIME": "2025-06-26T02:33:24.718Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.3"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "be439cc8790e405f48445ad1c16d4b7e6ccd5119", "VITE_APP_BUILD_TIME": "2025-06-30T07:43:39.511Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.4"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24903,15 +24947,22 @@ class WorkflowMappingService {
                 sourceNode.data.items &&
                 Array.isArray(sourceNode.data.items)
               ) {
-                // 從 sourceHandle 中提取索引（如 output-0）
-                const outputIndex = edge.sourceHandle
-                  ? parseInt(edge.sourceHandle.split('-')[1] || 0)
-                  : 0;
+                // 根據 sourceHandle (如 a1, a2, a3, a4) 找到對應的項目
+                const targetItem = sourceNode.data.items.find(
+                  (item) => item.id === edge.sourceHandle
+                );
 
-                // 獲取對應的項目名稱
-                if (sourceNode.data.items[outputIndex]) {
-                  returnName =
-                    sourceNode.data.items[outputIndex].name || returnName;
+                if (targetItem && targetItem.name) {
+                  returnName = targetItem.name;
+                } else {
+                  // 如果找不到對應項目，嘗試從索引獲取
+                  const itemIndex = sourceNode.data.items.findIndex(
+                    (item) => item.id === edge.sourceHandle
+                  );
+                  if (itemIndex !== -1 && sourceNode.data.items[itemIndex]) {
+                    returnName =
+                      sourceNode.data.items[itemIndex].name || returnName;
+                  }
                 }
               }
             } else if (
@@ -24966,8 +25017,12 @@ class WorkflowMappingService {
           `AI節點Prompt連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
         );
       } else if (isMessageNode && targetHandle.startsWith('message')) {
-        targetEdges.forEach((edge) => {
-          let inputKey = `message`; // 多個連接到同一 handle 時，要用`message_${index}`;
+        // 處理 Message 節點的多個連接，參考 AI 節點的 context 處理方式
+        targetEdges.forEach((edge, index) => {
+          // 對於多個連接到同一個 message handle，創建 message0, message1, message2 等輸入鍵
+          const inputKey =
+            targetEdges.length > 1 ? `message${index}` : 'message0';
+
           // 添加到 nodeInput
           nodeInput[inputKey] = {
             node_id: edge.source,
@@ -24976,7 +25031,7 @@ class WorkflowMappingService {
           };
 
           console.log(
-            `Message節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
+            `Message節點連接: ${edge.source} -> ${nodeId}:${inputKey})`
           );
         });
       } else if (isExtractDataNode && targetHandle === 'context-input') {
@@ -25058,213 +25113,6 @@ class WorkflowMappingService {
     return nodeInput;
   }
 
-  // /**
-  //  * 修正 transformToReactFlowFormat 方法，確保載入時能正確處理多個連線到同一 handle
-  //  */
-  // static transformToReactFlowFormat(apiData) {
-  //   console.log('開始轉換 API 格式為 ReactFlow 格式');
-
-  //   // 處理 API 數據結構差異
-  //   const flowPipeline =
-  //     apiData.flow_pipeline ||
-  //     (apiData.content ? apiData.content.flow_pipeline : []);
-
-  //   if (!flowPipeline || !Array.isArray(flowPipeline)) {
-  //     console.error('找不到有效的 flow_pipeline 數組');
-  //     return { nodes: [], edges: [] };
-  //   }
-
-  //   const nodes = [];
-  //   const edges = [];
-
-  //   // 首先處理所有節點，確保在創建邊緣之前節點已存在
-  //   flowPipeline.forEach((node) => {
-  //     console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
-
-  //     // 轉換為 ReactFlow 節點格式
-  //     const reactFlowNode = {
-  //       id: node.id,
-  //       type: WorkflowMappingService.getTypeFromOperator(node.operator),
-  //       position: {
-  //         x: typeof node.position_x === 'number' ? node.position_x : 0,
-  //         y: typeof node.position_y === 'number' ? node.position_y : 0
-  //       },
-  //       data: this.transformNodeDataToReactFlow(node)
-  //     };
-
-  //     nodes.push(reactFlowNode);
-  //   });
-
-  //   // 對於瀏覽器擴展輸出節點，特殊處理 node_input
-  //   flowPipeline.forEach((node) => {
-  //     // 檢查節點類型是否為瀏覽器擴展輸出
-  //     const isBrowserExtOutput = node.operator === 'browser_extension_output';
-
-  //     // 檢查節點類型是否為 AI 節點
-  //     const isAINode = node.operator === 'ask_ai';
-
-  //     if (isBrowserExtOutput && node.node_input) {
-  //       console.log(
-  //         `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
-  //         node.node_input
-  //       );
-
-  //       // 查找對應的 ReactFlow 節點
-  //       const reactFlowNode = nodes.find((n) => n.id === node.id);
-  //       if (!reactFlowNode) return;
-
-  //       // 從 node_input 識別所有的 handle
-  //       const handlePattern = /^(.+?)(?:_\d+)?$/;
-  //       const handleMap = new Map();
-
-  //       // 分析 node_input，提取真正的 handle ID
-  //       Object.keys(node.node_input).forEach((key) => {
-  //         const match = key.match(handlePattern);
-  //         if (match && match[1]) {
-  //           const baseHandle = match[1];
-  //           if (!handleMap.has(baseHandle)) {
-  //             handleMap.set(baseHandle, []);
-  //           }
-
-  //           handleMap.get(baseHandle).push({
-  //             fullKey: key,
-  //             sourceNodeId: node.node_input[key].node_id,
-  //             outputName: node.node_input[key].output_name || 'output',
-  //             returnName: node.node_input[key].return_name || 'output' // 新增處理 return_name
-  //           });
-  //         }
-  //       });
-
-  //       // 確保 inputHandles 包含所有真正的 handle
-  //       const inputHandles = [...(reactFlowNode.data.inputHandles || [])];
-  //       const existingHandleIds = inputHandles.map((h) => h.id);
-
-  //       // 添加缺失的 handle
-  //       handleMap.forEach((connections, handleId) => {
-  //         if (!existingHandleIds.includes(handleId)) {
-  //           inputHandles.push({ id: handleId });
-  //           console.log(`為節點 ${node.id} 添加缺失的 handle: ${handleId}`);
-  //         }
-  //       });
-
-  //       // 更新節點的 inputHandles
-  //       reactFlowNode.data.inputHandles = inputHandles;
-
-  //       // 創建所有連接
-  //       handleMap.forEach((connections, handleId) => {
-  //         connections.forEach((connection) => {
-  //           // 創建邊緣 ID
-  //           const edgeId = `${connection.sourceNodeId}-${node.id}-${handleId}-${connection.outputName}`;
-
-  //           // 創建連接
-  //           const edge = {
-  //             id: edgeId,
-  //             source: connection.sourceNodeId,
-  //             sourceHandle: connection.outputName,
-  //             target: node.id,
-  //             targetHandle: handleId,
-  //             type: 'custom-edge',
-  //             label: connection.returnName // 使用 return_name 作為標籤
-  //           };
-
-  //           edges.push(edge);
-  //           console.log(
-  //             `創建連接: ${edgeId} (return_name: ${connection.returnName})`
-  //           );
-  //         });
-  //       });
-  //     } // 新增 AI 節點特殊處理
-  //     else if (isAINode && node.node_input) {
-  //       console.log(`處理AI節點 ${node.id} 的輸入:`, node.node_input);
-
-  //       // 查找對應的 ReactFlow 節點
-  //       const reactFlowNode = nodes.find((n) => n.id === node.id);
-  //       if (!reactFlowNode) return;
-
-  //       // 從 node_input 識別所有的 context handle
-  //       const contextHandles = Object.keys(node.node_input).filter(
-  //         (key) => key === 'context-input' || key.startsWith('context')
-  //       );
-
-  //       // 處理每個 context 連接
-  //       contextHandles.forEach((key) => {
-  //         const inputValue = node.node_input[key];
-  //         if (inputValue && inputValue.node_id) {
-  //           // 創建邊緣 ID
-  //           const edgeId = `${inputValue.node_id}-${node.id}-${key}-${
-  //             inputValue.output_name || 'output'
-  //           }-${Date.now()}`;
-
-  //           // 創建連接，統一使用 'context-input' 作為 targetHandle
-  //           const edge = {
-  //             id: edgeId,
-  //             source: inputValue.node_id,
-  //             sourceHandle: inputValue.output_name || 'output',
-  //             target: node.id,
-  //             targetHandle: 'context-input',
-  //             type: 'custom-edge',
-  //             label: inputValue.return_name || undefined
-  //           };
-
-  //           edges.push(edge);
-  //           console.log(`創建AI節點連接: ${edgeId}`);
-  //         }
-  //       });
-
-  //       // 處理 prompt 連接
-  //       if (node.node_input['prompt-input']) {
-  //         const promptInput = node.node_input['prompt-input'];
-  //         if (promptInput && promptInput.node_id) {
-  //           const edgeId = `${promptInput.node_id}-${node.id}-prompt-input-${
-  //             promptInput.output_name || 'output'
-  //           }`;
-
-  //           const edge = {
-  //             id: edgeId,
-  //             source: promptInput.node_id,
-  //             sourceHandle: promptInput.output_name || 'output',
-  //             target: node.id,
-  //             targetHandle: 'prompt-input',
-  //             type: 'custom-edge',
-  //             label: promptInput.return_name || undefined
-  //           };
-
-  //           edges.push(edge);
-  //           console.log(`創建AI節點Prompt連接: ${edgeId}`);
-  //         }
-  //       }
-  //     } else if (node.node_input) {
-  //       // 處理其他節點類型的連接
-  //       Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-  //         if (inputValue && inputValue.node_id) {
-  //           // 創建邊緣 ID
-  //           const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
-  //             inputValue.output_name || 'output'
-  //           }`;
-
-  //           // 創建連接
-  //           const edge = {
-  //             id: edgeId,
-  //             source: inputValue.node_id,
-  //             sourceHandle: inputValue.output_name || 'output',
-  //             target: node.id,
-  //             targetHandle: inputKey,
-  //             type: 'custom-edge'
-  //           };
-
-  //           edges.push(edge);
-  //           console.log(`創建標準連接: ${edgeId}`);
-  //         }
-  //       });
-  //     }
-  //   });
-
-  //   // 自動布局（如果位置都是 0,0）
-  //   this.autoLayout(nodes);
-
-  //   console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
-  //   return { nodes, edges };
-  // }
   /**
    * 提取節點輸出以供 API 格式使用
    * @param {Object} node - ReactFlow 節點
@@ -28684,6 +28532,41 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localItems, updateParentState]
   );
+  const handleDeleteItem = useCallback$6(
+    (index) => {
+      console.log(`準備刪除項目 ${index}`);
+      if (index < 0 || index >= localItems.length) {
+        console.warn(`項目索引 ${index} 超出範圍`);
+        return;
+      }
+      if (localItems.length <= 1) {
+        console.warn("不能刪除最後一個項目");
+        if (typeof window !== "undefined" && window.notify) {
+          window.notify({
+            message: "至少需要保留一個項目",
+            type: "warning",
+            duration: 3e3
+          });
+        }
+        return;
+      }
+      const itemToDelete = localItems[index];
+      const itemOutputKey = itemToDelete.id || `a${index + 1}`;
+      console.log(`刪除項目: ${itemToDelete.name}, 輸出鍵: ${itemOutputKey}`);
+      if (typeof window !== "undefined" && window.deleteEdgesBySourceHandle) {
+        window.deleteEdgesBySourceHandle(id, itemOutputKey);
+      }
+      const updatedItems = localItems.filter((_, idx) => idx !== index);
+      console.log("刪除後的項目列表:", updatedItems);
+      setLocalItems(updatedItems);
+      updateParentState("items", updatedItems);
+      if (typeof data?.deleteItem === "function") {
+        console.log("通知 deleteItem 回調函數 (已處理標記)");
+        data.deleteItem(-1);
+      }
+    },
+    [localItems, updateParentState, data, id]
+  );
   const handleAddItem = useCallback$6(() => {
     console.log("添加新項目");
     if (typeof data?.addItem === "function") {
@@ -28730,6 +28613,16 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
           {
             className: "mb-4 last:mb-2 relative",
             children: [
+              items.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => handleDeleteItem(idx),
+                  className: "absolute top-0 right-0 text-gray-400 hover:text-teal-500 text-sm p-1 w-6 h-6 flex items-center justify-center z-10",
+                  title: "刪除此項目",
+                  style: { fontSize: "14px" },
+                  children: "✕"
+                }
+              ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "name" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
