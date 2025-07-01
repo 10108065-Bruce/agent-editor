@@ -6,7 +6,7 @@ import { aimService } from '../../services/index';
 
 const QOCAAimNode = ({ data, isConnectable }) => {
   // 狀態管理 - 根據新的參數結構
-  const [selectedAim, setSelectedAim] = useState(data?.aim_ml?.data || '');
+  const [selectedAim, setSelectedAim] = useState(data?.aim_ml_id?.data || '');
   const [trainingId, setTrainingId] = useState(data?.training_id?.data || 0);
   const [simulatorId, setSimulatorId] = useState(
     data?.simulator_id?.data || ''
@@ -122,7 +122,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       if (data && typeof data.updateNodeData === 'function') {
         // 映射到正確的屬性名
         const propertyMap = {
-          aim_ml: 'selectedAim',
+          aim_ml_id: 'selectedAim',
           training_id: 'trainingId',
           simulator_id: 'simulatorId',
           enable_explain: 'enableExplain',
@@ -245,7 +245,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
 
         if (selectedModel) {
           // 批量更新
-          updateParentState('aim_ml', { data: aimValue });
+          updateParentState('aim_ml_id', { data: aimValue });
           updateParentState('training_id', {
             data: selectedModel.training_id || 0
           });

@@ -500,7 +500,7 @@ export class WorkflowDataConverter {
         // 確保正確讀取所有參數
         const nodeData = {
           ...baseData,
-          selectedAim: node.parameters?.aim_ml?.data || '',
+          selectedAim: node.parameters?.aim_ml_id?.data || '',
           trainingId: node.parameters?.training_id?.data || 0,
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
@@ -910,11 +910,11 @@ export class WorkflowDataConverter {
       case 'aim_ml': {
         // QOCA AIM 節點參數轉換
         // aim_ml 參數
-        if (node.data.selectedAim || node.data.aim_ml) {
+        if (node.data.selectedAim || node.data.aim_ml_id) {
           const aimValue =
-            node.data.selectedAim || node.data.aim_ml?.data || '';
+            node.data.selectedAim || node.data.aim_ml_id?.data || '';
           if (aimValue) {
-            parameters.aim_ml = { data: aimValue };
+            parameters.aim_ml_id = { data: aimValue };
           }
         }
 

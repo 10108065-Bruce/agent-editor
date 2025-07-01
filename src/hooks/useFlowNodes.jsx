@@ -1236,17 +1236,14 @@ export default function useFlowNodes() {
           return; // 不創建新連線
         }
       }
-      console.log(targetNode);
       if (targetNode && targetNode.type === 'qoca_aim') {
         console.log('目標是 QOCA AIM 節點，檢查連線限制');
 
         // 檢查是否已有輸入連線
         const existingEdges = edges.filter((edge) => {
-          console.log(edge);
           return edge.target === targetNodeId && edge.targetHandle === 'input';
         });
 
-        console.log(existingEdges);
         if (existingEdges.length > 0) {
           console.log(`QOCA AIM 節點已有輸入連線，拒絕新連線`);
 
