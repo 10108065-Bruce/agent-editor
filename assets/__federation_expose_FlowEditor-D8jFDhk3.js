@@ -21678,7 +21678,7 @@ const calculateNodeDimensions = (node) => {
       };
     }
 
-    case 'qoca_aim': {
+    case 'aim_ml': {
       // QOCA AIM 節點尺寸計算
       const baseAimWidth = 320; // w-80 = 320px
       const baseAimHeight = 180; // 基礎高度：header + AIM選擇 + 開關
@@ -22974,11 +22974,11 @@ function useFlowNodes() {
   );
   const handleAddQOCAAimNode = useCallback$d(
     (position) => {
-      const id = `qoca_aim_${Date.now()}`;
-      const nodeCallbacksObject = getNodeCallbacks(id, "qoca_aim");
+      const id = `aim_ml_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, "aim_ml");
       const newNode = {
         id,
-        type: "qoca_aim",
+        type: "aim_ml",
         data: {
           aim: "",
           // 默認空 AIM
@@ -23565,7 +23565,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "d3b76d0f8c21ff416811e941cfcc9a97504f4a48", "VITE_APP_BUILD_TIME": "2025-07-01T03:14:08.628Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.5"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "10e6740e07d9c270728336f9c0e66276e2b6b9e1", "VITE_APP_BUILD_TIME": "2025-07-01T03:49:03.945Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.6"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -23865,8 +23865,8 @@ const NodeSidebar = ({
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "aim" }) }),
           label: "QOCA aim",
-          onClick: () => handleNodeClick("qoca_aim"),
-          nodeType: "qoca_aim",
+          onClick: () => handleNodeClick("aim_ml"),
+          nodeType: "aim_ml",
           onDragStart: customDragStart
         }
       )
@@ -24685,7 +24685,7 @@ class WorkflowMappingService {
       message: 'line_send_message',
       extract_data: 'extract_data',
       extractData: 'extract_data',
-      qoca_aim: 'qoca_aim'
+      aim_ml: 'aim_ml'
     };
     return operatorMap[type] || type;
   }
@@ -24710,7 +24710,7 @@ class WorkflowMappingService {
       end: 'end',
       message: 'line_send_message',
       extract_data: 'extract_data',
-      qoca_aim: 'qoca_aim'
+      aim_ml: 'aim_ml'
     };
     return typeMap[operator] || operator;
   }
@@ -24740,7 +24740,7 @@ class WorkflowMappingService {
       browserExtensionOutput: 'output',
       extract_data: 'advanced',
       extractData: 'advanced',
-      qoca_aim: 'advanced'
+      aim_ml: 'advanced'
     };
     return categoryMap[type] || 'advanced';
   }
@@ -24816,7 +24816,7 @@ class WorkflowMappingService {
       targetNode.type === 'browserExtensionOutput';
 
     // 在現有的節點類型檢查之後添加：
-    const isQOCAAimNode = targetNode && targetNode.type === 'qoca_aim';
+    const isQOCAAimNode = targetNode && targetNode.type === 'aim_ml';
 
     // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
     if (
@@ -25249,8 +25249,7 @@ class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
-      case 'qocaAim':
-      case 'qoca_aim': {
+      case 'aim_ml': {
         // QOCA AIM 節點輸出 - 根據節點數據判斷
         const isExplainEnabled =
           node.data?.enableExplain ?? node.data?.enable_explain?.data ?? true; // 預設為 true
@@ -26854,7 +26853,7 @@ class WorkflowDataConverter {
       const isKnowledgeNode = node.operator === 'knowledge_retrieval';
       const isMessageNode = node.operator === 'line_send_message';
       const isExtractDataNode = node.operator === 'extract_data';
-      const isQOCAAimNode = node.operator === 'qoca_aim';
+      const isQOCAAimNode = node.operator === 'aim_ml';
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
@@ -27239,9 +27238,9 @@ class WorkflowDataConverter {
           ...baseData,
           outputText: node.parameters?.output_text?.data || ''
         };
-      case 'qoca_aim': {
+      case 'aim_ml': {
         console.log(
-          'transformNodeDataToReactFlow - qoca_aim 節點參數:',
+          'transformNodeDataToReactFlow - aim_ml 節點參數:',
           node.parameters
         );
 
@@ -27655,8 +27654,7 @@ class WorkflowDataConverter {
           parameters.example = { data: '{"fasting_blood_sugar": ""}' };
         }
         break;
-      case 'qocaAim':
-      case 'qoca_aim': {
+      case 'aim_ml': {
         // QOCA AIM 節點參數轉換
         // aim_ml 參數
         if (node.data.selectedAim || node.data.aim_ml) {
@@ -31943,7 +31941,7 @@ const enhancedNodeTypes = {
   timer: withNodeSelection(TimerNode$1),
   line_send_message: withNodeSelection(LineMessageNode$1),
   extract_data: withNodeSelection(ExtractDataNode$1),
-  qoca_aim: withNodeSelection(QOCAAimNode$1)
+  aim_ml: withNodeSelection(QOCAAimNode$1)
 };
 
 await importShared('react');
@@ -33540,7 +33538,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case "extract_data":
           handleAddExtractDataNode(nodePosition);
           break;
-        case "qoca_aim":
+        case "aim_ml":
           handleAddQOCAAimNode(nodePosition);
           break;
         default:
