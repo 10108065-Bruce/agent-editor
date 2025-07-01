@@ -181,7 +181,7 @@ export class WorkflowDataConverter {
             }
           } else if (isQOCAAimNode) {
             // 對於 QOCA AIM 節點，處理輸入連接
-            if (inputKey === 'input_data' || inputKey === 'input') {
+            if (inputKey === 'context' || inputKey === 'input') {
               targetHandle = 'input';
             }
           }

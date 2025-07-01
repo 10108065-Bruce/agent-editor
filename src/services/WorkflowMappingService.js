@@ -509,7 +509,7 @@ export class WorkflowMappingService {
       } else if (isQOCAAimNode && targetHandle === 'input') {
         // 處理 QOCA AIM 節點的輸入
         targetEdges.forEach((edge) => {
-          const inputKey = 'input_data';
+          const inputKey = 'context';
 
           // 添加到 nodeInput，只儲存 node_id，不帶其他參數
           nodeInput[inputKey] = {

@@ -1252,7 +1252,7 @@ export default function useFlowNodes() {
           return; // 不創建新連線
         }
       }
-      if (targetNode && targetNode.type === 'qoca_aim') {
+      if (targetNode && targetNode.type === 'aim_ml') {
         console.log('目標是 QOCA AIM 節點，檢查連線限制');
 
         // 檢查是否已有輸入連線
