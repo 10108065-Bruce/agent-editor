@@ -852,13 +852,66 @@ export class WorkflowDataConverter {
           node.data.inputHandles &&
           Array.isArray(node.data.inputHandles)
         ) {
-          // 儲存 handle ID 列表
+          // 從實際的 inputHandles 獲取 handle ID 列表
+          const handleIds = node.data.inputHandles.map((h) => h.id);
+
+          // 儲存 handle ID 列表到 parameters
           parameters.inputHandles = {
-            data: node.data.inputHandles.map((h) => h.id)
+            data: handleIds
           };
+
           console.log(
-            `保存節點 ${node.id} 的 ${node.data.inputHandles.length} 個 handle 到 parameters`
+            `保存節點 ${node.id} 的 ${handleIds.length} 個 handle 到 parameters:`,
+            handleIds
           );
+
+          // 🔧 修復：驗證 node_input 與 inputHandles 的一致性
+          if (node.data.node_input) {
+            const nodeInputKeys = Object.keys(node.data.node_input);
+            const missingInNodeInput = handleIds.filter(
+              (id) => !nodeInputKeys.includes(id)
+            );
+            const extraInNodeInput = nodeInputKeys.filter(
+              (id) => !handleIds.includes(id)
+            );
+
+            if (missingInNodeInput.length > 0) {
+              console.warn(
+                `節點 ${node.id} 的 node_input 缺少 handles:`,
+                missingInNodeInput
+              );
+            }
+
+            if (extraInNodeInput.length > 0) {
+              console.warn(
+                `節點 ${node.id} 的 node_input 有多餘的 handles:`,
+                extraInNodeInput
+              );
+            }
+
+            // 🔧 修復：確保 node_input 包含所有 inputHandles 中的 handle
+            handleIds.forEach((handleId) => {
+              if (!node.data.node_input[handleId]) {
+                console.log(
+                  `為節點 ${node.id} 添加缺少的 node_input 項目: ${handleId}`
+                );
+                node.data.node_input[handleId] = {
+                  node_id: '',
+                  output_name: '',
+                  type: 'string',
+                  data: '',
+                  is_empty: true,
+                  return_name: ''
+                };
+              }
+            });
+          }
+        } else {
+          console.warn(`節點 ${node.id} 沒有有效的 inputHandles 資料`);
+          // 提供默認值
+          parameters.inputHandles = {
+            data: ['output0']
+          };
         }
         break;
       case 'extract_data':

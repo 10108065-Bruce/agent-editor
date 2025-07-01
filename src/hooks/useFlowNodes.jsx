@@ -722,12 +722,12 @@ export default function useFlowNodes() {
         id,
         type: 'browserExtensionOutput',
         data: {
-          // 確保默認有一個 input handle
+          // 確保默認有一個 input handle，並且使用新的命名方式
           inputHandles: [{ id: 'output0' }],
           // 儲存節點輸入連接關聯
           node_input: {
-            // 為默認 handle 創建一個空的輸入項
-            input: {
+            // 🔧 修復：使用 output0 作為預設 handle，而不是 input
+            output0: {
               node_id: '',
               output_name: '',
               type: 'string',
@@ -753,28 +753,37 @@ export default function useFlowNodes() {
               const updatedNodes = [...prevNodes];
               const currentNode = updatedNodes[nodeIndex];
 
+              // 🔧 修復：保持現有的 node_input，只新增新的 handle
+              const existingNodeInput = { ...currentNode.data.node_input };
+
+              // 為新的 handle 創建 node_input 項目，但保留現有的
+              newInputHandles.forEach((handle) => {
+                if (!existingNodeInput[handle.id]) {
+                  existingNodeInput[handle.id] = {
+                    node_id: '',
+                    output_name: '',
+                    type: 'string',
+                    data: '',
+                    is_empty: true,
+                    return_name: ''
+                  };
+                }
+              });
+
               // 更新 inputHandles 和 node_input
               updatedNodes[nodeIndex] = {
                 ...currentNode,
                 data: {
                   ...currentNode.data,
                   inputHandles: newInputHandles,
-                  node_input: {
-                    ...currentNode.data.node_input,
-                    ...newInputHandles.reduce((acc, handle) => {
-                      acc[handle.id] = {
-                        node_id: '',
-                        output_name: '',
-                        type: 'string',
-                        data: '',
-                        is_empty: true,
-                        return_name: ''
-                      };
-                      return acc;
-                    }, {})
-                  }
+                  node_input: existingNodeInput
                 }
               };
+
+              console.log(`節點 ${id} 更新後的數據:`, {
+                inputHandles: newInputHandles,
+                node_input: existingNodeInput
+              });
 
               return updatedNodes;
             });
@@ -798,21 +807,28 @@ export default function useFlowNodes() {
               const updatedNodes = [...prevNodes];
               const currentNode = updatedNodes[nodeIndex];
 
-              // 過濾 inputHandles 並刪除對應的 node_input
+              // 🔧 修復：正確移除 handle 並清理相關數據
+              const filteredHandles = currentNode.data.inputHandles.filter(
+                (handle) => handle.id !== handleId
+              );
+
+              const updatedNodeInput = { ...currentNode.data.node_input };
+              delete updatedNodeInput[handleId];
+
+              // 更新節點
               updatedNodes[nodeIndex] = {
                 ...currentNode,
                 data: {
                   ...currentNode.data,
-                  inputHandles: currentNode.data.inputHandles.filter(
-                    (handle) => handle.id !== handleId
-                  ),
-                  node_input: Object.fromEntries(
-                    Object.entries(currentNode.data.node_input || {}).filter(
-                      ([key]) => key !== handleId
-                    )
-                  )
+                  inputHandles: filteredHandles,
+                  node_input: updatedNodeInput
                 }
               };
+
+              console.log(`節點 ${id} 移除 handle ${handleId} 後的數據:`, {
+                inputHandles: filteredHandles,
+                node_input: updatedNodeInput
+              });
 
               return updatedNodes;
             });

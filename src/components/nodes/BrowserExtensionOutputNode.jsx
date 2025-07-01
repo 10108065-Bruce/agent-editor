@@ -12,6 +12,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const initAttempts = useRef(0);
   const nodeId = id || 'unknown';
   const isUpdating = useRef(false); // 防止循環更新
+  const isInitialized = useRef(false); // 標記是否已初始化
 
   // 每個 handle 的高度 (增加高度)
   const handleHeight = 40; // 從原本的 25 增加到 40
@@ -74,7 +75,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
   // 初始化節點 - 確保 handle 正確載入並初始化
   useEffect(() => {
-    if (isUpdating.current) return;
+    if (isUpdating.current || isInitialized.current) return;
     isUpdating.current = true;
 
     initAttempts.current += 1;
@@ -220,6 +221,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       labels: initialLabels
     });
 
+    // 標記為已初始化
+    isInitialized.current = true;
+
     // 多次延遲更新節點內部結構，確保 ReactFlow 能正確識別 handle
     const updateTimes = [0, 50, 150, 300, 600, 1000, 1500];
     updateTimes.forEach((delay) => {
@@ -275,6 +279,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     console.log(`新增 handle (${nodeId}):`, newInputId);
 
+    // 🔧 修復：先保存當前的標籤狀態，避免在狀態更新時丟失
+    const currentLabels = { ...handleLabels };
+
     // 更新本地狀態
     setInputs(newInputs);
 
@@ -303,6 +310,27 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       data.parameters.inputHandles.data = newInputs.map((h) => h.id);
     }
 
+    // 🔧 修復：確保同步更新 node_input 中的 inputHandles 信息
+    if (data.updateNodeData) {
+      try {
+        data.updateNodeData('inputHandles', newInputs);
+        data.updateNodeData('node_input', data.node_input);
+        console.log(`已同步更新節點數據: inputHandles 和 node_input`);
+      } catch (err) {
+        console.warn('同步更新節點數據時出錯:', err);
+      }
+    }
+
+    // 🔧 修復：在更新完所有數據後，確保標籤狀態不會丟失
+    setTimeout(() => {
+      setHandleLabels((prevLabels) => {
+        // 合併之前的標籤和當前保存的標籤
+        const mergedLabels = { ...currentLabels, ...prevLabels };
+        console.log('合併後的標籤:', mergedLabels);
+        return mergedLabels;
+      });
+    }, 0);
+
     // 如果有回調函數，也嘗試調用
     if (data.onAddOutput) {
       try {
@@ -313,7 +341,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     } else {
       console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
     }
-  }, [inputs, data, nodeId]);
+  }, [inputs, data, nodeId, handleLabels]);
 
   // 新增：處理刪除輸入 handle 的函數
   const handleDeleteInput = useCallback(
@@ -322,6 +350,10 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       const newInputs = inputs.filter((input) => input.id !== handleId);
 
       console.log(`刪除 handle (${nodeId}):`, handleId);
+
+      // 🔧 修復：保存當前標籤狀態，除了要刪除的handle
+      const currentLabels = { ...handleLabels };
+      delete currentLabels[handleId];
 
       // 更新本地狀態
       setInputs(newInputs);
@@ -351,11 +383,20 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }
 
       // 從標籤狀態中刪除
-      setHandleLabels((prev) => {
-        const updated = { ...prev };
-        delete updated[handleId];
-        return updated;
-      });
+      setHandleLabels(currentLabels);
+
+      // 🔧 修復：確保同步更新節點數據
+      if (data.updateNodeData) {
+        try {
+          data.updateNodeData('inputHandles', newInputs);
+          data.updateNodeData('node_input', data.node_input);
+          console.log(
+            `已同步更新節點數據: 刪除 ${handleId} 後的 inputHandles 和 node_input`
+          );
+        } catch (err) {
+          console.warn('同步更新節點數據時出錯:', err);
+        }
+      }
 
       // 自動斷開與此 handle 相關的所有連線
       if (typeof window !== 'undefined' && window.deleteEdgesByHandle) {
@@ -370,61 +411,56 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           console.warn(`調用 onRemoveHandle 時出錯:`, err);
         }
       }
-
-      // 通知父組件更新節點數據
-      if (data.updateNodeData) {
-        try {
-          data.updateNodeData('inputHandles', newInputs);
-          data.updateNodeData('node_input', data.node_input);
-        } catch (err) {
-          console.warn('更新節點數據時出錯:', err);
-        }
-      }
     },
-    [inputs, data, nodeId]
+    [inputs, data, nodeId, handleLabels]
   );
 
   // 處理標籤變更的函數 - 避免無限循環
   const handleLabelChange = useCallback(
     (handleId, newLabel) => {
-      // 更新本地標籤狀態
+      console.log(`標籤變更: ${handleId} -> ${newLabel}`);
+
+      // 🔧 修復：立即更新本地標籤狀態，避免延遲導致的丟失
       setHandleLabels((prev) => {
         // 如果標籤沒有變化，不更新
         if (prev[handleId] === newLabel) return prev;
 
-        // 標籤有變化，更新節點數據
-        if (data.node_input) {
-          // 查找所有與此基本 handle ID 相關的項
-          Object.keys(data.node_input).forEach((key) => {
-            const baseKey = processHandleId(key);
-            if (baseKey === handleId) {
-              // 更新所有相關連線的 return_name
-              data.node_input[key].return_name = newLabel;
-              data.node_input[key].has_return_name = true; // 標記為有 return_name
-            }
-          });
-
-          // 如果 node_input 中沒有對應的 handle，創建一個
-          const baseHandleExists = Object.keys(data.node_input).some(
-            (key) => processHandleId(key) === handleId
-          );
-
-          if (!baseHandleExists) {
-            data.node_input[handleId] = {
-              node_id: '',
-              output_name: '',
-              type: 'string',
-              data: '',
-              is_empty: true,
-              return_name: newLabel,
-              has_return_name: true // 標記為有 return_name
-            };
-          }
-        }
-
-        console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
-        return { ...prev, [handleId]: newLabel };
+        const updatedLabels = { ...prev, [handleId]: newLabel };
+        console.log('更新標籤狀態:', updatedLabels);
+        return updatedLabels;
       });
+
+      // 同時更新節點數據
+      if (data.node_input) {
+        // 查找所有與此基本 handle ID 相關的項
+        Object.keys(data.node_input).forEach((key) => {
+          const baseKey = processHandleId(key);
+          if (baseKey === handleId) {
+            // 更新所有相關連線的 return_name
+            data.node_input[key].return_name = newLabel;
+            data.node_input[key].has_return_name = true; // 標記為有 return_name
+          }
+        });
+
+        // 如果 node_input 中沒有對應的 handle，創建一個
+        const baseHandleExists = Object.keys(data.node_input).some(
+          (key) => processHandleId(key) === handleId
+        );
+
+        if (!baseHandleExists) {
+          data.node_input[handleId] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true,
+            return_name: newLabel,
+            has_return_name: true // 標記為有 return_name
+          };
+        }
+      }
+
+      console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
 
       // 確保立即更新到後端 - 如果有 updateNodeData 方法
       if (data.updateNodeData && data.node_input) {
@@ -537,7 +573,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
                   height: '30px',
                   lineHeight: '28px',
                   fontSize: '14px',
-                  width: '190px' // 調整寬度為刪除按鈕留空間
+                  width: '210px' // 調整寬度為刪除按鈕留空間
                 }}
               />
 

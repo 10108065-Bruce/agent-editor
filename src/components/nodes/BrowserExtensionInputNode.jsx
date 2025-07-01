@@ -353,17 +353,17 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
         <div className='border-t border-gray-200'></div>
 
         {/* White content area */}
-        <div className='bg-white p-4'>
+        <div className='bg-white p-2'>
           {/* Multiple name/icon pairs */}
           {items.map((item, idx) => (
             <div
               key={idx}
-              className='mb-4 last:mb-2 relative'>
+              className='mb-4 last:mb-2 relative border border-gray-200 bg-gray-50 rounded p-2'>
               {/* 刪除按鈕 - 放在右上角 */}
               {items.length > 1 && (
                 <button
                   onClick={() => handleDeleteItem(idx)}
-                  className='absolute top-0 right-0 text-gray-400 hover:text-teal-500 text-sm p-1 w-6 h-6 flex items-center justify-center z-10'
+                  className='absolute top-1 right-0 text-gray-400 hover:text-teal-500 text-sm p-1 w-6 h-6 flex items-center justify-center z-10'
                   title='刪除此項目'
                   style={{ fontSize: '14px' }}>
                   ✕
@@ -417,9 +417,9 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
               )}
 
               {/* Separator if not the last item */}
-              {idx < items.length - 1 && (
+              {/* {idx < items.length - 1 && (
                 <div className='border-t border-gray-200 my-3'></div>
-              )}
+              )} */}
             </div>
           ))}
 
