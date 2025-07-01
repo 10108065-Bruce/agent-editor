@@ -22734,12 +22734,12 @@ function useFlowNodes() {
         id,
         type: "browserExtensionOutput",
         data: {
-          // 確保默認有一個 input handle
+          // 確保默認有一個 input handle，並且使用新的命名方式
           inputHandles: [{ id: "output0" }],
           // 儲存節點輸入連接關聯
           node_input: {
-            // 為默認 handle 創建一個空的輸入項
-            input: {
+            // 🔧 修復：使用 output0 作為預設 handle，而不是 input
+            output0: {
               node_id: "",
               output_name: "",
               type: "string",
@@ -22759,27 +22759,31 @@ function useFlowNodes() {
               }
               const updatedNodes = [...prevNodes];
               const currentNode = updatedNodes[nodeIndex];
+              const existingNodeInput = { ...currentNode.data.node_input };
+              newInputHandles.forEach((handle) => {
+                if (!existingNodeInput[handle.id]) {
+                  existingNodeInput[handle.id] = {
+                    node_id: "",
+                    output_name: "",
+                    type: "string",
+                    data: "",
+                    is_empty: true,
+                    return_name: ""
+                  };
+                }
+              });
               updatedNodes[nodeIndex] = {
                 ...currentNode,
                 data: {
                   ...currentNode.data,
                   inputHandles: newInputHandles,
-                  node_input: {
-                    ...currentNode.data.node_input,
-                    ...newInputHandles.reduce((acc, handle) => {
-                      acc[handle.id] = {
-                        node_id: "",
-                        output_name: "",
-                        type: "string",
-                        data: "",
-                        is_empty: true,
-                        return_name: ""
-                      };
-                      return acc;
-                    }, {})
-                  }
+                  node_input: existingNodeInput
                 }
               };
+              console.log(`節點 ${id} 更新後的數據:`, {
+                inputHandles: newInputHandles,
+                node_input: existingNodeInput
+              });
               return updatedNodes;
             });
           },
@@ -22797,20 +22801,23 @@ function useFlowNodes() {
               }
               const updatedNodes = [...prevNodes];
               const currentNode = updatedNodes[nodeIndex];
+              const filteredHandles = currentNode.data.inputHandles.filter(
+                (handle) => handle.id !== handleId
+              );
+              const updatedNodeInput = { ...currentNode.data.node_input };
+              delete updatedNodeInput[handleId];
               updatedNodes[nodeIndex] = {
                 ...currentNode,
                 data: {
                   ...currentNode.data,
-                  inputHandles: currentNode.data.inputHandles.filter(
-                    (handle) => handle.id !== handleId
-                  ),
-                  node_input: Object.fromEntries(
-                    Object.entries(currentNode.data.node_input || {}).filter(
-                      ([key]) => key !== handleId
-                    )
-                  )
+                  inputHandles: filteredHandles,
+                  node_input: updatedNodeInput
                 }
               };
+              console.log(`節點 ${id} 移除 handle ${handleId} 後的數據:`, {
+                inputHandles: filteredHandles,
+                node_input: updatedNodeInput
+              });
               return updatedNodes;
             });
           },
@@ -23562,7 +23569,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "66300ebc1516ae565172cf296ed2f8f2072921be", "VITE_APP_BUILD_TIME": "2025-07-01T04:16:35.477Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.7"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "ba11af8c201955d9197db87730d4f60198036655", "VITE_APP_BUILD_TIME": "2025-07-01T06:11:45.821Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.8"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -27596,13 +27603,66 @@ class WorkflowDataConverter {
           node.data.inputHandles &&
           Array.isArray(node.data.inputHandles)
         ) {
-          // 儲存 handle ID 列表
+          // 從實際的 inputHandles 獲取 handle ID 列表
+          const handleIds = node.data.inputHandles.map((h) => h.id);
+
+          // 儲存 handle ID 列表到 parameters
           parameters.inputHandles = {
-            data: node.data.inputHandles.map((h) => h.id)
+            data: handleIds
           };
+
           console.log(
-            `保存節點 ${node.id} 的 ${node.data.inputHandles.length} 個 handle 到 parameters`
+            `保存節點 ${node.id} 的 ${handleIds.length} 個 handle 到 parameters:`,
+            handleIds
           );
+
+          // 🔧 修復：驗證 node_input 與 inputHandles 的一致性
+          if (node.data.node_input) {
+            const nodeInputKeys = Object.keys(node.data.node_input);
+            const missingInNodeInput = handleIds.filter(
+              (id) => !nodeInputKeys.includes(id)
+            );
+            const extraInNodeInput = nodeInputKeys.filter(
+              (id) => !handleIds.includes(id)
+            );
+
+            if (missingInNodeInput.length > 0) {
+              console.warn(
+                `節點 ${node.id} 的 node_input 缺少 handles:`,
+                missingInNodeInput
+              );
+            }
+
+            if (extraInNodeInput.length > 0) {
+              console.warn(
+                `節點 ${node.id} 的 node_input 有多餘的 handles:`,
+                extraInNodeInput
+              );
+            }
+
+            // 🔧 修復：確保 node_input 包含所有 inputHandles 中的 handle
+            handleIds.forEach((handleId) => {
+              if (!node.data.node_input[handleId]) {
+                console.log(
+                  `為節點 ${node.id} 添加缺少的 node_input 項目: ${handleId}`
+                );
+                node.data.node_input[handleId] = {
+                  node_id: '',
+                  output_name: '',
+                  type: 'string',
+                  data: '',
+                  is_empty: true,
+                  return_name: ''
+                };
+              }
+            });
+          }
+        } else {
+          console.warn(`節點 ${node.id} 沒有有效的 inputHandles 資料`);
+          // 提供默認值
+          parameters.inputHandles = {
+            data: ['output0']
+          };
         }
         break;
       case 'extract_data':
@@ -28659,6 +28719,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   const initAttempts = useRef$6(0);
   const nodeId = id || "unknown";
   const isUpdating = useRef$6(false);
+  const isInitialized = useRef$6(false);
   const handleHeight = 40;
   const getNodeHeight = useCallback$8(() => {
     const headerHeight = 50;
@@ -28692,7 +28753,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     return labels;
   }, [data.node_input]);
   useEffect$9(() => {
-    if (isUpdating.current) return;
+    if (isUpdating.current || isInitialized.current) return;
     isUpdating.current = true;
     initAttempts.current += 1;
     console.log(
@@ -28792,6 +28853,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       inputHandles: data.inputHandles || [],
       labels: initialLabels
     });
+    isInitialized.current = true;
     const updateTimes = [0, 50, 150, 300, 600, 1e3, 1500];
     updateTimes.forEach((delay) => {
       setTimeout(() => {
@@ -28833,6 +28895,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     const newInputId = `output${newIndex}`;
     const newInputs = [...inputs, { id: newInputId }];
     console.log(`新增 handle (${nodeId}):`, newInputId);
+    const currentLabels = { ...handleLabels };
     setInputs(newInputs);
     if (data.node_input) {
       data.node_input[newInputId] = {
@@ -28854,6 +28917,22 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     if (data.parameters && data.parameters.inputHandles) {
       data.parameters.inputHandles.data = newInputs.map((h) => h.id);
     }
+    if (data.updateNodeData) {
+      try {
+        data.updateNodeData("inputHandles", newInputs);
+        data.updateNodeData("node_input", data.node_input);
+        console.log(`已同步更新節點數據: inputHandles 和 node_input`);
+      } catch (err) {
+        console.warn("同步更新節點數據時出錯:", err);
+      }
+    }
+    setTimeout(() => {
+      setHandleLabels((prevLabels) => {
+        const mergedLabels = { ...currentLabels, ...prevLabels };
+        console.log("合併後的標籤:", mergedLabels);
+        return mergedLabels;
+      });
+    }, 0);
     if (data.onAddOutput) {
       try {
         data.onAddOutput(newInputs);
@@ -28863,11 +28942,13 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     } else {
       console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
     }
-  }, [inputs, data, nodeId]);
+  }, [inputs, data, nodeId, handleLabels]);
   const handleDeleteInput = useCallback$8(
     (handleId) => {
       const newInputs = inputs.filter((input) => input.id !== handleId);
       console.log(`刪除 handle (${nodeId}):`, handleId);
+      const currentLabels = { ...handleLabels };
+      delete currentLabels[handleId];
       setInputs(newInputs);
       if (data.node_input) {
         const updatedNodeInput = { ...data.node_input };
@@ -28884,11 +28965,18 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       if (data.parameters && data.parameters.inputHandles) {
         data.parameters.inputHandles.data = newInputs.map((h) => h.id);
       }
-      setHandleLabels((prev) => {
-        const updated = { ...prev };
-        delete updated[handleId];
-        return updated;
-      });
+      setHandleLabels(currentLabels);
+      if (data.updateNodeData) {
+        try {
+          data.updateNodeData("inputHandles", newInputs);
+          data.updateNodeData("node_input", data.node_input);
+          console.log(
+            `已同步更新節點數據: 刪除 ${handleId} 後的 inputHandles 和 node_input`
+          );
+        } catch (err) {
+          console.warn("同步更新節點數據時出錯:", err);
+        }
+      }
       if (typeof window !== "undefined" && window.deleteEdgesByHandle) {
         window.deleteEdgesByHandle(nodeId, handleId);
       }
@@ -28899,48 +28987,43 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           console.warn(`調用 onRemoveHandle 時出錯:`, err);
         }
       }
-      if (data.updateNodeData) {
-        try {
-          data.updateNodeData("inputHandles", newInputs);
-          data.updateNodeData("node_input", data.node_input);
-        } catch (err) {
-          console.warn("更新節點數據時出錯:", err);
-        }
-      }
     },
-    [inputs, data, nodeId]
+    [inputs, data, nodeId, handleLabels]
   );
   const handleLabelChange = useCallback$8(
     (handleId, newLabel) => {
+      console.log(`標籤變更: ${handleId} -> ${newLabel}`);
       setHandleLabels((prev) => {
         if (prev[handleId] === newLabel) return prev;
-        if (data.node_input) {
-          Object.keys(data.node_input).forEach((key) => {
-            const baseKey = processHandleId(key);
-            if (baseKey === handleId) {
-              data.node_input[key].return_name = newLabel;
-              data.node_input[key].has_return_name = true;
-            }
-          });
-          const baseHandleExists = Object.keys(data.node_input).some(
-            (key) => processHandleId(key) === handleId
-          );
-          if (!baseHandleExists) {
-            data.node_input[handleId] = {
-              node_id: "",
-              output_name: "",
-              type: "string",
-              data: "",
-              is_empty: true,
-              return_name: newLabel,
-              has_return_name: true
-              // 標記為有 return_name
-            };
-          }
-        }
-        console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
-        return { ...prev, [handleId]: newLabel };
+        const updatedLabels = { ...prev, [handleId]: newLabel };
+        console.log("更新標籤狀態:", updatedLabels);
+        return updatedLabels;
       });
+      if (data.node_input) {
+        Object.keys(data.node_input).forEach((key) => {
+          const baseKey = processHandleId(key);
+          if (baseKey === handleId) {
+            data.node_input[key].return_name = newLabel;
+            data.node_input[key].has_return_name = true;
+          }
+        });
+        const baseHandleExists = Object.keys(data.node_input).some(
+          (key) => processHandleId(key) === handleId
+        );
+        if (!baseHandleExists) {
+          data.node_input[handleId] = {
+            node_id: "",
+            output_name: "",
+            type: "string",
+            data: "",
+            is_empty: true,
+            return_name: newLabel,
+            has_return_name: true
+            // 標記為有 return_name
+          };
+        }
+      }
+      console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
       if (data.updateNodeData && data.node_input) {
         try {
           const updatedNodeInput = JSON.parse(JSON.stringify(data.node_input));
@@ -29036,7 +29119,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
                         height: "30px",
                         lineHeight: "28px",
                         fontSize: "14px",
-                        width: "190px"
+                        width: "210px"
                         // 調整寬度為刪除按鈕留空間
                       }
                     }
@@ -29329,17 +29412,17 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Browser Extension input" })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-2", children: [
         items.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
-            className: "mb-4 last:mb-2 relative",
+            className: "mb-4 last:mb-2 relative border border-gray-200 bg-gray-50 rounded p-2",
             children: [
               items.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
                 {
                   onClick: () => handleDeleteItem(idx),
-                  className: "absolute top-0 right-0 text-gray-400 hover:text-teal-500 text-sm p-1 w-6 h-6 flex items-center justify-center z-10",
+                  className: "absolute top-1 right-0 text-gray-400 hover:text-teal-500 text-sm p-1 w-6 h-6 flex items-center justify-center z-10",
                   title: "刪除此項目",
                   style: { fontSize: "14px" },
                   children: "✕"
@@ -29372,8 +29455,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
                 ) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-12 h-5" })
               ] }),
-              uploadError && activeItemRef.current === idx && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-500 mt-1 mb-2", children: uploadError }),
-              idx < items.length - 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200 my-3" })
+              uploadError && activeItemRef.current === idx && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-500 mt-1 mb-2", children: uploadError })
             ]
           },
           idx
