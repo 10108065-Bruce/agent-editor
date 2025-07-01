@@ -23166,14 +23166,11 @@ function useFlowNodes() {
           return;
         }
       }
-      console.log(targetNode);
       if (targetNode && targetNode.type === "qoca_aim") {
         console.log("目標是 QOCA AIM 節點，檢查連線限制");
         const existingEdges = edges.filter((edge) => {
-          console.log(edge);
           return edge.target === targetNodeId && edge.targetHandle === "input";
         });
-        console.log(existingEdges);
         if (existingEdges.length > 0) {
           console.log(`QOCA AIM 節點已有輸入連線，拒絕新連線`);
           if (typeof window !== "undefined" && window.notify) {
@@ -23565,7 +23562,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "10e6740e07d9c270728336f9c0e66276e2b6b9e1", "VITE_APP_BUILD_TIME": "2025-07-01T03:49:03.945Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.6"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "66300ebc1516ae565172cf296ed2f8f2072921be", "VITE_APP_BUILD_TIME": "2025-07-01T04:16:35.477Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.7"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -27247,7 +27244,7 @@ class WorkflowDataConverter {
         // 確保正確讀取所有參數
         const nodeData = {
           ...baseData,
-          selectedAim: node.parameters?.aim_ml?.data || '',
+          selectedAim: node.parameters?.aim_ml_id?.data || '',
           trainingId: node.parameters?.training_id?.data || 0,
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
@@ -27657,11 +27654,11 @@ class WorkflowDataConverter {
       case 'aim_ml': {
         // QOCA AIM 節點參數轉換
         // aim_ml 參數
-        if (node.data.selectedAim || node.data.aim_ml) {
+        if (node.data.selectedAim || node.data.aim_ml_id) {
           const aimValue =
-            node.data.selectedAim || node.data.aim_ml?.data || '';
+            node.data.selectedAim || node.data.aim_ml_id?.data || '';
           if (aimValue) {
-            parameters.aim_ml = { data: aimValue };
+            parameters.aim_ml_id = { data: aimValue };
           }
         }
 
@@ -27931,8 +27928,6 @@ class AIMService {
                 console.warn(`AIM模型 ${index} 無效，跳過該模型`);
                 return null; // 標記為無效，稍後過濾掉
               }
-              // 把 aim_ml_id 改為 aim_ml
-              model.aim_ml = model.aim_ml_id || model.aim_ml;
 
               // 確保模型有必要的屬性
               if (!model.aim_ml_id) {
@@ -27947,7 +27942,7 @@ class AIMService {
 
               // training_id 和 simulator_id 可以是可選的
               return {
-                aim_ml: model.aim_ml_id,
+                aim_ml_id: model.aim_ml_id,
                 training_id: model.training_id || 0,
                 simulator_id: model.simulator_id || '',
                 model_name: model.model_name
@@ -28172,14 +28167,14 @@ class AIMService {
 
           // 記錄每個模型的關鍵屬性，幫助診斷
           console.log(`處理AIM模型 ${index}:`, {
-            aim_ml: model.aim_ml_id,
+            aim_ml_id: model.aim_ml_id,
             model_name: model.model_name,
             training_id: model.training_id,
             simulator_id: model.simulator_id
           });
 
           // 使用 aim_ml_id 作為 value，model_name 作為 label
-          const modelValue = model.aim_ml;
+          const modelValue = model.aim_ml_id;
           const modelLabel = model.model_name;
 
           // 如果缺少必要欄位，跳過該模型
@@ -31442,7 +31437,7 @@ const ExtractDataNode$1 = memo$1(ExtractDataNode);
 const React$6 = await importShared('react');
 const {memo,useState: useState$7,useEffect: useEffect$3,useCallback: useCallback$2,useRef: useRef$2} = React$6;
 const QOCAAimNode = ({ data, isConnectable }) => {
-  const [selectedAim, setSelectedAim] = useState$7(data?.aim_ml?.data || "");
+  const [selectedAim, setSelectedAim] = useState$7(data?.aim_ml_id?.data || "");
   const [trainingId, setTrainingId] = useState$7(data?.training_id?.data || 0);
   const [simulatorId, setSimulatorId] = useState$7(
     data?.simulator_id?.data || ""
@@ -31533,7 +31528,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       console.log(`updateParentState 被調用: ${key}`, value);
       if (data && typeof data.updateNodeData === "function") {
         const propertyMap = {
-          aim_ml: "selectedAim",
+          aim_ml_id: "selectedAim",
           training_id: "trainingId",
           simulator_id: "simulatorId",
           enable_explain: "enableExplain",
@@ -31630,7 +31625,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         );
         console.log("選中的模型:", selectedModel);
         if (selectedModel) {
-          updateParentState("aim_ml", { data: aimValue });
+          updateParentState("aim_ml_id", { data: aimValue });
           updateParentState("training_id", {
             data: selectedModel.training_id || 0
           });
