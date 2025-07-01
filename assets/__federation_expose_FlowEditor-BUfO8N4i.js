@@ -21678,6 +21678,38 @@ const calculateNodeDimensions = (node) => {
       };
     }
 
+    case 'qoca_aim': {
+      // QOCA AIM 節點尺寸計算
+      const baseAimWidth = 320; // w-80 = 320px
+      const baseAimHeight = 180; // 基礎高度：header + AIM選擇 + 開關
+
+      // 檢查是否啟用解釋功能
+      const enableExplain = node.data?.enable_explain?.data ?? true;
+
+      if (!enableExplain) {
+        // 解釋功能關閉時：只有基礎內容
+        return {
+          width: baseAimWidth,
+          height: baseAimHeight
+        };
+      }
+
+      // 解釋功能開啟時：需要額外空間給 LLM 選擇和 Prompt 輸入
+      const llmSectionHeight = 60; // LLM 下拉選單
+
+      // 如果有 prompt 文字，根據長度動態調整高度
+      const promptText = node.data?.prompt?.data || '';
+      const estimatedPromptHeight = Math.max(
+        120,
+        Math.min(200, 120 + Math.floor(promptText.length / 60) * 20)
+      );
+
+      return {
+        width: baseAimWidth,
+        height: baseAimHeight + llmSectionHeight + estimatedPromptHeight
+      };
+    }
+
     case 'line_webhook_input':
       return {
         width: 320, // Line 節點較寬
@@ -21762,11 +21794,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 140, // 增加垂直間距，考慮到 ExtractDataNode 的較大尺寸
+        nodesep: 160, // 增加垂直間距，考慮到 QOCA AIM 和 ExtractDataNode 的較大尺寸
         edgesep: 90, // 增加邊緣間距
-        ranksep: 220, // 大幅增加水平間距，適應較寬的節點
-        marginx: 140,
-        marginy: 140,
+        ranksep: 240, // 大幅增加水平間距，適應較寬的節點
+        marginx: 160,
+        marginy: 160,
         acyclicer: 'greedy', // 使用貪婪算法減少循環
         ranker: 'tight-tree' // 緊密樹狀排列
       };
@@ -21775,11 +21807,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UR', // 上右對齊
-        nodesep: 140,
+        nodesep: 160,
         edgesep: 90,
-        ranksep: 220,
-        marginx: 140,
-        marginy: 140,
+        ranksep: 240,
+        marginx: 160,
+        marginy: 160,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21788,11 +21820,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 170, // 增加水平間距，適應 ExtractDataNode 的較大寬度
-        edgesep: 70,
-        ranksep: 160, // 增加垂直間距，適應動態高度的節點
-        marginx: 140,
-        marginy: 120,
+        nodesep: 190, // 增加水平間距，適應 QOCA AIM 和 ExtractDataNode 的較大寬度
+        edgesep: 80,
+        ranksep: 180, // 增加垂直間距，適應動態高度的節點
+        marginx: 160,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21801,11 +21833,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'DL', // 下左對齊
-        nodesep: 170,
-        edgesep: 70,
-        ranksep: 160,
-        marginx: 140,
-        marginy: 120,
+        nodesep: 190,
+        edgesep: 80,
+        ranksep: 180,
+        marginx: 160,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21814,11 +21846,11 @@ const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL',
-        nodesep: 140,
-        edgesep: 70,
-        ranksep: 160,
-        marginx: 120,
-        marginy: 120,
+        nodesep: 160,
+        edgesep: 80,
+        ranksep: 180,
+        marginx: 140,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -21866,14 +21898,17 @@ const estimateLayoutCanvasSize = (nodes, direction = 'TB') => {
   const canvasSpace = calculateCanvasSpace(nodes);
   const layoutConfig = getLayoutConfig(direction);
 
-  // 檢查是否有大尺寸節點（如 ExtractDataNode）
+  // 檢查是否有大尺寸節點（如 ExtractDataNode 或 QOCA AIM）
   const hasLargeNodes = nodes.some((node) => {
     const dimensions = calculateNodeDimensions(node);
     return dimensions.width > 300 || dimensions.height > 300;
   });
 
-  // 如果有大尺寸節點，增加額外的緩衝空間
-  const sizeFactor = hasLargeNodes ? 1.3 : 1.0;
+  // 檢查是否有 QOCA AIM 節點（需要特殊處理動態尺寸）
+  const hasQocaAimNodes = nodes.some((node) => node.type === 'qocaAim');
+
+  // 如果有大尺寸節點或 QOCA AIM 節點，增加額外的緩衝空間
+  const sizeFactor = hasLargeNodes || hasQocaAimNodes ? 1.4 : 1.0;
 
   // 基於方向計算預估尺寸
   if (direction === 'LR' || direction === 'RL') {
@@ -22000,6 +22035,9 @@ const analyzeConnectionComplexity = (nodes, edges) => {
     return dimensions.width > 300 || dimensions.height > 300;
   });
 
+  // 檢查是否有 QOCA AIM 節點
+  const hasQocaAimNodes = nodes.some((node) => node.type === 'qocaAim');
+
   // 計算每個方向的潛在交叉數量
   const directions = ['TB', 'LR', 'BT', 'RL'];
 
@@ -22058,19 +22096,26 @@ const analyzeConnectionComplexity = (nodes, edges) => {
     analysis.recommendations.push('大型流程：建議分階段排版或使用分層佈局');
   }
 
-  // 針對大尺寸節點的特殊建議
-  if (hasLargeNodes) {
+  // 針對大尺寸節點和 QOCA AIM 節點的特殊建議
+  if (hasLargeNodes || hasQocaAimNodes) {
     analysis.recommendations.push(
       '包含大尺寸節點：建議使用 TB 或 BT 方向以獲得最佳顯示效果'
     );
 
-    // 如果有大尺寸節點，稍微傾向於垂直佈局
+    // 如果有大尺寸節點或 QOCA AIM 節點，稍微傾向於垂直佈局
     if (
       analysis.crossingPotential['TB'] <=
       analysis.crossingPotential['LR'] + 1
     ) {
       analysis.recommendedDirection = 'TB';
     }
+  }
+
+  // 針對 QOCA AIM 節點的特殊建議
+  if (hasQocaAimNodes) {
+    analysis.recommendations.push(
+      'QOCA AIM 節點：動態尺寸節點，建議預留額外空間'
+    );
   }
 
   const maxCrossing = Math.max(...Object.values(analysis.crossingPotential));
@@ -23121,6 +23166,26 @@ function useFlowNodes() {
           return;
         }
       }
+      console.log(targetNode);
+      if (targetNode && targetNode.type === "qoca_aim") {
+        console.log("目標是 QOCA AIM 節點，檢查連線限制");
+        const existingEdges = edges.filter((edge) => {
+          console.log(edge);
+          return edge.target === targetNodeId && edge.targetHandle === "input";
+        });
+        console.log(existingEdges);
+        if (existingEdges.length > 0) {
+          console.log(`QOCA AIM 節點已有輸入連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `QOCA AIM 節點只能有一個輸入連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
       if (targetNode && targetNode.type === "knowledgeRetrieval") {
         console.log("目標是知識檢索節點，檢查連線限制");
         const existingEdges = edges.filter(
@@ -23500,7 +23565,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "be439cc8790e405f48445ad1c16d4b7e6ccd5119", "VITE_APP_BUILD_TIME": "2025-06-30T07:49:54.322Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.4"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "d3b76d0f8c21ff416811e941cfcc9a97504f4a48", "VITE_APP_BUILD_TIME": "2025-07-01T03:14:08.628Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.5"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24750,6 +24815,9 @@ class WorkflowMappingService {
     const isBrowserExtensionOutput =
       targetNode.type === 'browserExtensionOutput';
 
+    // 在現有的節點類型檢查之後添加：
+    const isQOCAAimNode = targetNode && targetNode.type === 'qoca_aim';
+
     // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
     if (
       isBrowserExtensionOutput &&
@@ -25091,7 +25159,24 @@ class WorkflowMappingService {
             `Extract Data節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
           );
         });
+      } else if (isQOCAAimNode && targetHandle === 'input') {
+        // 處理 QOCA AIM 節點的輸入
+        targetEdges.forEach((edge) => {
+          const inputKey = 'input_data';
+
+          // 添加到 nodeInput，只儲存 node_id，不帶其他參數
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+
+          console.log(
+            `QOCA AIM 節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
+          );
+        });
       }
+
       // 其他節點類型的處理...
       else {
         // 處理多個連接到同一 handle 的情況
@@ -25181,8 +25266,8 @@ class WorkflowMappingService {
             type: 'string'
           };
         } else {
-          // 當解釋功能關閉時，只有基本輸出
-          nodeOutput.output = {
+          // 當解釋功能關閉時，只有text輸出
+          nodeOutput.text = {
             node_id: node.id,
             type: 'string'
           };
@@ -26769,7 +26854,7 @@ class WorkflowDataConverter {
       const isKnowledgeNode = node.operator === 'knowledge_retrieval';
       const isMessageNode = node.operator === 'line_send_message';
       const isExtractDataNode = node.operator === 'extract_data';
-
+      const isQOCAAimNode = node.operator === 'qoca_aim';
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
@@ -26841,6 +26926,11 @@ class WorkflowDataConverter {
               inputKey === 'input'
             ) {
               targetHandle = 'context-input';
+            }
+          } else if (isQOCAAimNode) {
+            // 對於 QOCA AIM 節點，處理輸入連接
+            if (inputKey === 'input_data' || inputKey === 'input') {
+              targetHandle = 'input';
             }
           }
 
@@ -27158,7 +27248,7 @@ class WorkflowDataConverter {
         // 確保正確讀取所有參數
         const nodeData = {
           ...baseData,
-          selectedAim: node.parameters?.aim_ml_id?.data || '',
+          selectedAim: node.parameters?.aim_ml?.data || '',
           trainingId: node.parameters?.training_id?.data || 0,
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
@@ -27568,12 +27658,12 @@ class WorkflowDataConverter {
       case 'qocaAim':
       case 'qoca_aim': {
         // QOCA AIM 節點參數轉換
-        // aim_ml_id 參數
-        if (node.data.selectedAim || node.data.aim_ml_id) {
+        // aim_ml 參數
+        if (node.data.selectedAim || node.data.aim_ml) {
           const aimValue =
-            node.data.selectedAim || node.data.aim_ml_id?.data || '';
+            node.data.selectedAim || node.data.aim_ml?.data || '';
           if (aimValue) {
-            parameters.aim_ml_id = { data: aimValue };
+            parameters.aim_ml = { data: aimValue };
           }
         }
 
@@ -27843,6 +27933,8 @@ class AIMService {
                 console.warn(`AIM模型 ${index} 無效，跳過該模型`);
                 return null; // 標記為無效，稍後過濾掉
               }
+              // 把 aim_ml_id 改為 aim_ml
+              model.aim_ml = model.aim_ml_id || model.aim_ml;
 
               // 確保模型有必要的屬性
               if (!model.aim_ml_id) {
@@ -27857,7 +27949,7 @@ class AIMService {
 
               // training_id 和 simulator_id 可以是可選的
               return {
-                aim_ml_id: model.aim_ml_id,
+                aim_ml: model.aim_ml_id,
                 training_id: model.training_id || 0,
                 simulator_id: model.simulator_id || '',
                 model_name: model.model_name
@@ -28082,14 +28174,14 @@ class AIMService {
 
           // 記錄每個模型的關鍵屬性，幫助診斷
           console.log(`處理AIM模型 ${index}:`, {
-            aim_ml_id: model.aim_ml_id,
+            aim_ml: model.aim_ml_id,
             model_name: model.model_name,
             training_id: model.training_id,
             simulator_id: model.simulator_id
           });
 
           // 使用 aim_ml_id 作為 value，model_name 作為 label
-          const modelValue = model.aim_ml_id;
+          const modelValue = model.aim_ml;
           const modelLabel = model.model_name;
 
           // 如果缺少必要欄位，跳過該模型
@@ -31352,7 +31444,7 @@ const ExtractDataNode$1 = memo$1(ExtractDataNode);
 const React$6 = await importShared('react');
 const {memo,useState: useState$7,useEffect: useEffect$3,useCallback: useCallback$2,useRef: useRef$2} = React$6;
 const QOCAAimNode = ({ data, isConnectable }) => {
-  const [selectedAim, setSelectedAim] = useState$7(data?.aim_ml_id?.data || "");
+  const [selectedAim, setSelectedAim] = useState$7(data?.aim_ml?.data || "");
   const [trainingId, setTrainingId] = useState$7(data?.training_id?.data || 0);
   const [simulatorId, setSimulatorId] = useState$7(
     data?.simulator_id?.data || ""
@@ -31437,13 +31529,13 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     loadAimOptions();
     loadLlmVisionOptions();
   }, [loadAimOptions, loadLlmVisionOptions]);
-  const outputHandles = enableExplain ? ["text", "images"] : [];
+  const outputHandles = enableExplain ? ["text", "images"] : ["text"];
   const updateParentState = useCallback$2(
     (key, value) => {
       console.log(`updateParentState 被調用: ${key}`, value);
       if (data && typeof data.updateNodeData === "function") {
         const propertyMap = {
-          aim_ml_id: "selectedAim",
+          aim_ml: "selectedAim",
           training_id: "trainingId",
           simulator_id: "simulatorId",
           enable_explain: "enableExplain",
@@ -31540,7 +31632,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         );
         console.log("選中的模型:", selectedModel);
         if (selectedModel) {
-          updateParentState("aim_ml_id", { data: aimValue });
+          updateParentState("aim_ml", { data: aimValue });
           updateParentState("training_id", {
             data: selectedModel.training_id || 0
           });
@@ -31616,6 +31708,24 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     return colors[handleType] || "#00ced1";
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Handle$1,
+      {
+        type: "target",
+        position: Position.Left,
+        id: "input",
+        style: {
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          left: "-6px",
+          top: "50%",
+          transform: "translateY(-50%)"
+        },
+        isConnectable
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-80", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 rounded-t-lg p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -31783,26 +31893,33 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       },
       handleType
     )) }),
-    enableExplain && outputHandles.map((handleType, index) => {
+    outputHandles.map((handleType, index) => {
       const labelWidth = calculateLabelWidth(handleType);
       const totalWidth = labelWidth + 8;
+      const style = enableExplain ? {
+        background: "transparent",
+        border: "none",
+        width: `${totalWidth}px`,
+        height: "32px",
+        right: `-${totalWidth + 6}px`,
+        top: `calc(50% + ${(index - (outputHandles.length - 1) / 2) * 40}px)`,
+        transform: "translateY(-50%)",
+        cursor: "crosshair",
+        zIndex: 10
+      } : {
+        background: "#e5e7eb",
+        border: "1px solid #D3D3D3",
+        width: "12px",
+        height: "12px",
+        right: "-6px"
+      };
       return /* @__PURE__ */ jsxRuntimeExports.jsx(
         Handle$1,
         {
           type: "source",
           position: Position.Right,
           id: handleType,
-          style: {
-            background: "transparent",
-            border: "none",
-            width: `${totalWidth}px`,
-            height: "32px",
-            right: `-${totalWidth + 6}px`,
-            top: `calc(50% + ${(index - (outputHandles.length - 1) / 2) * 40}px)`,
-            transform: "translateY(-50%)",
-            cursor: "crosshair",
-            zIndex: 10
-          },
+          style,
           isConnectable
         },
         handleType
