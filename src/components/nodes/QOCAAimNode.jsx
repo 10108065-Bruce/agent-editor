@@ -6,7 +6,7 @@ import { aimService } from '../../services/index';
 
 const QOCAAimNode = ({ data, isConnectable }) => {
   // 狀態管理 - 根據新的參數結構
-  const [selectedAim, setSelectedAim] = useState(data?.aim_ml_id?.data || '');
+  const [selectedAim, setSelectedAim] = useState(data?.aim_ml?.data || '');
   const [trainingId, setTrainingId] = useState(data?.training_id?.data || 0);
   const [simulatorId, setSimulatorId] = useState(
     data?.simulator_id?.data || ''
@@ -113,7 +113,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   }, [loadAimOptions, loadLlmVisionOptions]);
 
   // 輸出類型（當解釋功能開啟時）
-  const outputHandles = enableExplain ? ['text', 'images'] : [];
+  const outputHandles = enableExplain ? ['text', 'images'] : ['text'];
 
   // 統一更新父組件狀態的函數
   const updateParentState = useCallback(
@@ -122,7 +122,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       if (data && typeof data.updateNodeData === 'function') {
         // 映射到正確的屬性名
         const propertyMap = {
-          aim_ml_id: 'selectedAim',
+          aim_ml: 'selectedAim',
           training_id: 'trainingId',
           simulator_id: 'simulatorId',
           enable_explain: 'enableExplain',
@@ -245,7 +245,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
 
         if (selectedModel) {
           // 批量更新
-          updateParentState('aim_ml_id', { data: aimValue });
+          updateParentState('aim_ml', { data: aimValue });
           updateParentState('training_id', {
             data: selectedModel.training_id || 0
           });
@@ -345,6 +345,23 @@ const QOCAAimNode = ({ data, isConnectable }) => {
 
   return (
     <>
+      {/* 左側輸入 Handle */}
+      <Handle
+        type='target'
+        position={Position.Left}
+        id='input'
+        style={{
+          background: '#e5e7eb',
+          border: '1px solid #D3D3D3',
+          width: '12px',
+          height: '12px',
+          left: '-6px',
+          top: '50%',
+          transform: 'translateY(-50%)'
+        }}
+        isConnectable={isConnectable}
+      />
+
       <div className='rounded-lg shadow-md overflow-hidden w-80'>
         {/* Header section */}
         <div className='bg-gray-100 rounded-t-lg p-4 overflow-hidden'>
@@ -465,26 +482,6 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                     </svg>
                   </div>
                 </div>
-                {/* 顯示選中模型的詳細資訊 */}
-                {/* {llmId && llmVisionOptions.length > 0 && (
-                  <div className='mt-2 text-xs text-gray-500'>
-                    {(() => {
-                      const selectedOption = llmVisionOptions.find(
-                        (option) => option.value.toString() === llmId.toString()
-                      );
-                      return selectedOption ? (
-                        <div>
-                          {selectedOption.description && (
-                            <div>描述: {selectedOption.description}</div>
-                          )}
-                          {selectedOption.provider && (
-                            <div>提供商: {selectedOption.provider}</div>
-                          )}
-                        </div>
-                      ) : null;
-                    })()}
-                  </div>
-                )} */}
               </div>
 
               {/* Prompt 輸入 */}
@@ -505,6 +502,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       </div>
 
       {/* 右側輸出標籤區域 - 只在解釋功能開啟時顯示 */}
+
       {enableExplain && (
         <div className='absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 ml-2 space-y-2 pointer-events-none'>
           {outputHandles.map((handleType) => (
@@ -520,6 +518,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                   transform: 'translateX(-6px)'
                 }}
               />
+
               <div
                 className='w-4 h-0.5'
                 style={{
@@ -527,6 +526,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                   transform: 'translateX(-6px)'
                 }}
               />
+
               <span
                 className='inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none'
                 style={{
@@ -541,34 +541,41 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       )}
 
       {/* ReactFlow Handle - 只在解釋功能開啟時顯示 */}
-      {enableExplain &&
-        outputHandles.map((handleType, index) => {
-          const labelWidth = calculateLabelWidth(handleType);
-          const totalWidth = labelWidth + 8;
-
-          return (
-            <Handle
-              key={handleType}
-              type='source'
-              position={Position.Right}
-              id={handleType}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                width: `${totalWidth}px`,
-                height: '32px',
-                right: `-${totalWidth + 6}px`,
-                top: `calc(50% + ${
-                  (index - (outputHandles.length - 1) / 2) * 40
-                }px)`,
-                transform: 'translateY(-50%)',
-                cursor: 'crosshair',
-                zIndex: 10
-              }}
-              isConnectable={isConnectable}
-            />
-          );
-        })}
+      {outputHandles.map((handleType, index) => {
+        const labelWidth = calculateLabelWidth(handleType);
+        const totalWidth = labelWidth + 8;
+        const style = enableExplain
+          ? {
+              background: 'transparent',
+              border: 'none',
+              width: `${totalWidth}px`,
+              height: '32px',
+              right: `-${totalWidth + 6}px`,
+              top: `calc(50% + ${
+                (index - (outputHandles.length - 1) / 2) * 40
+              }px)`,
+              transform: 'translateY(-50%)',
+              cursor: 'crosshair',
+              zIndex: 10
+            }
+          : {
+              background: '#e5e7eb',
+              border: '1px solid #D3D3D3',
+              width: '12px',
+              height: '12px',
+              right: '-6px'
+            };
+        return (
+          <Handle
+            key={handleType}
+            type='source'
+            position={Position.Right}
+            id={handleType}
+            style={style}
+            isConnectable={isConnectable}
+          />
+        );
+      })}
     </>
   );
 };

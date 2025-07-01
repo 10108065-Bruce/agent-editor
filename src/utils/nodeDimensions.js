@@ -65,6 +65,38 @@ export const calculateNodeDimensions = (node) => {
       };
     }
 
+    case 'qoca_aim': {
+      // QOCA AIM 節點尺寸計算
+      const baseAimWidth = 320; // w-80 = 320px
+      const baseAimHeight = 180; // 基礎高度：header + AIM選擇 + 開關
+
+      // 檢查是否啟用解釋功能
+      const enableExplain = node.data?.enable_explain?.data ?? true;
+
+      if (!enableExplain) {
+        // 解釋功能關閉時：只有基礎內容
+        return {
+          width: baseAimWidth,
+          height: baseAimHeight
+        };
+      }
+
+      // 解釋功能開啟時：需要額外空間給 LLM 選擇和 Prompt 輸入
+      const llmSectionHeight = 60; // LLM 下拉選單
+
+      // 如果有 prompt 文字，根據長度動態調整高度
+      const promptText = node.data?.prompt?.data || '';
+      const estimatedPromptHeight = Math.max(
+        120,
+        Math.min(200, 120 + Math.floor(promptText.length / 60) * 20)
+      );
+
+      return {
+        width: baseAimWidth,
+        height: baseAimHeight + llmSectionHeight + estimatedPromptHeight
+      };
+    }
+
     case 'line_webhook_input':
       return {
         width: 320, // Line 節點較寬
@@ -140,7 +172,8 @@ export const getNodeDimensionsMap = () => {
     aiCustomInput: { width: 256, height: 220 },
     browserExtensionInput: { width: 256, height: 320 },
     browserExtensionOutput: { width: 256, height: 280 },
-    extract_data: { width: 384, height: 340 }, // 新增：ExtractDataNode 的基本尺寸
+    extract_data: { width: 384, height: 340 }, // ExtractDataNode 的基本尺寸
+    qocaAim: { width: 320, height: 360 }, // QOCA AIM 節點的基本尺寸（啟用解釋時）
     ifElse: { width: 256, height: 180 },
     knowledgeRetrieval: { width: 256, height: 160 },
     end: { width: 256, height: 140 },
@@ -173,11 +206,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 140, // 增加垂直間距，考慮到 ExtractDataNode 的較大尺寸
+        nodesep: 160, // 增加垂直間距，考慮到 QOCA AIM 和 ExtractDataNode 的較大尺寸
         edgesep: 90, // 增加邊緣間距
-        ranksep: 220, // 大幅增加水平間距，適應較寬的節點
-        marginx: 140,
-        marginy: 140,
+        ranksep: 240, // 大幅增加水平間距，適應較寬的節點
+        marginx: 160,
+        marginy: 160,
         acyclicer: 'greedy', // 使用貪婪算法減少循環
         ranker: 'tight-tree' // 緊密樹狀排列
       };
@@ -186,11 +219,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UR', // 上右對齊
-        nodesep: 140,
+        nodesep: 160,
         edgesep: 90,
-        ranksep: 220,
-        marginx: 140,
-        marginy: 140,
+        ranksep: 240,
+        marginx: 160,
+        marginy: 160,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -199,11 +232,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL', // 上左對齊
-        nodesep: 170, // 增加水平間距，適應 ExtractDataNode 的較大寬度
-        edgesep: 70,
-        ranksep: 160, // 增加垂直間距，適應動態高度的節點
-        marginx: 140,
-        marginy: 120,
+        nodesep: 190, // 增加水平間距，適應 QOCA AIM 和 ExtractDataNode 的較大寬度
+        edgesep: 80,
+        ranksep: 180, // 增加垂直間距，適應動態高度的節點
+        marginx: 160,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -212,11 +245,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'DL', // 下左對齊
-        nodesep: 170,
-        edgesep: 70,
-        ranksep: 160,
-        marginx: 140,
-        marginy: 120,
+        nodesep: 190,
+        edgesep: 80,
+        ranksep: 180,
+        marginx: 160,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -225,11 +258,11 @@ export const getLayoutConfig = (direction) => {
       return {
         ...baseConfig,
         align: 'UL',
-        nodesep: 140,
-        edgesep: 70,
-        ranksep: 160,
-        marginx: 120,
-        marginy: 120,
+        nodesep: 160,
+        edgesep: 80,
+        ranksep: 180,
+        marginx: 140,
+        marginy: 140,
         acyclicer: 'greedy',
         ranker: 'tight-tree'
       };
@@ -277,14 +310,17 @@ export const estimateLayoutCanvasSize = (nodes, direction = 'TB') => {
   const canvasSpace = calculateCanvasSpace(nodes);
   const layoutConfig = getLayoutConfig(direction);
 
-  // 檢查是否有大尺寸節點（如 ExtractDataNode）
+  // 檢查是否有大尺寸節點（如 ExtractDataNode 或 QOCA AIM）
   const hasLargeNodes = nodes.some((node) => {
     const dimensions = calculateNodeDimensions(node);
     return dimensions.width > 300 || dimensions.height > 300;
   });
 
-  // 如果有大尺寸節點，增加額外的緩衝空間
-  const sizeFactor = hasLargeNodes ? 1.3 : 1.0;
+  // 檢查是否有 QOCA AIM 節點（需要特殊處理動態尺寸）
+  const hasQocaAimNodes = nodes.some((node) => node.type === 'qocaAim');
+
+  // 如果有大尺寸節點或 QOCA AIM 節點，增加額外的緩衝空間
+  const sizeFactor = hasLargeNodes || hasQocaAimNodes ? 1.4 : 1.0;
 
   // 基於方向計算預估尺寸
   if (direction === 'LR' || direction === 'RL') {
@@ -411,6 +447,9 @@ export const analyzeConnectionComplexity = (nodes, edges) => {
     return dimensions.width > 300 || dimensions.height > 300;
   });
 
+  // 檢查是否有 QOCA AIM 節點
+  const hasQocaAimNodes = nodes.some((node) => node.type === 'qocaAim');
+
   // 計算每個方向的潛在交叉數量
   const directions = ['TB', 'LR', 'BT', 'RL'];
 
@@ -469,19 +508,26 @@ export const analyzeConnectionComplexity = (nodes, edges) => {
     analysis.recommendations.push('大型流程：建議分階段排版或使用分層佈局');
   }
 
-  // 針對大尺寸節點的特殊建議
-  if (hasLargeNodes) {
+  // 針對大尺寸節點和 QOCA AIM 節點的特殊建議
+  if (hasLargeNodes || hasQocaAimNodes) {
     analysis.recommendations.push(
       '包含大尺寸節點：建議使用 TB 或 BT 方向以獲得最佳顯示效果'
     );
 
-    // 如果有大尺寸節點，稍微傾向於垂直佈局
+    // 如果有大尺寸節點或 QOCA AIM 節點，稍微傾向於垂直佈局
     if (
       analysis.crossingPotential['TB'] <=
       analysis.crossingPotential['LR'] + 1
     ) {
       analysis.recommendedDirection = 'TB';
     }
+  }
+
+  // 針對 QOCA AIM 節點的特殊建議
+  if (hasQocaAimNodes) {
+    analysis.recommendations.push(
+      'QOCA AIM 節點：動態尺寸節點，建議預留額外空間'
+    );
   }
 
   const maxCrossing = Math.max(...Object.values(analysis.crossingPotential));

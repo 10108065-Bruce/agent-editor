@@ -157,6 +157,9 @@ export class WorkflowMappingService {
     const isBrowserExtensionOutput =
       targetNode.type === 'browserExtensionOutput';
 
+    // 在現有的節點類型檢查之後添加：
+    const isQOCAAimNode = targetNode && targetNode.type === 'qoca_aim';
+
     // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
     if (
       isBrowserExtensionOutput &&
@@ -503,7 +506,24 @@ export class WorkflowMappingService {
             `Extract Data節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
           );
         });
+      } else if (isQOCAAimNode && targetHandle === 'input') {
+        // 處理 QOCA AIM 節點的輸入
+        targetEdges.forEach((edge) => {
+          const inputKey = 'input_data';
+
+          // 添加到 nodeInput，只儲存 node_id，不帶其他參數
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+
+          console.log(
+            `QOCA AIM 節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
+          );
+        });
       }
+
       // 其他節點類型的處理...
       else {
         // 處理多個連接到同一 handle 的情況
@@ -593,8 +613,8 @@ export class WorkflowMappingService {
             type: 'string'
           };
         } else {
-          // 當解釋功能關閉時，只有基本輸出
-          nodeOutput.output = {
+          // 當解釋功能關閉時，只有text輸出
+          nodeOutput.text = {
             node_id: node.id,
             type: 'string'
           };

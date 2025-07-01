@@ -106,7 +106,7 @@ export class WorkflowDataConverter {
       const isKnowledgeNode = node.operator === 'knowledge_retrieval';
       const isMessageNode = node.operator === 'line_send_message';
       const isExtractDataNode = node.operator === 'extract_data';
-
+      const isQOCAAimNode = node.operator === 'qoca_aim';
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
@@ -178,6 +178,11 @@ export class WorkflowDataConverter {
               inputKey === 'input'
             ) {
               targetHandle = 'context-input';
+            }
+          } else if (isQOCAAimNode) {
+            // 對於 QOCA AIM 節點，處理輸入連接
+            if (inputKey === 'input_data' || inputKey === 'input') {
+              targetHandle = 'input';
             }
           }
 
@@ -495,7 +500,7 @@ export class WorkflowDataConverter {
         // 確保正確讀取所有參數
         const nodeData = {
           ...baseData,
-          selectedAim: node.parameters?.aim_ml_id?.data || '',
+          selectedAim: node.parameters?.aim_ml?.data || '',
           trainingId: node.parameters?.training_id?.data || 0,
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
@@ -905,12 +910,12 @@ export class WorkflowDataConverter {
       case 'qocaAim':
       case 'qoca_aim': {
         // QOCA AIM 節點參數轉換
-        // aim_ml_id 參數
-        if (node.data.selectedAim || node.data.aim_ml_id) {
+        // aim_ml 參數
+        if (node.data.selectedAim || node.data.aim_ml) {
           const aimValue =
-            node.data.selectedAim || node.data.aim_ml_id?.data || '';
+            node.data.selectedAim || node.data.aim_ml?.data || '';
           if (aimValue) {
-            parameters.aim_ml_id = { data: aimValue };
+            parameters.aim_ml = { data: aimValue };
           }
         }
 

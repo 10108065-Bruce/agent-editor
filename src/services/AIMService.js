@@ -95,6 +95,8 @@ export class AIMService {
                 console.warn(`AIM模型 ${index} 無效，跳過該模型`);
                 return null; // 標記為無效，稍後過濾掉
               }
+              // 把 aim_ml_id 改為 aim_ml
+              model.aim_ml = model.aim_ml_id || model.aim_ml;
 
               // 確保模型有必要的屬性
               if (!model.aim_ml_id) {
@@ -109,7 +111,7 @@ export class AIMService {
 
               // training_id 和 simulator_id 可以是可選的
               return {
-                aim_ml_id: model.aim_ml_id,
+                aim_ml: model.aim_ml_id,
                 training_id: model.training_id || 0,
                 simulator_id: model.simulator_id || '',
                 model_name: model.model_name
@@ -334,14 +336,14 @@ export class AIMService {
 
           // 記錄每個模型的關鍵屬性，幫助診斷
           console.log(`處理AIM模型 ${index}:`, {
-            aim_ml_id: model.aim_ml_id,
+            aim_ml: model.aim_ml_id,
             model_name: model.model_name,
             training_id: model.training_id,
             simulator_id: model.simulator_id
           });
 
           // 使用 aim_ml_id 作為 value，model_name 作為 label
-          const modelValue = model.aim_ml_id;
+          const modelValue = model.aim_ml;
           const modelLabel = model.model_name;
 
           // 如果缺少必要欄位，跳過該模型
