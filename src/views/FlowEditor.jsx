@@ -460,7 +460,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'extract_data':
           handleAddExtractDataNode(nodePosition);
           break;
-        case 'qoca_aim':
+        case 'aim_ml':
           handleAddQOCAAimNode(nodePosition);
           break;
         default:

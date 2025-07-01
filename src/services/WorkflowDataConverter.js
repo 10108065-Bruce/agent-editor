@@ -106,7 +106,7 @@ export class WorkflowDataConverter {
       const isKnowledgeNode = node.operator === 'knowledge_retrieval';
       const isMessageNode = node.operator === 'line_send_message';
       const isExtractDataNode = node.operator === 'extract_data';
-      const isQOCAAimNode = node.operator === 'qoca_aim';
+      const isQOCAAimNode = node.operator === 'aim_ml';
       // 處理節點之間的連接
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
@@ -491,9 +491,9 @@ export class WorkflowDataConverter {
           ...baseData,
           outputText: node.parameters?.output_text?.data || ''
         };
-      case 'qoca_aim': {
+      case 'aim_ml': {
         console.log(
-          'transformNodeDataToReactFlow - qoca_aim 節點參數:',
+          'transformNodeDataToReactFlow - aim_ml 節點參數:',
           node.parameters
         );
 
@@ -907,8 +907,7 @@ export class WorkflowDataConverter {
           parameters.example = { data: '{"fasting_blood_sugar": ""}' };
         }
         break;
-      case 'qocaAim':
-      case 'qoca_aim': {
+      case 'aim_ml': {
         // QOCA AIM 節點參數轉換
         // aim_ml 參數
         if (node.data.selectedAim || node.data.aim_ml) {

@@ -29,7 +29,7 @@ const enhancedNodeTypes = {
   timer: withNodeSelection(TimerNode),
   line_send_message: withNodeSelection(LineMessageNode),
   extract_data: withNodeSelection(ExtractDataNode),
-  qoca_aim: withNodeSelection(QOCAAimNode)
+  aim_ml: withNodeSelection(QOCAAimNode)
 };
 
 export default enhancedNodeTypes;

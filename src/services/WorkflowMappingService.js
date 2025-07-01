@@ -27,7 +27,7 @@ export class WorkflowMappingService {
       message: 'line_send_message',
       extract_data: 'extract_data',
       extractData: 'extract_data',
-      qoca_aim: 'qoca_aim'
+      aim_ml: 'aim_ml'
     };
     return operatorMap[type] || type;
   }
@@ -52,7 +52,7 @@ export class WorkflowMappingService {
       end: 'end',
       message: 'line_send_message',
       extract_data: 'extract_data',
-      qoca_aim: 'qoca_aim'
+      aim_ml: 'aim_ml'
     };
     return typeMap[operator] || operator;
   }
@@ -82,7 +82,7 @@ export class WorkflowMappingService {
       browserExtensionOutput: 'output',
       extract_data: 'advanced',
       extractData: 'advanced',
-      qoca_aim: 'advanced'
+      aim_ml: 'advanced'
     };
     return categoryMap[type] || 'advanced';
   }
@@ -158,7 +158,7 @@ export class WorkflowMappingService {
       targetNode.type === 'browserExtensionOutput';
 
     // 在現有的節點類型檢查之後添加：
-    const isQOCAAimNode = targetNode && targetNode.type === 'qoca_aim';
+    const isQOCAAimNode = targetNode && targetNode.type === 'aim_ml';
 
     // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
     if (
@@ -596,8 +596,7 @@ export class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
-      case 'qocaAim':
-      case 'qoca_aim': {
+      case 'aim_ml': {
         // QOCA AIM 節點輸出 - 根據節點數據判斷
         const isExplainEnabled =
           node.data?.enableExplain ?? node.data?.enable_explain?.data ?? true; // 預設為 true

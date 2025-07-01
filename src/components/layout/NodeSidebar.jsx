@@ -203,8 +203,8 @@ const NodeSidebar = ({
               </div>
             }
             label='QOCA aim'
-            onClick={() => handleNodeClick('qoca_aim')}
-            nodeType='qoca_aim'
+            onClick={() => handleNodeClick('aim_ml')}
+            nodeType='aim_ml'
             onDragStart={customDragStart}
           />
         )}

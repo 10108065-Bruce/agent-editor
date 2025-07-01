@@ -998,11 +998,11 @@ export default function useFlowNodes() {
   // 添加 QOCA aim 節點
   const handleAddQOCAAimNode = useCallback(
     (position) => {
-      const id = `qoca_aim_${Date.now()}`;
-      const nodeCallbacksObject = getNodeCallbacks(id, 'qoca_aim');
+      const id = `aim_ml_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'aim_ml');
       const newNode = {
         id,
-        type: 'qoca_aim',
+        type: 'aim_ml',
         data: {
           aim: '', // 默認空 AIM
           ...nodeCallbacksObject

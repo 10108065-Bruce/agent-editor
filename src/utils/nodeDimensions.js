@@ -65,7 +65,7 @@ export const calculateNodeDimensions = (node) => {
       };
     }
 
-    case 'qoca_aim': {
+    case 'aim_ml': {
       // QOCA AIM 節點尺寸計算
       const baseAimWidth = 320; // w-80 = 320px
       const baseAimHeight = 180; // 基礎高度：header + AIM選擇 + 開關
