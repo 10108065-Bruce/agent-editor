@@ -28,6 +28,12 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   const hasInitializedAim = useRef(false);
   const hasInitializedLlmVision = useRef(false);
 
+  // 關鍵新增：IME 和用戶輸入狀態追踪
+  const isComposingRef = useRef(false);
+  const updateTimeoutRef = useRef(null);
+  const lastExternalValueRef = useRef(data?.prompt?.data || '');
+  const isUserInputRef = useRef(false); // 追踪是否為用戶輸入
+
   // 載入 AIM 模型選項
   const loadAimOptions = useCallback(async () => {
     // 防止重複載入的完整檢查
@@ -144,9 +150,6 @@ const QOCAAimNode = ({ data, isConnectable }) => {
 
   // 同步外部資料變更
   useEffect(() => {
-    console.log('同步檢查開始...');
-    console.log('isUpdating:', isUpdating.current);
-
     if (isUpdating.current) {
       console.log('正在更新中，跳過同步');
       return;
@@ -187,9 +190,16 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       hasChanges = true;
     }
 
-    if (data?.promptText !== undefined && data.promptText !== promptText) {
+    // 同步 promptText，避免覆蓋用戶輸入
+    if (
+      data?.promptText !== undefined &&
+      data.promptText !== lastExternalValueRef.current &&
+      !isComposingRef.current &&
+      !isUserInputRef.current
+    ) {
       console.log('同步 promptText:', data.promptText, '當前:', promptText);
       setPromptText(data.promptText);
+      lastExternalValueRef.current = data.promptText;
       hasChanges = true;
     }
 
@@ -313,19 +323,101 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     [llmId, updateParentState]
   );
 
-  // 處理提示文字變更
+  // 處理提示文字變更 - 支援 IME 和刪除操作
   const handlePromptChange = useCallback(
     (e) => {
       const value = e.target.value;
+
+      // 標記為用戶輸入
+      isUserInputRef.current = true;
+
+      // 立即更新本地狀態
       setPromptText(value);
-      updateParentState('prompt', {
-        type: 'string',
-        data: value,
-        node_id: data?.id || ''
-      });
+      lastExternalValueRef.current = value; // 同步記錄
+
+      // 清除之前的更新計時器
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+
+      // 如果不是在組合狀態，延遲更新父組件
+      if (!isComposingRef.current) {
+        updateTimeoutRef.current = setTimeout(() => {
+          updateParentState('prompt', {
+            type: 'string',
+            data: value,
+            node_id: data?.id || ''
+          });
+
+          // 重置用戶輸入標記
+          setTimeout(() => {
+            isUserInputRef.current = false;
+          }, 100);
+        }, 150); // 稍微增加延遲以確保操作完成
+      }
     },
     [updateParentState, data?.id]
   );
+
+  // 關鍵新增：IME 組合開始處理
+  const handleCompositionStart = useCallback(() => {
+    isComposingRef.current = true;
+    isUserInputRef.current = true;
+
+    // 清除任何待執行的更新
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
+    }
+  }, []);
+
+  // 關鍵新增：IME 組合結束處理
+  const handleCompositionEnd = useCallback(
+    (e) => {
+      isComposingRef.current = false;
+
+      const finalText = e.target.value;
+
+      // 確保狀態同步
+      setPromptText(finalText);
+      lastExternalValueRef.current = finalText;
+
+      // 立即更新父組件
+      updateParentState('prompt', {
+        type: 'string',
+        data: finalText,
+        node_id: data?.id || ''
+      });
+
+      // 延遲重置用戶輸入標記
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 200);
+    },
+    [updateParentState, data?.id]
+  );
+
+  // 關鍵新增：處理鍵盤事件，特別是刪除操作
+  const handleKeyDown = useCallback((e) => {
+    // 對於刪除操作，立即標記為用戶輸入
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      isUserInputRef.current = true;
+
+      // 延遲重置標記
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 300);
+    }
+  }, []);
+
+  // 清理計時器
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 計算標籤寬度
   const calculateLabelWidth = (text) => {
@@ -492,6 +584,9 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                 <AutoResizeTextarea
                   value={promptText}
                   onChange={handlePromptChange}
+                  onCompositionStart={handleCompositionStart}
+                  onCompositionEnd={handleCompositionEnd}
+                  onKeyDown={handleKeyDown}
                   placeholder='Type your prompt here.'
                   className='w-full border border-gray-300 rounded p-2 text-sm min-h-[80px]'
                 />
