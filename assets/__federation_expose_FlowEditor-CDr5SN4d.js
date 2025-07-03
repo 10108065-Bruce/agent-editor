@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$s = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$j,useRef: useRef$e,useState: useState$n,useEffect: useEffect$h,forwardRef: forwardRef$1,useCallback: useCallback$e} = React$s;
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$j,useRef: useRef$f,useState: useState$o,useEffect: useEffect$i,forwardRef: forwardRef$1,useCallback: useCallback$f} = React$s;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3917,10 +3917,10 @@ function Attribution({ proOptions, position = "bottom-right" }) {
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$e(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$n({ x: 0, y: 0, width: 0, height: 0 });
+  const edgeRef = useRef$f(null);
+  const [edgeTextBbox, setEdgeTextBbox] = useState$o({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$j(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$h(() => {
+  useEffect$i(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$h(() => {
+  useEffect$i(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5057,9 +5057,9 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$n(false);
-  const modifierPressed = useRef$e(false);
-  const pressedKeys = useRef$e(/* @__PURE__ */ new Set([]));
+  const [keyPressed, setKeyPressed] = useState$o(false);
+  const modifierPressed = useRef$f(false);
+  const pressedKeys = useRef$f(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$h(() => {
+  useEffect$i(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5350,21 +5350,21 @@ const useViewportHelper = () => {
 function useReactFlow() {
   const viewportHelper = useViewportHelper();
   const store = useStoreApi();
-  const getNodes = useCallback$e(() => {
+  const getNodes = useCallback$f(() => {
     return store.getState().getNodes().map((n) => ({ ...n }));
   }, []);
-  const getNode = useCallback$e((id) => {
+  const getNode = useCallback$f((id) => {
     return store.getState().nodeInternals.get(id);
   }, []);
-  const getEdges = useCallback$e(() => {
+  const getEdges = useCallback$f(() => {
     const { edges = [] } = store.getState();
     return edges.map((e) => ({ ...e }));
   }, []);
-  const getEdge = useCallback$e((id) => {
+  const getEdge = useCallback$f((id) => {
     const { edges = [] } = store.getState();
     return edges.find((e) => e.id === id);
   }, []);
-  const setNodes = useCallback$e((payload) => {
+  const setNodes = useCallback$f((payload) => {
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     const nodes = getNodes2();
     const nextNodes = typeof payload === "function" ? payload(nodes) : payload;
@@ -5375,7 +5375,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const setEdges = useCallback$e((payload) => {
+  const setEdges = useCallback$f((payload) => {
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     const nextEdges = typeof payload === "function" ? payload(edges) : payload;
     if (hasDefaultEdges) {
@@ -5385,7 +5385,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const addNodes = useCallback$e((payload) => {
+  const addNodes = useCallback$f((payload) => {
     const nodes = Array.isArray(payload) ? payload : [payload];
     const { getNodes: getNodes2, setNodes: setNodes2, hasDefaultNodes, onNodesChange } = store.getState();
     if (hasDefaultNodes) {
@@ -5397,7 +5397,7 @@ function useReactFlow() {
       onNodesChange(changes);
     }
   }, []);
-  const addEdges = useCallback$e((payload) => {
+  const addEdges = useCallback$f((payload) => {
     const nextEdges = Array.isArray(payload) ? payload : [payload];
     const { edges = [], setEdges: setEdges2, hasDefaultEdges, onEdgesChange } = store.getState();
     if (hasDefaultEdges) {
@@ -5407,7 +5407,7 @@ function useReactFlow() {
       onEdgesChange(changes);
     }
   }, []);
-  const toObject = useCallback$e(() => {
+  const toObject = useCallback$f(() => {
     const { getNodes: getNodes2, edges = [], transform } = store.getState();
     const [x, y, zoom2] = transform;
     return {
@@ -5420,7 +5420,7 @@ function useReactFlow() {
       }
     };
   }, []);
-  const deleteElements = useCallback$e(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
+  const deleteElements = useCallback$f(({ nodes: nodesDeleted, edges: edgesDeleted }) => {
     const { nodeInternals, getNodes: getNodes2, edges, hasDefaultNodes, hasDefaultEdges, onNodesDelete, onEdgesDelete, onNodesChange, onEdgesChange } = store.getState();
     const nodeIds = (nodesDeleted || []).map((node) => node.id);
     const edgeIds = (edgesDeleted || []).map((edge) => edge.id);
@@ -5477,7 +5477,7 @@ function useReactFlow() {
       }
     }
   }, []);
-  const getNodeRect = useCallback$e((nodeOrRect) => {
+  const getNodeRect = useCallback$f((nodeOrRect) => {
     const isRect = isRectObject(nodeOrRect);
     const node = isRect ? null : store.getState().nodeInternals.get(nodeOrRect.id);
     if (!isRect && !node) {
@@ -5486,7 +5486,7 @@ function useReactFlow() {
     const nodeRect = isRect ? nodeOrRect : nodeToRect(node);
     return [nodeRect, node, isRect];
   }, []);
-  const getIntersectingNodes = useCallback$e((nodeOrRect, partially = true, nodes) => {
+  const getIntersectingNodes = useCallback$f((nodeOrRect, partially = true, nodes) => {
     const [nodeRect, node, isRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return [];
@@ -5501,7 +5501,7 @@ function useReactFlow() {
       return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
     });
   }, []);
-  const isNodeIntersecting = useCallback$e((nodeOrRect, area, partially = true) => {
+  const isNodeIntersecting = useCallback$f((nodeOrRect, area, partially = true) => {
     const [nodeRect] = getNodeRect(nodeOrRect);
     if (!nodeRect) {
       return false;
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$h(() => {
+  useEffect$i(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$h(() => {
+  useEffect$i(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5615,19 +5615,19 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$e();
+  const timerId = useRef$f();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$e(false);
-  const zoomedWithRightMouseButton = useRef$e(false);
-  const zoomPane = useRef$e(null);
-  const prevTransform = useRef$e({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$f(false);
+  const zoomedWithRightMouseButton = useRef$f(false);
+  const zoomPane = useRef$f(null);
+  const prevTransform = useRef$f({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$e(0);
-  const isPanScrolling = useRef$e(false);
-  const panScrollTimeout = useRef$e();
+  const mouseButton = useRef$f(0);
+  const isPanScrolling = useRef$f(false);
+  const panScrollTimeout = useRef$f();
   useResizeHandler(zoomPane);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$j(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$e(null);
+  const container = useRef$f(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$e(0);
-  const prevSelectedEdgesCount = useRef$e(0);
-  const containerBounds = useRef$e();
+  const prevSelectedNodesCount = useRef$f(0);
+  const prevSelectedEdgesCount = useRef$f(0);
+  const containerBounds = useRef$f();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6247,7 +6247,7 @@ function handleNodeClick({ id, store, unselect = false, nodeRef }) {
 }
 function useGetPointerPosition() {
   const store = useStoreApi();
-  const getPointerPosition = useCallback$e(({ sourceEvent }) => {
+  const getPointerPosition = useCallback$f(({ sourceEvent }) => {
     const { transform, snapGrid, snapToGrid } = store.getState();
     const x = sourceEvent.touches ? sourceEvent.touches[0].clientX : sourceEvent.clientX;
     const y = sourceEvent.touches ? sourceEvent.touches[0].clientY : sourceEvent.clientY;
@@ -6268,18 +6268,18 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$n(false);
-  const dragItems = useRef$e([]);
-  const lastPos = useRef$e({ x: null, y: null });
-  const autoPanId = useRef$e(0);
-  const containerBounds = useRef$e(null);
-  const mousePosition = useRef$e({ x: 0, y: 0 });
-  const dragEvent = useRef$e(null);
-  const autoPanStarted = useRef$e(false);
-  const dragStarted = useRef$e(false);
-  const abortDrag = useRef$e(false);
+  const [dragging, setDragging] = useState$o(false);
+  const dragItems = useRef$f([]);
+  const lastPos = useRef$f({ x: null, y: null });
+  const autoPanId = useRef$f(0);
+  const containerBounds = useRef$f(null);
+  const mousePosition = useRef$f({ x: 0, y: 0 });
+  const dragEvent = useRef$f(null);
+  const autoPanStarted = useRef$f(false);
+  const dragStarted = useRef$f(false);
+  const abortDrag = useRef$f(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$h(() => {
+  useEffect$i(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6457,7 +6457,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
 }
 function useUpdateNodePositions() {
   const store = useStoreApi();
-  const updatePositions = useCallback$e((params) => {
+  const updatePositions = useCallback$f((params) => {
     const { nodeInternals, nodeExtent, updateNodePositions, getNodes, snapToGrid, snapGrid, onError, nodesDraggable } = store.getState();
     const selectedNodes = getNodes().filter((n) => n.selected && (n.draggable || nodesDraggable && typeof n.draggable === "undefined"));
     const xVelo = snapToGrid ? snapGrid[0] : 5;
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$e(null);
-    const prevNodeRef = useRef$e(null);
-    const prevSourcePosition = useRef$e(sourcePosition);
-    const prevTargetPosition = useRef$e(targetPosition);
-    const prevType = useRef$e(type);
+    const nodeRef = useRef$f(null);
+    const prevNodeRef = useRef$f(null);
+    const prevSourcePosition = useRef$f(sourcePosition);
+    const prevTargetPosition = useRef$f(targetPosition);
+    const prevType = useRef$f(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$h(() => {
+    useEffect$i(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$h(() => {
+    useEffect$i(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$h(() => {
+    useEffect$i(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6639,8 +6639,8 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$e(null);
-  useEffect$h(() => {
+  const nodeRef = useRef$f(null);
+  useEffect$i(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6703,7 +6703,7 @@ const FlowRenderer = ({ children, onPaneClick, onPaneMouseEnter, onPaneMouseMove
 FlowRenderer.displayName = "FlowRenderer";
 var FlowRenderer$1 = memo$j(FlowRenderer);
 function useVisibleNodes(onlyRenderVisible) {
-  const nodes = useStore(useCallback$e((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
+  const nodes = useStore(useCallback$f((s) => onlyRenderVisible ? getNodesInside(s.nodeInternals, { x: 0, y: 0, width: s.width, height: s.height }, s.transform, true) : s.getNodes(), [onlyRenderVisible]));
   return nodes;
 }
 function createNodeTypes(nodeTypes) {
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$e();
+  const resizeObserverRef = useRef$f();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$h(() => {
+  useEffect$i(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -6812,9 +6812,9 @@ const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMo
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$e(null);
-    const [updateHover, setUpdateHover] = useState$n(false);
-    const [updating, setUpdating] = useState$n(false);
+    const edgeRef = useRef$f(null);
+    const [updateHover, setUpdateHover] = useState$o(false);
+    const [updating, setUpdating] = useState$o(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -7053,7 +7053,7 @@ function groupEdgesByZLevel(edges, nodeInternals, elevateEdgesOnSelect = false) 
   return edgeTree;
 }
 function useVisibleEdges(onlyRenderVisible, nodeInternals, elevateEdgesOnSelect) {
-  const edges = useStore(useCallback$e((s) => {
+  const edges = useStore(useCallback$f((s) => {
     if (!onlyRenderVisible) {
       return s.edges;
     }
@@ -7132,7 +7132,7 @@ const markerSelector = ({ defaultColor, rfId }) => (s) => {
 };
 const MarkerDefinitions = ({ defaultColor, rfId }) => {
   const markers = useStore(
-    useCallback$e(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
+    useCallback$f(markerSelector({ defaultColor, rfId }), [defaultColor, rfId]),
     // the id includes all marker options, so we just need to look at that part of the marker
     (a, b) => !(a.length !== b.length || a.some((m, i) => m.id !== b[i].id))
   );
@@ -7204,8 +7204,8 @@ function Viewport({ children }) {
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$e(false);
-  useEffect$h(() => {
+  const isInitialized = useRef$f(false);
+  useEffect$i(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7219,7 +7219,7 @@ const oppositePosition = {
   [Position.Bottom]: Position.Top
 };
 const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLineType.Bezier, CustomComponent, connectionStatus }) => {
-  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$e((s) => ({
+  const { fromNode, handleId, toX, toY, connectionMode } = useStore(useCallback$f((s) => ({
     fromNode: s.nodeInternals.get(nodeId),
     handleId: s.connectionHandleId,
     toX: (s.connectionPosition.x - s.transform[0]) / s.transform[2],
@@ -7298,7 +7298,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$e(null);
+  useRef$f(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7598,7 +7598,7 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$e(null);
+  const storeRef = useRef$f(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
@@ -7664,7 +7664,7 @@ function EdgeLabelRenderer({ children }) {
 }
 function useUpdateNodeInternals() {
   const store = useStoreApi();
-  return useCallback$e((id) => {
+  return useCallback$f((id) => {
     const { domNode, updateNodeDimensions } = store.getState();
     const updateIds = Array.isArray(id) ? id : [id];
     const updates = updateIds.reduce((res, updateId) => {
@@ -7684,8 +7684,8 @@ function useEdges() {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$n(initialItems);
-    const onItemsChange = useCallback$e((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
+    const [items, setItems] = useState$o(initialItems);
+    const onItemsChange = useCallback$f((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
 }
@@ -7693,7 +7693,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$r = await importShared('react');
-const {memo: memo$i,useRef: useRef$d,useEffect: useEffect$g} = React$r;
+const {memo: memo$i,useRef: useRef$e,useEffect: useEffect$h} = React$r;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7747,7 +7747,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$d(null);
+    const svg = useRef$e(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7762,9 +7762,9 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$d(0);
+    const viewScaleRef = useRef$e(0);
     viewScaleRef.current = viewScale;
-    useEffect$g(() => {
+    useEffect$h(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7831,7 +7831,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$i(MiniMap);
 
 const React$q = await importShared('react');
-const {memo: memo$h,useState: useState$m,useEffect: useEffect$f} = React$q;
+const {memo: memo$h,useState: useState$n,useEffect: useEffect$g} = React$q;
 
 function PlusIcon() {
     return (React$q.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7868,10 +7868,10 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$m(false);
+    const [isVisible, setIsVisible] = useState$n(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$f(() => {
+    useEffect$g(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7912,7 +7912,7 @@ Controls.displayName = 'Controls';
 var Controls$1 = memo$h(Controls);
 
 const React$p = await importShared('react');
-const {memo: memo$g,useRef: useRef$c} = React$p;
+const {memo: memo$g,useRef: useRef$d} = React$p;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7944,7 +7944,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$c(null);
+    const ref = useRef$d(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -22202,15 +22202,15 @@ const validateLayoutQuality = (nodes, direction) => {
   };
 };
 
-const {useRef: useRef$b,useCallback: useCallback$d,useEffect: useEffect$e} = await importShared('react');
+const {useRef: useRef$c,useCallback: useCallback$e,useEffect: useEffect$f} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$b([]);
-  const redoStack = useRef$b([]);
-  const nodeCallbacks = useRef$b({});
-  const isUpdatingNodes = useRef$b(false);
-  const handleAutoLayout = useCallback$d(
+  const undoStack = useRef$c([]);
+  const redoStack = useRef$c([]);
+  const nodeCallbacks = useRef$c({});
+  const isUpdatingNodes = useRef$c(false);
+  const handleAutoLayout = useCallback$e(
     async (direction = "TB") => {
       console.log(`開始執行自動排版，方向: ${direction}`);
       if (nodes.length === 0) {
@@ -22283,40 +22283,40 @@ function useFlowNodes() {
     },
     [nodes, edges, setNodes]
   );
-  const handleNodesChange = useCallback$d(
+  const handleNodesChange = useCallback$e(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
     },
     [setNodes]
   );
-  const handleEdgesChange = useCallback$d(
+  const handleEdgesChange = useCallback$e(
     (changes) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
     },
     [setEdges]
   );
-  const pushToUndoStack = useCallback$d(() => {
+  const pushToUndoStack = useCallback$e(() => {
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
       edges: JSON.parse(JSON.stringify(edges))
     });
     redoStack.current = [];
   }, [nodes, edges]);
-  const safeSetNodes = useCallback$d(
+  const safeSetNodes = useCallback$e(
     (updater) => {
       pushToUndoStack();
       setNodes(updater);
     },
     [pushToUndoStack, setNodes]
   );
-  const safeSetEdges = useCallback$d(
+  const safeSetEdges = useCallback$e(
     (updater) => {
       pushToUndoStack();
       setEdges(updater);
     },
     [pushToUndoStack, setEdges]
   );
-  const handleNodeSelection = useCallback$d(
+  const handleNodeSelection = useCallback$e(
     (nodeId) => {
       if (isUpdatingNodes.current) return;
       isUpdatingNodes.current = true;
@@ -22333,7 +22333,7 @@ function useFlowNodes() {
     },
     [setNodes]
   );
-  const getNodeCallbacks = useCallback$d(
+  const getNodeCallbacks = useCallback$e(
     (nodeId, nodeType) => {
       if (nodeCallbacks.current[nodeId]) {
         return nodeCallbacks.current[nodeId];
@@ -22598,7 +22598,7 @@ function useFlowNodes() {
     },
     [handleNodeSelection, safeSetNodes, safeSetEdges]
   );
-  const onNodesDelete = useCallback$d(
+  const onNodesDelete = useCallback$e(
     (nodesToDelete) => {
       if (!nodesToDelete || nodesToDelete.length === 0) return;
       const nodeIdsToDelete = nodesToDelete.map((node) => node.id);
@@ -22671,14 +22671,14 @@ function useFlowNodes() {
     },
     [nodes, edges, safeSetEdges, safeSetNodes]
   );
-  const deleteSelectedNodes = useCallback$d(
+  const deleteSelectedNodes = useCallback$e(
     (selectedNodes) => {
       if (!selectedNodes || selectedNodes.length === 0) return;
       onNodesDelete(selectedNodes);
     },
     [onNodesDelete]
   );
-  const handleAddInputNode = useCallback$d(
+  const handleAddInputNode = useCallback$e(
     (position) => {
       const id = `input_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "customInput");
@@ -22702,7 +22702,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddAINode = useCallback$d(
+  const handleAddAINode = useCallback$e(
     (position) => {
       const id = `ai_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "aiCustomInput");
@@ -22723,7 +22723,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddBrowserExtensionOutput = useCallback$d(
+  const handleAddBrowserExtensionOutput = useCallback$e(
     (position) => {
       const id = `browserExtOut_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(
@@ -22832,7 +22832,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks, setNodes]
   );
-  const handleAddBrowserExtensionInput = useCallback$d(
+  const handleAddBrowserExtensionInput = useCallback$e(
     (position) => {
       const id = `browserExtIn_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "browserExtensionInput");
@@ -22853,7 +22853,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddNode = useCallback$d(
+  const handleAddNode = useCallback$e(
     (position) => {
       const id = `default_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "default");
@@ -22873,7 +22873,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddIfElseNode = useCallback$d(
+  const handleAddIfElseNode = useCallback$e(
     (position) => {
       const id = `ifelse_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "ifElse");
@@ -22895,7 +22895,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddHTTPNode = useCallback$d(
+  const handleAddHTTPNode = useCallback$e(
     (position) => {
       const id = `http_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "http");
@@ -22918,7 +22918,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddLineNode = useCallback$d(
+  const handleAddLineNode = useCallback$e(
     (position) => {
       const id = `line_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "line");
@@ -22960,7 +22960,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks, nodes]
   );
-  const handleAddLineMessageNode = useCallback$d(
+  const handleAddLineMessageNode = useCallback$e(
     (position) => {
       const id = `message_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "message");
@@ -22979,7 +22979,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddQOCAAimNode = useCallback$d(
+  const handleAddQOCAAimNode = useCallback$e(
     (position) => {
       const id = `aim_ml_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "aim_ml");
@@ -23000,7 +23000,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddExtractDataNode = useCallback$d(
+  const handleAddExtractDataNode = useCallback$e(
     (position) => {
       const id = `extract_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "extractData");
@@ -23028,7 +23028,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddKnowledgeRetrievalNode = useCallback$d(
+  const handleAddKnowledgeRetrievalNode = useCallback$e(
     (position) => {
       const id = `knowledge_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "knowledgeRetrieval");
@@ -23055,7 +23055,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEndNode = useCallback$d(
+  const handleAddEndNode = useCallback$e(
     (position) => {
       const id = `end_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "end");
@@ -23076,7 +23076,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddWebhookNode = useCallback$d(
+  const handleAddWebhookNode = useCallback$e(
     (position) => {
       const id = `webhook_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "webhook");
@@ -23097,7 +23097,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddTimerNode = useCallback$d(
+  const handleAddTimerNode = useCallback$e(
     (position) => {
       const id = `timer_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "timer");
@@ -23119,7 +23119,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddEventNode = useCallback$d(
+  const handleAddEventNode = useCallback$e(
     (position) => {
       const id = `event_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, "event");
@@ -23141,7 +23141,7 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const onConnect = useCallback$d(
+  const onConnect = useCallback$e(
     (params) => {
       const sourceHandle = params.sourceHandle || "output";
       const targetNodeId = params.target;
@@ -23173,7 +23173,7 @@ function useFlowNodes() {
           return;
         }
       }
-      if (targetNode && targetNode.type === "qoca_aim") {
+      if (targetNode && targetNode.type === "aim_ml") {
         console.log("目標是 QOCA AIM 節點，檢查連線限制");
         const existingEdges = edges.filter((edge) => {
           return edge.target === targetNodeId && edge.targetHandle === "input";
@@ -23389,7 +23389,7 @@ function useFlowNodes() {
     },
     [nodes, edges, safeSetNodes, safeSetEdges]
   );
-  const undo = useCallback$d(() => {
+  const undo = useCallback$e(() => {
     if (undoStack.current.length === 0) return;
     redoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -23399,7 +23399,7 @@ function useFlowNodes() {
     setNodes(prev.nodes);
     setEdges(prev.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const redo = useCallback$d(() => {
+  const redo = useCallback$e(() => {
     if (redoStack.current.length === 0) return;
     undoStack.current.push({
       nodes: JSON.parse(JSON.stringify(nodes)),
@@ -23409,7 +23409,7 @@ function useFlowNodes() {
     setNodes(next.nodes);
     setEdges(next.edges);
   }, [nodes, edges, setNodes, setEdges]);
-  const updateNodeLabel = useCallback$d(
+  const updateNodeLabel = useCallback$e(
     (id, label) => {
       safeSetNodes(
         (nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, label } } : n)
@@ -23417,7 +23417,7 @@ function useFlowNodes() {
     },
     [safeSetNodes]
   );
-  const updateNodeFunctions = useCallback$d(() => {
+  const updateNodeFunctions = useCallback$e(() => {
     const updatedNodes = [...nodes];
     let hasChanges = false;
     console.log("開始檢查並更新所有節點的回調函數...");
@@ -23469,7 +23469,7 @@ function useFlowNodes() {
       console.log("所有節點回調函數已經是最新，無需更新。");
     }
   }, [nodes, getNodeCallbacks, setNodes]);
-  const deleteEdgesBySourceHandle = useCallback$d(
+  const deleteEdgesBySourceHandle = useCallback$e(
     (nodeId, sourceHandle) => {
       console.log(
         `刪除與節點 ${nodeId} sourceHandle ${sourceHandle} 相關的所有邊緣`
@@ -23494,7 +23494,7 @@ function useFlowNodes() {
     },
     [edges, safeSetEdges]
   );
-  const deleteEdgesByHandle = useCallback$d(
+  const deleteEdgesByHandle = useCallback$e(
     (nodeId, handleId) => {
       console.log(`刪除與節點 ${nodeId} handle ${handleId} 相關的所有邊緣`);
       const edgesToDelete = edges.filter((edge) => {
@@ -23518,7 +23518,7 @@ function useFlowNodes() {
     },
     [edges, safeSetEdges]
   );
-  useEffect$e(() => {
+  useEffect$f(() => {
     if (typeof window !== "undefined") {
       window.deleteEdgesByHandle = deleteEdgesByHandle;
       window.deleteEdgesBySourceHandle = deleteEdgesBySourceHandle;
@@ -23569,7 +23569,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "ba11af8c201955d9197db87730d4f60198036655", "VITE_APP_BUILD_TIME": "2025-07-01T06:11:45.821Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.8"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "ed5e7b2b389efd3b84097537edac171d5a9af483", "VITE_APP_BUILD_TIME": "2025-07-03T03:51:43.111Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.9"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -23640,6 +23640,8 @@ const lineWebhookNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20
 
 const aimNode = "/agent-editor/assets/icon-aim-node-BQWIErUc.svg";
 
+const httpNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206C0%202.68629%202.68629%200%206%200H26C29.3137%200%2032%202.68629%2032%206V26C32%2029.3137%2029.3137%2032%2026%2032H6C2.68629%2032%200%2029.3137%200%2026V6Z'%20fill='%23F8D7DA'/%3e%3cpath%20d='M8.49787%2014.6875V12H10.2036V20H8.49787V16.6875H6.20576V20H4.5V12H6.20576V14.6875H8.49787ZM11.323%2014V12H16.4403V14H14.7345V20H13.0288V14H11.323ZM17.5597%2014V12H22.677V14H20.9712V20H19.2655V14H17.5597ZM27.7942%2012C28.2562%2012%2028.656%2012.1979%2028.9936%2012.5938C29.3312%2012.9896%2029.5%2013.4583%2029.5%2014V15.3125C29.5%2015.8542%2029.3312%2016.3229%2028.9936%2016.7188C28.656%2017.1146%2028.2562%2017.3125%2027.7942%2017.3125H25.5554V20H23.8497V12H27.7942ZM27.7942%2015.3125V14H25.5554V15.3125H27.7942Z'%20fill='%23FC6165'/%3e%3c/svg%3e";
+
 await importShared('react');
 const iconMap = {
   input: {
@@ -23665,6 +23667,10 @@ const iconMap = {
   aim: {
     src: aimNode,
     alt: "QOCA aim Icon"
+  },
+  http: {
+    src: httpNode,
+    alt: "HTTP Icon"
   }
 };
 const IconBase = ({ type, className = "" }) => {
@@ -23706,13 +23712,13 @@ const IconBase = ({ type, className = "" }) => {
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
 const React$o = await importShared('react');
-const {useState: useState$l} = React$o;
+const {useState: useState$m} = React$o;
 const NodeSidebar = ({
   handleButtonClick,
   onDragStart: customDragStart,
   nodes = []
 }) => {
-  const [searchTerm, setSearchTerm] = useState$l("");
+  const [searchTerm, setSearchTerm] = useState$m("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -23873,6 +23879,16 @@ const NodeSidebar = ({
           nodeType: "aim_ml",
           onDragStart: customDragStart
         }
+      ),
+      filterNodes("HTTP") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NodeItem,
+        {
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "http" }) }),
+          label: "HTTP",
+          onClick: () => handleNodeClick("http"),
+          nodeType: "http",
+          onDragStart: customDragStart
+        }
       )
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
@@ -23980,9 +23996,9 @@ const workflowIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20vie
 const pencilIcon = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23fff'%20fill-opacity='.01'%20d='M0%200h16v16H0z'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M12.644%201.223a.533.533%200%200%200-.754%200L3.962%209.15c-.096.096-.173.21-.226.334l-1.56%203.64a.533.533%200%200%200%20.7.7l3.64-1.56c.124-.053.238-.13.334-.226l7.927-7.928a.533.533%200%200%200%200-.754l-2.133-2.133zM4.716%209.904l7.55-7.55%201.38%201.38-7.55%207.55-1.596.683-.467-.468.683-1.595z'%20fill='%231C2024'/%3e%3c/svg%3e";
 
 const React$n = await importShared('react');
-const {useState: useState$k} = React$n;
+const {useState: useState$l} = React$n;
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$k(true);
+  const [isEditing, setIsEditing] = useState$l(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -24071,10 +24087,10 @@ const APAAssistant = ({ title, onTitleChange }) => {
 };
 
 const React$m = await importShared('react');
-const {memo: memo$f,useCallback: useCallback$c} = React$m;
+const {memo: memo$f,useCallback: useCallback$d} = React$m;
 
 const NodeWrapper = ({ children, selected, onClick }) => {
-  const handleClick = useCallback$c(
+  const handleClick = useCallback$d(
     (e) => {
       e.stopPropagation();
       if (typeof onClick === "function") {
@@ -24102,13 +24118,13 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 const NodeWrapper$1 = memo$f(NodeWrapper);
 
 const React$l = await importShared('react');
-const {memo: memo$e,useCallback: useCallback$b,useEffect: useEffect$d,useState: useState$j,useRef: useRef$a} = React$l;
+const {memo: memo$e,useCallback: useCallback$c,useEffect: useEffect$e,useState: useState$k,useRef: useRef$b} = React$l;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
-    const nodeRef = useRef$a(null);
-    const [isInputFocused, setIsInputFocused] = useState$j(false);
-    const handleNodeClick = useCallback$b(
+    const nodeRef = useRef$b(null);
+    const [isInputFocused, setIsInputFocused] = useState$k(false);
+    const handleNodeClick = useCallback$c(
       (e) => {
         e.stopPropagation();
         if (data && typeof data.onSelect === "function") {
@@ -24117,7 +24133,7 @@ const withNodeSelection = (WrappedComponent) => {
       },
       [data]
     );
-    useEffect$d(() => {
+    useEffect$e(() => {
       const handleFocus = (e) => {
         const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
         if (isInput) {
@@ -24192,7 +24208,7 @@ function getDisplayName(WrappedComponent) {
 }
 
 const React$k = await importShared('react');
-const {useRef: useRef$9,useEffect: useEffect$c,useState: useState$i} = React$k;
+const {useRef: useRef$a,useEffect: useEffect$d,useState: useState$j} = React$k;
 
 const AutoResizeTextarea = ({
   value,
@@ -24204,15 +24220,15 @@ const AutoResizeTextarea = ({
   className,
   ...props
 }) => {
-  const textareaRef = useRef$9(null);
-  const [isFocused, setIsFocused] = useState$i(false);
-  useEffect$c(() => {
+  const textareaRef = useRef$a(null);
+  const [isFocused, setIsFocused] = useState$j(false);
+  useEffect$d(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${Math.max(textarea.scrollHeight, 60)}px`;
   }, [value]);
-  useEffect$c(() => {
+  useEffect$d(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleFocus = () => {
@@ -24236,7 +24252,7 @@ const AutoResizeTextarea = ({
       textarea.removeEventListener("mousedown", handleMouseDown);
     };
   }, []);
-  useEffect$c(() => {
+  useEffect$d(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleWheelCapture = (e) => {
@@ -24276,7 +24292,7 @@ const AutoResizeTextarea = ({
       });
     };
   }, [isFocused]);
-  useEffect$c(() => {
+  useEffect$d(() => {
     if (isFocused) {
       const findReactFlowNode = (element) => {
         let current = element;
@@ -24353,18 +24369,18 @@ const AutoResizeTextarea = ({
 };
 
 const React$j = await importShared('react');
-const {memo: memo$d,useReducer,useCallback: useCallback$a,useState: useState$h,useEffect: useEffect$b,useRef: useRef$8} = React$j;
+const {memo: memo$d,useReducer,useCallback: useCallback$b,useState: useState$i,useEffect: useEffect$c,useRef: useRef$9} = React$j;
 const CustomInputNode = ({ data, isConnectable, id }) => {
-  const [localFields, setLocalFields] = useState$h([]);
+  const [localFields, setLocalFields] = useState$i([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  const isComposingInputNameRef = useRef$8(false);
-  const isComposingDefaultValueRef = useRef$8(false);
-  const isUserInputInputNameRef = useRef$8(false);
-  const isUserInputDefaultValueRef = useRef$8(false);
-  const updateTimeoutRef = useRef$8({});
-  const lastExternalInputNameRef = useRef$8("");
-  const lastExternalDefaultValueRef = useRef$8("");
-  useEffect$b(() => {
+  const isComposingInputNameRef = useRef$9(false);
+  const isComposingDefaultValueRef = useRef$9(false);
+  const isUserInputInputNameRef = useRef$9(false);
+  const isUserInputDefaultValueRef = useRef$9(false);
+  const updateTimeoutRef = useRef$9({});
+  const lastExternalInputNameRef = useRef$9("");
+  const lastExternalDefaultValueRef = useRef$9("");
+  useEffect$c(() => {
     if (Array.isArray(data.fields)) {
       const fieldToUse = data.fields.length > 0 ? [data.fields[0]] : [
         {
@@ -24406,14 +24422,14 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       lastExternalDefaultValueRef.current = "Summary the input text";
     }
   }, [data.fields, localFields]);
-  useEffect$b(() => {
+  useEffect$c(() => {
     return () => {
       Object.values(updateTimeoutRef.current).forEach((timeout) => {
         if (timeout) clearTimeout(timeout);
       });
     };
   }, []);
-  const handleUpdateFieldInputName = useCallback$a(
+  const handleUpdateFieldInputName = useCallback$b(
     (index, value) => {
       if (typeof data.updateFieldInputName === "function") {
         data.updateFieldInputName(index, value);
@@ -24437,7 +24453,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
-  const handleUpdateFieldDefaultValue = useCallback$a(
+  const handleUpdateFieldDefaultValue = useCallback$b(
     (index, value) => {
       if (typeof data.updateFieldDefaultValue === "function") {
         data.updateFieldDefaultValue(index, value);
@@ -24458,7 +24474,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localFields, id]
   );
-  const debouncedUpdate = useCallback$a(
+  const debouncedUpdate = useCallback$b(
     (updateFunction, index, value, fieldType) => {
       const timeoutKey = `${fieldType}_${index}`;
       if (updateTimeoutRef.current[timeoutKey]) {
@@ -24477,7 +24493,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     []
   );
-  const handleInputNameChange = useCallback$a(
+  const handleInputNameChange = useCallback$b(
     (e) => {
       const value = e.target.value;
       isUserInputInputNameRef.current = true;
@@ -24496,7 +24512,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [localFields, handleUpdateFieldInputName, debouncedUpdate]
   );
-  const handleDefaultValueChange = useCallback$a(
+  const handleDefaultValueChange = useCallback$b(
     (e) => {
       const value = e.target.value;
       isUserInputDefaultValueRef.current = true;
@@ -24520,7 +24536,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [localFields, handleUpdateFieldDefaultValue, debouncedUpdate]
   );
-  const handleInputNameCompositionStart = useCallback$a(() => {
+  const handleInputNameCompositionStart = useCallback$b(() => {
     isComposingInputNameRef.current = true;
     isUserInputInputNameRef.current = true;
     const timeoutKey = "inputName_0";
@@ -24529,7 +24545,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current[timeoutKey] = null;
     }
   }, []);
-  const handleDefaultValueCompositionStart = useCallback$a(() => {
+  const handleDefaultValueCompositionStart = useCallback$b(() => {
     isComposingDefaultValueRef.current = true;
     isUserInputDefaultValueRef.current = true;
     const timeoutKey = "defaultValue_0";
@@ -24538,7 +24554,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current[timeoutKey] = null;
     }
   }, []);
-  const handleInputNameCompositionEnd = useCallback$a(
+  const handleInputNameCompositionEnd = useCallback$b(
     (e) => {
       isComposingInputNameRef.current = false;
       const finalValue = e.target.value;
@@ -24550,7 +24566,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [handleUpdateFieldInputName]
   );
-  const handleDefaultValueCompositionEnd = useCallback$a(
+  const handleDefaultValueCompositionEnd = useCallback$b(
     (e) => {
       isComposingDefaultValueRef.current = false;
       const finalValue = e.target.value;
@@ -24562,7 +24578,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
     },
     [handleUpdateFieldDefaultValue]
   );
-  const handleInputNameKeyDown = useCallback$a((e) => {
+  const handleInputNameKeyDown = useCallback$b((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputInputNameRef.current = true;
       setTimeout(() => {
@@ -24570,7 +24586,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  const handleDefaultValueKeyDown = useCallback$a((e) => {
+  const handleDefaultValueKeyDown = useCallback$b((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputDefaultValueRef.current = true;
       setTimeout(() => {
@@ -25166,7 +25182,7 @@ class WorkflowMappingService {
       } else if (isQOCAAimNode && targetHandle === 'input') {
         // 處理 QOCA AIM 節點的輸入
         targetEdges.forEach((edge) => {
-          const inputKey = 'input_data';
+          const inputKey = 'context';
 
           // 添加到 nodeInput，只儲存 node_id，不帶其他參數
           nodeInput[inputKey] = {
@@ -26932,7 +26948,7 @@ class WorkflowDataConverter {
             }
           } else if (isQOCAAimNode) {
             // 對於 QOCA AIM 節點，處理輸入連接
-            if (inputKey === 'input_data' || inputKey === 'input') {
+            if (inputKey === 'context' || inputKey === 'input') {
               targetHandle = 'input';
             }
           }
@@ -28398,9 +28414,9 @@ const iconUploadService = new IconUploadService();
 const aimService = new AIMService();
 
 const React$i = await importShared('react');
-const {memo: memo$c,useState: useState$g,useEffect: useEffect$a,useCallback: useCallback$9,useRef: useRef$7} = React$i;
+const {memo: memo$c,useState: useState$h,useEffect: useEffect$b,useCallback: useCallback$a,useRef: useRef$8} = React$i;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState$g([
+  const [modelOptions, setModelOptions] = useState$h([
     { value: "1", label: "O3-mini" },
     { value: "2", label: "O3-plus" },
     { value: "3", label: "O3-mega" },
@@ -28413,15 +28429,15 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const hasPromptConnection = edges.some(
     (edge) => edge.target === id && edge.targetHandle === "prompt-input"
   );
-  const [isLoadingModels, setIsLoadingModels] = useState$g(false);
-  const [modelLoadError, setModelLoadError] = useState$g(null);
-  const [localModel, setLocalModel] = useState$g(data?.model || "1");
-  const [promptText, setPromptText] = useState$g(data?.promptText || "");
-  const isComposingRef = useRef$7(false);
-  const updateTimeoutRef = useRef$7(null);
-  const lastExternalValueRef = useRef$7(data?.promptText || "");
-  const isUserInputRef = useRef$7(false);
-  useEffect$a(() => {
+  const [isLoadingModels, setIsLoadingModels] = useState$h(false);
+  const [modelLoadError, setModelLoadError] = useState$h(null);
+  const [localModel, setLocalModel] = useState$h(data?.model || "1");
+  const [promptText, setPromptText] = useState$h(data?.promptText || "");
+  const isComposingRef = useRef$8(false);
+  const updateTimeoutRef = useRef$8(null);
+  const lastExternalValueRef = useRef$8(data?.promptText || "");
+  const isUserInputRef = useRef$8(false);
+  useEffect$b(() => {
     console.log("AICustomInputNode 數據同步更新:", {
       "data.model": data?.model,
       "data.promptText": data?.promptText,
@@ -28467,10 +28483,10 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       setIsLoadingModels(false);
     }
   };
-  useEffect$a(() => {
+  useEffect$b(() => {
     loadModels();
   }, []);
-  const updateParentState = useCallback$9(
+  const updateParentState = useCallback$a(
     (key, value) => {
       if (data && typeof data.updateNodeData === "function") {
         data.updateNodeData(key, value);
@@ -28484,7 +28500,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleModelChange = useCallback$9(
+  const handleModelChange = useCallback$a(
     (e) => {
       const newModelValue = e.target.value;
       setLocalModel(newModelValue);
@@ -28492,7 +28508,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handlePromptTextChange = useCallback$9(
+  const handlePromptTextChange = useCallback$a(
     (e) => {
       const newText = e.target.value;
       isUserInputRef.current = true;
@@ -28512,7 +28528,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleCompositionStart = useCallback$9(() => {
+  const handleCompositionStart = useCallback$a(() => {
     isComposingRef.current = true;
     isUserInputRef.current = true;
     if (updateTimeoutRef.current) {
@@ -28520,7 +28536,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current = null;
     }
   }, []);
-  const handleCompositionEnd = useCallback$9(
+  const handleCompositionEnd = useCallback$a(
     (e) => {
       isComposingRef.current = false;
       const finalText = e.target.value;
@@ -28533,7 +28549,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleKeyDown = useCallback$9((e) => {
+  const handleKeyDown = useCallback$a((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputRef.current = true;
       setTimeout(() => {
@@ -28541,7 +28557,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  useEffect$a(() => {
+  useEffect$b(() => {
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
@@ -28711,17 +28727,17 @@ const Add = () => {
 };
 
 const React$h = await importShared('react');
-const {memo: memo$b,useEffect: useEffect$9,useState: useState$f,useRef: useRef$6,useCallback: useCallback$8} = React$h;
+const {memo: memo$b,useEffect: useEffect$a,useState: useState$g,useRef: useRef$7,useCallback: useCallback$9} = React$h;
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
-  const [inputs, setInputs] = useState$f([]);
-  const [handleLabels, setHandleLabels] = useState$f({});
+  const [inputs, setInputs] = useState$g([]);
+  const [handleLabels, setHandleLabels] = useState$g({});
   const updateNodeInternals = useUpdateNodeInternals();
-  const initAttempts = useRef$6(0);
+  const initAttempts = useRef$7(0);
   const nodeId = id || "unknown";
-  const isUpdating = useRef$6(false);
-  const isInitialized = useRef$6(false);
+  const isUpdating = useRef$7(false);
+  const isInitialized = useRef$7(false);
   const handleHeight = 40;
-  const getNodeHeight = useCallback$8(() => {
+  const getNodeHeight = useCallback$9(() => {
     const headerHeight = 50;
     const buttonAreaHeight = 48;
     const textAreaHeight = 40;
@@ -28739,7 +28755,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
     return handleId;
   };
-  const loadLabelsFromNodeInput = useCallback$8(() => {
+  const loadLabelsFromNodeInput = useCallback$9(() => {
     if (!data.node_input) return {};
     const labels = {};
     Object.entries(data.node_input).forEach(([key, value]) => {
@@ -28752,7 +28768,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     });
     return labels;
   }, [data.node_input]);
-  useEffect$9(() => {
+  useEffect$a(() => {
     if (isUpdating.current || isInitialized.current) return;
     isUpdating.current = true;
     initAttempts.current += 1;
@@ -28868,7 +28884,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       isUpdating.current = false;
     }, 200);
   }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
-  useEffect$9(() => {
+  useEffect$a(() => {
     if (inputs.length > 0) {
       console.log(`inputs 更新為 ${inputs.length} 個 handle，更新內部結構`);
       setTimeout(() => {
@@ -28880,7 +28896,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }, 50);
     }
   }, [inputs, nodeId, updateNodeInternals]);
-  const handleAddOutput = useCallback$8(() => {
+  const handleAddOutput = useCallback$9(() => {
     let maxIndex = -1;
     inputs.forEach((input) => {
       if (input.id && input.id.startsWith("output")) {
@@ -28943,7 +28959,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
     }
   }, [inputs, data, nodeId, handleLabels]);
-  const handleDeleteInput = useCallback$8(
+  const handleDeleteInput = useCallback$9(
     (handleId) => {
       const newInputs = inputs.filter((input) => input.id !== handleId);
       console.log(`刪除 handle (${nodeId}):`, handleId);
@@ -28990,7 +29006,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     },
     [inputs, data, nodeId, handleLabels]
   );
-  const handleLabelChange = useCallback$8(
+  const handleLabelChange = useCallback$9(
     (handleId, newLabel) => {
       console.log(`標籤變更: ${handleId} -> ${newLabel}`);
       setHandleLabels((prev) => {
@@ -29170,14 +29186,14 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 const BrowserExtensionOutputNode$1 = memo$b(BrowserExtensionOutputNode);
 
 const React$g = await importShared('react');
-const {memo: memo$a,useState: useState$e,useEffect: useEffect$8,useCallback: useCallback$7,useRef: useRef$5} = React$g;
+const {memo: memo$a,useState: useState$f,useEffect: useEffect$9,useCallback: useCallback$8,useRef: useRef$6} = React$g;
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
-  const [localItems, setLocalItems] = useState$e(data?.items || []);
-  const [isUploading, setIsUploading] = useState$e(false);
-  const [uploadError, setUploadError] = useState$e(null);
-  const fileInputRef = useRef$5(null);
-  const activeItemRef = useRef$5(null);
-  useEffect$8(() => {
+  const [localItems, setLocalItems] = useState$f(data?.items || []);
+  const [isUploading, setIsUploading] = useState$f(false);
+  const [uploadError, setUploadError] = useState$f(null);
+  const fileInputRef = useRef$6(null);
+  const activeItemRef = useRef$6(null);
+  useEffect$9(() => {
     console.log("BrowserExtensionInputNode 數據同步檢查:", {
       "data.items": data?.items,
       localItems,
@@ -29188,7 +29204,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       setLocalItems([...data.items]);
     }
   }, [data?.items]);
-  const updateParentState = useCallback$7(
+  const updateParentState = useCallback$8(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=`, value);
       if (key === "items" && data && typeof data.updateItems === "function") {
@@ -29208,14 +29224,14 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleIconClick = useCallback$7((index) => {
+  const handleIconClick = useCallback$8((index) => {
     console.log(`點擊項目 ${index} 的圖標，準備上傳新圖標`);
     activeItemRef.current = index;
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   }, []);
-  const handleFileSelect = useCallback$7(
+  const handleFileSelect = useCallback$8(
     async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -29244,7 +29260,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems]
   );
-  const getIconComponent = useCallback$7(
+  const getIconComponent = useCallback$8(
     (iconValue, index) => {
       if (iconUploadService.isIconUrl(iconValue)) {
         return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -29300,7 +29316,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [handleIconClick]
   );
-  const handleIconChange = useCallback$7(
+  const handleIconChange = useCallback$8(
     (index, iconValue) => {
       console.log(`更新項目 ${index} 的圖標為`, iconValue);
       if (index < 0 || index >= localItems.length) {
@@ -29315,7 +29331,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems, updateParentState]
   );
-  const handleNameChange = useCallback$7(
+  const handleNameChange = useCallback$8(
     (index, value) => {
       console.log(`修改項目 ${index} 的名稱為 "${value}"`);
       console.log("當前 items:", localItems);
@@ -29337,7 +29353,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localItems, updateParentState]
   );
-  const handleDeleteItem = useCallback$7(
+  const handleDeleteItem = useCallback$8(
     (index) => {
       console.log(`準備刪除項目 ${index}`);
       if (index < 0 || index >= localItems.length) {
@@ -29372,7 +29388,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems, updateParentState, data, id]
   );
-  const handleAddItem = useCallback$7(() => {
+  const handleAddItem = useCallback$8(() => {
     console.log("添加新項目");
     if (typeof data?.addItem === "function") {
       console.log("使用 addItem 回調函數");
@@ -29385,13 +29401,13 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     setLocalItems(updatedItems);
     updateParentState("items", updatedItems);
   }, [data, localItems, updateParentState]);
-  const calculateHandlePosition = useCallback$7((index) => {
+  const calculateHandlePosition = useCallback$8((index) => {
     const headerHeight = 46;
     const contentPadding = 16;
     const itemHeight = 140;
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
   }, []);
-  const getOutputKey = useCallback$7((item, index) => {
+  const getOutputKey = useCallback$8((item, index) => {
     return item.id || `a${index + 1}`;
   }, []);
   const items = Array.isArray(localItems) && localItems.length > 0 ? localItems : Array.isArray(data?.items) ? data.items : [];
@@ -29615,11 +29631,11 @@ const IfElseNode = ({ data, isConnectable }) => {
 const IfElseNode$1 = memo$9(IfElseNode);
 
 const React$e = await importShared('react');
-const {memo: memo$8,useState: useState$d,useEffect: useEffect$7,useCallback: useCallback$6} = React$e;
+const {memo: memo$8,useState: useState$e,useEffect: useEffect$8,useCallback: useCallback$7} = React$e;
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [isLoadingFiles, setIsLoadingFiles] = useState$d(false);
-  const [fileLoadError, setFileLoadError] = useState$d(null);
-  const [dataFiles, setDataFiles] = useState$d(
+  const [isLoadingFiles, setIsLoadingFiles] = useState$e(false);
+  const [fileLoadError, setFileLoadError] = useState$e(null);
+  const [dataFiles, setDataFiles] = useState$e(
     data?.availableFiles || [
       {
         id: "icdcode",
@@ -29635,11 +29651,11 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       }
     ]
   );
-  const [localSelectedFile, setLocalSelectedFile] = useState$d(
+  const [localSelectedFile, setLocalSelectedFile] = useState$e(
     data?.selectedFile || ""
   );
-  const [topK, setTopK] = useState$d(data?.topK || 5);
-  const updateParentState = useCallback$6(
+  const [topK, setTopK] = useState$e(data?.topK || 5);
+  const updateParentState = useCallback$7(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=${value}`);
       if (data && typeof data.updateNodeData === "function") {
@@ -29657,19 +29673,21 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleFileSelect = useCallback$6(
+  const handleFileSelect = useCallback$7(
     (event) => {
       const fileId = event.target.value;
       console.log(`選擇文件: ${fileId}`);
-      setLocalSelectedFile(fileId);
-      updateParentState("selectedFile", fileId);
+      if (fileId !== localSelectedFile) {
+        setLocalSelectedFile(fileId);
+        updateParentState("selectedFile", fileId);
+      }
     },
-    [updateParentState]
+    [localSelectedFile, updateParentState]
   );
-  const getCurrentSelectedFile = useCallback$6(() => {
+  const getCurrentSelectedFile = useCallback$7(() => {
     return data?.selectedFile || localSelectedFile;
   }, [data?.selectedFile, localSelectedFile]);
-  const loadFiles = useCallback$6(async () => {
+  const loadFiles = useCallback$7(async () => {
     if (isLoadingFiles) return;
     console.log("開始加載文件列表...");
     setIsLoadingFiles(true);
@@ -29680,11 +29698,14 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         console.log("已獲取文件選項:", options);
         setDataFiles(options);
         const currentFile = getCurrentSelectedFile();
-        if (!options.some(
+        const isCurrentFileValid = options.some(
           (opt) => opt.id === currentFile || opt.value === currentFile
-        ) && options.length > 0) {
-          setLocalSelectedFile(options[0].id || options[0].value);
-          updateParentState("selectedFile", options[0].id || options[0].value);
+        );
+        if (!currentFile || !isCurrentFileValid) {
+          const firstFileId = options[0].id || options[0].value;
+          console.log(`自動選擇第一個文件: ${firstFileId}`);
+          setLocalSelectedFile(firstFileId);
+          updateParentState("selectedFile", firstFileId);
         }
       }
     } catch (error) {
@@ -29698,46 +29719,35 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       setIsLoadingFiles(false);
     }
   }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
-  useEffect$7(() => {
-    console.log("監測 data.selectedFile 變更：", {
-      "data.selectedFile": data?.selectedFile,
-      localSelectedFile,
-      "node.id": id
-    });
+  useEffect$8(() => {
     if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
+      console.log("監測 data.selectedFile 變更：", {
+        "data.selectedFile": data?.selectedFile,
+        localSelectedFile,
+        "node.id": id,
+        shouldSync: true
+      });
       console.log(
         `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
       );
       setLocalSelectedFile(data.selectedFile);
     }
+  }, [data?.selectedFile, id]);
+  useEffect$8(() => {
     if (data?.topK && data.topK !== topK) {
+      console.log(`同步 topK 值從 ${topK} 到 ${data.topK}`);
       setTopK(data.topK);
     }
-  }, [data?.selectedFile, data?.topK, localSelectedFile, topK, id]);
-  useEffect$7(() => {
+  }, [data?.topK]);
+  useEffect$8(() => {
     loadFiles();
-    console.log("KnowledgeRetrievalNode 初始化狀態:", {
-      "node.id": id,
-      "data.selectedFile": data?.selectedFile,
-      "data.topK": data?.topK,
-      localSelectedFile,
-      topK,
-      "dataFiles.length": dataFiles.length
-    });
-  }, [
-    id,
-    data?.selectedFile,
-    data?.topK,
-    localSelectedFile,
-    topK,
-    dataFiles.length,
-    loadFiles
-  ]);
-  const handleReloadFiles = useCallback$6(() => {
-    if (dataFiles.length <= 2 || fileLoadError) {
+  }, []);
+  const handleSelectFocus = useCallback$7(() => {
+    if (dataFiles.length === 0 && !isLoadingFiles) {
+      console.log("下拉選單獲得焦點，檢查是否需要重新加載文件");
       loadFiles();
     }
-  }, [dataFiles.length, fileLoadError, loadFiles]);
+  }, [dataFiles.length, isLoadingFiles, loadFiles]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
@@ -29753,8 +29763,8 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
               className: `w-full border ${fileLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm bg-white appearance-none ${isLoadingFiles ? "opacity-70 cursor-wait" : ""}`,
               value: getCurrentSelectedFile(),
               onChange: handleFileSelect,
+              onFocus: handleSelectFocus,
               disabled: isLoadingFiles,
-              onClick: handleReloadFiles,
               style: {
                 paddingRight: "2rem",
                 textOverflow: "ellipsis"
@@ -29915,12 +29925,12 @@ const EndNode = ({ data, isConnectable }) => {
 const EndNode$1 = memo$7(EndNode);
 
 const React$c = await importShared('react');
-const {memo: memo$6,useState: useState$c} = React$c;
+const {memo: memo$6,useState: useState$d} = React$c;
 const WebhookNode = ({ data, isConnectable }) => {
-  const [showInput, setShowInput] = useState$c(false);
-  const [tempUrl, setTempUrl] = useState$c("");
-  const [showCopyAlert, setShowCopyAlert] = useState$c(false);
-  const [isEditing, setIsEditing] = useState$c(false);
+  const [showInput, setShowInput] = useState$d(false);
+  const [tempUrl, setTempUrl] = useState$d("");
+  const [showCopyAlert, setShowCopyAlert] = useState$d(false);
+  const [isEditing, setIsEditing] = useState$d(false);
   const handleCreateWebhook = () => {
     setShowInput(true);
   };
@@ -30124,58 +30134,444 @@ const WebhookNode = ({ data, isConnectable }) => {
 const WebhookNode$1 = memo$6(WebhookNode);
 
 const React$b = await importShared('react');
-const {memo: memo$5} = React$b;
-const HTTPNode = ({ data, isConnectable }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-red-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-red-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "svg",
-        {
-          xmlns: "http://www.w3.org/2000/svg",
-          width: "16",
-          height: "16",
-          viewBox: "0 0 24 24",
-          fill: "none",
-          stroke: "currentColor",
-          strokeWidth: "2",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M4 4h16v16H4z" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M4 9h16" })
-          ]
-        }
-      ) }),
+const {memo: memo$5,useState: useState$c,useEffect: useEffect$7,useCallback: useCallback$6,useRef: useRef$5} = React$b;
+const HttpNode = ({ data, isConnectable }) => {
+  const [localUrl, setLocalUrl] = useState$c(data?.url || "");
+  const [localMethod, setLocalMethod] = useState$c(data?.method || "GET");
+  const [headers, setHeaders] = useState$c(
+    data?.headers || [{ key: "", value: "" }]
+  );
+  const [localBody, setLocalBody] = useState$c(data?.body || "");
+  const isComposingUrlRef = useRef$5(false);
+  const updateUrlTimeoutRef = useRef$5(null);
+  const lastExternalUrlRef = useRef$5(data?.url || "");
+  const isUserInputUrlRef = useRef$5(false);
+  const isComposingBodyRef = useRef$5(false);
+  const updateBodyTimeoutRef = useRef$5(null);
+  const lastExternalBodyRef = useRef$5(data?.body || "");
+  const isUserInputBodyRef = useRef$5(false);
+  const isComposingHeaderKeyRef = useRef$5({});
+  const isComposingHeaderValueRef = useRef$5({});
+  const updateHeaderTimeoutRef = useRef$5({});
+  const isUserInputHeaderRef = useRef$5({});
+  const lastExternalHeaderRef = useRef$5({});
+  useEffect$7(() => {
+    if (data?.url !== void 0 && data.url !== lastExternalUrlRef.current && !isComposingUrlRef.current && !isUserInputUrlRef.current) {
+      setLocalUrl(data.url);
+      lastExternalUrlRef.current = data.url;
+    }
+  }, [data?.url]);
+  useEffect$7(() => {
+    if (data?.method && data.method !== localMethod) {
+      setLocalMethod(data.method);
+    }
+  }, [data?.method, localMethod]);
+  useEffect$7(() => {
+    if (data?.headers && JSON.stringify(data.headers) !== JSON.stringify(headers)) {
+      setHeaders(data.headers);
+    }
+  }, [data?.headers, headers]);
+  useEffect$7(() => {
+    if (data?.body !== void 0 && data.body !== lastExternalBodyRef.current && !isComposingBodyRef.current && !isUserInputBodyRef.current) {
+      setLocalBody(data.body);
+      lastExternalBodyRef.current = data.body;
+    }
+  }, [data?.body]);
+  const updateParentState = useCallback$6(
+    (key, value) => {
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData(key, value);
+        return true;
+      }
+      if (data) {
+        data[key] = value;
+        return true;
+      }
+      return false;
+    },
+    [data]
+  );
+  const handleUrlChange = useCallback$6(
+    (e) => {
+      const newUrl = e.target.value;
+      isUserInputUrlRef.current = true;
+      setLocalUrl(newUrl);
+      lastExternalUrlRef.current = newUrl;
+      if (updateUrlTimeoutRef.current) {
+        clearTimeout(updateUrlTimeoutRef.current);
+      }
+      if (!isComposingUrlRef.current) {
+        updateUrlTimeoutRef.current = setTimeout(() => {
+          updateParentState("url", newUrl);
+          setTimeout(() => {
+            isUserInputUrlRef.current = false;
+          }, 100);
+        }, 150);
+      }
+    },
+    [updateParentState]
+  );
+  const handleUrlCompositionStart = useCallback$6(() => {
+    isComposingUrlRef.current = true;
+    isUserInputUrlRef.current = true;
+    if (updateUrlTimeoutRef.current) {
+      clearTimeout(updateUrlTimeoutRef.current);
+      updateUrlTimeoutRef.current = null;
+    }
+  }, []);
+  const handleUrlCompositionEnd = useCallback$6(
+    (e) => {
+      isComposingUrlRef.current = false;
+      const finalValue = e.target.value;
+      setLocalUrl(finalValue);
+      lastExternalUrlRef.current = finalValue;
+      updateParentState("url", finalValue);
+      setTimeout(() => {
+        isUserInputUrlRef.current = false;
+      }, 200);
+    },
+    [updateParentState]
+  );
+  const handleUrlKeyDown = useCallback$6((e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      isUserInputUrlRef.current = true;
+      setTimeout(() => {
+        isUserInputUrlRef.current = false;
+      }, 300);
+    }
+  }, []);
+  const handleMethodChange = useCallback$6(
+    (e) => {
+      const newMethod = e.target.value;
+      setLocalMethod(newMethod);
+      updateParentState("method", newMethod);
+    },
+    [updateParentState]
+  );
+  const handleBodyChange = useCallback$6(
+    (e) => {
+      const newBody = e.target.value;
+      isUserInputBodyRef.current = true;
+      setLocalBody(newBody);
+      lastExternalBodyRef.current = newBody;
+      if (updateBodyTimeoutRef.current) {
+        clearTimeout(updateBodyTimeoutRef.current);
+      }
+      if (!isComposingBodyRef.current) {
+        updateBodyTimeoutRef.current = setTimeout(() => {
+          updateParentState("body", newBody);
+          setTimeout(() => {
+            isUserInputBodyRef.current = false;
+          }, 100);
+        }, 150);
+      }
+    },
+    [updateParentState]
+  );
+  const handleBodyCompositionStart = useCallback$6(() => {
+    isComposingBodyRef.current = true;
+    isUserInputBodyRef.current = true;
+    if (updateBodyTimeoutRef.current) {
+      clearTimeout(updateBodyTimeoutRef.current);
+      updateBodyTimeoutRef.current = null;
+    }
+  }, []);
+  const handleBodyCompositionEnd = useCallback$6(
+    (e) => {
+      isComposingBodyRef.current = false;
+      const finalValue = e.target.value;
+      setLocalBody(finalValue);
+      lastExternalBodyRef.current = finalValue;
+      updateParentState("body", finalValue);
+      setTimeout(() => {
+        isUserInputBodyRef.current = false;
+      }, 200);
+    },
+    [updateParentState]
+  );
+  const handleBodyKeyDown = useCallback$6((e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      isUserInputBodyRef.current = true;
+      setTimeout(() => {
+        isUserInputBodyRef.current = false;
+      }, 300);
+    }
+  }, []);
+  const handleAddHeader = useCallback$6(() => {
+    const newHeader = { key: "", value: "" };
+    const newHeaders = [...headers, newHeader];
+    setHeaders(newHeaders);
+    updateParentState("headers", newHeaders);
+  }, [headers, updateParentState]);
+  const handleDeleteHeader = useCallback$6(
+    (index) => {
+      const newHeaders = headers.filter((_, i) => i !== index);
+      setHeaders(newHeaders);
+      updateParentState("headers", newHeaders);
+      delete isComposingHeaderKeyRef.current[index];
+      delete isComposingHeaderValueRef.current[index];
+      delete updateHeaderTimeoutRef.current[`key_${index}`];
+      delete updateHeaderTimeoutRef.current[`value_${index}`];
+      delete isUserInputHeaderRef.current[`key_${index}`];
+      delete isUserInputHeaderRef.current[`value_${index}`];
+      delete lastExternalHeaderRef.current[`key_${index}`];
+      delete lastExternalHeaderRef.current[`value_${index}`];
+    },
+    [headers, updateParentState]
+  );
+  const handleHeaderKeyChange = useCallback$6(
+    (index, value) => {
+      const fieldKey = `key_${index}`;
+      isUserInputHeaderRef.current[fieldKey] = true;
+      const newHeaders = [...headers];
+      newHeaders[index].key = value;
+      setHeaders(newHeaders);
+      lastExternalHeaderRef.current[fieldKey] = value;
+      if (updateHeaderTimeoutRef.current[fieldKey]) {
+        clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
+      }
+      if (!isComposingHeaderKeyRef.current[index]) {
+        updateHeaderTimeoutRef.current[fieldKey] = setTimeout(() => {
+          updateParentState("headers", newHeaders);
+          setTimeout(() => {
+            isUserInputHeaderRef.current[fieldKey] = false;
+          }, 100);
+        }, 150);
+      }
+    },
+    [headers, updateParentState]
+  );
+  const handleHeaderValueChange = useCallback$6(
+    (index, value) => {
+      const fieldKey = `value_${index}`;
+      isUserInputHeaderRef.current[fieldKey] = true;
+      const newHeaders = [...headers];
+      newHeaders[index].value = value;
+      setHeaders(newHeaders);
+      lastExternalHeaderRef.current[fieldKey] = value;
+      if (updateHeaderTimeoutRef.current[fieldKey]) {
+        clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
+      }
+      if (!isComposingHeaderValueRef.current[index]) {
+        updateHeaderTimeoutRef.current[fieldKey] = setTimeout(() => {
+          updateParentState("headers", newHeaders);
+          setTimeout(() => {
+            isUserInputHeaderRef.current[fieldKey] = false;
+          }, 100);
+        }, 150);
+      }
+    },
+    [headers, updateParentState]
+  );
+  const handleHeaderKeyCompositionStart = useCallback$6((index) => {
+    isComposingHeaderKeyRef.current[index] = true;
+    isUserInputHeaderRef.current[`key_${index}`] = true;
+    const fieldKey = `key_${index}`;
+    if (updateHeaderTimeoutRef.current[fieldKey]) {
+      clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
+      updateHeaderTimeoutRef.current[fieldKey] = null;
+    }
+  }, []);
+  const handleHeaderKeyCompositionEnd = useCallback$6(
+    (index, e) => {
+      isComposingHeaderKeyRef.current[index] = false;
+      const finalValue = e.target.value;
+      const newHeaders = [...headers];
+      newHeaders[index].key = finalValue;
+      setHeaders(newHeaders);
+      lastExternalHeaderRef.current[`key_${index}`] = finalValue;
+      updateParentState("headers", newHeaders);
+      setTimeout(() => {
+        isUserInputHeaderRef.current[`key_${index}`] = false;
+      }, 200);
+    },
+    [headers, updateParentState]
+  );
+  const handleHeaderValueCompositionStart = useCallback$6((index) => {
+    isComposingHeaderValueRef.current[index] = true;
+    isUserInputHeaderRef.current[`value_${index}`] = true;
+    const fieldKey = `value_${index}`;
+    if (updateHeaderTimeoutRef.current[fieldKey]) {
+      clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
+      updateHeaderTimeoutRef.current[fieldKey] = null;
+    }
+  }, []);
+  const handleHeaderValueCompositionEnd = useCallback$6(
+    (index, e) => {
+      isComposingHeaderValueRef.current[index] = false;
+      const finalValue = e.target.value;
+      const newHeaders = [...headers];
+      newHeaders[index].value = finalValue;
+      setHeaders(newHeaders);
+      lastExternalHeaderRef.current[`value_${index}`] = finalValue;
+      updateParentState("headers", newHeaders);
+      setTimeout(() => {
+        isUserInputHeaderRef.current[`value_${index}`] = false;
+      }, 200);
+    },
+    [headers, updateParentState]
+  );
+  const handleHeaderKeyDown = useCallback$6((index, type, e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      const fieldKey = `${type}_${index}`;
+      isUserInputHeaderRef.current[fieldKey] = true;
+      setTimeout(() => {
+        isUserInputHeaderRef.current[fieldKey] = false;
+      }, 300);
+    }
+  }, []);
+  useEffect$7(() => {
+    return () => {
+      if (updateUrlTimeoutRef.current) {
+        clearTimeout(updateUrlTimeoutRef.current);
+      }
+      if (updateBodyTimeoutRef.current) {
+        clearTimeout(updateBodyTimeoutRef.current);
+      }
+      Object.values(updateHeaderTimeoutRef.current).forEach((timeout) => {
+        if (timeout) clearTimeout(timeout);
+      });
+    };
+  }, []);
+  const methodOptions = [
+    { value: "GET", label: "GET" },
+    { value: "POST", label: "POST" }
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-98 max-w-lg", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-red-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "http" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "HTTP" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "URL" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "url" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
+          "input",
           {
+            type: "text",
+            value: localUrl,
+            onChange: handleUrlChange,
+            onCompositionStart: handleUrlCompositionStart,
+            onCompositionEnd: handleUrlCompositionEnd,
+            onKeyDown: handleUrlKeyDown,
             className: "w-full border border-gray-300 rounded p-2 text-sm",
-            value: data.url || "",
-            onChange: (e) => data.updateNodeData("url", e.target.value),
-            placeholder: "Enter URL"
+            placeholder: "https://api.test.ttqqq/chat/completions?api-version=2024-12-01-preview"
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1", children: "Method" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Method" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "select",
+            {
+              className: "w-full border border-gray-300 rounded p-2 text-sm bg-white appearance-none",
+              value: localMethod,
+              onChange: handleMethodChange,
+              children: methodOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "option",
+                {
+                  value: option.value,
+                  children: option.label
+                },
+                option.value
+              ))
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              xmlns: "http://www.w3.org/2000/svg",
+              width: "16",
+              height: "16",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2",
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+            }
+          ) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-bold", children: "Header (optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: headers.map((header, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
           {
-            className: "w-full border border-gray-300 rounded p-2 text-sm bg-white",
-            value: data.method || "GET",
-            onChange: (e) => data.updateNodeData("method", e.target.value),
+            className: "grid grid-cols-12 gap-2 items-center",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "GET", children: "GET" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "POST", children: "POST" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "PUT", children: "PUT" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "DELETE", children: "DELETE" })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-600 mb-1 font-bold", children: "Key" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: header.key,
+                    onChange: (e) => handleHeaderKeyChange(index, e.target.value),
+                    onCompositionStart: () => handleHeaderKeyCompositionStart(index),
+                    onCompositionEnd: (e) => handleHeaderKeyCompositionEnd(index, e),
+                    onKeyDown: (e) => handleHeaderKeyDown(index, "key", e),
+                    className: "w-full border border-gray-300 rounded px-2 py-1 text-xs",
+                    placeholder: "key"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "col-span-6", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-600 mb-1 font-bold", children: "Value" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: header.value,
+                    onChange: (e) => handleHeaderValueChange(index, e.target.value),
+                    onCompositionStart: () => handleHeaderValueCompositionStart(index),
+                    onCompositionEnd: (e) => handleHeaderValueCompositionEnd(index, e),
+                    onKeyDown: (e) => handleHeaderKeyDown(index, "value", e),
+                    className: "w-full border border-gray-300 rounded px-2 py-1 text-xs",
+                    placeholder: "value"
+                  }
+                )
+              ] }),
+              headers.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-1 flex justify-center items-end h-full pb-1 mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => handleDeleteHeader(index),
+                  className: "text-black-500 hover:text-red-600 text-sm p-1",
+                  title: "刪除 Header",
+                  children: "✕"
+                }
+              ) })
             ]
+          },
+          index
+        )) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          className: "w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mb-4",
+          onClick: handleAddHeader,
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {})
+        }
+      ),
+      localMethod === "POST" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Body (optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AutoResizeTextarea,
+          {
+            value: localBody,
+            onChange: handleBodyChange,
+            onCompositionStart: handleBodyCompositionStart,
+            onCompositionEnd: handleBodyCompositionEnd,
+            onKeyDown: handleBodyKeyDown,
+            placeholder: '{"flow_id": "9e956c37-20ea-47a5-bcd5-3cafc35b967a", "func_id": "q1", "data":"$input"}',
+            className: "text-xs font-mono bg-gray-900 text-green-400 border-gray-300",
+            style: {
+              fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace'
+            }
           }
         )
       ] })
@@ -30187,10 +30583,12 @@ const HTTPNode = ({ data, isConnectable }) => {
         position: Position.Left,
         id: "input",
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          left: "-4px"
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          left: "-6px",
+          transform: "translateY(-50%)"
         },
         isConnectable
       }
@@ -30202,17 +30600,18 @@ const HTTPNode = ({ data, isConnectable }) => {
         position: Position.Right,
         id: "output",
         style: {
-          background: "#555",
-          width: "8px",
-          height: "8px",
-          right: "-4px"
+          background: "#e5e7eb",
+          border: "1px solid #D3D3D3",
+          width: "12px",
+          height: "12px",
+          right: "-6px"
         },
         isConnectable
       }
     )
   ] });
 };
-const HTTPNode$1 = memo$5(HTTPNode);
+const HTTPNode = memo$5(HttpNode);
 
 const React$a = await importShared('react');
 const {memo: memo$4,useState: useState$b,useEffect: useEffect$6,useCallback: useCallback$5,useRef: useRef$4} = React$a;
@@ -31536,6 +31935,10 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   const isUpdating = useRef$2(false);
   const hasInitializedAim = useRef$2(false);
   const hasInitializedLlmVision = useRef$2(false);
+  const isComposingRef = useRef$2(false);
+  const updateTimeoutRef = useRef$2(null);
+  const lastExternalValueRef = useRef$2(data?.prompt?.data || "");
+  const isUserInputRef = useRef$2(false);
   const loadAimOptions = useCallback$2(async () => {
     if (isLoadingAimOptions || hasInitializedAim.current) {
       console.log("AIM 選項已在載入中或已初始化，跳過重複載入");
@@ -31628,8 +32031,6 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     [data]
   );
   useEffect$3(() => {
-    console.log("同步檢查開始...");
-    console.log("isUpdating:", isUpdating.current);
     if (isUpdating.current) {
       console.log("正在更新中，跳過同步");
       return;
@@ -31660,9 +32061,10 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       setEnableExplain(data.enableExplain);
       hasChanges = true;
     }
-    if (data?.promptText !== void 0 && data.promptText !== promptText) {
+    if (data?.promptText !== void 0 && data.promptText !== lastExternalValueRef.current && !isComposingRef.current && !isUserInputRef.current) {
       console.log("同步 promptText:", data.promptText, "當前:", promptText);
       setPromptText(data.promptText);
+      lastExternalValueRef.current = data.promptText;
       hasChanges = true;
     }
     if (data?.llmId !== void 0 && data.llmId !== llmId) {
@@ -31761,15 +32163,67 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   const handlePromptChange = useCallback$2(
     (e) => {
       const value = e.target.value;
+      isUserInputRef.current = true;
       setPromptText(value);
-      updateParentState("prompt", {
-        type: "string",
-        data: value,
-        node_id: data?.id || ""
-      });
+      lastExternalValueRef.current = value;
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      if (!isComposingRef.current) {
+        updateTimeoutRef.current = setTimeout(() => {
+          updateParentState("prompt", {
+            type: "string",
+            data: value,
+            node_id: data?.id || ""
+          });
+          setTimeout(() => {
+            isUserInputRef.current = false;
+          }, 100);
+        }, 150);
+      }
     },
     [updateParentState, data?.id]
   );
+  const handleCompositionStart = useCallback$2(() => {
+    isComposingRef.current = true;
+    isUserInputRef.current = true;
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
+    }
+  }, []);
+  const handleCompositionEnd = useCallback$2(
+    (e) => {
+      isComposingRef.current = false;
+      const finalText = e.target.value;
+      setPromptText(finalText);
+      lastExternalValueRef.current = finalText;
+      updateParentState("prompt", {
+        type: "string",
+        data: finalText,
+        node_id: data?.id || ""
+      });
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 200);
+    },
+    [updateParentState, data?.id]
+  );
+  const handleKeyDown = useCallback$2((e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      isUserInputRef.current = true;
+      setTimeout(() => {
+        isUserInputRef.current = false;
+      }, 300);
+    }
+  }, []);
+  useEffect$3(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
   const calculateLabelWidth = (text) => {
     const baseWidth = 24;
     const charWidth = 8;
@@ -31918,6 +32372,9 @@ const QOCAAimNode = ({ data, isConnectable }) => {
               {
                 value: promptText,
                 onChange: handlePromptChange,
+                onCompositionStart: handleCompositionStart,
+                onCompositionEnd: handleCompositionEnd,
+                onKeyDown: handleKeyDown,
                 placeholder: "Type your prompt here.",
                 className: "w-full border border-gray-300 rounded p-2 text-sm min-h-[80px]"
               }
@@ -32013,7 +32470,7 @@ const enhancedNodeTypes = {
   knowledgeRetrieval: withNodeSelection(KnowledgeRetrievalNode$1),
   end: withNodeSelection(EndNode$1),
   webhook: withNodeSelection(WebhookNode$1),
-  http: withNodeSelection(HTTPNode$1),
+  http: withNodeSelection(HTTPNode),
   line_webhook_input: withNodeSelection(LineNode$1),
   timer: withNodeSelection(TimerNode$1),
   line_send_message: withNodeSelection(LineMessageNode$1),
