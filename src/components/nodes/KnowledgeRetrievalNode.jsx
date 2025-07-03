@@ -63,28 +63,22 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     (event) => {
       const fileId = event.target.value;
       console.log(`選擇文件: ${fileId}`);
-      setLocalSelectedFile(fileId);
-      updateParentState('selectedFile', fileId);
-    },
-    [updateParentState]
-  );
 
-  // 處理 top_k 值更改
-  // const handleTopKChange = useCallback(
-  //   (event) => {
-  //     const value = parseInt(event.target.value) || 5;
-  //     setTopK(value);
-  //     updateParentState('topK', value);
-  //   },
-  //   [updateParentState]
-  // );
+      // 只有在真正改變時才更新狀態
+      if (fileId !== localSelectedFile) {
+        setLocalSelectedFile(fileId);
+        updateParentState('selectedFile', fileId);
+      }
+    },
+    [localSelectedFile, updateParentState]
+  );
 
   // 獲取當前選擇的文件ID
   const getCurrentSelectedFile = useCallback(() => {
     return data?.selectedFile || localSelectedFile;
   }, [data?.selectedFile, localSelectedFile]);
 
-  // 從API加載文件列表
+  // 改進檔案載入邏輯，避免重複更新
   const loadFiles = useCallback(async () => {
     // 避免重複載入
     if (isLoadingFiles) return;
@@ -101,17 +95,17 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         console.log('已獲取文件選項:', options);
         setDataFiles(options);
 
-        // 如果當前選中的文件不在新的選項列表中，選擇首個可用的文件
+        // 只有在當前沒有選擇或選擇無效時才自動選擇第一個
         const currentFile = getCurrentSelectedFile();
-        if (
-          !options.some(
-            (opt) => opt.id === currentFile || opt.value === currentFile
-          ) &&
-          options.length > 0
-        ) {
-          // 使用新的 select 處理方式
-          setLocalSelectedFile(options[0].id || options[0].value);
-          updateParentState('selectedFile', options[0].id || options[0].value);
+        const isCurrentFileValid = options.some(
+          (opt) => opt.id === currentFile || opt.value === currentFile
+        );
+
+        if (!currentFile || !isCurrentFileValid) {
+          const firstFileId = options[0].id || options[0].value;
+          console.log(`自動選擇第一個文件: ${firstFileId}`);
+          setLocalSelectedFile(firstFileId);
+          updateParentState('selectedFile', firstFileId);
         }
       }
     } catch (error) {
@@ -135,56 +129,45 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     }
   }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
 
-  // 監聽並同步 data.selectedFile 變更
+  // 優化狀態同步邏輯，避免循環更新
   useEffect(() => {
-    console.log('監測 data.selectedFile 變更：', {
-      'data.selectedFile': data?.selectedFile,
-      localSelectedFile,
-      'node.id': id
-    });
-
+    // 只在父組件的 selectedFile 確實不同且不為空時才同步
     if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
+      console.log('監測 data.selectedFile 變更：', {
+        'data.selectedFile': data?.selectedFile,
+        localSelectedFile,
+        'node.id': id,
+        shouldSync: true
+      });
       console.log(
         `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
       );
       setLocalSelectedFile(data.selectedFile);
     }
+  }, [data?.selectedFile, id]); // 🔧 移除 localSelectedFile 依賴，避免循環
 
-    // 同步 topK 值
+  // 將 topK 同步分離到獨立的 useEffect
+  useEffect(() => {
     if (data?.topK && data.topK !== topK) {
+      console.log(`同步 topK 值從 ${topK} 到 ${data.topK}`);
       setTopK(data.topK);
     }
-  }, [data?.selectedFile, data?.topK, localSelectedFile, topK, id]);
+  }, [data?.topK]); // 🔧 移除 topK 依賴，避免循環
 
-  // 組件掛載時載入文件列表
+  // 簡化組件掛載時的初始化，減少重複日誌
   useEffect(() => {
+    // 只在組件掛載時載入文件列表一次
     loadFiles();
+  }, []); // 🔧 空依賴數組，只在掛載時執行一次
 
-    // 調試信息
-    console.log('KnowledgeRetrievalNode 初始化狀態:', {
-      'node.id': id,
-      'data.selectedFile': data?.selectedFile,
-      'data.topK': data?.topK,
-      localSelectedFile,
-      topK,
-      'dataFiles.length': dataFiles.length
-    });
-  }, [
-    id,
-    data?.selectedFile,
-    data?.topK,
-    localSelectedFile,
-    topK,
-    dataFiles.length,
-    loadFiles
-  ]);
-
-  // 當文件列表為空或錯誤時重新加載
-  const handleReloadFiles = useCallback(() => {
-    if (dataFiles.length <= 2 || fileLoadError) {
+  // 移除 onClick 中的 handleReloadFiles，改為使用 onFocus
+  const handleSelectFocus = useCallback(() => {
+    // 只有在文件列表為空且沒有正在加載時才重新加載
+    if (dataFiles.length === 0 && !isLoadingFiles) {
+      console.log('下拉選單獲得焦點，檢查是否需要重新加載文件');
       loadFiles();
     }
-  }, [dataFiles.length, fileLoadError, loadFiles]);
+  }, [dataFiles.length, isLoadingFiles, loadFiles]);
 
   return (
     <div className='rounded-lg shadow-md overflow-visible w-64'>
@@ -214,8 +197,8 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
                 }`}
                 value={getCurrentSelectedFile()}
                 onChange={handleFileSelect}
+                onFocus={handleSelectFocus}
                 disabled={isLoadingFiles}
-                onClick={handleReloadFiles}
                 style={{
                   paddingRight: '2rem',
                   textOverflow: 'ellipsis'
@@ -259,23 +242,6 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
             )}
           </div>
         </div>
-
-        {/* 新增 top_k 參數設置 */}
-        {/* <div className='mb-3'>
-          <label className='block text-sm text-gray-700 mb-1 font-bold'>
-            Top K
-          </label>
-          <div className='relative'>
-            <input
-              type='number'
-              className='w-full border border-gray-300 rounded-md p-2 text-sm'
-              value={topK}
-              onChange={handleTopKChange}
-              min={1}
-              max={20}
-            />
-          </div>
-        </div> */}
       </div>
 
       {/* Input handle - 將 id 改為 "passage" */}
