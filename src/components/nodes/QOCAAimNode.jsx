@@ -17,7 +17,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   const [promptText, setPromptText] = useState(data?.prompt?.data || '');
   const [llmId, setLlmId] = useState(data?.llm_id?.data || 0);
 
-  // 新增：模型欄位資訊狀態
+  // 模型欄位資訊狀態
   const [modelFieldsInfo, setModelFieldsInfo] = useState(
     data?.model_fields_info?.data || ''
   );
@@ -286,7 +286,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     enableExplain,
     promptText,
     llmId,
-    modelFieldsInfo // 新增依賴
+    modelFieldsInfo
   ]);
 
   // 5. 調試用的組件狀態監控
@@ -339,7 +339,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           setTrainingId(selectedModel.training_id || 0);
           setSimulatorId(selectedModel.simulator_id || '');
 
-          // 新增：載入模型欄位資訊
+          // 載入模型欄位資訊
           if (selectedModel.training_id && selectedModel.training_id !== 0) {
             console.log(
               `載入模型欄位資訊 (training_id: ${selectedModel.training_id})`
