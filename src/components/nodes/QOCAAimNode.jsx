@@ -16,11 +16,20 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   ); // 預設為 true
   const [promptText, setPromptText] = useState(data?.prompt?.data || '');
   const [llmId, setLlmId] = useState(data?.llm_id?.data || 0);
+
+  // 新增：模型欄位資訊狀態
+  const [modelFieldsInfo, setModelFieldsInfo] = useState(
+    data?.model_fields_info?.data || ''
+  );
+
   const [aimOptions, setAimOptions] = useState([]);
   const [llmVisionOptions, setLlmVisionOptions] = useState([]);
   const [isLoadingAimOptions, setIsLoadingAimOptions] = useState(false);
   const [isLoadingLlmVisionOptions, setIsLoadingLlmVisionOptions] =
     useState(false);
+
+  // 新增：欄位資訊載入狀態
+  const [isLoadingFieldInfo, setIsLoadingFieldInfo] = useState(false);
 
   // 防止重複更新的標記
   const isUpdating = useRef(false);
@@ -112,6 +121,41 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     }
   }, []); // 移除所有依賴，避免重複調用
 
+  // 新增：載入模型欄位資訊的函數
+  const loadModelFieldsInfo = useCallback(async (targetTrainingId) => {
+    if (!targetTrainingId || targetTrainingId === 0) {
+      console.log('training_id 無效，清空欄位資訊');
+      setModelFieldsInfo('');
+      updateParentState('model_fields_info', { data: '' });
+      return;
+    }
+
+    setIsLoadingFieldInfo(true);
+
+    try {
+      console.log(`開始載入模型欄位資訊 (training_id: ${targetTrainingId})...`);
+      const fieldInfo = await aimService.getAIMFieldInfo(targetTrainingId);
+      console.log('載入的模型欄位資訊:', fieldInfo);
+
+      setModelFieldsInfo(fieldInfo);
+      updateParentState('model_fields_info', { data: fieldInfo });
+    } catch (error) {
+      console.error('載入模型欄位資訊失敗:', error);
+      setModelFieldsInfo('');
+      updateParentState('model_fields_info', { data: '' });
+
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: '載入模型欄位資訊失敗',
+          type: 'error',
+          duration: 3000
+        });
+      }
+    } finally {
+      setIsLoadingFieldInfo(false);
+    }
+  }, []);
+
   // 組件載入時獲取模型選項
   useEffect(() => {
     loadAimOptions();
@@ -133,7 +177,8 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           simulator_id: 'simulatorId',
           enable_explain: 'enableExplain',
           llm_id: 'llmId',
-          prompt: 'promptText'
+          prompt: 'promptText',
+          model_fields_info: 'modelFieldsInfo' // 新增欄位資訊映射
         };
 
         const propertyName = propertyMap[key] || key;
@@ -209,6 +254,21 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       hasChanges = true;
     }
 
+    // 新增：同步 modelFieldsInfo
+    if (
+      data?.modelFieldsInfo !== undefined &&
+      data.modelFieldsInfo !== modelFieldsInfo
+    ) {
+      console.log(
+        '同步 modelFieldsInfo:',
+        data.modelFieldsInfo,
+        '當前:',
+        modelFieldsInfo
+      );
+      setModelFieldsInfo(data.modelFieldsInfo);
+      hasChanges = true;
+    }
+
     if (hasChanges) {
       console.log('檢測到數據變化，已同步');
     }
@@ -219,12 +279,14 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     data?.enableExplain,
     data?.promptText,
     data?.llmId,
+    data?.modelFieldsInfo, // 新增依賴
     selectedAim,
     trainingId,
     simulatorId,
     enableExplain,
     promptText,
-    llmId
+    llmId,
+    modelFieldsInfo // 新增依賴
   ]);
 
   // 5. 調試用的組件狀態監控
@@ -233,14 +295,24 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       selectedAim,
       llmId,
       enableExplain,
+      modelFieldsInfo,
       'data.llm_id': data?.llm_id,
-      'data.llmId': data?.llmId
+      'data.llmId': data?.llmId,
+      'data.modelFieldsInfo': data?.modelFieldsInfo
     });
-  }, [selectedAim, llmId, enableExplain, data?.llm_id, data?.llmId]);
+  }, [
+    selectedAim,
+    llmId,
+    enableExplain,
+    modelFieldsInfo,
+    data?.llm_id,
+    data?.llmId,
+    data?.modelFieldsInfo
+  ]);
 
   // 處理 AIM 選擇變更
   const handleAimChange = useCallback(
-    (aimValue) => {
+    async (aimValue) => {
       console.log('handleAimChange:', selectedAim, '->', aimValue);
 
       // 設置更新標記，防止同步衝突
@@ -267,6 +339,18 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           setTrainingId(selectedModel.training_id || 0);
           setSimulatorId(selectedModel.simulator_id || '');
 
+          // 新增：載入模型欄位資訊
+          if (selectedModel.training_id && selectedModel.training_id !== 0) {
+            console.log(
+              `載入模型欄位資訊 (training_id: ${selectedModel.training_id})`
+            );
+            await loadModelFieldsInfo(selectedModel.training_id);
+          } else {
+            console.log('training_id 無效，清空欄位資訊');
+            setModelFieldsInfo('');
+            updateParentState('model_fields_info', { data: '' });
+          }
+
           console.log('AIM 模型批量更新完成');
         }
       } finally {
@@ -277,7 +361,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         }, 300);
       }
     },
-    [selectedAim, aimOptions, updateParentState]
+    [selectedAim, aimOptions, updateParentState, loadModelFieldsInfo]
   );
 
   // 處理解釋功能開關

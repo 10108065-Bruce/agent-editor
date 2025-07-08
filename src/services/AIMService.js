@@ -14,9 +14,164 @@ export class AIMService {
     this.llmVisionModelsCache = null;
     this.llmVisionLastFetchTime = null;
 
+    // AIM 欄位資訊緩存
+    this.aimFieldInfoCache = new Map(); // 使用 Map 以 training_id 為 key
+    this.aimFieldInfoLastFetchTime = new Map(); // 每個 training_id 的最後獲取時間
+
     this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
     this.aimPendingRequest = null; // 用於追蹤進行中的AIM請求
     this.llmVisionPendingRequest = null; // 用於追蹤進行中的LLM Vision請求
+    this.aimFieldInfoPendingRequests = new Map(); // 追蹤進行中的欄位資訊請求
+  }
+
+  /**
+   * 獲取 AIM 模型的欄位資訊
+   * @param {number} trainingId - 訓練模型 ID
+   * @returns {Promise<string>} 欄位資訊字串
+   */
+  async getAIMFieldInfo(trainingId) {
+    try {
+      // 驗證 trainingId
+      if (!trainingId || trainingId === 0) {
+        console.log('trainingId 無效，跳過欄位資訊獲取');
+        return '';
+      }
+
+      const trainingIdStr = trainingId.toString();
+
+      // 檢查是否有有效的快取
+      const now = Date.now();
+      const lastFetchTime = this.aimFieldInfoLastFetchTime.get(trainingIdStr);
+      const cachedData = this.aimFieldInfoCache.get(trainingIdStr);
+
+      if (
+        cachedData &&
+        lastFetchTime &&
+        now - lastFetchTime < this.cacheExpiryTime
+      ) {
+        console.log(`使用快取的 AIM 欄位資訊 (training_id: ${trainingId})`);
+        return cachedData;
+      }
+
+      // 如果已經有相同 training_id 的請求在進行中，則返回該請求
+      if (this.aimFieldInfoPendingRequests.has(trainingIdStr)) {
+        console.log(
+          `已有進行中的 AIM 欄位資訊請求 (training_id: ${trainingId})，使用相同請求`
+        );
+        return this.aimFieldInfoPendingRequests.get(trainingIdStr);
+      }
+
+      // 創建新請求
+      console.log(`獲取 AIM 欄位資訊 (training_id: ${trainingId})...`);
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+
+      // 定義重試邏輯的函數
+      const attemptFetch = async (retryCount = 0) => {
+        try {
+          console.log(
+            `嘗試獲取 AIM 欄位資訊，第 ${
+              retryCount + 1
+            } 次嘗試 (training_id: ${trainingId})`
+          );
+
+          const response = await fetch(
+            `${API_CONFIG.BASE_URL}/agent_designer/aim/field-info?training_id=${trainingId}`,
+            options
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+          }
+
+          let fieldInfo = await response.text(); // 使用 text() 因為後端回覆 string
+          console.log(
+            `API返回 AIM 欄位資訊原始內容 (training_id: ${trainingId}):`,
+            fieldInfo
+          );
+
+          // 檢查 API 是否回傳了已經被 JSON 序列化的字串
+          // 如果字串以 " 開頭和結尾，表示它是一個被序列化的 JSON 字串
+          if (fieldInfo.startsWith('"') && fieldInfo.endsWith('"')) {
+            try {
+              // 解析掉外層的 JSON 序列化，獲得真正的字串內容
+              fieldInfo = JSON.parse(fieldInfo);
+              console.log(
+                `解析後的 AIM 欄位資訊 (training_id: ${trainingId}):`,
+                fieldInfo
+              );
+            } catch (parseError) {
+              console.warn(
+                '無法解析 API 回傳的 JSON 字串，使用原始值:',
+                parseError
+              );
+            }
+          }
+
+          return fieldInfo;
+        } catch (error) {
+          console.error(
+            `第 ${retryCount + 1} 次嘗試失敗 (training_id: ${trainingId}):`,
+            error
+          );
+
+          // 如果還有重試次數，進行重試
+          if (retryCount < 2) {
+            console.log(`準備進行第 ${retryCount + 2} 次重試...`);
+            // 添加延遲，避免立即重試
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1000 * (retryCount + 1))
+            );
+            return attemptFetch(retryCount + 1);
+          }
+
+          // 所有重試都失敗，返回空字串
+          console.error(
+            `所有重試都失敗 (training_id: ${trainingId})，返回空字串`
+          );
+          return '';
+        }
+      };
+
+      const pendingRequest = attemptFetch()
+        .then((fieldInfo) => {
+          // 更新快取
+          this.aimFieldInfoCache.set(trainingIdStr, fieldInfo);
+          this.aimFieldInfoLastFetchTime.set(trainingIdStr, now);
+          this.aimFieldInfoPendingRequests.delete(trainingIdStr); // 清除進行中的請求
+
+          return fieldInfo;
+        })
+        .catch((error) => {
+          console.error(
+            `獲取 AIM 欄位資訊過程中發生意外錯誤 (training_id: ${trainingId}):`,
+            error
+          );
+          this.aimFieldInfoPendingRequests.delete(trainingIdStr); // 清除進行中的請求，即使出錯
+
+          // 返回空字串
+          return '';
+        });
+
+      // 記錄進行中的請求
+      this.aimFieldInfoPendingRequests.set(trainingIdStr, pendingRequest);
+
+      return pendingRequest;
+    } catch (error) {
+      console.error(
+        `獲取 AIM 欄位資訊過程中出錯 (training_id: ${trainingId}):`,
+        error
+      );
+      this.aimFieldInfoPendingRequests.delete(trainingId?.toString());
+
+      // 返回空字串
+      return '';
+    }
   }
 
   /**
@@ -470,6 +625,11 @@ export class AIMService {
     this.llmVisionLastFetchTime = null;
     this.llmVisionPendingRequest = null;
 
+    // 清除AIM欄位資訊快取
+    this.aimFieldInfoCache.clear();
+    this.aimFieldInfoLastFetchTime.clear();
+    this.aimFieldInfoPendingRequests.clear();
+
     console.log('AIM和LLM Vision模型快取已清除');
   }
 
@@ -491,5 +651,27 @@ export class AIMService {
     this.llmVisionLastFetchTime = null;
     this.llmVisionPendingRequest = null;
     console.log('LLM Vision模型快取已清除');
+  }
+
+  /**
+   * 只清除AIM欄位資訊快取
+   */
+  clearAIMFieldInfoCache() {
+    this.aimFieldInfoCache.clear();
+    this.aimFieldInfoLastFetchTime.clear();
+    this.aimFieldInfoPendingRequests.clear();
+    console.log('AIM欄位資訊快取已清除');
+  }
+
+  /**
+   * 清除特定 training_id 的AIM欄位資訊快取
+   * @param {number} trainingId - 要清除的 training_id
+   */
+  clearAIMFieldInfoCacheById(trainingId) {
+    const trainingIdStr = trainingId.toString();
+    this.aimFieldInfoCache.delete(trainingIdStr);
+    this.aimFieldInfoLastFetchTime.delete(trainingIdStr);
+    this.aimFieldInfoPendingRequests.delete(trainingIdStr);
+    console.log(`AIM欄位資訊快取已清除 (training_id: ${trainingId})`);
   }
 }

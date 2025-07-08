@@ -505,7 +505,8 @@ export class WorkflowDataConverter {
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
           llmId: node.parameters?.llm_id?.data || 0,
-          promptText: node.parameters?.prompt?.data || ''
+          promptText: node.parameters?.prompt?.data || '',
+          modelFieldsInfo: node.parameters?.model_fields_info?.data || ''
         };
 
         console.log('QOCA AIM 節點轉換後的數據:', nodeData);
@@ -989,6 +990,17 @@ export class WorkflowDataConverter {
         const enableExplainValue =
           node.data.enableExplain ?? node.data.enable_explain?.data ?? true;
         parameters.enable_explain = { data: enableExplainValue };
+
+        if (
+          node.data.modelFieldsInfo !== undefined ||
+          node.data.model_fields_info
+        ) {
+          const modelFieldsInfoValue =
+            node.data.modelFieldsInfo ||
+            node.data.model_fields_info?.data ||
+            '';
+          parameters.model_fields_info = { data: modelFieldsInfoValue };
+        }
 
         // 只有當 enable_explain 為 true 時才處理以下參數
         if (enableExplainValue) {
