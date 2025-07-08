@@ -23569,7 +23569,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "ed5e7b2b389efd3b84097537edac171d5a9af483", "VITE_APP_BUILD_TIME": "2025-07-03T03:51:43.111Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.9"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a676e14638062924136f284cc90de1441003f4fc", "VITE_APP_BUILD_TIME": "2025-07-08T07:13:37.222Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.10"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -27272,7 +27272,8 @@ class WorkflowDataConverter {
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
           llmId: node.parameters?.llm_id?.data || 0,
-          promptText: node.parameters?.prompt?.data || ''
+          promptText: node.parameters?.prompt?.data || '',
+          modelFieldsInfo: node.parameters?.model_fields_info?.data || ''
         };
 
         console.log('QOCA AIM 節點轉換後的數據:', nodeData);
@@ -27757,6 +27758,17 @@ class WorkflowDataConverter {
           node.data.enableExplain ?? node.data.enable_explain?.data ?? true;
         parameters.enable_explain = { data: enableExplainValue };
 
+        if (
+          node.data.modelFieldsInfo !== undefined ||
+          node.data.model_fields_info
+        ) {
+          const modelFieldsInfoValue =
+            node.data.modelFieldsInfo ||
+            node.data.model_fields_info?.data ||
+            '';
+          parameters.model_fields_info = { data: modelFieldsInfoValue };
+        }
+
         // 只有當 enable_explain 為 true 時才處理以下參數
         if (enableExplainValue) {
           // llm_id 參數 - 現在支援 LLM Vision 模型 ID
@@ -27923,9 +27935,164 @@ class AIMService {
     this.llmVisionModelsCache = null;
     this.llmVisionLastFetchTime = null;
 
+    // AIM 欄位資訊緩存
+    this.aimFieldInfoCache = new Map(); // 使用 Map 以 training_id 為 key
+    this.aimFieldInfoLastFetchTime = new Map(); // 每個 training_id 的最後獲取時間
+
     this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
     this.aimPendingRequest = null; // 用於追蹤進行中的AIM請求
     this.llmVisionPendingRequest = null; // 用於追蹤進行中的LLM Vision請求
+    this.aimFieldInfoPendingRequests = new Map(); // 追蹤進行中的欄位資訊請求
+  }
+
+  /**
+   * 獲取 AIM 模型的欄位資訊
+   * @param {number} trainingId - 訓練模型 ID
+   * @returns {Promise<string>} 欄位資訊字串
+   */
+  async getAIMFieldInfo(trainingId) {
+    try {
+      // 驗證 trainingId
+      if (!trainingId || trainingId === 0) {
+        console.log('trainingId 無效，跳過欄位資訊獲取');
+        return '';
+      }
+
+      const trainingIdStr = trainingId.toString();
+
+      // 檢查是否有有效的快取
+      const now = Date.now();
+      const lastFetchTime = this.aimFieldInfoLastFetchTime.get(trainingIdStr);
+      const cachedData = this.aimFieldInfoCache.get(trainingIdStr);
+
+      if (
+        cachedData &&
+        lastFetchTime &&
+        now - lastFetchTime < this.cacheExpiryTime
+      ) {
+        console.log(`使用快取的 AIM 欄位資訊 (training_id: ${trainingId})`);
+        return cachedData;
+      }
+
+      // 如果已經有相同 training_id 的請求在進行中，則返回該請求
+      if (this.aimFieldInfoPendingRequests.has(trainingIdStr)) {
+        console.log(
+          `已有進行中的 AIM 欄位資訊請求 (training_id: ${trainingId})，使用相同請求`
+        );
+        return this.aimFieldInfoPendingRequests.get(trainingIdStr);
+      }
+
+      // 創建新請求
+      console.log(`獲取 AIM 欄位資訊 (training_id: ${trainingId})...`);
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+
+      // 定義重試邏輯的函數
+      const attemptFetch = async (retryCount = 0) => {
+        try {
+          console.log(
+            `嘗試獲取 AIM 欄位資訊，第 ${
+              retryCount + 1
+            } 次嘗試 (training_id: ${trainingId})`
+          );
+
+          const response = await fetch(
+            `${API_CONFIG.BASE_URL}/agent_designer/aim/field-info?training_id=${trainingId}`,
+            options
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+          }
+
+          let fieldInfo = await response.text(); // 使用 text() 因為後端回覆 string
+          console.log(
+            `API返回 AIM 欄位資訊原始內容 (training_id: ${trainingId}):`,
+            fieldInfo
+          );
+
+          // 檢查 API 是否回傳了已經被 JSON 序列化的字串
+          // 如果字串以 " 開頭和結尾，表示它是一個被序列化的 JSON 字串
+          if (fieldInfo.startsWith('"') && fieldInfo.endsWith('"')) {
+            try {
+              // 解析掉外層的 JSON 序列化，獲得真正的字串內容
+              fieldInfo = JSON.parse(fieldInfo);
+              console.log(
+                `解析後的 AIM 欄位資訊 (training_id: ${trainingId}):`,
+                fieldInfo
+              );
+            } catch (parseError) {
+              console.warn(
+                '無法解析 API 回傳的 JSON 字串，使用原始值:',
+                parseError
+              );
+            }
+          }
+
+          return fieldInfo;
+        } catch (error) {
+          console.error(
+            `第 ${retryCount + 1} 次嘗試失敗 (training_id: ${trainingId}):`,
+            error
+          );
+
+          // 如果還有重試次數，進行重試
+          if (retryCount < 2) {
+            console.log(`準備進行第 ${retryCount + 2} 次重試...`);
+            // 添加延遲，避免立即重試
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1000 * (retryCount + 1))
+            );
+            return attemptFetch(retryCount + 1);
+          }
+
+          // 所有重試都失敗，返回空字串
+          console.error(
+            `所有重試都失敗 (training_id: ${trainingId})，返回空字串`
+          );
+          return '';
+        }
+      };
+
+      const pendingRequest = attemptFetch()
+        .then((fieldInfo) => {
+          // 更新快取
+          this.aimFieldInfoCache.set(trainingIdStr, fieldInfo);
+          this.aimFieldInfoLastFetchTime.set(trainingIdStr, now);
+          this.aimFieldInfoPendingRequests.delete(trainingIdStr); // 清除進行中的請求
+
+          return fieldInfo;
+        })
+        .catch((error) => {
+          console.error(
+            `獲取 AIM 欄位資訊過程中發生意外錯誤 (training_id: ${trainingId}):`,
+            error
+          );
+          this.aimFieldInfoPendingRequests.delete(trainingIdStr); // 清除進行中的請求，即使出錯
+
+          // 返回空字串
+          return '';
+        });
+
+      // 記錄進行中的請求
+      this.aimFieldInfoPendingRequests.set(trainingIdStr, pendingRequest);
+
+      return pendingRequest;
+    } catch (error) {
+      console.error(
+        `獲取 AIM 欄位資訊過程中出錯 (training_id: ${trainingId}):`,
+        error
+      );
+      this.aimFieldInfoPendingRequests.delete(trainingId?.toString());
+
+      // 返回空字串
+      return '';
+    }
   }
 
   /**
@@ -28379,6 +28546,11 @@ class AIMService {
     this.llmVisionLastFetchTime = null;
     this.llmVisionPendingRequest = null;
 
+    // 清除AIM欄位資訊快取
+    this.aimFieldInfoCache.clear();
+    this.aimFieldInfoLastFetchTime.clear();
+    this.aimFieldInfoPendingRequests.clear();
+
     console.log('AIM和LLM Vision模型快取已清除');
   }
 
@@ -28400,6 +28572,28 @@ class AIMService {
     this.llmVisionLastFetchTime = null;
     this.llmVisionPendingRequest = null;
     console.log('LLM Vision模型快取已清除');
+  }
+
+  /**
+   * 只清除AIM欄位資訊快取
+   */
+  clearAIMFieldInfoCache() {
+    this.aimFieldInfoCache.clear();
+    this.aimFieldInfoLastFetchTime.clear();
+    this.aimFieldInfoPendingRequests.clear();
+    console.log('AIM欄位資訊快取已清除');
+  }
+
+  /**
+   * 清除特定 training_id 的AIM欄位資訊快取
+   * @param {number} trainingId - 要清除的 training_id
+   */
+  clearAIMFieldInfoCacheById(trainingId) {
+    const trainingIdStr = trainingId.toString();
+    this.aimFieldInfoCache.delete(trainingIdStr);
+    this.aimFieldInfoLastFetchTime.delete(trainingIdStr);
+    this.aimFieldInfoPendingRequests.delete(trainingIdStr);
+    console.log(`AIM欄位資訊快取已清除 (training_id: ${trainingId})`);
   }
 }
 
@@ -31928,10 +32122,14 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   );
   const [promptText, setPromptText] = useState$7(data?.prompt?.data || "");
   const [llmId, setLlmId] = useState$7(data?.llm_id?.data || 0);
+  const [modelFieldsInfo, setModelFieldsInfo] = useState$7(
+    data?.model_fields_info?.data || ""
+  );
   const [aimOptions, setAimOptions] = useState$7([]);
   const [llmVisionOptions, setLlmVisionOptions] = useState$7([]);
   const [isLoadingAimOptions, setIsLoadingAimOptions] = useState$7(false);
   const [isLoadingLlmVisionOptions, setIsLoadingLlmVisionOptions] = useState$7(false);
+  const [isLoadingFieldInfo, setIsLoadingFieldInfo] = useState$7(false);
   const isUpdating = useRef$2(false);
   const hasInitializedAim = useRef$2(false);
   const hasInitializedLlmVision = useRef$2(false);
@@ -32003,6 +32201,35 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       setIsLoadingLlmVisionOptions(false);
     }
   }, []);
+  const loadModelFieldsInfo = useCallback$2(async (targetTrainingId) => {
+    if (!targetTrainingId || targetTrainingId === 0) {
+      console.log("training_id 無效，清空欄位資訊");
+      setModelFieldsInfo("");
+      updateParentState("model_fields_info", { data: "" });
+      return;
+    }
+    setIsLoadingFieldInfo(true);
+    try {
+      console.log(`開始載入模型欄位資訊 (training_id: ${targetTrainingId})...`);
+      const fieldInfo = await aimService.getAIMFieldInfo(targetTrainingId);
+      console.log("載入的模型欄位資訊:", fieldInfo);
+      setModelFieldsInfo(fieldInfo);
+      updateParentState("model_fields_info", { data: fieldInfo });
+    } catch (error) {
+      console.error("載入模型欄位資訊失敗:", error);
+      setModelFieldsInfo("");
+      updateParentState("model_fields_info", { data: "" });
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "載入模型欄位資訊失敗",
+          type: "error",
+          duration: 3e3
+        });
+      }
+    } finally {
+      setIsLoadingFieldInfo(false);
+    }
+  }, []);
   useEffect$3(() => {
     loadAimOptions();
     loadLlmVisionOptions();
@@ -32018,7 +32245,9 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           simulator_id: "simulatorId",
           enable_explain: "enableExplain",
           llm_id: "llmId",
-          prompt: "promptText"
+          prompt: "promptText",
+          model_fields_info: "modelFieldsInfo"
+          // 新增欄位資訊映射
         };
         const propertyName = propertyMap[key] || key;
         const propertyValue = value.data !== void 0 ? value.data : value;
@@ -32072,6 +32301,16 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       setLlmId(data.llmId);
       hasChanges = true;
     }
+    if (data?.modelFieldsInfo !== void 0 && data.modelFieldsInfo !== modelFieldsInfo) {
+      console.log(
+        "同步 modelFieldsInfo:",
+        data.modelFieldsInfo,
+        "當前:",
+        modelFieldsInfo
+      );
+      setModelFieldsInfo(data.modelFieldsInfo);
+      hasChanges = true;
+    }
     if (hasChanges) {
       console.log("檢測到數據變化，已同步");
     }
@@ -32082,24 +32321,38 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     data?.enableExplain,
     data?.promptText,
     data?.llmId,
+    data?.modelFieldsInfo,
+    // 新增依賴
     selectedAim,
     trainingId,
     simulatorId,
     enableExplain,
     promptText,
-    llmId
+    llmId,
+    modelFieldsInfo
+    // 新增依賴
   ]);
   useEffect$3(() => {
     console.log("🔍 QOCA AIM 節點狀態監控:", {
       selectedAim,
       llmId,
       enableExplain,
+      modelFieldsInfo,
       "data.llm_id": data?.llm_id,
-      "data.llmId": data?.llmId
+      "data.llmId": data?.llmId,
+      "data.modelFieldsInfo": data?.modelFieldsInfo
     });
-  }, [selectedAim, llmId, enableExplain, data?.llm_id, data?.llmId]);
+  }, [
+    selectedAim,
+    llmId,
+    enableExplain,
+    modelFieldsInfo,
+    data?.llm_id,
+    data?.llmId,
+    data?.modelFieldsInfo
+  ]);
   const handleAimChange = useCallback$2(
-    (aimValue) => {
+    async (aimValue) => {
       console.log("handleAimChange:", selectedAim, "->", aimValue);
       isUpdating.current = true;
       try {
@@ -32118,6 +32371,16 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           });
           setTrainingId(selectedModel.training_id || 0);
           setSimulatorId(selectedModel.simulator_id || "");
+          if (selectedModel.training_id && selectedModel.training_id !== 0) {
+            console.log(
+              `載入模型欄位資訊 (training_id: ${selectedModel.training_id})`
+            );
+            await loadModelFieldsInfo(selectedModel.training_id);
+          } else {
+            console.log("training_id 無效，清空欄位資訊");
+            setModelFieldsInfo("");
+            updateParentState("model_fields_info", { data: "" });
+          }
           console.log("AIM 模型批量更新完成");
         }
       } finally {
@@ -32127,7 +32390,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         }, 300);
       }
     },
-    [selectedAim, aimOptions, updateParentState]
+    [selectedAim, aimOptions, updateParentState, loadModelFieldsInfo]
   );
   const handleEnableExplainToggle = useCallback$2(() => {
     const newValue = !enableExplain;
