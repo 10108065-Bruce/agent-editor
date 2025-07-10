@@ -919,17 +919,22 @@ export default function useFlowNodes() {
   );
 
   // 添加 HTTP 節點
-  const handleAddHTTPNode = useCallback(
+  const handleAddHttpRequestNode = useCallback(
     (position) => {
-      const id = `http_${Date.now()}`;
-      const nodeCallbacksObject = getNodeCallbacks(id, 'http');
+      const id = `httpRequest_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'httpRequest');
 
       const newNode = {
         id,
-        type: 'http',
+        type: 'httpRequest',
         data: {
-          url: '', // 默認空 URL
-          method: 'GET', // 默認 HTTP 方法
+          url: '', // 預設 URL
+          method: 'GET', // 預設方法
+          headers: [
+            { key: 'Accept', value: 'application/json' },
+            { key: 'Content-Type', value: 'application/json' }
+          ], // 預設 headers
+          body: '', // 預設空 body
           ...nodeCallbacksObject
         },
         position: position || {
@@ -1275,6 +1280,31 @@ export default function useFlowNodes() {
           return; // 不創建新連線
         }
       }
+      // 檢查目標節點是否為 HTTP Request 節點
+      if (targetNode && targetNode.type === 'httpRequest') {
+        console.log('目標是 HTTP Request 節點，檢查連線限制');
+
+        // 檢查是否已有輸入連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === 'input'
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`HTTP Request 節點已有輸入連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `HTTP Request 節點只能有一個輸入連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
 
       // 檢查知識檢索節點的連線限制
       if (targetNode && targetNode.type === 'knowledgeRetrieval') {
@@ -1379,6 +1409,32 @@ export default function useFlowNodes() {
       //     return; // 不創建新連線
       //   }
       // }
+
+      // 檢查源節點是否為 HTTP Request 節點，只能有一個輸出
+      if (sourceNode && sourceNode.type === 'httpRequest') {
+        console.log('源節點是 HTTP Request 節點，檢查連線限制');
+
+        // 檢查是否已有輸出連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.source === params.source && edge.sourceHandle === 'output'
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`HTTP Request 節點已有輸出連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `HTTP Request 節點只能有一個輸出連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
 
       // 處理AI節點的連線限制
       if (isAINode) {
@@ -1822,7 +1878,7 @@ export default function useFlowNodes() {
     handleAddIfElseNode,
     handleAddKnowledgeRetrievalNode,
     handleAddWebhookNode,
-    handleAddHTTPNode,
+    handleAddHttpRequestNode,
     handleAddLineNode,
     handleAddLineMessageNode,
     handleAddEventNode,

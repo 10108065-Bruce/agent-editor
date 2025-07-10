@@ -208,6 +208,20 @@ const NodeSidebar = ({
             onDragStart={customDragStart}
           />
         )}
+        {/* http node */}
+        {filterNodes('HTTP') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='http' />
+              </div>
+            }
+            label='HTTP'
+            onClick={() => handleNodeClick('http_request')}
+            nodeType='http_request'
+            onDragStart={customDragStart}
+          />
+        )}
       </div>
       <VersionDisplay />
     </div>

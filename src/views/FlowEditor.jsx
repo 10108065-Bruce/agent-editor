@@ -183,7 +183,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddKnowledgeRetrievalNode,
     handleAddEndNode,
     handleAddWebhookNode,
-    handleAddHTTPNode,
+    handleAddHttpRequestNode,
     handleAddEventNode,
     handleAddTimerNode,
     handleAddLineNode,
@@ -442,8 +442,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'webhook':
           handleAddWebhookNode(nodePosition);
           break;
-        case 'http':
-          handleAddHTTPNode(nodePosition);
+        case 'http_request':
+          handleAddHttpRequestNode(nodePosition);
           break;
         case 'event':
           handleAddEventNode(nodePosition);
@@ -476,7 +476,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddKnowledgeRetrievalNode,
       handleAddEndNode,
       handleAddWebhookNode,
-      handleAddHTTPNode,
+      handleAddHttpRequestNode,
       handleAddEventNode,
       handleAddTimerNode,
       handleAddLineNode,

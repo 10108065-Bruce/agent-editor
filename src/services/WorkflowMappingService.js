@@ -19,7 +19,7 @@ export class WorkflowMappingService {
       ifElse: 'ifElse',
       knowledgeRetrieval: 'knowledge_retrieval',
       knowledge_retrieval: 'knowledge_retrieval',
-      http: 'http',
+      httpRequest: 'http_request',
       timer: 'timer',
       line: 'line_webhook_input',
       event: 'event',
@@ -45,7 +45,7 @@ export class WorkflowMappingService {
       ask_ai: 'aiCustomInput',
       ifElse: 'ifElse',
       knowledge_retrieval: 'knowledgeRetrieval',
-      http: 'http',
+      http_request: 'httpRequest',
       timer: 'timer',
       line: 'line_webhook_input',
       event: 'event',
@@ -74,7 +74,7 @@ export class WorkflowMappingService {
       knowledgeRetrieval: 'advanced',
       knowledge_retrieval: 'advanced',
       ifElse: 'logic',
-      http: 'integration',
+      httpRequest: 'integration',
       timer: 'event',
       line: 'integration',
       event: 'event',
@@ -115,8 +115,8 @@ export class WorkflowMappingService {
         return '結束';
       case 'webhook':
         return 'Webhook';
-      case 'http':
-        return 'HTTP 請求';
+      case 'http_request':
+        return 'HTTP Request';
       case 'timer':
         return '計時器';
       case 'line_webhook_input':
@@ -596,6 +596,24 @@ export class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
+      // case 'httpRequest':
+      // HTTP Request 節點輸出
+      // nodeOutput.output = {
+      //   response: {
+      //     node_id: node.id,
+      //     type: 'json'
+      //   },
+      //   status: {
+      //     node_id: node.id,
+      //     type: 'number'
+      //   },
+      //   headers: {
+      //     node_id: node.id,
+      //     type: 'json'
+      //   }
+      // };
+
+      // break;
       case 'aim_ml': {
         // QOCA AIM 節點輸出 - 根據節點數據判斷
         const isExplainEnabled =

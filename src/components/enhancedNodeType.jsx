@@ -7,7 +7,7 @@ import IfElseNode from './nodes/IfElseNode';
 import KnowledgeRetrievalNode from './nodes/KnowledgeRetrievalNode';
 import EndNode from './nodes/EndNode';
 import WebhookNode from './nodes/WebhookNode';
-import HTTPNode from './nodes/HTTPNode';
+import HTTPRequestNode from './nodes/HTTPNode';
 import LineNode from './nodes/LineNode';
 import TimerNode from './nodes/TimerNode';
 import LineMessageNode from './nodes/MessageNode';
@@ -24,7 +24,7 @@ const enhancedNodeTypes = {
   knowledgeRetrieval: withNodeSelection(KnowledgeRetrievalNode),
   end: withNodeSelection(EndNode),
   webhook: withNodeSelection(WebhookNode),
-  http: withNodeSelection(HTTPNode),
+  httpRequest: withNodeSelection(HTTPRequestNode),
   line_webhook_input: withNodeSelection(LineNode),
   timer: withNodeSelection(TimerNode),
   line_send_message: withNodeSelection(LineMessageNode),

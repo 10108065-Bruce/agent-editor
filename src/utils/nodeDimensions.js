@@ -136,11 +136,29 @@ export const calculateNodeDimensions = (node) => {
       };
     }
 
-    case 'http':
+    case 'httpRequest': {
+      // HTTP Request 節點尺寸計算
+      const hasHeaders = node.data?.headers && node.data.headers.length > 0;
+      const hasBody =
+        node.data?.body && ['POST', 'PUT', 'PATCH'].includes(node.data?.method);
+      const headerCount = hasHeaders ? node.data.headers.length : 1;
+
+      let height = baseHeight + 120; // 基礎高度：URL + Method
+
+      // Headers 區域高度
+      height += 60; // Headers 標籤和按鈕
+      height += headerCount * 45; // 每個 header 約 45px
+
+      // Body 區域高度（僅在支援的方法時）
+      if (hasBody) {
+        height += 100; // Body 區域
+      }
+
       return {
-        width: baseWidth,
-        height: baseHeight + 40 // 160
+        width: baseWidth + 32, // 稍微寬一點容納更多內容
+        height: Math.max(280, height) // 最小高度 280px
       };
+    }
 
     case 'timer':
       return {
@@ -178,7 +196,7 @@ export const getNodeDimensionsMap = () => {
     knowledgeRetrieval: { width: 256, height: 160 },
     end: { width: 256, height: 140 },
     webhook: { width: 256, height: 180 },
-    http: { width: 256, height: 160 },
+    httpRequest: { width: 288, height: 320 },
     timer: { width: 256, height: 200 },
     event: { width: 256, height: 180 },
     line_webhook_input: { width: 320, height: 180 },

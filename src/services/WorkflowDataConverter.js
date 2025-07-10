@@ -272,6 +272,15 @@ export class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
+      case 'http_request':
+        // HTTP Request 節點的數據轉換
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data || '',
+          method: node.parameters?.method?.data || 'GET',
+          headers: node.parameters?.headers?.data || [{ key: '', value: '' }],
+          body: node.parameters?.body?.data || ''
+        };
       case 'extract_data': {
         // Extract Data 節點的數據轉換
         const columnsData = node.parameters?.columns?.data || [];
@@ -705,6 +714,34 @@ export class WorkflowDataConverter {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
     switch (node.type) {
+      case 'httpRequest':
+        // HTTP Request 節點參數轉換
+        if (node.data.url) {
+          parameters.url = { data: node.data.url };
+        }
+
+        if (node.data.method) {
+          parameters.method = { data: node.data.method };
+        }
+
+        // Headers 處理 - 只有非空的 headers 才加入
+        if (node.data.headers && Array.isArray(node.data.headers)) {
+          const validHeaders = node.data.headers.filter(
+            (header) => header.key && header.value
+          );
+          if (validHeaders.length > 0) {
+            parameters.headers = { data: validHeaders };
+          }
+        }
+
+        // Body 處理 - 只有在支援 body 的方法且有內容時才加入
+        if (
+          ['POST', 'PUT', 'PATCH'].includes(node.data.method) &&
+          node.data.body
+        ) {
+          parameters.body = { data: node.data.body };
+        }
+        break;
       case 'line_webhook_input':
       case 'line':
         console.log('處理 line 節點 API 轉換:', node.data);

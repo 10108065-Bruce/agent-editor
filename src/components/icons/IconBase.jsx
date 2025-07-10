@@ -5,6 +5,7 @@ import browserNode from '../../assets/icon-qoca-node.svg';
 import knowledgeNode from '../../assets/icn-knowledge.svg';
 import lineWebhookNode from '../../assets/icn-line-node.svg';
 import aimNode from '../../assets/icon-aim-node.svg';
+import httpNode from '../../assets/icon-http.svg';
 
 // Map of icon types to their respective assets
 const iconMap = {
@@ -31,6 +32,10 @@ const iconMap = {
   aim: {
     src: aimNode,
     alt: 'QOCA aim Icon'
+  },
+  http: {
+    src: httpNode,
+    alt: 'HTTP Icon'
   }
 };
 
