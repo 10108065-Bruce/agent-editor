@@ -21749,11 +21749,29 @@ const calculateNodeDimensions = (node) => {
       };
     }
 
-    case 'http':
+    case 'httpRequest': {
+      // HTTP Request 節點尺寸計算
+      const hasHeaders = node.data?.headers && node.data.headers.length > 0;
+      const hasBody =
+        node.data?.body && ['POST', 'PUT', 'PATCH'].includes(node.data?.method);
+      const headerCount = hasHeaders ? node.data.headers.length : 1;
+
+      let height = baseHeight + 120; // 基礎高度：URL + Method
+
+      // Headers 區域高度
+      height += 60; // Headers 標籤和按鈕
+      height += headerCount * 45; // 每個 header 約 45px
+
+      // Body 區域高度（僅在支援的方法時）
+      if (hasBody) {
+        height += 100; // Body 區域
+      }
+
       return {
-        width: baseWidth,
-        height: baseHeight + 40 // 160
+        width: baseWidth + 32, // 稍微寬一點容納更多內容
+        height: Math.max(280, height) // 最小高度 280px
       };
+    }
 
     case 'timer':
       return {
@@ -22895,18 +22913,25 @@ function useFlowNodes() {
     },
     [safeSetNodes, getNodeCallbacks]
   );
-  const handleAddHTTPNode = useCallback$e(
+  const handleAddHttpRequestNode = useCallback$e(
     (position) => {
-      const id = `http_${Date.now()}`;
-      const nodeCallbacksObject = getNodeCallbacks(id, "http");
+      const id = `httpRequest_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, "httpRequest");
       const newNode = {
         id,
-        type: "http",
+        type: "httpRequest",
         data: {
           url: "",
-          // 默認空 URL
+          // 預設 URL
           method: "GET",
-          // 默認 HTTP 方法
+          // 預設方法
+          headers: [
+            { key: "Accept", value: "application/json" },
+            { key: "Content-Type", value: "application/json" }
+          ],
+          // 預設 headers
+          body: "",
+          // 預設空 body
           ...nodeCallbacksObject
         },
         position: position || {
@@ -23190,6 +23215,23 @@ function useFlowNodes() {
           return;
         }
       }
+      if (targetNode && targetNode.type === "httpRequest") {
+        console.log("目標是 HTTP Request 節點，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.target === targetNodeId && edge.targetHandle === "input"
+        );
+        if (existingEdges.length > 0) {
+          console.log(`HTTP Request 節點已有輸入連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `HTTP Request 節點只能有一個輸入連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
       if (targetNode && targetNode.type === "knowledgeRetrieval") {
         console.log("目標是知識檢索節點，檢查連線限制");
         const existingEdges = edges.filter(
@@ -23234,6 +23276,23 @@ function useFlowNodes() {
           if (typeof window !== "undefined" && window.notify) {
             window.notify({
               message: `Extract Data節點只能有一個輸出連線，請先刪除現有連線`,
+              type: "error",
+              duration: 3e3
+            });
+          }
+          return;
+        }
+      }
+      if (sourceNode && sourceNode.type === "httpRequest") {
+        console.log("源節點是 HTTP Request 節點，檢查連線限制");
+        const existingEdges = edges.filter(
+          (edge) => edge.source === params.source && edge.sourceHandle === "output"
+        );
+        if (existingEdges.length > 0) {
+          console.log(`HTTP Request 節點已有輸出連線，拒絕新連線`);
+          if (typeof window !== "undefined" && window.notify) {
+            window.notify({
+              message: `HTTP Request 節點只能有一個輸出連線，請先刪除現有連線`,
               type: "error",
               duration: 3e3
             });
@@ -23549,7 +23608,7 @@ function useFlowNodes() {
     handleAddIfElseNode,
     handleAddKnowledgeRetrievalNode,
     handleAddWebhookNode,
-    handleAddHTTPNode,
+    handleAddHttpRequestNode,
     handleAddLineNode,
     handleAddLineMessageNode,
     handleAddEventNode,
@@ -23569,7 +23628,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a676e14638062924136f284cc90de1441003f4fc", "VITE_APP_BUILD_TIME": "2025-07-08T07:13:37.222Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.10"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c70d06fb5a155bb8f27cae0eaa1dd6c513143dff", "VITE_APP_BUILD_TIME": "2025-07-10T07:34:57.130Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.11"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -23885,8 +23944,8 @@ const NodeSidebar = ({
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "http" }) }),
           label: "HTTP",
-          onClick: () => handleNodeClick("http"),
-          nodeType: "http",
+          onClick: () => handleNodeClick("http_request"),
+          nodeType: "http_request",
           onDragStart: customDragStart
         }
       )
@@ -24697,7 +24756,7 @@ class WorkflowMappingService {
       ifElse: 'ifElse',
       knowledgeRetrieval: 'knowledge_retrieval',
       knowledge_retrieval: 'knowledge_retrieval',
-      http: 'http',
+      httpRequest: 'http_request',
       timer: 'timer',
       line: 'line_webhook_input',
       event: 'event',
@@ -24723,7 +24782,7 @@ class WorkflowMappingService {
       ask_ai: 'aiCustomInput',
       ifElse: 'ifElse',
       knowledge_retrieval: 'knowledgeRetrieval',
-      http: 'http',
+      http_request: 'httpRequest',
       timer: 'timer',
       line: 'line_webhook_input',
       event: 'event',
@@ -24752,7 +24811,7 @@ class WorkflowMappingService {
       knowledgeRetrieval: 'advanced',
       knowledge_retrieval: 'advanced',
       ifElse: 'logic',
-      http: 'integration',
+      httpRequest: 'integration',
       timer: 'event',
       line: 'integration',
       event: 'event',
@@ -24793,8 +24852,8 @@ class WorkflowMappingService {
         return '結束';
       case 'webhook':
         return 'Webhook';
-      case 'http':
-        return 'HTTP 請求';
+      case 'http_request':
+        return 'HTTP Request';
       case 'timer':
         return '計時器';
       case 'line_webhook_input':
@@ -25269,6 +25328,24 @@ class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
+      // case 'httpRequest':
+      // HTTP Request 節點輸出
+      // nodeOutput.output = {
+      //   response: {
+      //     node_id: node.id,
+      //     type: 'json'
+      //   },
+      //   status: {
+      //     node_id: node.id,
+      //     type: 'number'
+      //   },
+      //   headers: {
+      //     node_id: node.id,
+      //     type: 'json'
+      //   }
+      // };
+
+      // break;
       case 'aim_ml': {
         // QOCA AIM 節點輸出 - 根據節點數據判斷
         const isExplainEnabled =
@@ -27039,6 +27116,15 @@ class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
+      case 'http_request':
+        // HTTP Request 節點的數據轉換
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data || '',
+          method: node.parameters?.method?.data || 'GET',
+          headers: node.parameters?.headers?.data || [{ key: '', value: '' }],
+          body: node.parameters?.body?.data || ''
+        };
       case 'extract_data': {
         // Extract Data 節點的數據轉換
         const columnsData = node.parameters?.columns?.data || [];
@@ -27472,6 +27558,34 @@ class WorkflowDataConverter {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
     switch (node.type) {
+      case 'httpRequest':
+        // HTTP Request 節點參數轉換
+        if (node.data.url) {
+          parameters.url = { data: node.data.url };
+        }
+
+        if (node.data.method) {
+          parameters.method = { data: node.data.method };
+        }
+
+        // Headers 處理 - 只有非空的 headers 才加入
+        if (node.data.headers && Array.isArray(node.data.headers)) {
+          const validHeaders = node.data.headers.filter(
+            (header) => header.key && header.value
+          );
+          if (validHeaders.length > 0) {
+            parameters.headers = { data: validHeaders };
+          }
+        }
+
+        // Body 處理 - 只有在支援 body 的方法且有內容時才加入
+        if (
+          ['POST', 'PUT', 'PATCH'].includes(node.data.method) &&
+          node.data.body
+        ) {
+          parameters.body = { data: node.data.body };
+        }
+        break;
       case 'line_webhook_input':
       case 'line':
         console.log('處理 line 節點 API 轉換:', node.data);
@@ -30329,7 +30443,7 @@ const WebhookNode$1 = memo$6(WebhookNode);
 
 const React$b = await importShared('react');
 const {memo: memo$5,useState: useState$c,useEffect: useEffect$7,useCallback: useCallback$6,useRef: useRef$5} = React$b;
-const HttpNode = ({ data, isConnectable }) => {
+const HttpRequestNode = ({ data, isConnectable }) => {
   const [localUrl, setLocalUrl] = useState$c(data?.url || "");
   const [localMethod, setLocalMethod] = useState$c(data?.method || "GET");
   const [headers, setHeaders] = useState$c(
@@ -30650,7 +30764,7 @@ const HttpNode = ({ data, isConnectable }) => {
             onCompositionEnd: handleUrlCompositionEnd,
             onKeyDown: handleUrlKeyDown,
             className: "w-full border border-gray-300 rounded p-2 text-sm",
-            placeholder: "https://api.test.ttqqq/chat/completions?api-version=2024-12-01-preview"
+            placeholder: "url"
           }
         )
       ] }),
@@ -30775,7 +30889,7 @@ const HttpNode = ({ data, isConnectable }) => {
       {
         type: "target",
         position: Position.Left,
-        id: "input",
+        id: "body",
         style: {
           background: "#e5e7eb",
           border: "1px solid #D3D3D3",
@@ -30805,7 +30919,7 @@ const HttpNode = ({ data, isConnectable }) => {
     )
   ] });
 };
-const HTTPNode = memo$5(HttpNode);
+const HTTPRequestNode = memo$5(HttpRequestNode);
 
 const React$a = await importShared('react');
 const {memo: memo$4,useState: useState$b,useEffect: useEffect$6,useCallback: useCallback$5,useRef: useRef$4} = React$a;
@@ -32330,7 +32444,6 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     promptText,
     llmId,
     modelFieldsInfo
-    // 新增依賴
   ]);
   useEffect$3(() => {
     console.log("🔍 QOCA AIM 節點狀態監控:", {
@@ -32733,7 +32846,7 @@ const enhancedNodeTypes = {
   knowledgeRetrieval: withNodeSelection(KnowledgeRetrievalNode$1),
   end: withNodeSelection(EndNode$1),
   webhook: withNodeSelection(WebhookNode$1),
-  http: withNodeSelection(HTTPNode),
+  httpRequest: withNodeSelection(HTTPRequestNode),
   line_webhook_input: withNodeSelection(LineNode$1),
   timer: withNodeSelection(TimerNode$1),
   line_send_message: withNodeSelection(LineMessageNode$1),
@@ -34110,7 +34223,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddKnowledgeRetrievalNode,
     handleAddEndNode,
     handleAddWebhookNode,
-    handleAddHTTPNode,
+    handleAddHttpRequestNode,
     handleAddEventNode,
     handleAddTimerNode,
     handleAddLineNode,
@@ -34317,8 +34430,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case "webhook":
           handleAddWebhookNode(nodePosition);
           break;
-        case "http":
-          handleAddHTTPNode(nodePosition);
+        case "http_request":
+          handleAddHttpRequestNode(nodePosition);
           break;
         case "event":
           handleAddEventNode(nodePosition);
@@ -34351,7 +34464,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddKnowledgeRetrievalNode,
       handleAddEndNode,
       handleAddWebhookNode,
-      handleAddHTTPNode,
+      handleAddHttpRequestNode,
       handleAddEventNode,
       handleAddTimerNode,
       handleAddLineNode,
