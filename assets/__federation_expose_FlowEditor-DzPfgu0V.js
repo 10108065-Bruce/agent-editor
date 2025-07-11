@@ -3860,8 +3860,8 @@ function zoom() {
   return zoom;
 }
 
-const React$s = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$j,useRef: useRef$f,useState: useState$o,useEffect: useEffect$i,forwardRef: forwardRef$1,useCallback: useCallback$f} = React$s;
+const React$t = await importShared('react');
+const {createContext,useContext,useMemo: useMemo$1,memo: memo$j,useRef: useRef$g,useState: useState$p,useEffect: useEffect$j,forwardRef: forwardRef$1,useCallback: useCallback$f} = React$t;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3904,23 +3904,23 @@ const selector$g = (s) => s.userSelectionActive ? "none" : "all";
 function Panel({ position, children, className, style: style2, ...rest }) {
   const pointerEvents = useStore(selector$g);
   const positionClasses = `${position}`.split("-");
-  return React$s.createElement("div", { className: cc(["react-flow__panel", className, ...positionClasses]), style: { ...style2, pointerEvents }, ...rest }, children);
+  return React$t.createElement("div", { className: cc(["react-flow__panel", className, ...positionClasses]), style: { ...style2, pointerEvents }, ...rest }, children);
 }
 function Attribution({ proOptions, position = "bottom-right" }) {
   if (proOptions?.hideAttribution) {
     return null;
   }
-  return React$s.createElement(
+  return React$t.createElement(
     Panel,
     { position, className: "react-flow__attribution", "data-message": "Please only hide this attribution when you are subscribed to React Flow Pro: https://reactflow.dev/pro" },
-    React$s.createElement("a", { href: "https://reactflow.dev", target: "_blank", rel: "noopener noreferrer", "aria-label": "React Flow attribution" }, "React Flow")
+    React$t.createElement("a", { href: "https://reactflow.dev", target: "_blank", rel: "noopener noreferrer", "aria-label": "React Flow attribution" }, "React Flow")
   );
 }
 const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgStyle = {}, labelBgPadding = [2, 4], labelBgBorderRadius = 2, children, className, ...rest }) => {
-  const edgeRef = useRef$f(null);
-  const [edgeTextBbox, setEdgeTextBbox] = useState$o({ x: 0, y: 0, width: 0, height: 0 });
+  const edgeRef = useRef$g(null);
+  const [edgeTextBbox, setEdgeTextBbox] = useState$p({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -3934,11 +3934,11 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
   if (typeof label === "undefined" || !label) {
     return null;
   }
-  return React$s.createElement(
+  return React$t.createElement(
     "g",
     { transform: `translate(${x - edgeTextBbox.width / 2} ${y - edgeTextBbox.height / 2})`, className: edgeTextClasses, visibility: edgeTextBbox.width ? "visible" : "hidden", ...rest },
-    labelShowBg && React$s.createElement("rect", { width: edgeTextBbox.width + 2 * labelBgPadding[0], x: -labelBgPadding[0], y: -labelBgPadding[1], height: edgeTextBbox.height + 2 * labelBgPadding[1], className: "react-flow__edge-textbg", style: labelBgStyle, rx: labelBgBorderRadius, ry: labelBgBorderRadius }),
-    React$s.createElement("text", { className: "react-flow__edge-text", y: edgeTextBbox.height / 2, dy: "0.3em", ref: edgeRef, style: labelStyle }, label),
+    labelShowBg && React$t.createElement("rect", { width: edgeTextBbox.width + 2 * labelBgPadding[0], x: -labelBgPadding[0], y: -labelBgPadding[1], height: edgeTextBbox.height + 2 * labelBgPadding[1], className: "react-flow__edge-textbg", style: labelBgStyle, rx: labelBgBorderRadius, ry: labelBgBorderRadius }),
+    React$t.createElement("text", { className: "react-flow__edge-text", y: edgeTextBbox.height / 2, dy: "0.3em", ref: edgeRef, style: labelStyle }, label),
     children
   );
 };
@@ -4020,12 +4020,12 @@ const getEventPosition = (event, bounds) => {
 };
 const isMacOs = () => typeof navigator !== "undefined" && navigator?.userAgent?.indexOf("Mac") >= 0;
 const BaseEdge = ({ id, path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth = 20 }) => {
-  return React$s.createElement(
-    React$s.Fragment,
+  return React$t.createElement(
+    React$t.Fragment,
     null,
-    React$s.createElement("path", { id, style: style2, d: path, fill: "none", className: "react-flow__edge-path", markerEnd, markerStart }),
-    interactionWidth && React$s.createElement("path", { d: path, fill: "none", strokeOpacity: 0, strokeWidth: interactionWidth, className: "react-flow__edge-interaction" }),
-    label && isNumeric(labelX) && isNumeric(labelY) ? React$s.createElement(EdgeText$1, { x: labelX, y: labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius }) : null
+    React$t.createElement("path", { id, style: style2, d: path, fill: "none", className: "react-flow__edge-path", markerEnd, markerStart }),
+    interactionWidth && React$t.createElement("path", { d: path, fill: "none", strokeOpacity: 0, strokeWidth: interactionWidth, className: "react-flow__edge-interaction" }),
+    label && isNumeric(labelX) && isNumeric(labelY) ? React$t.createElement(EdgeText$1, { x: labelX, y: labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius }) : null
   );
 };
 BaseEdge.displayName = "BaseEdge";
@@ -4135,7 +4135,7 @@ const SimpleBezierEdge = memo$j(({ sourceX, sourceY, targetX, targetY, sourcePos
     targetY,
     targetPosition
   });
-  return React$s.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$t.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 SimpleBezierEdge.displayName = "SimpleBezierEdge";
 const handleDirections = {
@@ -4286,10 +4286,10 @@ const SmoothStepEdge = memo$j(({ sourceX, sourceY, targetX, targetY, label, labe
     borderRadius: pathOptions?.borderRadius,
     offset: pathOptions?.offset
   });
-  return React$s.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$t.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 SmoothStepEdge.displayName = "SmoothStepEdge";
-const StepEdge = memo$j((props) => React$s.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
+const StepEdge = memo$j((props) => React$t.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
 StepEdge.displayName = "StepEdge";
 function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
   const [labelX, labelY, offsetX, offsetY] = getEdgeCenter({
@@ -4302,7 +4302,7 @@ function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
 }
 const StraightEdge = memo$j(({ sourceX, sourceY, targetX, targetY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth }) => {
   const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
-  return React$s.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$t.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 StraightEdge.displayName = "StraightEdge";
 function calculateControlOffset(distance2, curvature) {
@@ -4368,7 +4368,7 @@ const BezierEdge = memo$j(({ sourceX, sourceY, targetX, targetY, sourcePosition 
     targetPosition,
     curvature: pathOptions?.curvature
   });
-  return React$s.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
+  return React$t.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 BezierEdge.displayName = "BezierEdge";
 const NodeIdContext = createContext(null);
@@ -4864,7 +4864,7 @@ const Handle = forwardRef$1(({ type = "source", position = Position.Top, isValid
     onClickConnectEnd?.(event);
     store.setState({ connectionClickStartHandle: null });
   };
-  return React$s.createElement("div", { "data-handleid": handleId, "data-nodeid": nodeId, "data-handlepos": position, "data-id": `${nodeId}-${handleId}-${type}`, className: cc([
+  return React$t.createElement("div", { "data-handleid": handleId, "data-nodeid": nodeId, "data-handlepos": position, "data-id": `${nodeId}-${handleId}-${type}`, className: cc([
     "react-flow__handle",
     `react-flow__handle-${position}`,
     "nodrag",
@@ -4885,28 +4885,28 @@ const Handle = forwardRef$1(({ type = "source", position = Position.Top, isValid
 Handle.displayName = "Handle";
 var Handle$1 = memo$j(Handle);
 const DefaultNode = ({ data, isConnectable, targetPosition = Position.Top, sourcePosition = Position.Bottom }) => {
-  return React$s.createElement(
-    React$s.Fragment,
+  return React$t.createElement(
+    React$t.Fragment,
     null,
-    React$s.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
+    React$t.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
     data?.label,
-    React$s.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
+    React$t.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
   );
 };
 DefaultNode.displayName = "DefaultNode";
 var DefaultNode$1 = memo$j(DefaultNode);
-const InputNode = ({ data, isConnectable, sourcePosition = Position.Bottom }) => React$s.createElement(
-  React$s.Fragment,
+const InputNode = ({ data, isConnectable, sourcePosition = Position.Bottom }) => React$t.createElement(
+  React$t.Fragment,
   null,
   data?.label,
-  React$s.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
+  React$t.createElement(Handle$1, { type: "source", position: sourcePosition, isConnectable })
 );
 InputNode.displayName = "InputNode";
 var InputNode$1 = memo$j(InputNode);
-const OutputNode = ({ data, isConnectable, targetPosition = Position.Top }) => React$s.createElement(
-  React$s.Fragment,
+const OutputNode = ({ data, isConnectable, targetPosition = Position.Top }) => React$t.createElement(
+  React$t.Fragment,
   null,
-  React$s.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
+  React$t.createElement(Handle$1, { type: "target", position: targetPosition, isConnectable }),
   data?.label
 );
 OutputNode.displayName = "OutputNode";
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$j(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$i(() => {
+  useEffect$j(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4936,7 +4936,7 @@ const changeSelector = (s) => !!s.onSelectionChange;
 function Wrapper$1({ onSelectionChange }) {
   const storeHasSelectionChange = useStore(changeSelector);
   if (onSelectionChange || storeHasSelectionChange) {
-    return React$s.createElement(SelectionListener, { onSelectionChange });
+    return React$t.createElement(SelectionListener, { onSelectionChange });
   }
   return null;
 }
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$i(() => {
+  useEffect$j(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5038,13 +5038,13 @@ const ARIA_LIVE_MESSAGE = "react-flow__aria-live";
 const selector$c = (s) => s.ariaLiveMessage;
 function AriaLiveMessage({ rfId }) {
   const ariaLiveMessage = useStore(selector$c);
-  return React$s.createElement("div", { id: `${ARIA_LIVE_MESSAGE}-${rfId}`, "aria-live": "assertive", "aria-atomic": "true", style: ariaLiveStyle }, ariaLiveMessage);
+  return React$t.createElement("div", { id: `${ARIA_LIVE_MESSAGE}-${rfId}`, "aria-live": "assertive", "aria-atomic": "true", style: ariaLiveStyle }, ariaLiveMessage);
 }
 function A11yDescriptions({ rfId, disableKeyboardA11y }) {
-  return React$s.createElement(
-    React$s.Fragment,
+  return React$t.createElement(
+    React$t.Fragment,
     null,
-    React$s.createElement(
+    React$t.createElement(
       "div",
       { id: `${ARIA_NODE_DESC_KEY}-${rfId}`, style },
       "Press enter or space to select a node.",
@@ -5052,14 +5052,14 @@ function A11yDescriptions({ rfId, disableKeyboardA11y }) {
       " Press delete to remove it and escape to cancel.",
       " "
     ),
-    React$s.createElement("div", { id: `${ARIA_EDGE_DESC_KEY}-${rfId}`, style }, "Press enter or space to select an edge. You can then press delete to remove it or escape to cancel."),
-    !disableKeyboardA11y && React$s.createElement(AriaLiveMessage, { rfId })
+    React$t.createElement("div", { id: `${ARIA_EDGE_DESC_KEY}-${rfId}`, style }, "Press enter or space to select an edge. You can then press delete to remove it or escape to cancel."),
+    !disableKeyboardA11y && React$t.createElement(AriaLiveMessage, { rfId })
   );
 }
 var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true }) => {
-  const [keyPressed, setKeyPressed] = useState$o(false);
-  const modifierPressed = useRef$f(false);
-  const pressedKeys = useRef$f(/* @__PURE__ */ new Set([]));
+  const [keyPressed, setKeyPressed] = useState$p(false);
+  const modifierPressed = useRef$g(false);
+  const pressedKeys = useRef$g(/* @__PURE__ */ new Set([]));
   const [keyCodes, keysToWatch] = useMemo$1(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$i(() => {
+  useEffect$j(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$i(() => {
+  useEffect$j(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$i(() => {
+  useEffect$j(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5615,19 +5615,19 @@ const selector$a = (s) => ({
   userSelectionActive: s.userSelectionActive
 });
 const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, elementsSelectable, panOnDrag = true, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling = true, children, noWheelClassName, noPanClassName }) => {
-  const timerId = useRef$f();
+  const timerId = useRef$g();
   const store = useStoreApi();
-  const isZoomingOrPanning = useRef$f(false);
-  const zoomedWithRightMouseButton = useRef$f(false);
-  const zoomPane = useRef$f(null);
-  const prevTransform = useRef$f({ x: 0, y: 0, zoom: 0 });
+  const isZoomingOrPanning = useRef$g(false);
+  const zoomedWithRightMouseButton = useRef$g(false);
+  const zoomPane = useRef$g(null);
+  const prevTransform = useRef$g({ x: 0, y: 0, zoom: 0 });
   const { d3Zoom, d3Selection, d3ZoomHandler, userSelectionActive } = useStore(selector$a, shallow$1);
   const zoomActivationKeyPressed = useKeyPress(zoomActivationKeyCode);
-  const mouseButton = useRef$f(0);
-  const isPanScrolling = useRef$f(false);
-  const panScrollTimeout = useRef$f();
+  const mouseButton = useRef$g(0);
+  const isPanScrolling = useRef$g(false);
+  const panScrollTimeout = useRef$g();
   useResizeHandler(zoomPane);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -5837,7 +5837,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     elementsSelectable,
     zoomActivationKeyPressed
   ]);
-  return React$s.createElement("div", { className: "react-flow__renderer", ref: zoomPane, style: containerStyle }, children);
+  return React$t.createElement("div", { className: "react-flow__renderer", ref: zoomPane, style: containerStyle }, children);
 };
 const selector$9 = (s) => ({
   userSelectionActive: s.userSelectionActive,
@@ -5849,7 +5849,7 @@ function UserSelection() {
   if (!isActive) {
     return null;
   }
-  return React$s.createElement("div", { className: "react-flow__selection react-flow__container", style: {
+  return React$t.createElement("div", { className: "react-flow__selection react-flow__container", style: {
     width: userSelectionRect.width,
     height: userSelectionRect.height,
     transform: `translate(${userSelectionRect.x}px, ${userSelectionRect.y}px)`
@@ -5986,11 +5986,11 @@ const selector$8 = (s) => ({
   dragging: s.paneDragging
 });
 const Pane = memo$j(({ isSelecting, selectionMode = SelectionMode.Full, panOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children }) => {
-  const container = useRef$f(null);
+  const container = useRef$g(null);
   const store = useStoreApi();
-  const prevSelectedNodesCount = useRef$f(0);
-  const prevSelectedEdgesCount = useRef$f(0);
-  const containerBounds = useRef$f();
+  const prevSelectedNodesCount = useRef$g(0);
+  const prevSelectedEdgesCount = useRef$g(0);
+  const containerBounds = useRef$g();
   const { userSelectionActive, elementsSelectable, dragging } = useStore(selector$8, shallow$1);
   const resetUserSelection = () => {
     store.setState({ userSelectionActive: false, userSelectionRect: null });
@@ -6088,11 +6088,11 @@ const Pane = memo$j(({ isSelecting, selectionMode = SelectionMode.Full, panOnDra
     resetUserSelection();
   };
   const hasActiveSelection = elementsSelectable && (isSelecting || userSelectionActive);
-  return React$s.createElement(
+  return React$t.createElement(
     "div",
     { className: cc(["react-flow__pane", { dragging, selection: isSelecting }]), onClick: hasActiveSelection ? void 0 : wrapHandler(onClick, container), onContextMenu: wrapHandler(onContextMenu, container), onWheel: wrapHandler(onWheel, container), onMouseEnter: hasActiveSelection ? void 0 : onPaneMouseEnter, onMouseDown: hasActiveSelection ? onMouseDown : void 0, onMouseMove: hasActiveSelection ? onMouseMove : onPaneMouseMove, onMouseUp: hasActiveSelection ? onMouseUp : void 0, onMouseLeave: hasActiveSelection ? onMouseLeave : onPaneMouseLeave, ref: container, style: containerStyle },
     children,
-    React$s.createElement(UserSelection, null)
+    React$t.createElement(UserSelection, null)
   );
 });
 Pane.displayName = "Pane";
@@ -6268,18 +6268,18 @@ function wrapSelectionDragFunc(selectionFunc) {
 }
 function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, nodeId, isSelectable, selectNodesOnDrag }) {
   const store = useStoreApi();
-  const [dragging, setDragging] = useState$o(false);
-  const dragItems = useRef$f([]);
-  const lastPos = useRef$f({ x: null, y: null });
-  const autoPanId = useRef$f(0);
-  const containerBounds = useRef$f(null);
-  const mousePosition = useRef$f({ x: 0, y: 0 });
-  const dragEvent = useRef$f(null);
-  const autoPanStarted = useRef$f(false);
-  const dragStarted = useRef$f(false);
-  const abortDrag = useRef$f(false);
+  const [dragging, setDragging] = useState$p(false);
+  const dragItems = useRef$g([]);
+  const lastPos = useRef$g({ x: null, y: null });
+  const autoPanId = useRef$g(0);
+  const containerBounds = useRef$g(null);
+  const mousePosition = useRef$g({ x: 0, y: 0 });
+  const dragEvent = useRef$g(null);
+  const autoPanStarted = useRef$g(false);
+  const dragStarted = useRef$g(false);
+  const abortDrag = useRef$g(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$i(() => {
+  useEffect$j(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6491,11 +6491,11 @@ const arrowKeyDiffs = {
 var wrapNode = (NodeComponent) => {
   const NodeWrapper = ({ id, type, data, xPos, yPos, xPosOrigin, yPosOrigin, selected, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, style: style2, className, isDraggable, isSelectable, isConnectable, isFocusable, selectNodesOnDrag, sourcePosition, targetPosition, hidden, resizeObserver, dragHandle, zIndex, isParent, noDragClassName, noPanClassName, initialized, disableKeyboardA11y, ariaLabel, rfId, hasHandleBounds }) => {
     const store = useStoreApi();
-    const nodeRef = useRef$f(null);
-    const prevNodeRef = useRef$f(null);
-    const prevSourcePosition = useRef$f(sourcePosition);
-    const prevTargetPosition = useRef$f(targetPosition);
-    const prevType = useRef$f(type);
+    const nodeRef = useRef$g(null);
+    const prevNodeRef = useRef$g(null);
+    const prevSourcePosition = useRef$g(sourcePosition);
+    const prevTargetPosition = useRef$g(targetPosition);
+    const prevType = useRef$g(type);
     const hasPointerEvents = isSelectable || isDraggable || onClick || onMouseEnter || onMouseMove || onMouseLeave;
     const updatePositions = useUpdateNodePositions();
     const onMouseEnterHandler = getMouseHandler(id, store.getState, onMouseEnter);
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$i(() => {
+    useEffect$j(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$i(() => {
+    useEffect$j(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$i(() => {
+    useEffect$j(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6594,7 +6594,7 @@ var wrapNode = (NodeComponent) => {
     if (hidden) {
       return null;
     }
-    return React$s.createElement(
+    return React$t.createElement(
       "div",
       { className: cc([
         "react-flow__node",
@@ -6617,10 +6617,10 @@ var wrapNode = (NodeComponent) => {
         visibility: initialized ? "visible" : "hidden",
         ...style2
       }, "data-id": id, "data-testid": `rf__node-${id}`, onMouseEnter: onMouseEnterHandler, onMouseMove: onMouseMoveHandler, onMouseLeave: onMouseLeaveHandler, onContextMenu: onContextMenuHandler, onClick: onSelectNodeHandler, onDoubleClick: onDoubleClickHandler, onKeyDown: isFocusable ? onKeyDown : void 0, tabIndex: isFocusable ? 0 : void 0, role: isFocusable ? "button" : void 0, "aria-describedby": disableKeyboardA11y ? void 0 : `${ARIA_NODE_DESC_KEY}-${rfId}`, "aria-label": ariaLabel },
-      React$s.createElement(
+      React$t.createElement(
         Provider,
         { value: id },
-        React$s.createElement(NodeComponent, { id, data, type, xPos, yPos, selected, isConnectable, sourcePosition, targetPosition, dragging, dragHandle, zIndex })
+        React$t.createElement(NodeComponent, { id, data, type, xPos, yPos, selected, isConnectable, sourcePosition, targetPosition, dragging, dragHandle, zIndex })
       )
     );
   };
@@ -6639,8 +6639,8 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const store = useStoreApi();
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
-  const nodeRef = useRef$f(null);
-  useEffect$i(() => {
+  const nodeRef = useRef$g(null);
+  useEffect$j(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6666,12 +6666,12 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
       });
     }
   };
-  return React$s.createElement(
+  return React$t.createElement(
     "div",
     { className: cc(["react-flow__nodesselection", "react-flow__container", noPanClassName]), style: {
       transform: transformString
     } },
-    React$s.createElement("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu, tabIndex: disableKeyboardA11y ? void 0 : -1, onKeyDown: disableKeyboardA11y ? void 0 : onKeyDown, style: {
+    React$t.createElement("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu, tabIndex: disableKeyboardA11y ? void 0 : -1, onKeyDown: disableKeyboardA11y ? void 0 : onKeyDown, style: {
       width,
       height,
       top,
@@ -6689,14 +6689,14 @@ const FlowRenderer = ({ children, onPaneClick, onPaneMouseEnter, onPaneMouseMove
   const panOnScroll = panActivationKeyPressed || _panOnScroll;
   const isSelecting = selectionKeyPressed || selectionOnDrag && panOnDrag !== true;
   useGlobalKeyHandler({ deleteKeyCode, multiSelectionKeyCode });
-  return React$s.createElement(
+  return React$t.createElement(
     ZoomPane,
     { onMove, onMoveStart, onMoveEnd, onPaneContextMenu, elementsSelectable, zoomOnScroll, zoomOnPinch, panOnScroll, panOnScrollSpeed, panOnScrollMode, zoomOnDoubleClick, panOnDrag: !selectionKeyPressed && panOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, zoomActivationKeyCode, preventScrolling, noWheelClassName, noPanClassName },
-    React$s.createElement(
+    React$t.createElement(
       Pane,
       { onSelectionStart, onSelectionEnd, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneContextMenu, onPaneScroll, panOnDrag, isSelecting: !!isSelecting, selectionMode },
       children,
-      nodesSelectionActive && React$s.createElement(NodesSelection$1, { onSelectionContextMenu, noPanClassName, disableKeyboardA11y })
+      nodesSelectionActive && React$t.createElement(NodesSelection$1, { onSelectionContextMenu, noPanClassName, disableKeyboardA11y })
     )
   );
 };
@@ -6746,7 +6746,7 @@ const selector$5 = (s) => ({
 const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
-  const resizeObserverRef = useRef$f();
+  const resizeObserverRef = useRef$g();
   const resizeObserver = useMemo$1(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
@@ -6762,12 +6762,12 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$i(() => {
+  useEffect$j(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
   }, []);
-  return React$s.createElement("div", { className: "react-flow__nodes", style: containerStyle }, nodes.map((node) => {
+  return React$t.createElement("div", { className: "react-flow__nodes", style: containerStyle }, nodes.map((node) => {
     let nodeType = node.type || "default";
     if (!props.nodeTypes[nodeType]) {
       onError?.("003", errorMessages["error003"](nodeType));
@@ -6788,7 +6788,7 @@ const NodeRenderer = (props) => {
       height: node.height ?? 0,
       origin: props.nodeOrigin
     });
-    return React$s.createElement(NodeComponent, { key: node.id, id: node.id, className: node.className, style: node.style, type: nodeType, data: node.data, sourcePosition: node.sourcePosition || Position.Bottom, targetPosition: node.targetPosition || Position.Top, hidden: node.hidden, xPos: posX, yPos: posY, xPosOrigin: posOrigin.x, yPosOrigin: posOrigin.y, selectNodesOnDrag: props.selectNodesOnDrag, onClick: props.onNodeClick, onMouseEnter: props.onNodeMouseEnter, onMouseMove: props.onNodeMouseMove, onMouseLeave: props.onNodeMouseLeave, onContextMenu: props.onNodeContextMenu, onDoubleClick: props.onNodeDoubleClick, selected: !!node.selected, isDraggable, isSelectable, isConnectable, isFocusable, resizeObserver, dragHandle: node.dragHandle, zIndex: node[internalsSymbol]?.z ?? 0, isParent: !!node[internalsSymbol]?.isParent, noDragClassName: props.noDragClassName, noPanClassName: props.noPanClassName, initialized: !!node.width && !!node.height, rfId: props.rfId, disableKeyboardA11y: props.disableKeyboardA11y, ariaLabel: node.ariaLabel, hasHandleBounds: !!node[internalsSymbol]?.handleBounds });
+    return React$t.createElement(NodeComponent, { key: node.id, id: node.id, className: node.className, style: node.style, type: nodeType, data: node.data, sourcePosition: node.sourcePosition || Position.Bottom, targetPosition: node.targetPosition || Position.Top, hidden: node.hidden, xPos: posX, yPos: posY, xPosOrigin: posOrigin.x, yPosOrigin: posOrigin.y, selectNodesOnDrag: props.selectNodesOnDrag, onClick: props.onNodeClick, onMouseEnter: props.onNodeMouseEnter, onMouseMove: props.onNodeMouseMove, onMouseLeave: props.onNodeMouseLeave, onContextMenu: props.onNodeContextMenu, onDoubleClick: props.onNodeDoubleClick, selected: !!node.selected, isDraggable, isSelectable, isConnectable, isFocusable, resizeObserver, dragHandle: node.dragHandle, zIndex: node[internalsSymbol]?.z ?? 0, isParent: !!node[internalsSymbol]?.isParent, noDragClassName: props.noDragClassName, noPanClassName: props.noPanClassName, initialized: !!node.width && !!node.height, rfId: props.rfId, disableKeyboardA11y: props.disableKeyboardA11y, ariaLabel: node.ariaLabel, hasHandleBounds: !!node[internalsSymbol]?.handleBounds });
   }));
 };
 NodeRenderer.displayName = "NodeRenderer";
@@ -6808,13 +6808,13 @@ const shiftY = (y, shift, position) => {
   return y;
 };
 const EdgeUpdaterClassName = "react-flow__edgeupdater";
-const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMouseEnter, onMouseOut, type }) => React$s.createElement("circle", { onMouseDown, onMouseEnter, onMouseOut, className: cc([EdgeUpdaterClassName, `${EdgeUpdaterClassName}-${type}`]), cx: shiftX(centerX, radius, position), cy: shiftY(centerY, radius, position), r: radius, stroke: "transparent", fill: "transparent" });
+const EdgeAnchor = ({ position, centerX, centerY, radius = 10, onMouseDown, onMouseEnter, onMouseOut, type }) => React$t.createElement("circle", { onMouseDown, onMouseEnter, onMouseOut, className: cc([EdgeUpdaterClassName, `${EdgeUpdaterClassName}-${type}`]), cx: shiftX(centerX, radius, position), cy: shiftY(centerY, radius, position), r: radius, stroke: "transparent", fill: "transparent" });
 const alwaysValidConnection = () => true;
 var wrapEdge = (EdgeComponent) => {
   const EdgeWrapper = ({ id, className, type, data, onClick, onEdgeDoubleClick, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, hidden, sourceHandleId, targetHandleId, onContextMenu, onMouseEnter, onMouseMove, onMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, markerEnd, markerStart, rfId, ariaLabel, isFocusable, isReconnectable, pathOptions, interactionWidth, disableKeyboardA11y }) => {
-    const edgeRef = useRef$f(null);
-    const [updateHover, setUpdateHover] = useState$o(false);
-    const [updating, setUpdating] = useState$o(false);
+    const edgeRef = useRef$g(null);
+    const [updateHover, setUpdateHover] = useState$p(false);
+    const [updating, setUpdating] = useState$p(false);
     const store = useStoreApi();
     const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
     const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
@@ -6893,7 +6893,7 @@ var wrapEdge = (EdgeComponent) => {
         }
       }
     };
-    return React$s.createElement(
+    return React$t.createElement(
       "g",
       { className: cc([
         "react-flow__edge",
@@ -6901,12 +6901,12 @@ var wrapEdge = (EdgeComponent) => {
         className,
         { selected, animated, inactive, updating: updateHover }
       ]), onClick: onEdgeClick, onDoubleClick: onEdgeDoubleClickHandler, onContextMenu: onEdgeContextMenu, onMouseEnter: onEdgeMouseEnter, onMouseMove: onEdgeMouseMove, onMouseLeave: onEdgeMouseLeave, onKeyDown: isFocusable ? onKeyDown : void 0, tabIndex: isFocusable ? 0 : void 0, role: isFocusable ? "button" : "img", "data-testid": `rf__edge-${id}`, "aria-label": ariaLabel === null ? void 0 : ariaLabel ? ariaLabel : `Edge from ${source} to ${target}`, "aria-describedby": isFocusable ? `${ARIA_EDGE_DESC_KEY}-${rfId}` : void 0, ref: edgeRef },
-      !updating && React$s.createElement(EdgeComponent, { id, source, target, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, data, style: style2, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, sourceHandleId, targetHandleId, markerStart: markerStartUrl, markerEnd: markerEndUrl, pathOptions, interactionWidth }),
-      isReconnectable && React$s.createElement(
-        React$s.Fragment,
+      !updating && React$t.createElement(EdgeComponent, { id, source, target, selected, animated, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, data, style: style2, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, sourceHandleId, targetHandleId, markerStart: markerStartUrl, markerEnd: markerEndUrl, pathOptions, interactionWidth }),
+      isReconnectable && React$t.createElement(
+        React$t.Fragment,
         null,
-        (isReconnectable === "source" || isReconnectable === true) && React$s.createElement(EdgeAnchor, { position: sourcePosition, centerX: sourceX, centerY: sourceY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterSourceMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "source" }),
-        (isReconnectable === "target" || isReconnectable === true) && React$s.createElement(EdgeAnchor, { position: targetPosition, centerX: targetX, centerY: targetY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterTargetMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "target" })
+        (isReconnectable === "source" || isReconnectable === true) && React$t.createElement(EdgeAnchor, { position: sourcePosition, centerX: sourceX, centerY: sourceY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterSourceMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "source" }),
+        (isReconnectable === "target" || isReconnectable === true) && React$t.createElement(EdgeAnchor, { position: targetPosition, centerX: targetX, centerY: targetY, radius: reconnectRadius, onMouseDown: onEdgeUpdaterTargetMouseDown, onMouseEnter: onEdgeUpdaterMouseEnter, onMouseOut: onEdgeUpdaterMouseOut, type: "target" })
       )
     );
   };
@@ -7076,13 +7076,13 @@ function useVisibleEdges(onlyRenderVisible, nodeInternals, elevateEdgesOnSelect)
   return groupEdgesByZLevel(edges, nodeInternals, elevateEdgesOnSelect);
 }
 const ArrowSymbol = ({ color = "none", strokeWidth = 1 }) => {
-  return React$s.createElement("polyline", { style: {
+  return React$t.createElement("polyline", { style: {
     stroke: color,
     strokeWidth
   }, strokeLinecap: "round", strokeLinejoin: "round", fill: "none", points: "-5,-4 0,0 -5,4" });
 };
 const ArrowClosedSymbol = ({ color = "none", strokeWidth = 1 }) => {
-  return React$s.createElement("polyline", { style: {
+  return React$t.createElement("polyline", { style: {
     stroke: color,
     fill: color,
     strokeWidth
@@ -7109,10 +7109,10 @@ const Marker = ({ id, type, color, width = 12.5, height = 12.5, markerUnits = "s
   if (!Symbol2) {
     return null;
   }
-  return React$s.createElement(
+  return React$t.createElement(
     "marker",
     { className: "react-flow__arrowhead", id, markerWidth: `${width}`, markerHeight: `${height}`, viewBox: "-10 -10 20 20", markerUnits, orient, refX: "0", refY: "0" },
-    React$s.createElement(Symbol2, { color, strokeWidth })
+    React$t.createElement(Symbol2, { color, strokeWidth })
   );
 };
 const markerSelector = ({ defaultColor, rfId }) => (s) => {
@@ -7136,7 +7136,7 @@ const MarkerDefinitions = ({ defaultColor, rfId }) => {
     // the id includes all marker options, so we just need to look at that part of the marker
     (a, b) => !(a.length !== b.length || a.some((m, i) => m.id !== b[i].id))
   );
-  return React$s.createElement("defs", null, markers.map((marker) => React$s.createElement(Marker, { id: marker.id, key: marker.id, type: marker.type, color: marker.color, width: marker.width, height: marker.height, markerUnits: marker.markerUnits, strokeWidth: marker.strokeWidth, orient: marker.orient })));
+  return React$t.createElement("defs", null, markers.map((marker) => React$t.createElement(Marker, { id: marker.id, key: marker.id, type: marker.type, color: marker.color, width: marker.width, height: marker.height, markerUnits: marker.markerUnits, strokeWidth: marker.strokeWidth, orient: marker.orient })));
 };
 MarkerDefinitions.displayName = "MarkerDefinitions";
 var MarkerDefinitions$1 = memo$j(MarkerDefinitions);
@@ -7157,14 +7157,14 @@ const EdgeRenderer = ({ defaultMarkerColor, onlyRenderVisibleElements, elevateEd
   if (!width) {
     return null;
   }
-  return React$s.createElement(
-    React$s.Fragment,
+  return React$t.createElement(
+    React$t.Fragment,
     null,
-    edgeTree.map(({ level, edges, isMaxLevel }) => React$s.createElement(
+    edgeTree.map(({ level, edges, isMaxLevel }) => React$t.createElement(
       "svg",
       { key: level, style: { zIndex: level }, width, height, className: "react-flow__edges react-flow__container" },
-      isMaxLevel && React$s.createElement(MarkerDefinitions$1, { defaultColor: defaultMarkerColor, rfId }),
-      React$s.createElement("g", null, edges.map((edge) => {
+      isMaxLevel && React$t.createElement(MarkerDefinitions$1, { defaultColor: defaultMarkerColor, rfId }),
+      React$t.createElement("g", null, edges.map((edge) => {
         const [sourceNodeRect, sourceHandleBounds, sourceIsValid] = getNodeData(nodeInternals.get(edge.source));
         const [targetNodeRect, targetHandleBounds, targetIsValid] = getNodeData(nodeInternals.get(edge.target));
         if (!sourceIsValid || !targetIsValid) {
@@ -7189,7 +7189,7 @@ const EdgeRenderer = ({ defaultMarkerColor, onlyRenderVisibleElements, elevateEd
           return null;
         }
         const { sourceX, sourceY, targetX, targetY } = getEdgePositions(sourceNodeRect, sourceHandle, sourcePosition, targetNodeRect, targetHandle, targetPosition);
-        return React$s.createElement(EdgeComponent, { key: edge.id, id: edge.id, className: cc([edge.className, noPanClassName]), type: edgeType, data: edge.data, selected: !!edge.selected, animated: !!edge.animated, hidden: !!edge.hidden, label: edge.label, labelStyle: edge.labelStyle, labelShowBg: edge.labelShowBg, labelBgStyle: edge.labelBgStyle, labelBgPadding: edge.labelBgPadding, labelBgBorderRadius: edge.labelBgBorderRadius, style: edge.style, source: edge.source, target: edge.target, sourceHandleId: edge.sourceHandle, targetHandleId: edge.targetHandle, markerEnd: edge.markerEnd, markerStart: edge.markerStart, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, onContextMenu: onEdgeContextMenu, onMouseEnter: onEdgeMouseEnter, onMouseMove: onEdgeMouseMove, onMouseLeave: onEdgeMouseLeave, onClick: onEdgeClick, onEdgeDoubleClick, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius, rfId, ariaLabel: edge.ariaLabel, isFocusable, isReconnectable, pathOptions: "pathOptions" in edge ? edge.pathOptions : void 0, interactionWidth: edge.interactionWidth, disableKeyboardA11y });
+        return React$t.createElement(EdgeComponent, { key: edge.id, id: edge.id, className: cc([edge.className, noPanClassName]), type: edgeType, data: edge.data, selected: !!edge.selected, animated: !!edge.animated, hidden: !!edge.hidden, label: edge.label, labelStyle: edge.labelStyle, labelShowBg: edge.labelShowBg, labelBgStyle: edge.labelBgStyle, labelBgPadding: edge.labelBgPadding, labelBgBorderRadius: edge.labelBgBorderRadius, style: edge.style, source: edge.source, target: edge.target, sourceHandleId: edge.sourceHandle, targetHandleId: edge.targetHandle, markerEnd: edge.markerEnd, markerStart: edge.markerStart, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, elementsSelectable, onContextMenu: onEdgeContextMenu, onMouseEnter: onEdgeMouseEnter, onMouseMove: onEdgeMouseMove, onMouseLeave: onEdgeMouseLeave, onClick: onEdgeClick, onEdgeDoubleClick, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius, rfId, ariaLabel: edge.ariaLabel, isFocusable, isReconnectable, pathOptions: "pathOptions" in edge ? edge.pathOptions : void 0, interactionWidth: edge.interactionWidth, disableKeyboardA11y });
       }))
     )),
     children
@@ -7200,12 +7200,12 @@ var EdgeRenderer$1 = memo$j(EdgeRenderer);
 const selector$3 = (s) => `translate(${s.transform[0]}px,${s.transform[1]}px) scale(${s.transform[2]})`;
 function Viewport({ children }) {
   const transform = useStore(selector$3);
-  return React$s.createElement("div", { className: "react-flow__viewport react-flow__container", style: { transform } }, children);
+  return React$t.createElement("div", { className: "react-flow__viewport react-flow__container", style: { transform } }, children);
 }
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
-  const isInitialized = useRef$f(false);
-  useEffect$i(() => {
+  const isInitialized = useRef$g(false);
+  useEffect$j(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7245,7 +7245,7 @@ const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLi
     return null;
   }
   if (CustomComponent) {
-    return React$s.createElement(CustomComponent, { connectionLineType: type, connectionLineStyle: style2, fromNode, fromHandle, fromX, fromY, toX, toY, fromPosition, toPosition, connectionStatus });
+    return React$t.createElement(CustomComponent, { connectionLineType: type, connectionLineStyle: style2, fromNode, fromHandle, fromX, fromY, toX, toY, fromPosition, toPosition, connectionStatus });
   }
   let dAttr = "";
   const pathParams = {
@@ -7270,7 +7270,7 @@ const ConnectionLine = ({ nodeId, handleType, style: style2, type = ConnectionLi
   } else {
     dAttr = `M${fromX},${fromY} ${toX},${toY}`;
   }
-  return React$s.createElement("path", { d: dAttr, fill: "none", className: "react-flow__connection-path", style: style2 });
+  return React$t.createElement("path", { d: dAttr, fill: "none", className: "react-flow__connection-path", style: style2 });
 };
 ConnectionLine.displayName = "ConnectionLine";
 const selector$2$1 = (s) => ({
@@ -7287,18 +7287,18 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
   if (!isValid) {
     return null;
   }
-  return React$s.createElement(
+  return React$t.createElement(
     "svg",
     { style: containerStyle2, width, height, className: "react-flow__edges react-flow__connectionline react-flow__container" },
-    React$s.createElement(
+    React$t.createElement(
       "g",
       { className: cc(["react-flow__connection", connectionStatus]) },
-      React$s.createElement(ConnectionLine, { nodeId, handleType, style: style2, type, CustomComponent: component, connectionStatus })
+      React$t.createElement(ConnectionLine, { nodeId, handleType, style: style2, type, CustomComponent: component, connectionStatus })
     )
   );
 }
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
-  useRef$f(null);
+  useRef$g(null);
   useStoreApi();
   const typesParsed = useMemo$1(() => {
     return createTypes(nodeOrEdgeTypes);
@@ -7309,19 +7309,19 @@ const GraphView = ({ nodeTypes, edgeTypes, onMove, onMoveStart, onMoveEnd, onIni
   const nodeTypesWrapped = useNodeOrEdgeTypes(nodeTypes, createNodeTypes);
   const edgeTypesWrapped = useNodeOrEdgeTypes(edgeTypes, createEdgeTypes);
   useOnInitHandler(onInit);
-  return React$s.createElement(
+  return React$t.createElement(
     FlowRenderer$1,
     { onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneContextMenu, onPaneScroll, deleteKeyCode, selectionKeyCode, selectionOnDrag, selectionMode, onSelectionStart, onSelectionEnd, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, elementsSelectable, onMove, onMoveStart, onMoveEnd, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, onSelectionContextMenu, preventScrolling, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y },
-    React$s.createElement(
+    React$t.createElement(
       Viewport,
       null,
-      React$s.createElement(
+      React$t.createElement(
         EdgeRenderer$1,
         { edgeTypes: edgeTypesWrapped, onEdgeClick, onEdgeDoubleClick, onlyRenderVisibleElements, onEdgeContextMenu, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius, defaultMarkerColor, noPanClassName, elevateEdgesOnSelect: !!elevateEdgesOnSelect, disableKeyboardA11y, rfId },
-        React$s.createElement(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle })
+        React$t.createElement(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle })
       ),
-      React$s.createElement("div", { className: "react-flow__edgelabel-renderer" }),
-      React$s.createElement(NodeRenderer$1, { nodeTypes: nodeTypesWrapped, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, selectNodesOnDrag, onlyRenderVisibleElements, noPanClassName, noDragClassName, disableKeyboardA11y, nodeOrigin, nodeExtent, rfId })
+      React$t.createElement("div", { className: "react-flow__edgelabel-renderer" }),
+      React$t.createElement(NodeRenderer$1, { nodeTypes: nodeTypesWrapped, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, selectNodesOnDrag, onlyRenderVisibleElements, noPanClassName, noDragClassName, disableKeyboardA11y, nodeOrigin, nodeExtent, rfId })
     )
   );
 };
@@ -7598,19 +7598,19 @@ const createRFStore = () => createWithEqualityFn((set, get) => ({
   reset: () => set({ ...initialState })
 }), Object.is);
 const ReactFlowProvider = ({ children }) => {
-  const storeRef = useRef$f(null);
+  const storeRef = useRef$g(null);
   if (!storeRef.current) {
     storeRef.current = createRFStore();
   }
-  return React$s.createElement(Provider$1, { value: storeRef.current }, children);
+  return React$t.createElement(Provider$1, { value: storeRef.current }, children);
 };
 ReactFlowProvider.displayName = "ReactFlowProvider";
 const Wrapper = ({ children }) => {
   const isWrapped = useContext(StoreContext);
   if (isWrapped) {
-    return React$s.createElement(React$s.Fragment, null, children);
+    return React$t.createElement(React$t.Fragment, null, children);
   }
-  return React$s.createElement(ReactFlowProvider, null, children);
+  return React$t.createElement(ReactFlowProvider, null, children);
 };
 Wrapper.displayName = "ReactFlowWrapper";
 const defaultNodeTypes = {
@@ -7638,18 +7638,18 @@ const wrapperStyle = {
 };
 const ReactFlow = forwardRef$1(({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes = defaultNodeTypes, edgeTypes = defaultEdgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionMode = ConnectionMode.Strict, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = "Backspace", selectionKeyCode = "Shift", selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = "Space", multiSelectionKeyCode = isMacOs() ? "Meta" : "Control", zoomActivationKeyCode = isMacOs() ? "Meta" : "Control", snapToGrid = false, snapGrid = initSnapGrid, onlyRenderVisibleElements = false, selectNodesOnDrag = true, nodesDraggable, nodesConnectable, nodesFocusable, nodeOrigin = initNodeOrigin, edgesFocusable, edgesUpdatable, elementsSelectable, defaultViewport = initDefaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = "#b1b1b7", zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, children, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onEdgeUpdate, onEdgeUpdateStart, onEdgeUpdateEnd, onReconnect, onReconnectStart, onReconnectEnd, reconnectRadius = 10, edgeUpdaterRadius = 10, onNodesChange, onEdgesChange, noDragClassName = "nodrag", noWheelClassName = "nowheel", noPanClassName = "nopan", fitView: fitView2 = false, fitViewOptions, connectOnClick = true, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect = true, autoPanOnNodeDrag = true, connectionRadius = 20, isValidConnection, onError, style: style2, id, nodeDragThreshold, ...rest }, ref) => {
   const rfId = id || "1";
-  return React$s.createElement(
+  return React$t.createElement(
     "div",
     { ...rest, style: { ...style2, ...wrapperStyle }, ref, className: cc(["react-flow", className]), "data-testid": "rf__wrapper", id },
-    React$s.createElement(
+    React$t.createElement(
       Wrapper,
       null,
-      React$s.createElement(GraphView$1, { onInit, onMove, onMoveStart, onMoveEnd, onNodeClick, onEdgeClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, nodeTypes, edgeTypes, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, deleteKeyCode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, onlyRenderVisibleElements, selectNodesOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onReconnect: onReconnect ?? onEdgeUpdate, onReconnectStart: onReconnectStart ?? onEdgeUpdateStart, onReconnectEnd: onReconnectEnd ?? onEdgeUpdateEnd, reconnectRadius: reconnectRadius ?? edgeUpdaterRadius, defaultMarkerColor, noDragClassName, noWheelClassName, noPanClassName, elevateEdgesOnSelect, rfId, disableKeyboardA11y, nodeOrigin, nodeExtent }),
-      React$s.createElement(StoreUpdater, { nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elementsSelectable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, snapToGrid, snapGrid, connectionMode, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDragStart, onNodeDrag, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }),
-      React$s.createElement(Wrapper$1, { onSelectionChange }),
+      React$t.createElement(GraphView$1, { onInit, onMove, onMoveStart, onMoveEnd, onNodeClick, onEdgeClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, nodeTypes, edgeTypes, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, deleteKeyCode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, onlyRenderVisibleElements, selectNodesOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onReconnect: onReconnect ?? onEdgeUpdate, onReconnectStart: onReconnectStart ?? onEdgeUpdateStart, onReconnectEnd: onReconnectEnd ?? onEdgeUpdateEnd, reconnectRadius: reconnectRadius ?? edgeUpdaterRadius, defaultMarkerColor, noDragClassName, noWheelClassName, noPanClassName, elevateEdgesOnSelect, rfId, disableKeyboardA11y, nodeOrigin, nodeExtent }),
+      React$t.createElement(StoreUpdater, { nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elementsSelectable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, snapToGrid, snapGrid, connectionMode, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDragStart, onNodeDrag, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }),
+      React$t.createElement(Wrapper$1, { onSelectionChange }),
       children,
-      React$s.createElement(Attribution, { proOptions, position: attributionPosition }),
-      React$s.createElement(A11yDescriptions, { rfId, disableKeyboardA11y })
+      React$t.createElement(Attribution, { proOptions, position: attributionPosition }),
+      React$t.createElement(A11yDescriptions, { rfId, disableKeyboardA11y })
     )
   );
 });
@@ -7684,7 +7684,7 @@ function useEdges() {
 }
 function createUseItemsState(applyChanges2) {
   return (initialItems) => {
-    const [items, setItems] = useState$o(initialItems);
+    const [items, setItems] = useState$p(initialItems);
     const onItemsChange = useCallback$f((changes) => setItems((items2) => applyChanges2(changes, items2)), []);
     return [items, setItems, onItemsChange];
   };
@@ -7692,13 +7692,13 @@ function createUseItemsState(applyChanges2) {
 const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
-const React$r = await importShared('react');
-const {memo: memo$i,useRef: useRef$e,useEffect: useEffect$h} = React$r;
+const React$s = await importShared('react');
+const {memo: memo$i,useRef: useRef$f,useEffect: useEffect$i} = React$s;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
     const fill = (color || background || backgroundColor);
-    return (React$r.createElement("rect", { className: cc(['react-flow__minimap-node', { selected }, className]), x: x, y: y, rx: borderRadius, ry: borderRadius, width: width, height: height, fill: fill, stroke: strokeColor, strokeWidth: strokeWidth, shapeRendering: shapeRendering, onClick: onClick ? (event) => onClick(event, id) : undefined }));
+    return (React$s.createElement("rect", { className: cc(['react-flow__minimap-node', { selected }, className]), x: x, y: y, rx: borderRadius, ry: borderRadius, width: width, height: height, fill: fill, stroke: strokeColor, strokeWidth: strokeWidth, shapeRendering: shapeRendering, onClick: onClick ? (event) => onClick(event, id) : undefined }));
 };
 MiniMapNode.displayName = 'MiniMapNode';
 var MiniMapNode$1 = memo$i(MiniMapNode);
@@ -7717,9 +7717,9 @@ nodeComponent: NodeComponent = MiniMapNode$1, onClick, }) {
     const nodeStrokeColorFunc = getAttrFunction(nodeStrokeColor);
     const nodeClassNameFunc = getAttrFunction(nodeClassName);
     const shapeRendering = typeof window === 'undefined' || !!window.chrome ? 'crispEdges' : 'geometricPrecision';
-    return (React$r.createElement(React$r.Fragment, null, nodes.map((node) => {
+    return (React$s.createElement(React$s.Fragment, null, nodes.map((node) => {
         const { x, y } = getNodePositionWithOrigin(node, nodeOrigin).positionAbsolute;
-        return (React$r.createElement(NodeComponent, { key: node.id, x: x, y: y, width: node.width, height: node.height, style: node.style, selected: node.selected, className: nodeClassNameFunc(node), color: nodeColorFunc(node), borderRadius: nodeBorderRadius, strokeColor: nodeStrokeColorFunc(node), strokeWidth: nodeStrokeWidth, shapeRendering: shapeRendering, onClick: onClick, id: node.id }));
+        return (React$s.createElement(NodeComponent, { key: node.id, x: x, y: y, width: node.width, height: node.height, style: node.style, selected: node.selected, className: nodeClassNameFunc(node), color: nodeColorFunc(node), borderRadius: nodeBorderRadius, strokeColor: nodeStrokeColorFunc(node), strokeWidth: nodeStrokeWidth, shapeRendering: shapeRendering, onClick: onClick, id: node.id }));
     })));
 }
 var MiniMapNodes$1 = memo$i(MiniMapNodes);
@@ -7747,7 +7747,7 @@ function MiniMap({ style, className, nodeStrokeColor = 'transparent', nodeColor 
 // a component properly.
 nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', maskStrokeWidth = 1, position = 'bottom-right', onClick, onNodeClick, pannable = false, zoomable = false, ariaLabel = 'React Flow mini map', inversePan = false, zoomStep = 10, offsetScale = 5, }) {
     const store = useStoreApi();
-    const svg = useRef$e(null);
+    const svg = useRef$f(null);
     const { boundingRect, viewBB, rfId } = useStore(selector$2, shallow$1);
     const elementWidth = style?.width ?? defaultWidth;
     const elementHeight = style?.height ?? defaultHeight;
@@ -7762,9 +7762,9 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const width = viewWidth + offset * 2;
     const height = viewHeight + offset * 2;
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
-    const viewScaleRef = useRef$e(0);
+    const viewScaleRef = useRef$f(0);
     viewScaleRef.current = viewScale;
-    useEffect$h(() => {
+    useEffect$i(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7820,45 +7820,45 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
             onNodeClick(event, node);
         }
         : undefined;
-    return (React$r.createElement(Panel, { position: position, style: style, className: cc(['react-flow__minimap', className]), "data-testid": "rf__minimap" },
-        React$r.createElement("svg", { width: elementWidth, height: elementHeight, viewBox: `${x} ${y} ${width} ${height}`, role: "img", "aria-labelledby": labelledBy, ref: svg, onClick: onSvgClick },
-            ariaLabel && React$r.createElement("title", { id: labelledBy }, ariaLabel),
-            React$r.createElement(MiniMapNodes$1, { onClick: onSvgNodeClick, nodeColor: nodeColor, nodeStrokeColor: nodeStrokeColor, nodeBorderRadius: nodeBorderRadius, nodeClassName: nodeClassName, nodeStrokeWidth: nodeStrokeWidth, nodeComponent: nodeComponent }),
-            React$r.createElement("path", { className: "react-flow__minimap-mask", d: `M${x - offset},${y - offset}h${width + offset * 2}v${height + offset * 2}h${-width - offset * 2}z
+    return (React$s.createElement(Panel, { position: position, style: style, className: cc(['react-flow__minimap', className]), "data-testid": "rf__minimap" },
+        React$s.createElement("svg", { width: elementWidth, height: elementHeight, viewBox: `${x} ${y} ${width} ${height}`, role: "img", "aria-labelledby": labelledBy, ref: svg, onClick: onSvgClick },
+            ariaLabel && React$s.createElement("title", { id: labelledBy }, ariaLabel),
+            React$s.createElement(MiniMapNodes$1, { onClick: onSvgNodeClick, nodeColor: nodeColor, nodeStrokeColor: nodeStrokeColor, nodeBorderRadius: nodeBorderRadius, nodeClassName: nodeClassName, nodeStrokeWidth: nodeStrokeWidth, nodeComponent: nodeComponent }),
+            React$s.createElement("path", { className: "react-flow__minimap-mask", d: `M${x - offset},${y - offset}h${width + offset * 2}v${height + offset * 2}h${-width - offset * 2}z
         M${viewBB.x},${viewBB.y}h${viewBB.width}v${viewBB.height}h${-viewBB.width}z`, fill: maskColor, fillRule: "evenodd", stroke: maskStrokeColor, strokeWidth: maskStrokeWidth, pointerEvents: "none" }))));
 }
 MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$i(MiniMap);
 
-const React$q = await importShared('react');
-const {memo: memo$h,useState: useState$n,useEffect: useEffect$g} = React$q;
+const React$r = await importShared('react');
+const {memo: memo$h,useState: useState$o,useEffect: useEffect$h} = React$r;
 
 function PlusIcon() {
-    return (React$q.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
-        React$q.createElement("path", { d: "M32 18.133H18.133V32h-4.266V18.133H0v-4.266h13.867V0h4.266v13.867H32z" })));
+    return (React$r.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
+        React$r.createElement("path", { d: "M32 18.133H18.133V32h-4.266V18.133H0v-4.266h13.867V0h4.266v13.867H32z" })));
 }
 
 function MinusIcon() {
-    return (React$q.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 5" },
-        React$q.createElement("path", { d: "M0 0h32v4.2H0z" })));
+    return (React$r.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 5" },
+        React$r.createElement("path", { d: "M0 0h32v4.2H0z" })));
 }
 
 function FitViewIcon() {
-    return (React$q.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 30" },
-        React$q.createElement("path", { d: "M3.692 4.63c0-.53.4-.938.939-.938h5.215V0H4.708C2.13 0 0 2.054 0 4.63v5.216h3.692V4.631zM27.354 0h-5.2v3.692h5.17c.53 0 .984.4.984.939v5.215H32V4.631A4.624 4.624 0 0027.354 0zm.954 24.83c0 .532-.4.94-.939.94h-5.215v3.768h5.215c2.577 0 4.631-2.13 4.631-4.707v-5.139h-3.692v5.139zm-23.677.94c-.531 0-.939-.4-.939-.94v-5.138H0v5.139c0 2.577 2.13 4.707 4.708 4.707h5.138V25.77H4.631z" })));
+    return (React$r.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 30" },
+        React$r.createElement("path", { d: "M3.692 4.63c0-.53.4-.938.939-.938h5.215V0H4.708C2.13 0 0 2.054 0 4.63v5.216h3.692V4.631zM27.354 0h-5.2v3.692h5.17c.53 0 .984.4.984.939v5.215H32V4.631A4.624 4.624 0 0027.354 0zm.954 24.83c0 .532-.4.94-.939.94h-5.215v3.768h5.215c2.577 0 4.631-2.13 4.631-4.707v-5.139h-3.692v5.139zm-23.677.94c-.531 0-.939-.4-.939-.94v-5.138H0v5.139c0 2.577 2.13 4.707 4.708 4.707h5.138V25.77H4.631z" })));
 }
 
 function LockIcon() {
-    return (React$q.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
-        React$q.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0 8 0 4.571 3.429 4.571 7.619v3.048H3.048A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047zm4.724-13.866H7.467V7.619c0-2.59 2.133-4.724 4.723-4.724 2.591 0 4.724 2.133 4.724 4.724v3.048z" })));
+    return (React$r.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
+        React$r.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0 8 0 4.571 3.429 4.571 7.619v3.048H3.048A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047zm4.724-13.866H7.467V7.619c0-2.59 2.133-4.724 4.723-4.724 2.591 0 4.724 2.133 4.724 4.724v3.048z" })));
 }
 
 function UnlockIcon() {
-    return (React$q.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
-        React$q.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0c-4.114 1.828-1.37 2.133.305 2.438 1.676.305 4.42 2.59 4.42 5.181v3.048H3.047A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047z" })));
+    return (React$r.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 25 32" },
+        React$r.createElement("path", { d: "M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0c-4.114 1.828-1.37 2.133.305 2.438 1.676.305 4.42 2.59 4.42 5.181v3.048H3.047A3.056 3.056 0 000 13.714v15.238A3.056 3.056 0 003.048 32h18.285a3.056 3.056 0 003.048-3.048V13.714a3.056 3.056 0 00-3.048-3.047zM12.19 24.533a3.056 3.056 0 01-3.047-3.047 3.056 3.056 0 013.047-3.048 3.056 3.056 0 013.048 3.048 3.056 3.056 0 01-3.048 3.047z" })));
 }
 
-const ControlButton = ({ children, className, ...rest }) => (React$q.createElement("button", { type: "button", className: cc(['react-flow__controls-button', className]), ...rest }, children));
+const ControlButton = ({ children, className, ...rest }) => (React$r.createElement("button", { type: "button", className: cc(['react-flow__controls-button', className]), ...rest }, children));
 ControlButton.displayName = 'ControlButton';
 
 const selector$1 = (s) => ({
@@ -7868,10 +7868,10 @@ const selector$1 = (s) => ({
 });
 const Controls = ({ style, showZoom = true, showFitView = true, showInteractive = true, fitViewOptions, onZoomIn, onZoomOut, onFitView, onInteractiveChange, className, children, position = 'bottom-left', }) => {
     const store = useStoreApi();
-    const [isVisible, setIsVisible] = useState$n(false);
+    const [isVisible, setIsVisible] = useState$o(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$g(() => {
+    useEffect$h(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -7897,22 +7897,22 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
         });
         onInteractiveChange?.(!isInteractive);
     };
-    return (React$q.createElement(Panel, { className: cc(['react-flow__controls', className]), position: position, style: style, "data-testid": "rf__controls" },
-        showZoom && (React$q.createElement(React$q.Fragment, null,
-            React$q.createElement(ControlButton, { onClick: onZoomInHandler, className: "react-flow__controls-zoomin", title: "zoom in", "aria-label": "zoom in", disabled: maxZoomReached },
-                React$q.createElement(PlusIcon, null)),
-            React$q.createElement(ControlButton, { onClick: onZoomOutHandler, className: "react-flow__controls-zoomout", title: "zoom out", "aria-label": "zoom out", disabled: minZoomReached },
-                React$q.createElement(MinusIcon, null)))),
-        showFitView && (React$q.createElement(ControlButton, { className: "react-flow__controls-fitview", onClick: onFitViewHandler, title: "fit view", "aria-label": "fit view" },
-            React$q.createElement(FitViewIcon, null))),
-        showInteractive && (React$q.createElement(ControlButton, { className: "react-flow__controls-interactive", onClick: onToggleInteractivity, title: "toggle interactivity", "aria-label": "toggle interactivity" }, isInteractive ? React$q.createElement(UnlockIcon, null) : React$q.createElement(LockIcon, null))),
+    return (React$r.createElement(Panel, { className: cc(['react-flow__controls', className]), position: position, style: style, "data-testid": "rf__controls" },
+        showZoom && (React$r.createElement(React$r.Fragment, null,
+            React$r.createElement(ControlButton, { onClick: onZoomInHandler, className: "react-flow__controls-zoomin", title: "zoom in", "aria-label": "zoom in", disabled: maxZoomReached },
+                React$r.createElement(PlusIcon, null)),
+            React$r.createElement(ControlButton, { onClick: onZoomOutHandler, className: "react-flow__controls-zoomout", title: "zoom out", "aria-label": "zoom out", disabled: minZoomReached },
+                React$r.createElement(MinusIcon, null)))),
+        showFitView && (React$r.createElement(ControlButton, { className: "react-flow__controls-fitview", onClick: onFitViewHandler, title: "fit view", "aria-label": "fit view" },
+            React$r.createElement(FitViewIcon, null))),
+        showInteractive && (React$r.createElement(ControlButton, { className: "react-flow__controls-interactive", onClick: onToggleInteractivity, title: "toggle interactivity", "aria-label": "toggle interactivity" }, isInteractive ? React$r.createElement(UnlockIcon, null) : React$r.createElement(LockIcon, null))),
         children));
 };
 Controls.displayName = 'Controls';
 var Controls$1 = memo$h(Controls);
 
-const React$p = await importShared('react');
-const {memo: memo$g,useRef: useRef$d} = React$p;
+const React$q = await importShared('react');
+const {memo: memo$g,useRef: useRef$e} = React$q;
 
 var BackgroundVariant;
 (function (BackgroundVariant) {
@@ -7922,10 +7922,10 @@ var BackgroundVariant;
 })(BackgroundVariant || (BackgroundVariant = {}));
 
 function LinePattern({ color, dimensions, lineWidth }) {
-    return (React$p.createElement("path", { stroke: color, strokeWidth: lineWidth, d: `M${dimensions[0] / 2} 0 V${dimensions[1]} M0 ${dimensions[1] / 2} H${dimensions[0]}` }));
+    return (React$q.createElement("path", { stroke: color, strokeWidth: lineWidth, d: `M${dimensions[0] / 2} 0 V${dimensions[1]} M0 ${dimensions[1] / 2} H${dimensions[0]}` }));
 }
 function DotPattern({ color, radius }) {
-    return React$p.createElement("circle", { cx: radius, cy: radius, r: radius, fill: color });
+    return React$q.createElement("circle", { cx: radius, cy: radius, r: radius, fill: color });
 }
 
 const defaultColor = {
@@ -7944,7 +7944,7 @@ function Background({ id, variant = BackgroundVariant.Dots,
 gap = 20, 
 // only used for lines and cross
 size, lineWidth = 1, offset = 2, color, style, className, }) {
-    const ref = useRef$d(null);
+    const ref = useRef$e(null);
     const { transform, patternId } = useStore(selector, shallow$1);
     const patternColor = color || defaultColor[variant];
     const patternSize = size || defaultSize[variant];
@@ -7957,7 +7957,7 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
     const patternOffset = isDots
         ? [scaledSize / offset, scaledSize / offset]
         : [patternDimensions[0] / offset, patternDimensions[1] / offset];
-    return (React$p.createElement("svg", { className: cc(['react-flow__background', className]), style: {
+    return (React$q.createElement("svg", { className: cc(['react-flow__background', className]), style: {
             ...style,
             position: 'absolute',
             width: '100%',
@@ -7965,8 +7965,8 @@ size, lineWidth = 1, offset = 2, color, style, className, }) {
             top: 0,
             left: 0,
         }, ref: ref, "data-testid": "rf__background" },
-        React$p.createElement("pattern", { id: patternId + id, x: transform[0] % scaledGap[0], y: transform[1] % scaledGap[1], width: scaledGap[0], height: scaledGap[1], patternUnits: "userSpaceOnUse", patternTransform: `translate(-${patternOffset[0]},-${patternOffset[1]})` }, isDots ? (React$p.createElement(DotPattern, { color: patternColor, radius: scaledSize / offset })) : (React$p.createElement(LinePattern, { dimensions: patternDimensions, color: patternColor, lineWidth: lineWidth }))),
-        React$p.createElement("rect", { x: "0", y: "0", width: "100%", height: "100%", fill: `url(#${patternId + id})` })));
+        React$q.createElement("pattern", { id: patternId + id, x: transform[0] % scaledGap[0], y: transform[1] % scaledGap[1], width: scaledGap[0], height: scaledGap[1], patternUnits: "userSpaceOnUse", patternTransform: `translate(-${patternOffset[0]},-${patternOffset[1]})` }, isDots ? (React$q.createElement(DotPattern, { color: patternColor, radius: scaledSize / offset })) : (React$q.createElement(LinePattern, { dimensions: patternDimensions, color: patternColor, lineWidth: lineWidth }))),
+        React$q.createElement("rect", { x: "0", y: "0", width: "100%", height: "100%", fill: `url(#${patternId + id})` })));
 }
 Background.displayName = 'Background';
 var Background$1 = memo$g(Background);
@@ -22220,14 +22220,14 @@ const validateLayoutQuality = (nodes, direction) => {
   };
 };
 
-const {useRef: useRef$c,useCallback: useCallback$e,useEffect: useEffect$f} = await importShared('react');
+const {useRef: useRef$d,useCallback: useCallback$e,useEffect: useEffect$g} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
-  const undoStack = useRef$c([]);
-  const redoStack = useRef$c([]);
-  const nodeCallbacks = useRef$c({});
-  const isUpdatingNodes = useRef$c(false);
+  const undoStack = useRef$d([]);
+  const redoStack = useRef$d([]);
+  const nodeCallbacks = useRef$d({});
+  const isUpdatingNodes = useRef$d(false);
   const handleAutoLayout = useCallback$e(
     async (direction = "TB") => {
       console.log(`開始執行自動排版，方向: ${direction}`);
@@ -23577,7 +23577,7 @@ function useFlowNodes() {
     },
     [edges, safeSetEdges]
   );
-  useEffect$f(() => {
+  useEffect$g(() => {
     if (typeof window !== "undefined") {
       window.deleteEdgesByHandle = deleteEdgesByHandle;
       window.deleteEdgesBySourceHandle = deleteEdgesBySourceHandle;
@@ -23628,7 +23628,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c70d06fb5a155bb8f27cae0eaa1dd6c513143dff", "VITE_APP_BUILD_TIME": "2025-07-10T07:34:57.130Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.11"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c83ff596ea6bf0bf9a1c1e2b54476fb3449c69d1", "VITE_APP_BUILD_TIME": "2025-07-11T06:06:07.181Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.47.12"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -23701,6 +23701,8 @@ const aimNode = "/agent-editor/assets/icon-aim-node-BQWIErUc.svg";
 
 const httpNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206C0%202.68629%202.68629%200%206%200H26C29.3137%200%2032%202.68629%2032%206V26C32%2029.3137%2029.3137%2032%2026%2032H6C2.68629%2032%200%2029.3137%200%2026V6Z'%20fill='%23F8D7DA'/%3e%3cpath%20d='M8.49787%2014.6875V12H10.2036V20H8.49787V16.6875H6.20576V20H4.5V12H6.20576V14.6875H8.49787ZM11.323%2014V12H16.4403V14H14.7345V20H13.0288V14H11.323ZM17.5597%2014V12H22.677V14H20.9712V20H19.2655V14H17.5597ZM27.7942%2012C28.2562%2012%2028.656%2012.1979%2028.9936%2012.5938C29.3312%2012.9896%2029.5%2013.4583%2029.5%2014V15.3125C29.5%2015.8542%2029.3312%2016.3229%2028.9936%2016.7188C28.656%2017.1146%2028.2562%2017.3125%2027.7942%2017.3125H25.5554V20H23.8497V12H27.7942ZM27.7942%2015.3125V14H25.5554V15.3125H27.7942Z'%20fill='%23FC6165'/%3e%3c/svg%3e";
 
+const promptIcon = "data:image/svg+xml,%3csvg%20width='60'%20height='61'%20viewBox='0%200%2060%2061'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='60'%20height='61'%20rx='12'%20fill='url(%23eqyxrzf2ja)'/%3e%3cpath%20d='M27.647%2030.324a1.576%201.576%200%200%201%202.248%200l.547.553c.62.63.62%201.649%200%202.277L15.919%2047.861a1.576%201.576%200%200%201-2.248%200l-.547-.553a1.625%201.625%200%200%201%200-2.277l14.523-14.707zM36.141%2017.204c0%20.663-.53%201.201-1.186%201.201a1.194%201.194%200%200%201-1.186-1.2V13.2c0-.663.531-1.201%201.186-1.201.655%200%201.186.538%201.186%201.201v4.003zM30.384%2018.785c.463.47.463%201.23%200%201.699a1.175%201.175%200%200%201-1.677%200l-2.796-2.831a1.212%201.212%200%200%201%200-1.698%201.175%201.175%200%200%201%201.677%200l2.796%202.83zM27.05%2024.81c.654%200%201.185.538%201.185%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM46.814%2024.81c.655%200%201.186.538%201.186%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM42.841%2015.955a1.175%201.175%200%200%201%201.677%200c.463.469.463%201.229%200%201.698l-2.795%202.83a1.175%201.175%200%200%201-1.677%200%201.212%201.212%200%200%201%200-1.698l2.795-2.83zM43.824%2033.197c.463.469.463%201.23%200%201.698a1.175%201.175%200%200%201-1.677%200l-2.796-2.83a1.212%201.212%200%200%201%200-1.699%201.175%201.175%200%200%201%201.678%200l2.795%202.83zM36.141%2038.02c0%20.664-.53%201.202-1.186%201.202a1.194%201.194%200%200%201-1.186-1.201v-4.004c0-.663.531-1.2%201.186-1.2.655%200%201.186.537%201.186%201.2v4.004zM34.745%2021.223a.236.236%200%200%201%20.421%200l1.499%202.953c.022.045.058.081.102.104l2.917%201.517a.242.242%200%200%201%200%20.428l-2.917%201.517a.238.238%200%200%200-.102.104l-1.499%202.953a.236.236%200%200%201-.421%200l-1.499-2.953a.24.24%200%200%200-.102-.104l-2.917-1.517a.242.242%200%200%201%200-.428l2.917-1.517a.24.24%200%200%200%20.102-.104l1.498-2.953z'%20fill='%23fff'/%3e%3cdefs%3e%3clinearGradient%20id='eqyxrzf2ja'%20x1='0'%20y1='61'%20x2='60.992'%20y2='1.008'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
+
 await importShared('react');
 const iconMap = {
   input: {
@@ -23730,6 +23732,9 @@ const iconMap = {
   http: {
     src: httpNode,
     alt: "HTTP Icon"
+  },
+  prompt: {
+    src: promptIcon
   }
 };
 const IconBase = ({ type, className = "" }) => {
@@ -23770,14 +23775,14 @@ const IconBase = ({ type, className = "" }) => {
 
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
-const React$o = await importShared('react');
-const {useState: useState$m} = React$o;
+const React$p = await importShared('react');
+const {useState: useState$n} = React$p;
 const NodeSidebar = ({
   handleButtonClick,
   onDragStart: customDragStart,
   nodes = []
 }) => {
-  const [searchTerm, setSearchTerm] = useState$m("");
+  const [searchTerm, setSearchTerm] = useState$n("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -24054,10 +24059,10 @@ const workflowIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20vie
 
 const pencilIcon = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23fff'%20fill-opacity='.01'%20d='M0%200h16v16H0z'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M12.644%201.223a.533.533%200%200%200-.754%200L3.962%209.15c-.096.096-.173.21-.226.334l-1.56%203.64a.533.533%200%200%200%20.7.7l3.64-1.56c.124-.053.238-.13.334-.226l7.927-7.928a.533.533%200%200%200%200-.754l-2.133-2.133zM4.716%209.904l7.55-7.55%201.38%201.38-7.55%207.55-1.596.683-.467-.468.683-1.595z'%20fill='%231C2024'/%3e%3c/svg%3e";
 
-const React$n = await importShared('react');
-const {useState: useState$l} = React$n;
+const React$o = await importShared('react');
+const {useState: useState$m} = React$o;
 const APAAssistant = ({ title, onTitleChange }) => {
-  const [isEditing, setIsEditing] = useState$l(true);
+  const [isEditing, setIsEditing] = useState$m(true);
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -24145,8 +24150,8 @@ const APAAssistant = ({ title, onTitleChange }) => {
   ] }) }) });
 };
 
-const React$m = await importShared('react');
-const {memo: memo$f,useCallback: useCallback$d} = React$m;
+const React$n = await importShared('react');
+const {memo: memo$f,useCallback: useCallback$d} = React$n;
 
 const NodeWrapper = ({ children, selected, onClick }) => {
   const handleClick = useCallback$d(
@@ -24176,13 +24181,13 @@ const NodeWrapper = ({ children, selected, onClick }) => {
 };
 const NodeWrapper$1 = memo$f(NodeWrapper);
 
-const React$l = await importShared('react');
-const {memo: memo$e,useCallback: useCallback$c,useEffect: useEffect$e,useState: useState$k,useRef: useRef$b} = React$l;
+const React$m = await importShared('react');
+const {memo: memo$e,useCallback: useCallback$c,useEffect: useEffect$f,useState: useState$l,useRef: useRef$c} = React$m;
 const withNodeSelection = (WrappedComponent) => {
   const WithNodeSelection = (props) => {
     const { selected, data } = props;
-    const nodeRef = useRef$b(null);
-    const [isInputFocused, setIsInputFocused] = useState$k(false);
+    const nodeRef = useRef$c(null);
+    const [isInputFocused, setIsInputFocused] = useState$l(false);
     const handleNodeClick = useCallback$c(
       (e) => {
         e.stopPropagation();
@@ -24192,7 +24197,7 @@ const withNodeSelection = (WrappedComponent) => {
       },
       [data]
     );
-    useEffect$e(() => {
+    useEffect$f(() => {
       const handleFocus = (e) => {
         const isInput = e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable;
         if (isInput) {
@@ -24266,8 +24271,8 @@ function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }
 
-const React$k = await importShared('react');
-const {useRef: useRef$a,useEffect: useEffect$d,useState: useState$j} = React$k;
+const React$l = await importShared('react');
+const {useRef: useRef$b,useEffect: useEffect$e,useState: useState$k} = React$l;
 
 const AutoResizeTextarea = ({
   value,
@@ -24279,15 +24284,15 @@ const AutoResizeTextarea = ({
   className,
   ...props
 }) => {
-  const textareaRef = useRef$a(null);
-  const [isFocused, setIsFocused] = useState$j(false);
-  useEffect$d(() => {
+  const textareaRef = useRef$b(null);
+  const [isFocused, setIsFocused] = useState$k(false);
+  useEffect$e(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${Math.max(textarea.scrollHeight, 60)}px`;
   }, [value]);
-  useEffect$d(() => {
+  useEffect$e(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleFocus = () => {
@@ -24311,7 +24316,7 @@ const AutoResizeTextarea = ({
       textarea.removeEventListener("mousedown", handleMouseDown);
     };
   }, []);
-  useEffect$d(() => {
+  useEffect$e(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const handleWheelCapture = (e) => {
@@ -24351,7 +24356,7 @@ const AutoResizeTextarea = ({
       });
     };
   }, [isFocused]);
-  useEffect$d(() => {
+  useEffect$e(() => {
     if (isFocused) {
       const findReactFlowNode = (element) => {
         let current = element;
@@ -24427,19 +24432,19 @@ const AutoResizeTextarea = ({
   );
 };
 
-const React$j = await importShared('react');
-const {memo: memo$d,useReducer,useCallback: useCallback$b,useState: useState$i,useEffect: useEffect$c,useRef: useRef$9} = React$j;
+const React$k = await importShared('react');
+const {memo: memo$d,useReducer,useCallback: useCallback$b,useState: useState$j,useEffect: useEffect$d,useRef: useRef$a} = React$k;
 const CustomInputNode = ({ data, isConnectable, id }) => {
-  const [localFields, setLocalFields] = useState$i([]);
+  const [localFields, setLocalFields] = useState$j([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  const isComposingInputNameRef = useRef$9(false);
-  const isComposingDefaultValueRef = useRef$9(false);
-  const isUserInputInputNameRef = useRef$9(false);
-  const isUserInputDefaultValueRef = useRef$9(false);
-  const updateTimeoutRef = useRef$9({});
-  const lastExternalInputNameRef = useRef$9("");
-  const lastExternalDefaultValueRef = useRef$9("");
-  useEffect$c(() => {
+  const isComposingInputNameRef = useRef$a(false);
+  const isComposingDefaultValueRef = useRef$a(false);
+  const isUserInputInputNameRef = useRef$a(false);
+  const isUserInputDefaultValueRef = useRef$a(false);
+  const updateTimeoutRef = useRef$a({});
+  const lastExternalInputNameRef = useRef$a("");
+  const lastExternalDefaultValueRef = useRef$a("");
+  useEffect$d(() => {
     if (Array.isArray(data.fields)) {
       const fieldToUse = data.fields.length > 0 ? [data.fields[0]] : [
         {
@@ -24481,7 +24486,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
       lastExternalDefaultValueRef.current = "Summary the input text";
     }
   }, [data.fields, localFields]);
-  useEffect$c(() => {
+  useEffect$d(() => {
     return () => {
       Object.values(updateTimeoutRef.current).forEach((timeout) => {
         if (timeout) clearTimeout(timeout);
@@ -28721,6 +28726,451 @@ const externalService = new ExternalService();
 const iconUploadService = new IconUploadService();
 const aimService = new AIMService();
 
+/**
+ * Prompt 生成器 API 服務
+ */
+class PromptGeneratorService {
+  /**
+   * 生成優化的 Prompt
+   * @param {number} llmId - LLM 模型 ID
+   * @param {string} originalPrompt - 原始 Prompt
+   * @returns {Promise<Object>} API 回應
+   */
+  static async generateOptimizedPrompt(llmId, originalPrompt) {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          llm_id: llmId,
+          prompt: originalPrompt
+        })
+      });
+
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}/agent_designer/ai/prompt-generator`,
+        options
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || '生成優化 Prompt 失敗');
+      }
+      return data;
+    } catch (error) {
+      console.error('生成優化 Prompt 失敗:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 驗證 Prompt 生成器的參數
+   * @param {number} llmId - LLM 模型 ID
+   * @param {string} prompt - Prompt 文字
+   * @returns {Object} 驗證結果
+   */
+  static validateParameters(llmId, prompt) {
+    const errors = [];
+
+    // 驗證 LLM ID
+    if (!llmId || typeof llmId !== 'number') {
+      errors.push('LLM ID 必須是有效的數字');
+    }
+
+    // 驗證 Prompt
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+      errors.push('Prompt 不能為空');
+    }
+
+    // if (prompt && prompt.length < 5) {
+    //   errors.push('Prompt 長度至少需要 5 個字符');
+    // }
+
+    // if (prompt && prompt.length > 10000) {
+    //   errors.push('Prompt 長度不能超過 10000 個字符');
+    // }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+}
+
+const React$j = await importShared('react');
+const {useState: useState$i,useEffect: useEffect$c,useRef: useRef$9} = React$j;
+const ScrollableTextArea = ({ children, className }) => {
+  const scrollRef = useRef$9(null);
+  const [isFocused, setIsFocused] = useState$i(false);
+  useEffect$c(() => {
+    const scrollArea = scrollRef.current;
+    if (!scrollArea) return;
+    const handleFocus = () => setIsFocused(true);
+    const handleBlur = () => setIsFocused(false);
+    scrollArea.addEventListener("focus", handleFocus, true);
+    scrollArea.addEventListener("blur", handleBlur, true);
+    return () => {
+      scrollArea.removeEventListener("focus", handleFocus, true);
+      scrollArea.removeEventListener("blur", handleBlur, true);
+    };
+  }, []);
+  useEffect$c(() => {
+    const scrollArea = scrollRef.current;
+    if (!scrollArea) return;
+    const handleWheelCapture = (e) => {
+      if (scrollArea.contains(e.target)) {
+        e.stopPropagation();
+        const isAtTop = scrollArea.scrollTop <= 0;
+        const isAtBottom = Math.abs(
+          scrollArea.scrollTop + scrollArea.clientHeight - scrollArea.scrollHeight
+        ) <= 1;
+        if (isAtTop && e.deltaY < 0 || isAtBottom && e.deltaY > 0) {
+          e.preventDefault();
+        }
+      }
+    };
+    const preventZoom = (e) => {
+      if ((e.ctrlKey || e.metaKey) && scrollArea.contains(e.target)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("wheel", handleWheelCapture, {
+      passive: false,
+      capture: true
+    });
+    document.addEventListener("wheel", preventZoom, {
+      passive: false,
+      capture: true
+    });
+    return () => {
+      document.removeEventListener("wheel", handleWheelCapture, {
+        passive: false,
+        capture: true
+      });
+      document.removeEventListener("wheel", preventZoom, {
+        passive: false,
+        capture: true
+      });
+    };
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      ref: scrollRef,
+      className,
+      tabIndex: 0,
+      children
+    }
+  );
+};
+const RefinePromptOverlay = ({
+  isOpen,
+  onClose,
+  originalPrompt,
+  llmId,
+  onOptimizedPromptApply,
+  onOptimizedPromptCopy,
+  nodePosition = { x: 0, y: 0 }
+}) => {
+  const [isLoading, setIsLoading] = useState$i(false);
+  const [optimizedPrompt, setOptimizedPrompt] = useState$i("");
+  const [promptExpanded, setPromptExpanded] = useState$i(false);
+  const [error, setError] = useState$i(null);
+  const [apiResponse, setApiResponse] = useState$i(null);
+  const overlayRef = useRef$9(null);
+  const lastParamsRef = useRef$9({ prompt: "", llmId: null });
+  useEffect$c(() => {
+    if (isOpen) {
+      const currentParams = { prompt: originalPrompt, llmId };
+      const lastParams = lastParamsRef.current;
+      if (currentParams.prompt !== lastParams.prompt || currentParams.llmId !== lastParams.llmId) {
+        setOptimizedPrompt("");
+        setApiResponse(null);
+        setError(null);
+        lastParamsRef.current = currentParams;
+      }
+    }
+  }, [isOpen, originalPrompt, llmId]);
+  useEffect$c(() => {
+    if (!isOpen) {
+      setPromptExpanded(false);
+    }
+  }, [isOpen]);
+  useEffect$c(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (event) => {
+      if (overlayRef.current && !overlayRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside, true);
+      document.addEventListener("touchstart", handleClickOutside, true);
+    }, 100);
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("mousedown", handleClickOutside, true);
+      document.removeEventListener("touchstart", handleClickOutside, true);
+    };
+  }, [isOpen, onClose]);
+  const generateOptimizedPrompt = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await PromptGeneratorService.generateOptimizedPrompt(
+        llmId,
+        originalPrompt
+      );
+      setOptimizedPrompt(data.optimized_prompt);
+      setApiResponse(data);
+    } catch (err) {
+      console.error("生成優化提示失敗:", err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(optimizedPrompt);
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "已複製到剪貼板",
+          type: "success",
+          duration: 2e3
+        });
+      }
+      if (onOptimizedPromptCopy) {
+        onOptimizedPromptCopy();
+      }
+    } catch (err) {
+      console.error("複製失敗:", err);
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "複製失敗",
+          type: "error",
+          duration: 2e3
+        });
+      }
+    }
+  };
+  const applyOptimizedPrompt = () => {
+    if (onOptimizedPromptApply) {
+      onOptimizedPromptApply(optimizedPrompt);
+    }
+    onClose();
+  };
+  const handleGeneratePrompt = () => {
+    generateOptimizedPrompt();
+  };
+  const truncateText = (text, maxLines = 2) => {
+    if (!text) return "";
+    const words = text.split("");
+    const maxChars = maxLines * 50;
+    if (words.length <= maxChars || promptExpanded) {
+      return text;
+    }
+    return text.substring(0, maxChars) + "...";
+  };
+  const getOverlayPosition = () => {
+    const offsetX = 330;
+    const offsetY = -200;
+    return {
+      left: nodePosition.x + offsetX,
+      top: Math.max(nodePosition.y + offsetY, 20)
+      // 確保不會超出視窗頂部
+    };
+  };
+  if (!isOpen) return null;
+  const position = getOverlayPosition();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 z-[9999]", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "absolute inset-0 bg-transparent pointer-events-auto",
+        onClick: (e) => {
+          console.log("背景層被點擊，關閉對話框");
+          onClose();
+        }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        ref: overlayRef,
+        className: "absolute bg-white rounded-lg shadow-xl w-96 max-h-[660px] flex flex-col pointer-events-auto border border-gray-200 z-10",
+        style: {
+          left: `${position.left}px`,
+          top: `${position.top}px`
+        },
+        onClick: (e) => {
+          e.stopPropagation();
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-4 border-b border-gray-200 rounded-t-lg", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-cyan-100 rounded flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "prompt" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-900", children: "Refine Prompt" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: onClose,
+                className: "text-gray-400 hover:text-gray-600 transition-colors",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "svg",
+                  {
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "20",
+                    height: "20",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "line",
+                        {
+                          x1: "18",
+                          y1: "6",
+                          x2: "6",
+                          y2: "18"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "line",
+                        {
+                          x1: "6",
+                          y1: "6",
+                          x2: "18",
+                          y2: "18"
+                        }
+                      )
+                    ]
+                  }
+                )
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ScrollableTextArea, { className: "text-gray-800 text-sm leading-relaxed", children: truncateText(originalPrompt) }),
+            originalPrompt && originalPrompt.length > 100 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => setPromptExpanded(!promptExpanded),
+                className: "text-cyan-600 hover:text-cyan-700 text-sm mt-1 underline",
+                children: promptExpanded ? "收起" : "展開"
+              }
+            )
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 p-4 overflow-hidden flex flex-col", children: [
+            !optimizedPrompt && !isLoading && !error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleGeneratePrompt,
+                disabled: !originalPrompt || !llmId,
+                className: "px-4 py-2 text-white rounded-md bg-[#00ced1] text-white hover:bg-[#00b8bb] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors",
+                children: "生成優化 Prompt"
+              }
+            ) }),
+            isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center py-8", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-3 text-gray-600", children: "正在優化 Prompt..." })
+            ] }),
+            error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 border border-red-200 rounded-md p-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-red-800 text-sm mb-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "錯誤：" }),
+                " ",
+                error
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: handleGeneratePrompt,
+                  className: "px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm",
+                  children: "重新嘗試"
+                }
+              )
+            ] }),
+            optimizedPrompt && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600", children: "優化後的 Prompt：" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ScrollableTextArea, { className: "flex-1 border border-gray-200 rounded-md p-3 overflow-y-auto max-h-80", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-sm text-gray-800 whitespace-pre-wrap font-sans leading-relaxed", children: optimizedPrompt }) }),
+              apiResponse && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2 mt-3 justify-end", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    onClick: applyOptimizedPrompt,
+                    className: "px-3 py-1 bg-[#00ced1] hover:bg-[#00b8bb] text-white rounded-md transition-colors text-sm flex items-center space-x-1",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "svg",
+                        {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: "14",
+                          height: "14",
+                          viewBox: "0 0 24 24",
+                          fill: "none",
+                          stroke: "currentColor",
+                          strokeWidth: "2",
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "20 6 9 17 4 12" })
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "應用" })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: copyToClipboard,
+                    className: "px-3 py-1 text-white rounded-md bg-[#00ced1] hover:bg-[#00b8bb] transition-colors text-sm flex items-center space-x-1",
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "svg",
+                      {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: "14",
+                        height: "14",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "rect",
+                            {
+                              x: "9",
+                              y: "9",
+                              width: "13",
+                              height: "13",
+                              rx: "2",
+                              ry: "2"
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" })
+                        ]
+                      }
+                    )
+                  }
+                )
+              ] })
+            ] })
+          ] })
+        ]
+      }
+    )
+  ] });
+};
+
+const promptDisabledIcon = "data:image/svg+xml,%3csvg%20width='60'%20height='61'%20viewBox='0%200%2060%2061'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='60'%20height='61'%20rx='12'%20fill='%23F5F5F5'/%3e%3cpath%20d='M27.647%2030.324a1.576%201.576%200%200%201%202.248%200l.547.553c.62.63.62%201.649%200%202.277L15.919%2047.861a1.576%201.576%200%200%201-2.248%200l-.547-.553a1.625%201.625%200%200%201%200-2.277l14.523-14.707zM36.141%2017.204c0%20.663-.53%201.201-1.186%201.201a1.194%201.194%200%200%201-1.186-1.2V13.2c0-.663.531-1.201%201.186-1.201.655%200%201.186.538%201.186%201.201v4.003zM30.384%2018.785c.463.47.463%201.23%200%201.699a1.175%201.175%200%200%201-1.677%200l-2.796-2.831a1.212%201.212%200%200%201%200-1.698%201.175%201.175%200%200%201%201.677%200l2.796%202.83zM27.05%2024.81c.654%200%201.185.538%201.185%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM46.814%2024.81c.655%200%201.186.538%201.186%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM42.841%2015.955a1.175%201.175%200%200%201%201.677%200c.463.469.463%201.229%200%201.698l-2.795%202.83a1.175%201.175%200%200%201-1.677%200%201.212%201.212%200%200%201%200-1.698l2.795-2.83zM43.824%2033.197c.463.469.463%201.23%200%201.698a1.175%201.175%200%200%201-1.677%200l-2.795-2.83a1.212%201.212%200%200%201%200-1.699%201.175%201.175%200%200%201%201.677%200l2.795%202.83zM36.141%2038.02c0%20.664-.53%201.202-1.186%201.202a1.194%201.194%200%200%201-1.186-1.201v-4.004c0-.663.531-1.2%201.186-1.2.655%200%201.186.537%201.186%201.2v4.004zM34.745%2021.223a.236.236%200%200%201%20.421%200l1.499%202.953c.022.045.058.081.102.104l2.917%201.517a.242.242%200%200%201%200%20.428l-2.917%201.517a.238.238%200%200%200-.102.104l-1.499%202.953a.236.236%200%200%201-.421%200l-1.499-2.953a.24.24%200%200%200-.102-.104l-2.917-1.517a.242.242%200%200%201%200-.428l2.917-1.517a.24.24%200%200%200%20.102-.104l1.498-2.953z'%20fill='%23D9D9D9'/%3e%3c/svg%3e";
+
 const React$i = await importShared('react');
 const {memo: memo$c,useState: useState$h,useEffect: useEffect$b,useCallback: useCallback$a,useRef: useRef$8} = React$i;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
@@ -28730,6 +29180,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     { value: "3", label: "O3-mega" },
     { value: "4", label: "O3-ultra" }
   ]);
+  const [showRefinePrompt, setShowRefinePrompt] = useState$h(false);
   const edges = useEdges();
   const contextConnectionCount = edges.filter(
     (edge) => edge.target === id && edge.targetHandle === "context-input"
@@ -28872,6 +29323,44 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       }
     };
   }, []);
+  const handleRefinePromptClick = useCallback$a(() => {
+    const validation = PromptGeneratorService.validateParameters(
+      parseInt(localModel),
+      promptText
+    );
+    if (!validation.isValid) {
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: validation.errors[0],
+          type: "error",
+          duration: 3e3
+        });
+      }
+      return;
+    }
+    setShowRefinePrompt(true);
+  }, [localModel, promptText]);
+  const handleOptimizedPromptApply = useCallback$a(
+    (optimizedPrompt) => {
+      setPromptText(optimizedPrompt);
+      lastExternalValueRef.current = optimizedPrompt;
+      updateParentState("promptText", optimizedPrompt);
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "優化 Prompt 已應用",
+          type: "success",
+          duration: 2e3
+        });
+      }
+    },
+    [updateParentState]
+  );
+  const handleOptimizedPromptCopy = useCallback$a(() => {
+    console.log("優化後的 Prompt 已複製到剪貼板");
+  }, []);
+  const closeRefinePrompt = useCallback$a(() => {
+    setShowRefinePrompt(false);
+  }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
@@ -28882,23 +29371,27 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "model" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
               className: `w-full border border-gray-300 rounded p-2 text-sm bg-white appearance-none
-                ${isLoadingModels ? "opacity-70 cursor-wait" : ""} 
-                ${modelLoadError ? "border-red-300" : ""}`,
+                 ${isLoadingModels ? "opacity-70 cursor-wait" : ""} 
+                 ${modelLoadError ? "border-red-300" : ""}
+                 ${showRefinePrompt ? "opacity-50 cursor-not-allowed" : ""}`,
               value: localModel,
               onChange: handleModelChange,
-              disabled: isLoadingModels,
-              children: modelOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "option",
-                {
-                  value: option.value,
-                  children: option.label
-                },
-                option.value
-              ))
+              disabled: isLoadingModels || showRefinePrompt,
+              children: [
+                " ",
+                modelOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "option",
+                  {
+                    value: option.value,
+                    children: option.label
+                  },
+                  option.value
+                ))
+              ]
             }
           ),
           isLoadingModels ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -28924,18 +29417,60 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Prompt" }),
           hasPromptConnection && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: "已連線" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          AutoResizeTextarea,
-          {
-            value: promptText,
-            onChange: handlePromptTextChange,
-            onCompositionStart: handleCompositionStart,
-            onCompositionEnd: handleCompositionEnd,
-            onKeyDown: handleKeyDown,
-            placeholder: "輸入您的提示",
-            className: "w-full border border-gray-300 rounded p-2 text-sm"
-          }
-        )
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AutoResizeTextarea,
+            {
+              value: promptText,
+              onChange: handlePromptTextChange,
+              onCompositionStart: handleCompositionStart,
+              onCompositionEnd: handleCompositionEnd,
+              onKeyDown: handleKeyDown,
+              placeholder: "輸入您的提示",
+              className: "w-full border border-gray-300 rounded p-2 text-sm pr-10",
+              disabled: showRefinePrompt
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: handleRefinePromptClick,
+              disabled: !promptText || promptText.trim().length === 0,
+              className: "group absolute bottom-3 right-1 w-6 h-6disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors",
+              title: "Refine prompt",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    src: promptIcon,
+                    width: 18,
+                    height: 18,
+                    style: {
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain"
+                    },
+                    className: "max-w-full max-h-full object-contain group-disabled:hidden"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    src: promptDisabledIcon,
+                    width: 18,
+                    height: 18,
+                    style: {
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain"
+                    },
+                    className: "max-w-full max-h-full object-contain hidden group-disabled:block"
+                  }
+                )
+              ]
+            }
+          )
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "Context" }),
@@ -28995,6 +29530,18 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           right: "-6px"
         },
         isConnectable
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      RefinePromptOverlay,
+      {
+        isOpen: showRefinePrompt,
+        onClose: closeRefinePrompt,
+        originalPrompt: promptText,
+        llmId: parseInt(localModel),
+        onOptimizedPromptApply: handleOptimizedPromptApply,
+        onOptimizedPromptCopy: handleOptimizedPromptCopy,
+        nodePosition: { x: data?.position?.x || 0, y: data?.position?.y || 0 }
       }
     )
   ] });
@@ -32236,6 +32783,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   );
   const [promptText, setPromptText] = useState$7(data?.prompt?.data || "");
   const [llmId, setLlmId] = useState$7(data?.llm_id?.data || 0);
+  const [showRefinePrompt, setShowRefinePrompt] = useState$7(false);
   const [modelFieldsInfo, setModelFieldsInfo] = useState$7(
     data?.model_fields_info?.data || ""
   );
@@ -32593,6 +33141,49 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       }, 300);
     }
   }, []);
+  const handleRefinePromptClick = useCallback$2(() => {
+    const validation = PromptGeneratorService.validateParameters(
+      llmId,
+      promptText
+    );
+    if (!validation.isValid) {
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: validation.errors[0],
+          type: "error",
+          duration: 3e3
+        });
+      }
+      return;
+    }
+    setShowRefinePrompt(true);
+  }, [llmId, promptText]);
+  const handleOptimizedPromptApply = useCallback$2(
+    (optimizedPrompt) => {
+      setPromptText(optimizedPrompt);
+      lastExternalValueRef.current = optimizedPrompt;
+      updateParentState("prompt", {
+        type: "string",
+        data: optimizedPrompt,
+        node_id: data?.id || ""
+      });
+      console.log("優化後的 Prompt 已應用:", optimizedPrompt);
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "優化 Prompt 已應用",
+          type: "success",
+          duration: 2e3
+        });
+      }
+    },
+    [updateParentState, data?.id]
+  );
+  const handleOptimizedPromptCopy = useCallback$2(() => {
+    console.log("優化後的 Prompt 已複製到剪貼板");
+  }, []);
+  const closeRefinePrompt = useCallback$2(() => {
+    setShowRefinePrompt(false);
+  }, []);
   useEffect$3(() => {
     return () => {
       if (updateTimeoutRef.current) {
@@ -32649,10 +33240,11 @@ const QOCAAimNode = ({ data, isConnectable }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
-                className: "w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8",
+                className: `w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8
+                  ${showRefinePrompt ? "opacity-50 cursor-not-allowed" : ""}`,
                 value: selectedAim,
                 onChange: (e) => handleAimChange(e.target.value),
-                disabled: isLoadingAimOptions,
+                disabled: isLoadingAimOptions || showRefinePrompt,
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: isLoadingAimOptions ? "載入中..." : "選擇 AIM 模型" }),
                   aimOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -32688,8 +33280,8 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "div",
             {
-              className: `relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${enableExplain ? "bg-cyan-500" : "bg-gray-200"}`,
-              onClick: handleEnableExplainToggle,
+              className: `relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enableExplain ? "bg-cyan-500" : "bg-gray-200"} ${showRefinePrompt ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
+              onClick: showRefinePrompt ? void 0 : handleEnableExplainToggle,
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "span",
                 {
@@ -32706,10 +33298,11 @@ const QOCAAimNode = ({ data, isConnectable }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "select",
                 {
-                  className: "w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8",
+                  className: `w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8
+                      ${showRefinePrompt ? "opacity-50 cursor-not-allowed" : ""}`,
                   value: llmId,
                   onChange: (e) => handleLlmChange(e.target.value),
-                  disabled: isLoadingLlmVisionOptions,
+                  disabled: isLoadingLlmVisionOptions || showRefinePrompt,
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: isLoadingLlmVisionOptions ? "載入中..." : "選擇 LLM Vision 模型" }),
                     llmVisionOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -32743,18 +33336,60 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-medium", children: "Prompt" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              AutoResizeTextarea,
-              {
-                value: promptText,
-                onChange: handlePromptChange,
-                onCompositionStart: handleCompositionStart,
-                onCompositionEnd: handleCompositionEnd,
-                onKeyDown: handleKeyDown,
-                placeholder: "Type your prompt here.",
-                className: "w-full border border-gray-300 rounded p-2 text-sm min-h-[80px]"
-              }
-            )
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                AutoResizeTextarea,
+                {
+                  value: promptText,
+                  onChange: handlePromptChange,
+                  onCompositionStart: handleCompositionStart,
+                  onCompositionEnd: handleCompositionEnd,
+                  onKeyDown: handleKeyDown,
+                  placeholder: "Type your prompt here.",
+                  className: "w-full border border-gray-300 rounded p-2 text-sm min-h-[80px] pr-10",
+                  disabled: showRefinePrompt
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: handleRefinePromptClick,
+                  disabled: !promptText || promptText.trim().length === 0 || !llmId,
+                  className: "group absolute bottom-2 right-2 w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors",
+                  title: "Refine prompt",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "img",
+                      {
+                        src: promptIcon,
+                        width: 18,
+                        height: 18,
+                        style: {
+                          maxWidth: "100%",
+                          maxHeight: "100%",
+                          objectFit: "contain"
+                        },
+                        className: "max-w-full max-h-full object-contain group-disabled:hidden"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "img",
+                      {
+                        src: promptDisabledIcon,
+                        width: 18,
+                        height: 18,
+                        style: {
+                          maxWidth: "100%",
+                          maxHeight: "100%",
+                          objectFit: "contain"
+                        },
+                        className: "max-w-full max-h-full object-contain hidden group-disabled:block"
+                      }
+                    )
+                  ]
+                }
+              )
+            ] })
           ] })
         ] })
       ] })
@@ -32832,7 +33467,19 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         },
         handleType
       );
-    })
+    }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      RefinePromptOverlay,
+      {
+        isOpen: showRefinePrompt,
+        onClose: closeRefinePrompt,
+        originalPrompt: promptText,
+        llmId,
+        onOptimizedPromptApply: handleOptimizedPromptApply,
+        onOptimizedPromptCopy: handleOptimizedPromptCopy,
+        nodePosition: { x: data?.position?.x || 0, y: data?.position?.y || 0 }
+      }
+    )
   ] });
 };
 const QOCAAimNode$1 = memo(QOCAAimNode);
