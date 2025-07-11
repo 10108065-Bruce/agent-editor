@@ -180,28 +180,67 @@ const RefinePromptOverlay = ({
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(optimizedPrompt);
+      // 首先嘗試（如果可用且不在受限環境中）
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(optimizedPrompt);
 
-      // 顯示成功通知
-      if (typeof window !== 'undefined' && window.notify) {
-        window.notify({
-          message: '已複製到剪貼板',
-          type: 'success',
-          duration: 2000
-        });
+          // 顯示成功通知
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: '已複製到剪貼板',
+              type: 'success',
+              duration: 2000
+            });
+          }
+
+          // 執行複製回調（不自動填入）
+          if (onOptimizedPromptCopy) {
+            onOptimizedPromptCopy(optimizedPrompt);
+          }
+          return;
+        } catch (clipboardError) {
+          console.warn('Clipboard API 失敗，嘗試 fallback:', clipboardError);
+        }
       }
 
-      // 執行複製回調（不自動填入）
-      if (onOptimizedPromptCopy) {
-        onOptimizedPromptCopy();
+      // Fallback 到傳統方法
+      const textArea = document.createElement('textarea');
+      textArea.value = optimizedPrompt;
+      textArea.style.cssText =
+        'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        // 顯示成功通知
+        if (typeof window !== 'undefined' && window.notify) {
+          window.notify({
+            message: '已複製到剪貼板',
+            type: 'success',
+            duration: 2000
+          });
+        }
+
+        // 執行複製回調（不自動填入）
+        if (onOptimizedPromptCopy) {
+          onOptimizedPromptCopy(optimizedPrompt);
+        }
+      } else {
+        throw new Error('所有複製方法都失敗');
       }
-    } catch (err) {
-      console.error('複製失敗:', err);
+    } catch (error) {
+      console.error('複製失敗:', error);
       if (typeof window !== 'undefined' && window.notify) {
         window.notify({
-          message: '複製失敗',
+          message: '複製失敗，請手動複製 Prompt',
           type: 'error',
-          duration: 2000
+          duration: 3000
         });
       }
     }
