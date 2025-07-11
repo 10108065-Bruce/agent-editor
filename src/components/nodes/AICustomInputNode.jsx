@@ -1,10 +1,13 @@
-// 改進的 AI 節點 IME 處理方案
+// 改進的 AI 節點 IME 處理方案 + Refine Prompt 功能
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position, useEdges } from 'reactflow';
 import { llmService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
-
+import RefinePromptOverlay from '../common/RefinePromptOverlay';
+import { PromptGeneratorService } from '../../services/PromptGeneratorService';
+import promptIcon from '../../assets/prompt-generator.svg';
+import promptDisabledIcon from '../../assets/prompt-generator-disabled.svg';
 const AICustomInputNode = ({ data, isConnectable, id }) => {
   const [modelOptions, setModelOptions] = useState([
     { value: '1', label: 'O3-mini' },
@@ -12,6 +15,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     { value: '3', label: 'O3-mega' },
     { value: '4', label: 'O3-ultra' }
   ]);
+
+  // Refine Prompt 相關狀態
+  const [showRefinePrompt, setShowRefinePrompt] = useState(false);
 
   const edges = useEdges();
   const contextConnectionCount = edges.filter(
@@ -214,6 +220,58 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     };
   }, []);
 
+  // 處理 Refine Prompt 按鈕點擊
+  const handleRefinePromptClick = useCallback(() => {
+    // 驗證參數
+    const validation = PromptGeneratorService.validateParameters(
+      parseInt(localModel),
+      promptText
+    );
+
+    if (!validation.isValid) {
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: validation.errors[0],
+          type: 'error',
+          duration: 3000
+        });
+      }
+      return;
+    }
+
+    setShowRefinePrompt(true);
+  }, [localModel, promptText]);
+
+  // 處理優化 Prompt 應用（僅限應用按鈕）
+  const handleOptimizedPromptApply = useCallback(
+    (optimizedPrompt) => {
+      // 將優化後的 prompt 填入文字區域
+      setPromptText(optimizedPrompt);
+      lastExternalValueRef.current = optimizedPrompt;
+      updateParentState('promptText', optimizedPrompt);
+
+      // 顯示成功通知
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: '優化 Prompt 已應用',
+          type: 'success',
+          duration: 2000
+        });
+      }
+    },
+    [updateParentState]
+  );
+
+  // 處理複製（僅複製到剪貼板）
+  const handleOptimizedPromptCopy = useCallback(() => {
+    console.log('優化後的 Prompt 已複製到剪貼板');
+  }, []);
+
+  // 關閉 Refine Prompt 對話框
+  const closeRefinePrompt = useCallback(() => {
+    setShowRefinePrompt(false);
+  }, []);
+
   return (
     <div className='rounded-lg shadow-md overflow-hidden w-64'>
       {/* Header section */}
@@ -238,11 +296,14 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           <div className='relative'>
             <select
               className={`w-full border border-gray-300 rounded p-2 text-sm bg-white appearance-none
-                ${isLoadingModels ? 'opacity-70 cursor-wait' : ''} 
-                ${modelLoadError ? 'border-red-300' : ''}`}
+                 ${isLoadingModels ? 'opacity-70 cursor-wait' : ''} 
+                 ${modelLoadError ? 'border-red-300' : ''}
+                 ${showRefinePrompt ? 'opacity-50 cursor-not-allowed' : ''}`} // 當 refine prompt 打開時禁用樣式
               value={localModel}
               onChange={handleModelChange}
-              disabled={isLoadingModels}>
+              disabled={isLoadingModels || showRefinePrompt}>
+              {' '}
+              {/* 當 refine prompt 打開時禁用 */}
               {modelOptions.map((option) => (
                 <option
                   key={option.value}
@@ -289,15 +350,47 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               </span>
             )}
           </div>
-          <AutoResizeTextarea
-            value={promptText}
-            onChange={handlePromptTextChange}
-            onCompositionStart={handleCompositionStart}
-            onCompositionEnd={handleCompositionEnd}
-            onKeyDown={handleKeyDown}
-            placeholder='輸入您的提示'
-            className='w-full border border-gray-300 rounded p-2 text-sm'
-          />
+          <div className='relative'>
+            <AutoResizeTextarea
+              value={promptText}
+              onChange={handlePromptTextChange}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
+              onKeyDown={handleKeyDown}
+              placeholder='輸入您的提示'
+              className='w-full border border-gray-300 rounded p-2 text-sm pr-10'
+              disabled={showRefinePrompt} // 當 refine prompt 打開時禁用編輯
+            />
+            {/* Refine Prompt 按鈕 */}
+            <button
+              onClick={handleRefinePromptClick}
+              disabled={!promptText || promptText.trim().length === 0}
+              className='group absolute bottom-3 right-1 w-6 h-6disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors'
+              title='Refine prompt'>
+              <img
+                src={promptIcon}
+                width={18}
+                height={18}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
+                }}
+                className='max-w-full max-h-full object-contain group-disabled:hidden'
+              />
+              <img
+                src={promptDisabledIcon}
+                width={18}
+                height={18}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
+                }}
+                className='max-w-full max-h-full object-contain hidden group-disabled:block'
+              />
+            </button>
+          </div>
         </div>
 
         {/* Context section */}
@@ -360,6 +453,17 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           right: '-6px'
         }}
         isConnectable={isConnectable}
+      />
+
+      {/* Refine Prompt 覆蓋層 */}
+      <RefinePromptOverlay
+        isOpen={showRefinePrompt}
+        onClose={closeRefinePrompt}
+        originalPrompt={promptText}
+        llmId={parseInt(localModel)}
+        onOptimizedPromptApply={handleOptimizedPromptApply}
+        onOptimizedPromptCopy={handleOptimizedPromptCopy}
+        nodePosition={{ x: data?.position?.x || 0, y: data?.position?.y || 0 }}
       />
     </div>
   );

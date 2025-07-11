@@ -3,6 +3,10 @@ import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
 import { aimService } from '../../services/index';
+import RefinePromptOverlay from '../common/RefinePromptOverlay';
+import { PromptGeneratorService } from '../../services/PromptGeneratorService';
+import promptIcon from '../../assets/prompt-generator.svg';
+import promptDisabledIcon from '../../assets/prompt-generator-disabled.svg';
 
 const QOCAAimNode = ({ data, isConnectable }) => {
   // 狀態管理 - 根據新的參數結構
@@ -16,6 +20,9 @@ const QOCAAimNode = ({ data, isConnectable }) => {
   ); // 預設為 true
   const [promptText, setPromptText] = useState(data?.prompt?.data || '');
   const [llmId, setLlmId] = useState(data?.llm_id?.data || 0);
+
+  // Refine Prompt 相關狀態
+  const [showRefinePrompt, setShowRefinePrompt] = useState(false);
 
   // 模型欄位資訊狀態
   const [modelFieldsInfo, setModelFieldsInfo] = useState(
@@ -494,6 +501,64 @@ const QOCAAimNode = ({ data, isConnectable }) => {
     }
   }, []);
 
+  // 處理 Refine Prompt 按鈕點擊
+  const handleRefinePromptClick = useCallback(() => {
+    // 驗證參數
+    const validation = PromptGeneratorService.validateParameters(
+      llmId,
+      promptText
+    );
+
+    if (!validation.isValid) {
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: validation.errors[0],
+          type: 'error',
+          duration: 3000
+        });
+      }
+      return;
+    }
+
+    setShowRefinePrompt(true);
+  }, [llmId, promptText]);
+
+  // 處理優化 Prompt 應用
+  const handleOptimizedPromptApply = useCallback(
+    (optimizedPrompt) => {
+      // 將優化後的 prompt 填入文字區域
+      setPromptText(optimizedPrompt);
+      lastExternalValueRef.current = optimizedPrompt;
+      updateParentState('prompt', {
+        type: 'string',
+        data: optimizedPrompt,
+        node_id: data?.id || ''
+      });
+
+      console.log('優化後的 Prompt 已應用:', optimizedPrompt);
+
+      // 顯示成功通知
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: '優化 Prompt 已應用',
+          type: 'success',
+          duration: 2000
+        });
+      }
+    },
+    [updateParentState, data?.id]
+  );
+
+  // 處理複製
+  const handleOptimizedPromptCopy = useCallback(() => {
+    console.log('優化後的 Prompt 已複製到剪貼板');
+  }, []);
+
+  // 關閉 Refine Prompt 對話框
+  const closeRefinePrompt = useCallback(() => {
+    setShowRefinePrompt(false);
+  }, []);
+
   // 清理計時器
   useEffect(() => {
     return () => {
@@ -561,10 +626,11 @@ const QOCAAimNode = ({ data, isConnectable }) => {
             </label>
             <div className='relative'>
               <select
-                className='w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8'
+                className={`w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8
+                  ${showRefinePrompt ? 'opacity-50 cursor-not-allowed' : ''}`}
                 value={selectedAim}
                 onChange={(e) => handleAimChange(e.target.value)}
-                disabled={isLoadingAimOptions}>
+                disabled={isLoadingAimOptions || showRefinePrompt}>
                 <option value=''>
                   {isLoadingAimOptions ? '載入中...' : '選擇 AIM 模型'}
                 </option>
@@ -599,10 +665,16 @@ const QOCAAimNode = ({ data, isConnectable }) => {
               結果解釋
             </label>
             <div
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 enableExplain ? 'bg-cyan-500' : 'bg-gray-200'
+              } ${
+                showRefinePrompt
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer'
               }`}
-              onClick={handleEnableExplainToggle}>
+              onClick={
+                showRefinePrompt ? undefined : handleEnableExplainToggle
+              }>
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   enableExplain ? 'translate-x-6' : 'translate-x-1'
@@ -621,10 +693,13 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                 </label>
                 <div className='relative'>
                   <select
-                    className='w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8'
+                    className={`w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8
+                      ${
+                        showRefinePrompt ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     value={llmId}
                     onChange={(e) => handleLlmChange(e.target.value)}
-                    disabled={isLoadingLlmVisionOptions}>
+                    disabled={isLoadingLlmVisionOptions || showRefinePrompt}>
                     <option value=''>
                       {isLoadingLlmVisionOptions
                         ? '載入中...'
@@ -665,15 +740,49 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                 <label className='block text-sm text-gray-700 mb-2 font-medium'>
                   Prompt
                 </label>
-                <AutoResizeTextarea
-                  value={promptText}
-                  onChange={handlePromptChange}
-                  onCompositionStart={handleCompositionStart}
-                  onCompositionEnd={handleCompositionEnd}
-                  onKeyDown={handleKeyDown}
-                  placeholder='Type your prompt here.'
-                  className='w-full border border-gray-300 rounded p-2 text-sm min-h-[80px]'
-                />
+                <div className='relative'>
+                  <AutoResizeTextarea
+                    value={promptText}
+                    onChange={handlePromptChange}
+                    onCompositionStart={handleCompositionStart}
+                    onCompositionEnd={handleCompositionEnd}
+                    onKeyDown={handleKeyDown}
+                    placeholder='Type your prompt here.'
+                    className='w-full border border-gray-300 rounded p-2 text-sm min-h-[80px] pr-10'
+                    disabled={showRefinePrompt}
+                  />
+                  {/* Refine Prompt 按鈕 */}
+                  <button
+                    onClick={handleRefinePromptClick}
+                    disabled={
+                      !promptText || promptText.trim().length === 0 || !llmId
+                    }
+                    className='group absolute bottom-2 right-2 w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors'
+                    title='Refine prompt'>
+                    <img
+                      src={promptIcon}
+                      width={18}
+                      height={18}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain'
+                      }}
+                      className='max-w-full max-h-full object-contain group-disabled:hidden'
+                    />
+                    <img
+                      src={promptDisabledIcon}
+                      width={18}
+                      height={18}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain'
+                      }}
+                      className='max-w-full max-h-full object-contain hidden group-disabled:block'
+                    />
+                  </button>
+                </div>
               </div>
             </>
           )}
@@ -681,7 +790,6 @@ const QOCAAimNode = ({ data, isConnectable }) => {
       </div>
 
       {/* 右側輸出標籤區域 - 只在解釋功能開啟時顯示 */}
-
       {enableExplain && (
         <div className='absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 ml-2 space-y-2 pointer-events-none'>
           {outputHandles.map((handleType) => (
@@ -755,6 +863,17 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           />
         );
       })}
+
+      {/* Refine Prompt 覆蓋層 */}
+      <RefinePromptOverlay
+        isOpen={showRefinePrompt}
+        onClose={closeRefinePrompt}
+        originalPrompt={promptText}
+        llmId={llmId}
+        onOptimizedPromptApply={handleOptimizedPromptApply}
+        onOptimizedPromptCopy={handleOptimizedPromptCopy}
+        nodePosition={{ x: data?.position?.x || 0, y: data?.position?.y || 0 }}
+      />
     </>
   );
 };

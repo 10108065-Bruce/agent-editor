@@ -6,7 +6,7 @@ import knowledgeNode from '../../assets/icn-knowledge.svg';
 import lineWebhookNode from '../../assets/icn-line-node.svg';
 import aimNode from '../../assets/icon-aim-node.svg';
 import httpNode from '../../assets/icon-http.svg';
-
+import promptIcon from '../../assets/prompt-generator.svg';
 // Map of icon types to their respective assets
 const iconMap = {
   input: {
@@ -36,6 +36,9 @@ const iconMap = {
   http: {
     src: httpNode,
     alt: 'HTTP Icon'
+  },
+  prompt: {
+    src: promptIcon
   }
 };
 
