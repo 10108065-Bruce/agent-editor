@@ -23628,7 +23628,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "19456a989ec7effd1093e29b964a75db486ef737", "VITE_APP_BUILD_TIME": "2025-07-11T06:56:54.685Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.48.1"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2d743f86d8ff41ecf91ade8744eb8cc45eb23230", "VITE_APP_BUILD_TIME": "2025-07-14T06:05:45.291Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.48.2"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -28804,6 +28804,10 @@ class PromptGeneratorService {
   }
 }
 
+const InsertIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAASUExURUdwTP///////////////////4gZPH8AAAAFdFJOUwCAGe/X/ZSAIQAAAGtJREFUOMtjYBgBQDQUDQRCJUIxACEdgwioKGDxoACIJwCXQHgggIGBydUIuw5GXN5TDg1WwCauaBoaaqiAXTw01BFTxhVilwOmDrAMLrPg4ijORXYVigeR/YGig8nUCVfSECAcuqNJdPAAAF0aRLwMTRusAAAAAElFTkSuQmCC";
+
+const CopytIncon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAACEUExURUdwTHfO6EHP3jLP2ljP40nP32jO5RrP1yjP2jXP3CvO2RTO1UbP4AnP03/O6TLO20vP4FrP4nvO6n3N6X3O6nzO6H/N6X7O6X/N6knO4E/O4TbO3ETO31XO4jDP2yHO2D/O3hjO1inO2TvO3V/O5FrO4w/P1GTO5W3O5nLO6GjO5XnO6Z7gXIcAAAAZdFJOUwCA22B/IYB//n/ds5nl33DvRe9ov7+v35/+eYC1AAABqUlEQVRIx83W2ZqCIBQA4EZzwk+darZvUkPFNJf3f79hOUCyaJdxzd9ZOEK73auuKA3y/Hq9dt3tdr/fp2kYhnEc5/nz+8u1P75c8twt5vkjsveX5YUTEDchRp+I6tIlJiV+DZC2dc3FKd2L9Q7rDZYBAgqoOIXPtqhoW0qC6OmeFlTI/efj3pnWOVoAKng+4UlV3sleye7+aYKpCER7Xd21zwPjok3Y79flutAA45h1y30eAydMyCkhApxp6eVqjB8JEAdH3l1byDGhkygBIQzE/Dw8UyKEBoQDdh5GjGV3AVQIASjsrGDchZCgIuRAAS5cMR4rV6ASYFNoUAmAIStfdwE0ABBejzEp0HBwIGRDaNAAeBDOrDRoOEBbwgAVIRtZAeglQHStxpCgB1AtYjgmUYFeglXRSZBRwUBjCqsOAIkEmwLAUQEQyCd2OicAXCDvCarbOFOgWa1c398JA71H6BjLG/PQa4HclVvgMYar8iUI+x4IxDC/jzwwHiK531t5alz7iQrhEdZbl/kFyyq2X2tTiC8KCxG7HqMwyYwYUHmQRi/7r+QfNo2tdAXm1y8AAAAASUVORK5CYII=";
+
 const React$j = await importShared('react');
 const {useState: useState$i,useEffect: useEffect$c,useRef: useRef$9} = React$j;
 const ScrollableTextArea = ({ children, className }) => {
@@ -28871,6 +28875,78 @@ const ScrollableTextArea = ({ children, className }) => {
     }
   );
 };
+const SelectableTextArea = ({ children, className }) => {
+  const scrollRef = useRef$9(null);
+  useEffect$c(() => {
+    const scrollArea = scrollRef.current;
+    if (!scrollArea) return;
+    const handleWheelCapture = (e) => {
+      if (scrollArea.contains(e.target)) {
+        e.stopPropagation();
+        const isAtTop = scrollArea.scrollTop <= 0;
+        const isAtBottom = Math.abs(
+          scrollArea.scrollTop + scrollArea.clientHeight - scrollArea.scrollHeight
+        ) <= 1;
+        if (isAtTop && e.deltaY < 0 || isAtBottom && e.deltaY > 0) {
+          e.preventDefault();
+        }
+      }
+    };
+    const preventZoom = (e) => {
+      if ((e.ctrlKey || e.metaKey) && scrollArea.contains(e.target)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    const handleMouseDown = (e) => {
+      if (scrollArea.contains(e.target)) {
+        e.stopPropagation();
+      }
+    };
+    const handleMouseMove = (e) => {
+      if (scrollArea.contains(e.target) && e.buttons === 1) {
+        e.stopPropagation();
+      }
+    };
+    const handleMouseUp = (e) => {
+      if (scrollArea.contains(e.target)) {
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("wheel", handleWheelCapture, {
+      passive: false,
+      capture: true
+    });
+    document.addEventListener("wheel", preventZoom, {
+      passive: false,
+      capture: true
+    });
+    scrollArea.addEventListener("mousedown", handleMouseDown, true);
+    scrollArea.addEventListener("mousemove", handleMouseMove, true);
+    scrollArea.addEventListener("mouseup", handleMouseUp, true);
+    return () => {
+      document.removeEventListener("wheel", handleWheelCapture, {
+        passive: false,
+        capture: true
+      });
+      document.removeEventListener("wheel", preventZoom, {
+        passive: false,
+        capture: true
+      });
+      scrollArea.removeEventListener("mousedown", handleMouseDown, true);
+      scrollArea.removeEventListener("mousemove", handleMouseMove, true);
+      scrollArea.removeEventListener("mouseup", handleMouseUp, true);
+    };
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      ref: scrollRef,
+      className,
+      children
+    }
+  );
+};
 const RefinePromptOverlay = ({
   isOpen,
   onClose,
@@ -28878,7 +28954,11 @@ const RefinePromptOverlay = ({
   llmId,
   onOptimizedPromptApply,
   onOptimizedPromptCopy,
-  nodePosition = { x: 0, y: 0 }
+  nodePosition = { x: 0, y: 0 },
+  offsetX = 330,
+  // 可動態傳入的 X 軸偏移量，默認 330
+  offsetY = -200
+  // 也讓 Y 軸偏移量可配置，默認 -200
 }) => {
   const [isLoading, setIsLoading] = useState$i(false);
   const [optimizedPrompt, setOptimizedPrompt] = useState$i("");
@@ -28899,28 +28979,6 @@ const RefinePromptOverlay = ({
       }
     }
   }, [isOpen, originalPrompt, llmId]);
-  useEffect$c(() => {
-    if (!isOpen) {
-      setPromptExpanded(false);
-    }
-  }, [isOpen]);
-  useEffect$c(() => {
-    if (!isOpen) return;
-    const handleClickOutside = (event) => {
-      if (overlayRef.current && !overlayRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("mousedown", handleClickOutside, true);
-      document.addEventListener("touchstart", handleClickOutside, true);
-    }, 100);
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("mousedown", handleClickOutside, true);
-      document.removeEventListener("touchstart", handleClickOutside, true);
-    };
-  }, [isOpen, onClose]);
   const generateOptimizedPrompt = async () => {
     setIsLoading(true);
     setError(null);
@@ -28940,18 +28998,28 @@ const RefinePromptOverlay = ({
   };
   const copyToClipboard = async () => {
     try {
+      const selection = window.getSelection();
+      let textToCopy = "";
+      let copyType = "";
+      if (selection && selection.toString().trim()) {
+        textToCopy = selection.toString();
+        copyType = "選取內容";
+      } else {
+        textToCopy = optimizedPrompt;
+        copyType = "全部內容";
+      }
       if (navigator.clipboard && navigator.clipboard.writeText) {
         try {
-          await navigator.clipboard.writeText(optimizedPrompt);
+          await navigator.clipboard.writeText(textToCopy);
           if (typeof window !== "undefined" && window.notify) {
             window.notify({
-              message: "已複製到剪貼板",
+              message: `已複製${copyType}到剪貼板`,
               type: "success",
               duration: 2e3
             });
           }
           if (onOptimizedPromptCopy) {
-            onOptimizedPromptCopy(optimizedPrompt);
+            onOptimizedPromptCopy(textToCopy);
           }
           return;
         } catch (clipboardError) {
@@ -28959,7 +29027,7 @@ const RefinePromptOverlay = ({
         }
       }
       const textArea = document.createElement("textarea");
-      textArea.value = optimizedPrompt;
+      textArea.value = textToCopy;
       textArea.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;";
       document.body.appendChild(textArea);
       textArea.focus();
@@ -28969,13 +29037,13 @@ const RefinePromptOverlay = ({
       if (successful) {
         if (typeof window !== "undefined" && window.notify) {
           window.notify({
-            message: "已複製到剪貼板",
+            message: `已複製${copyType}到剪貼板`,
             type: "success",
             duration: 2e3
           });
         }
         if (onOptimizedPromptCopy) {
-          onOptimizedPromptCopy(optimizedPrompt);
+          onOptimizedPromptCopy(textToCopy);
         }
       } else {
         throw new Error("所有複製方法都失敗");
@@ -29000,26 +29068,47 @@ const RefinePromptOverlay = ({
   const handleGeneratePrompt = () => {
     generateOptimizedPrompt();
   };
-  const truncateText = (text, maxLines = 2) => {
-    if (!text) return "";
-    const words = text.split("");
-    const maxChars = maxLines * 50;
-    if (words.length <= maxChars || promptExpanded) {
-      return text;
+  const getOriginalPromptDisplayContent = () => {
+    if (!originalPrompt) return "";
+    if (promptExpanded) {
+      return originalPrompt;
+    } else {
+      const maxChars = 100;
+      if (originalPrompt.length <= maxChars) {
+        return originalPrompt;
+      }
+      return originalPrompt.substring(0, maxChars) + "...";
     }
-    return text.substring(0, maxChars) + "...";
+  };
+  const shouldShowExpandButton = () => {
+    if (!originalPrompt) return false;
+    const hasLongContent = originalPrompt.length > 100;
+    const hasMultipleLines = originalPrompt.includes("\n");
+    return hasLongContent || hasMultipleLines;
   };
   const getOverlayPosition = () => {
-    const offsetX = 330;
-    const offsetY = -200;
     return {
       left: nodePosition.x + offsetX,
       top: Math.max(nodePosition.y + offsetY, 20)
       // 確保不會超出視窗頂部
     };
   };
+  const getOverlayHeight = () => {
+    const headerHeight = 70;
+    const originalPromptHeight = promptExpanded ? 400 : 160;
+    const buttonAreaHeight = 80;
+    const paddingAndMargins = 40;
+    let contentHeight = 200;
+    if (optimizedPrompt) {
+      contentHeight = Math.max(150, 250);
+    }
+    const totalHeight = headerHeight + originalPromptHeight + contentHeight + buttonAreaHeight + paddingAndMargins;
+    const maxHeight = 800;
+    return Math.min(totalHeight, maxHeight);
+  };
   if (!isOpen) return null;
   const position = getOverlayPosition();
+  const overlayHeight = getOverlayHeight();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 z-[9999]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
@@ -29035,16 +29124,18 @@ const RefinePromptOverlay = ({
       "div",
       {
         ref: overlayRef,
-        className: "absolute bg-white rounded-lg shadow-xl w-96 max-h-[660px] flex flex-col pointer-events-auto border border-gray-200 z-10",
+        className: "absolute bg-white rounded-lg shadow-xl w-96 flex flex-col pointer-events-auto border border-gray-200 z-10",
         style: {
           left: `${position.left}px`,
-          top: `${position.top}px`
+          top: `${position.top}px`,
+          height: `${overlayHeight}px`,
+          maxHeight: "800px"
         },
         onClick: (e) => {
           e.stopPropagation();
         },
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-4 border-b border-gray-200 rounded-t-lg", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-4 border-b border-gray-200 rounded-t-lg flex-shrink-0", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-cyan-100 rounded flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "prompt" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-900", children: "Refine Prompt" })
@@ -29089,25 +29180,58 @@ const RefinePromptOverlay = ({
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ScrollableTextArea, { className: "text-gray-800 text-sm leading-relaxed", children: truncateText(originalPrompt) }),
-            originalPrompt && originalPrompt.length > 100 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-b border-gray-100 flex-shrink-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
               {
+                className: "relative flex items-center justify-between mt-2 cursor-pointer transition-colors",
                 onClick: () => setPromptExpanded(!promptExpanded),
-                className: "text-cyan-600 hover:text-cyan-700 text-sm mt-1 underline",
-                children: promptExpanded ? "收起" : "展開"
+                children: shouldShowExpandButton() && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "svg",
+                  {
+                    className: `absolute right-7 top-3 w-5 h-5 text-gray-400 transition-transform duration-200 ${promptExpanded ? "rotate-180" : ""}`,
+                    fill: "none",
+                    stroke: "currentColor",
+                    viewBox: "0 0 24 24",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "path",
+                      {
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        strokeWidth: 2,
+                        d: "M19 9l-7 7-7-7"
+                      }
+                    )
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: `overflow-hidden transition-all duration-300 ease-in-out ${promptExpanded ? "max-h-80 opacity-100" : "opacity-100"}`,
+                style: {
+                  height: promptExpanded ? "auto" : "120px"
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 pb-2 h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ScrollableTextArea,
+                  {
+                    className: `text-gray-400 text-sm leading-relaxed overflow-y-auto p-3 pl-1 pr-7 ${promptExpanded ? "max-h-64" : "h-full"}`,
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "whitespace-pre-wrap font-sans", children: getOriginalPromptDisplayContent() })
+                  }
+                ) })
               }
             )
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 p-4 overflow-hidden flex flex-col", children: [
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 p-4 overflow-hidden flex flex-col min-h-0 justify-center", children: [
             !optimizedPrompt && !isLoading && !error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
                 onClick: handleGeneratePrompt,
                 disabled: !originalPrompt || !llmId,
-                className: "px-4 py-2 text-white rounded-md bg-[#00ced1] text-white hover:bg-[#00b8bb] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors",
-                children: "生成優化 Prompt"
+                className: "px-4 py-2 text-white rounded-md bg-[#00ced1] hover:bg-[#00b8bb] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors",
+                children: "優化 Prompt"
               }
             ) }),
             isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center py-8", children: [
@@ -29129,66 +29253,66 @@ const RefinePromptOverlay = ({
                 }
               )
             ] }),
-            optimizedPrompt && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600", children: "優化後的 Prompt：" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ScrollableTextArea, { className: "flex-1 border border-gray-200 rounded-md p-3 overflow-y-auto max-h-80", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-sm text-gray-800 whitespace-pre-wrap font-sans leading-relaxed", children: optimizedPrompt }) }),
-              apiResponse && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2 mt-3 justify-end", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    onClick: applyOptimizedPrompt,
-                    className: "px-3 py-1 bg-[#00ced1] hover:bg-[#00b8bb] text-white rounded-md transition-colors text-sm flex items-center space-x-1",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "svg",
+            optimizedPrompt && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full min-h-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between mb-3 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-bold text-gray-600", children: "優化後的 Prompt：" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "flex-1 mb-3",
+                  style: { minHeight: "150px" },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(SelectableTextArea, { className: "h-full border border-gray-200 rounded-md p-3 overflow-y-auto bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-sm text-gray-800 whitespace-pre-wrap font-sans leading-relaxed select-text cursor-text", children: optimizedPrompt }) })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2 justify-end flex-shrink-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "group relative", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      onClick: applyOptimizedPrompt,
+                      className: "px-3 py-1 bg-[#00ced1] hover:bg-[#00b8bb] text-white rounded-md transition-colors text-sm flex items-center space-x-1",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "img",
+                          {
+                            src: InsertIcon,
+                            alt: "Replace Icon",
+                            className: "text-white",
+                            width: 16,
+                            height: 16
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "取代" })
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[10000]", children: [
+                    "取代",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "group relative", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: copyToClipboard,
+                      className: "px-3 py-1  text-white rounded-md transition-colors text-sm flex items-center space-x-1",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "img",
                         {
-                          xmlns: "http://www.w3.org/2000/svg",
-                          width: "14",
-                          height: "14",
-                          viewBox: "0 0 24 24",
-                          fill: "none",
-                          stroke: "currentColor",
-                          strokeWidth: "2",
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "20 6 9 17 4 12" })
+                          src: CopytIncon,
+                          alt: "Copy Icon",
+                          className: "text-white",
+                          width: 16,
+                          height: 16
                         }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "應用" })
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: copyToClipboard,
-                    className: "px-3 py-1 text-white rounded-md bg-[#00ced1] hover:bg-[#00b8bb] transition-colors text-sm flex items-center space-x-1",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "svg",
-                      {
-                        xmlns: "http://www.w3.org/2000/svg",
-                        width: "14",
-                        height: "14",
-                        viewBox: "0 0 24 24",
-                        fill: "none",
-                        stroke: "currentColor",
-                        strokeWidth: "2",
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "rect",
-                            {
-                              x: "9",
-                              y: "9",
-                              width: "13",
-                              height: "13",
-                              rx: "2",
-                              ry: "2"
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" })
-                        ]
-                      }
-                    )
-                  }
-                )
+                      )
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[10000]", children: [
+                    "複製",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800" })
+                  ] })
+                ] })
               ] })
             ] })
           ] })
@@ -29214,7 +29338,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const contextConnectionCount = edges.filter(
     (edge) => edge.target === id && edge.targetHandle === "context-input"
   ).length;
-  const hasPromptConnection = edges.some(
+  edges.some(
     (edge) => edge.target === id && edge.targetHandle === "prompt-input"
   );
   const [isLoadingModels, setIsLoadingModels] = useState$h(false);
@@ -29444,28 +29568,12 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Prompt" }),
-          hasPromptConnection && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: "已連線" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            AutoResizeTextarea,
-            {
-              value: promptText,
-              onChange: handlePromptTextChange,
-              onCompositionStart: handleCompositionStart,
-              onCompositionEnd: handleCompositionEnd,
-              onKeyDown: handleKeyDown,
-              placeholder: "輸入您的提示",
-              className: "w-full border border-gray-300 rounded p-2 text-sm pr-10",
-              disabled: showRefinePrompt
-            }
-          ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               onClick: handleRefinePromptClick,
               disabled: !promptText || promptText.trim().length === 0,
-              className: "group absolute bottom-3 right-1 w-6 h-6disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors",
+              className: "group w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors",
               title: "Refine prompt",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -29499,7 +29607,20 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               ]
             }
           )
-        ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AutoResizeTextarea,
+          {
+            value: promptText,
+            onChange: handlePromptTextChange,
+            onCompositionStart: handleCompositionStart,
+            onCompositionEnd: handleCompositionEnd,
+            onKeyDown: handleKeyDown,
+            placeholder: "輸入您的提示",
+            className: "w-full border border-gray-300 rounded p-2 text-sm pr-10",
+            disabled: showRefinePrompt
+          }
+        ) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "Context" }),
@@ -29570,7 +29691,9 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         llmId: parseInt(localModel),
         onOptimizedPromptApply: handleOptimizedPromptApply,
         onOptimizedPromptCopy: handleOptimizedPromptCopy,
-        nodePosition: { x: data?.position?.x || 0, y: data?.position?.y || 0 }
+        nodePosition: { x: data?.position?.x || 0, y: data?.position?.y || 0 },
+        offsetX: 265,
+        offsetY: -150
       }
     )
   ] });
@@ -33322,7 +33445,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         ] }),
         enableExplain && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-medium", children: "LLM Vision 模型" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-bold", children: "LLM Vision 模型" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "select",
@@ -33364,27 +33487,14 @@ const QOCAAimNode = ({ data, isConnectable }) => {
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-medium", children: "Prompt" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                AutoResizeTextarea,
-                {
-                  value: promptText,
-                  onChange: handlePromptChange,
-                  onCompositionStart: handleCompositionStart,
-                  onCompositionEnd: handleCompositionEnd,
-                  onKeyDown: handleKeyDown,
-                  placeholder: "Type your prompt here.",
-                  className: "w-full border border-gray-300 rounded p-2 text-sm min-h-[80px] pr-10",
-                  disabled: showRefinePrompt
-                }
-              ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Prompt" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
                   onClick: handleRefinePromptClick,
                   disabled: !promptText || promptText.trim().length === 0 || !llmId,
-                  className: "group absolute bottom-2 right-2 w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors",
+                  className: "group w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors",
                   title: "Refine prompt",
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -33418,7 +33528,20 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                   ]
                 }
               )
-            ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              AutoResizeTextarea,
+              {
+                value: promptText,
+                onChange: handlePromptChange,
+                onCompositionStart: handleCompositionStart,
+                onCompositionEnd: handleCompositionEnd,
+                onKeyDown: handleKeyDown,
+                placeholder: "Type your prompt here.",
+                className: "w-full border border-gray-300 rounded p-2 text-sm min-h-[80px] pr-10",
+                disabled: showRefinePrompt
+              }
+            ) })
           ] })
         ] })
       ] })
@@ -33453,7 +33576,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
-              className: "inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none",
+              className: "inline-flex items-center px-3 py-1 rounded text-xs font-bold text-white whitespace-nowrap select-none",
               style: {
                 backgroundColor: getHandleColor("node"),
                 transform: "translateX(-6px)"
@@ -33506,7 +33629,9 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         llmId,
         onOptimizedPromptApply: handleOptimizedPromptApply,
         onOptimizedPromptCopy: handleOptimizedPromptCopy,
-        nodePosition: { x: data?.position?.x || 0, y: data?.position?.y || 0 }
+        nodePosition: { x: data?.position?.x || 0, y: data?.position?.y || 0 },
+        offsetX: 330,
+        offsetY: -150
       }
     )
   ] });
