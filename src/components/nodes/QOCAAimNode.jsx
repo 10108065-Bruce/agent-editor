@@ -688,7 +688,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
             <>
               {/* LLM Vision 選擇 */}
               <div>
-                <label className='block text-sm text-gray-700 mb-2 font-medium'>
+                <label className='block text-sm text-gray-700 mb-2 font-bold'>
                   LLM Vision 模型
                 </label>
                 <div className='relative'>
@@ -737,27 +737,17 @@ const QOCAAimNode = ({ data, isConnectable }) => {
 
               {/* Prompt 輸入 */}
               <div>
-                <label className='block text-sm text-gray-700 mb-2 font-medium'>
-                  Prompt
-                </label>
-                <div className='relative'>
-                  <AutoResizeTextarea
-                    value={promptText}
-                    onChange={handlePromptChange}
-                    onCompositionStart={handleCompositionStart}
-                    onCompositionEnd={handleCompositionEnd}
-                    onKeyDown={handleKeyDown}
-                    placeholder='Type your prompt here.'
-                    className='w-full border border-gray-300 rounded p-2 text-sm min-h-[80px] pr-10'
-                    disabled={showRefinePrompt}
-                  />
+                <div className='flex items-center justify-between mb-1'>
+                  <label className='block text-sm text-gray-700 font-bold'>
+                    Prompt
+                  </label>
                   {/* Refine Prompt 按鈕 */}
                   <button
                     onClick={handleRefinePromptClick}
                     disabled={
                       !promptText || promptText.trim().length === 0 || !llmId
                     }
-                    className='group absolute bottom-2 right-2 w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors'
+                    className='group w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors'
                     title='Refine prompt'>
                     <img
                       src={promptIcon}
@@ -782,6 +772,18 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                       className='max-w-full max-h-full object-contain hidden group-disabled:block'
                     />
                   </button>
+                </div>
+                <div className='relative'>
+                  <AutoResizeTextarea
+                    value={promptText}
+                    onChange={handlePromptChange}
+                    onCompositionStart={handleCompositionStart}
+                    onCompositionEnd={handleCompositionEnd}
+                    onKeyDown={handleKeyDown}
+                    placeholder='Type your prompt here.'
+                    className='w-full border border-gray-300 rounded p-2 text-sm min-h-[80px] pr-10'
+                    disabled={showRefinePrompt}
+                  />
                 </div>
               </div>
             </>
@@ -815,7 +817,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
               />
 
               <span
-                className='inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none'
+                className='inline-flex items-center px-3 py-1 rounded text-xs font-bold text-white whitespace-nowrap select-none'
                 style={{
                   backgroundColor: getHandleColor('node'),
                   transform: 'translateX(-6px)'
@@ -873,6 +875,8 @@ const QOCAAimNode = ({ data, isConnectable }) => {
         onOptimizedPromptApply={handleOptimizedPromptApply}
         onOptimizedPromptCopy={handleOptimizedPromptCopy}
         nodePosition={{ x: data?.position?.x || 0, y: data?.position?.y || 0 }}
+        offsetX={330} // 自定義 X 軸偏移量
+        offsetY={-150} // 可選：自定義 Y 軸偏移量
       />
     </>
   );

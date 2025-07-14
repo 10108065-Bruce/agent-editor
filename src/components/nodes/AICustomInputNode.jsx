@@ -344,28 +344,16 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
             <label className='block text-sm text-gray-700 font-bold'>
               Prompt
             </label>
-            {hasPromptConnection && (
+            {/* {hasPromptConnection && (
               <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
                 已連線
               </span>
-            )}
-          </div>
-          <div className='relative'>
-            <AutoResizeTextarea
-              value={promptText}
-              onChange={handlePromptTextChange}
-              onCompositionStart={handleCompositionStart}
-              onCompositionEnd={handleCompositionEnd}
-              onKeyDown={handleKeyDown}
-              placeholder='輸入您的提示'
-              className='w-full border border-gray-300 rounded p-2 text-sm pr-10'
-              disabled={showRefinePrompt} // 當 refine prompt 打開時禁用編輯
-            />
+            )} */}
             {/* Refine Prompt 按鈕 */}
             <button
               onClick={handleRefinePromptClick}
               disabled={!promptText || promptText.trim().length === 0}
-              className='group absolute bottom-3 right-1 w-6 h-6disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors'
+              className='group w-6 h-6 disabled:cursor-not-allowed rounded flex items-center justify-center transition-colors'
               title='Refine prompt'>
               <img
                 src={promptIcon}
@@ -390,6 +378,18 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
                 className='max-w-full max-h-full object-contain hidden group-disabled:block'
               />
             </button>
+          </div>
+          <div className='relative'>
+            <AutoResizeTextarea
+              value={promptText}
+              onChange={handlePromptTextChange}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
+              onKeyDown={handleKeyDown}
+              placeholder='輸入您的提示'
+              className='w-full border border-gray-300 rounded p-2 text-sm pr-10'
+              disabled={showRefinePrompt} // 當 refine prompt 打開時禁用編輯
+            />
           </div>
         </div>
 
@@ -464,6 +464,8 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         onOptimizedPromptApply={handleOptimizedPromptApply}
         onOptimizedPromptCopy={handleOptimizedPromptCopy}
         nodePosition={{ x: data?.position?.x || 0, y: data?.position?.y || 0 }}
+        offsetX={265} // 自定義 X 軸偏移量
+        offsetY={-150} // 可選：自定義 Y 軸偏移量
       />
     </div>
   );
