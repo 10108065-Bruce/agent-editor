@@ -41,10 +41,11 @@ export class IconUploadService {
         },
         body: formData
       });
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/icons/`,
-        options
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/icons/`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`上傳失敗: ${response.status} ${response.statusText}`);

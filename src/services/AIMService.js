@@ -80,10 +80,13 @@ export class AIMService {
             } 次嘗試 (training_id: ${trainingId})`
           );
 
-          const response = await fetch(
-            `${API_CONFIG.BASE_URL}/agent_designer/aim/field-info?training_id=${trainingId}`,
-            options
+          // 使用新的方法創建帶 workspace_id 的 URL
+          const url = tokenService.createUrlWithWorkspace(
+            `${API_CONFIG.BASE_URL}/agent_designer/aim/field-info`,
+            { training_id: trainingId }
           );
+
+          const response = await fetch(url, options);
 
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -358,10 +361,12 @@ export class AIMService {
         try {
           console.log(`嘗試獲取LLM Vision模型，第 ${retryCount + 1} 次嘗試`);
 
-          const response = await fetch(
-            `${API_CONFIG.BASE_URL}/agent_designer/llm/vision`,
-            options
+          // 使用新的方法創建帶 workspace_id 的 URL
+          const url = tokenService.createUrlWithWorkspace(
+            `${API_CONFIG.BASE_URL}/agent_designer/llm/vision`
           );
+
+          const response = await fetch(url, options);
 
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);

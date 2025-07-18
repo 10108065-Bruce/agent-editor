@@ -1,7 +1,7 @@
-// Development version generated at 2025-07-14T06:05:48.933Z
+// Development version generated at 2025-07-18T02:46:12.536Z
 window.ENV = {
-  VITE_APP_VERSION: "0.1.48.2",
-  VITE_APP_BUILD_TIME: "2025-07-14T06:05:48.938Z",
-  VITE_APP_BUILD_ID: "dev-1752473148938",
+  VITE_APP_VERSION: "0.1.49.0",
+  VITE_APP_BUILD_TIME: "2025-07-18T02:46:12.537Z",
+  VITE_APP_BUILD_ID: "dev-1752806772537",
   MODE: "development"
 };

@@ -26,10 +26,10 @@ export class WorkflowAPIService {
         })
       });
 
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/load`,
-        options
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/load`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -65,10 +65,11 @@ export class WorkflowAPIService {
         })
       });
 
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`,
-        options
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`
       );
+
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -104,10 +105,11 @@ export class WorkflowAPIService {
           flow_pipeline: data.flow_pipeline
         })
       });
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`,
-        options
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);

@@ -89,10 +89,11 @@ export class ExternalService {
         }
       });
 
-      const request = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/channel/${lowerChannelType}/messaging_types`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/channel/${lowerChannelType}/messaging_types`
+      );
+
+      const request = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -274,10 +275,11 @@ export class ExternalService {
           Accept: 'application/json'
         }
       });
-      const request = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/external_service_configs/${upperServiceType}`,
-        options
-      )
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/external_service_configs/${upperServiceType}`
+      );
+      const request = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);

@@ -23,11 +23,10 @@ export class PromptGeneratorService {
           prompt: originalPrompt
         })
       });
-
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/ai/prompt-generator`,
-        options
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/ai/prompt-generator`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);

@@ -105,12 +105,18 @@ class IFrameBridgeService {
         }
         break;
       case 'SET_FLOW_ID_AND_TOKEN':
-        if (message.flowId && message.token && message.storage) {
+        if (
+          message.flowId &&
+          message.token &&
+          message.storage &&
+          message.selectedWorkspaceId
+        ) {
           console.log(
             `接收到 API Token (存儲類型: ${message.storage || 'local'})`
           );
 
           const flowId = message.flowId;
+          const selectedWorkspaceId = message.selectedWorkspaceId;
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
           console.log(`準備觸發 tokenReceived 事件，流ID: "${flowId}"`);
           console.log(
@@ -121,7 +127,8 @@ class IFrameBridgeService {
           // storage.setItem('api_token', message.token);
           this.triggerEvent('tokenReceived', {
             token: message.token,
-            storage: message.storage || 'local'
+            storage: message.storage || 'local',
+            selectedWorkspaceId
           });
           setTimeout(() => {
             // 觸發流ID變更事件

@@ -55,10 +55,10 @@ export class LLMService {
           Accept: 'application/json'
         }
       });
-      this.pendingRequest = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/llm/`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/`
+      );
+      this.pendingRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -198,10 +198,10 @@ export class LLMService {
           Accept: 'application/json'
         }
       });
-      this.pendingStructuredOutputRequest = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/llm/structured-output`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/structured-output`
+      );
+      this.pendingStructuredOutputRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -327,10 +327,10 @@ export class LLMService {
           Accept: 'application/json'
         }
       });
-      this.pendingFilesRequest = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/files/completed`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/files/completed`
+      );
+      this.pendingFilesRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);

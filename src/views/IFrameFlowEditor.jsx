@@ -51,11 +51,19 @@ const IFrameFlowEditor = () => {
     if (flowEditorRef.current && flowEditorRef.current.setToken) {
       // flowEditorRef.current.setToken(token);
       tokenService.setToken(token, storage);
+      tokenService.setWorkspaceId(
+        data.selectedWorkspaceId || 'default_workspace',
+        storage
+      );
     } else {
       console.log('IFrameFlowEditor: 流程編輯器引用不可用，暫存 token');
       // 可以在這裡暫存 token，等編輯器準備好後再設置
       storageObj.setItem('pending_token', token);
       tokenService.setToken(token, storage);
+      tokenService.setWorkspaceId(
+        data.selectedWorkspaceId || 'default_workspace',
+        storage
+      );
     }
   }, []);
 
