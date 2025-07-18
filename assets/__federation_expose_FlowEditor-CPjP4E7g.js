@@ -23628,7 +23628,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2d743f86d8ff41ecf91ade8744eb8cc45eb23230", "VITE_APP_BUILD_TIME": "2025-07-14T06:05:45.291Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.48.2"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "60657c9ee433c142310397bbfc2e6da66d9d2ea5", "VITE_APP_BUILD_TIME": "2025-07-18T02:44:09.876Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.48.3"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -25521,6 +25521,26 @@ class TokenService {
     return this.token;
   }
 
+  setWorkspaceId(workspaceId) {
+    if (!workspaceId) return;
+
+    try {
+      localStorage.setItem('selected_workspace_id', workspaceId);
+      console.log(`已設置工作區 ID: ${workspaceId}`);
+    } catch (error) {
+      console.error('保存工作區 ID 失敗:', error);
+    }
+  }
+
+  getWorkspaceId() {
+    try {
+      return localStorage.getItem('selected_workspace_id');
+    } catch (error) {
+      console.error('讀取工作區 ID 失敗:', error);
+      return null;
+    }
+  }
+
   createAuthHeader(options = {}) {
     // 嘗試獲取 token
     if (!this.token) {
@@ -25545,6 +25565,32 @@ class TokenService {
       ...options,
       headers
     };
+  }
+  /**
+   * 創建帶有 workspace_id 的完整 URL
+   * @param {string} baseUrl - 基礎 URL
+   * @param {Object} params - 額外的查詢參數
+   * @returns {string} 完整的 URL
+   */
+  createUrlWithWorkspace(baseUrl, params = {}) {
+    const workspaceId = this.getWorkspaceId();
+
+    // 創建 URL 對象
+    const url = new URL(baseUrl);
+
+    // 如果有 workspace_id，加入到查詢參數
+    if (workspaceId) {
+      url.searchParams.append('workspace_id', workspaceId);
+    }
+
+    // 加入其他參數
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        url.searchParams.append(key, value);
+      }
+    });
+
+    return url.toString();
   }
 }
 
@@ -25575,10 +25621,10 @@ class WorkflowAPIService {
         })
       });
 
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/load`,
-        options
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/load`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -25614,10 +25660,11 @@ class WorkflowAPIService {
         })
       });
 
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`,
-        options
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`
       );
+
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -25653,10 +25700,11 @@ class WorkflowAPIService {
           flow_pipeline: data.flow_pipeline
         })
       });
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`,
-        options
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -25726,10 +25774,10 @@ class LLMService {
           Accept: 'application/json'
         }
       });
-      this.pendingRequest = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/llm/`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/`
+      );
+      this.pendingRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -25869,10 +25917,10 @@ class LLMService {
           Accept: 'application/json'
         }
       });
-      this.pendingStructuredOutputRequest = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/llm/structured-output`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/structured-output`
+      );
+      this.pendingStructuredOutputRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -25998,10 +26046,10 @@ class LLMService {
           Accept: 'application/json'
         }
       });
-      this.pendingFilesRequest = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/files/completed`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/files/completed`
+      );
+      this.pendingFilesRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -26371,10 +26419,11 @@ class ExternalService {
         }
       });
 
-      const request = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/channel/${lowerChannelType}/messaging_types`,
-        options
-      )
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/channel/${lowerChannelType}/messaging_types`
+      );
+
+      const request = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -26556,10 +26605,11 @@ class ExternalService {
           Accept: 'application/json'
         }
       });
-      const request = fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/external_service_configs/${upperServiceType}`,
-        options
-      )
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/external_service_configs/${upperServiceType}`
+      );
+      const request = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -27985,10 +28035,11 @@ class IconUploadService {
         },
         body: formData
       });
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/icons/`,
-        options
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/icons/`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`上傳失敗: ${response.status} ${response.statusText}`);
@@ -28120,10 +28171,13 @@ class AIMService {
             } 次嘗試 (training_id: ${trainingId})`
           );
 
-          const response = await fetch(
-            `${API_CONFIG.BASE_URL}/agent_designer/aim/field-info?training_id=${trainingId}`,
-            options
+          // 使用新的方法創建帶 workspace_id 的 URL
+          const url = tokenService.createUrlWithWorkspace(
+            `${API_CONFIG.BASE_URL}/agent_designer/aim/field-info`,
+            { training_id: trainingId }
           );
+
+          const response = await fetch(url, options);
 
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -28398,10 +28452,12 @@ class AIMService {
         try {
           console.log(`嘗試獲取LLM Vision模型，第 ${retryCount + 1} 次嘗試`);
 
-          const response = await fetch(
-            `${API_CONFIG.BASE_URL}/agent_designer/llm/vision`,
-            options
+          // 使用新的方法創建帶 workspace_id 的 URL
+          const url = tokenService.createUrlWithWorkspace(
+            `${API_CONFIG.BASE_URL}/agent_designer/llm/vision`
           );
+
+          const response = await fetch(url, options);
 
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -28748,11 +28804,10 @@ class PromptGeneratorService {
           prompt: originalPrompt
         })
       });
-
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}/agent_designer/ai/prompt-generator`,
-        options
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/ai/prompt-generator`
       );
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
@@ -34161,12 +34216,18 @@ class IFrameBridgeService {
         }
         break;
       case 'SET_FLOW_ID_AND_TOKEN':
-        if (message.flowId && message.token && message.storage) {
+        if (
+          message.flowId &&
+          message.token &&
+          message.storage &&
+          message.selectedWorkspaceId
+        ) {
           console.log(
             `接收到 API Token (存儲類型: ${message.storage || 'local'})`
           );
 
           const flowId = message.flowId;
+          const selectedWorkspaceId = message.selectedWorkspaceId;
           // 更詳細的日誌，顯示將要觸發的事件類型和數據
           console.log(`準備觸發 tokenReceived 事件，流ID: "${flowId}"`);
           console.log(
@@ -34177,7 +34238,8 @@ class IFrameBridgeService {
           // storage.setItem('api_token', message.token);
           this.triggerEvent('tokenReceived', {
             token: message.token,
-            storage: message.storage || 'local'
+            storage: message.storage || 'local',
+            selectedWorkspaceId
           });
           setTimeout(() => {
             // 觸發流ID變更事件

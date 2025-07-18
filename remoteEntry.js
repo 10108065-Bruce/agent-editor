@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-Ba0lSa6o.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CPjP4E7g.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15804,10 +15804,18 @@ const IFrameFlowEditor = () => {
     const storageObj = storage === "session" ? sessionStorage : localStorage;
     if (flowEditorRef.current && flowEditorRef.current.setToken) {
       tokenService.setToken(token, storage);
+      tokenService.setWorkspaceId(
+        data.selectedWorkspaceId || "default_workspace",
+        storage
+      );
     } else {
       console.log("IFrameFlowEditor: 流程編輯器引用不可用，暫存 token");
       storageObj.setItem("pending_token", token);
       tokenService.setToken(token, storage);
+      tokenService.setWorkspaceId(
+        data.selectedWorkspaceId || "default_workspace",
+        storage
+      );
     }
   }, []);
   const isLoadingRef = useRef(false);
