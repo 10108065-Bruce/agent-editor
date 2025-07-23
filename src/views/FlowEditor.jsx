@@ -56,7 +56,8 @@ const ReactFlowWithControls = forwardRef(
       onInit,
       onDrop,
       onDragOver,
-      sidebarVisible // 添加sidebar狀態參數
+      sidebarVisible,
+      isLocked = false
     },
     ref
   ) => {
@@ -107,18 +108,22 @@ const ReactFlowWithControls = forwardRef(
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodesDelete={onNodesDelete}
+          onNodesChange={isLocked ? () => {} : onNodesChange} // 鎖定時禁用節點變更
+          onEdgesChange={isLocked ? () => {} : onEdgesChange} // 鎖定時禁用邊緣變更
+          onConnect={isLocked ? () => {} : onConnect} // 鎖定時禁用連接
+          onNodesDelete={isLocked ? () => {} : onNodesDelete} // 鎖定時禁用節點刪除
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           defaultViewport={defaultViewport}
           onSelectionChange={onSelectionChange}
-          deleteKeyCode={['Backspace', 'Delete']}
+          deleteKeyCode={isLocked ? [] : ['Backspace', 'Delete']} // 鎖定時禁用刪除鍵
           onInit={onInit}
-          onDrop={onDrop}
-          onDragOver={onDragOver}>
+          onDrop={isLocked ? () => {} : onDrop} // 鎖定時禁用拖放
+          onDragOver={isLocked ? () => {} : onDragOver} // 鎖定時禁用拖放
+          nodesDraggable={!isLocked} // 鎖定時節點不可拖拽
+          nodesConnectable={!isLocked} // 鎖定時節點不可連接
+          elementsSelectable={!isLocked} // 鎖定時元素不可選擇
+        >
           <MiniMap />
           <Controls style={controlsStyle} /> {/* 使用動態樣式控制位置 */}
           <Background />
@@ -159,6 +164,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const isInitialized = useRef(false);
   const [isSaving, setIsSaving] = useState(false); // 添加保存狀態
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [isLocked, setIsLocked] = useState(false);
 
   // 使用 useMemo 記憶化 nodeTypes 和 edgeTypes，這樣它們在每次渲染時保持穩定
   const nodeTypes = useMemo(() => enhancedNodeTypes, []);
@@ -190,6 +196,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddLineMessageNode,
     handleAddExtractDataNode,
     handleAddQOCAAimNode,
+    handleAddScheduleTriggerNode,
     handleNodeSelection,
     undo,
     redo,
@@ -248,7 +255,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     if (flowId !== 'new') {
       try {
         const apiData = await workflowAPIService.loadWorkflow(flowId);
-
+        // 檢查是否有 is_locked 屬性並設置狀態
+        // eslint-disable-next-line no-prototype-builtins
+        if (apiData.hasOwnProperty('is_locked')) {
+          setIsLocked(apiData.is_locked);
+        }
         const { nodes: transformedNodes, edges: transformedEdges } =
           WorkflowDataConverter.transformToReactFlowFormat(apiData);
         // 🔧 重要修復：為載入的節點重新添加回調函數
@@ -396,6 +407,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   // 處理標題變更
   const handleTitleChange = useCallback(
     (title) => {
+      if (isLocked) return; // 鎖定時不允許修改標題
       setFlowMetadata((prev) => ({ ...prev, title }));
 
       // 如果提供了標題變更回調函數，則呼叫它
@@ -403,12 +415,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         onTitleChange(title);
       }
     },
-    [onTitleChange]
+    [onTitleChange, isLocked]
   );
 
   // 處理從側邊欄選擇的節點類型，加入位置參數支持拖放
   const handleNodeTypeSelection = useCallback(
     (nodeType, position = null) => {
+      if (isLocked) return;
       // Default position for click-added nodes
       const defaultPosition = {
         x: Math.random() * 400,
@@ -463,6 +476,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'aim_ml':
           handleAddQOCAAimNode(nodePosition);
           break;
+        case 'schedule_trigger':
+          handleAddScheduleTriggerNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -483,22 +499,29 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddLineMessageNode,
       handleAddExtractDataNode,
       handleAddQOCAAimNode,
-      handleAddNode
+      handleAddNode,
+      handleAddScheduleTriggerNode,
+      isLocked
     ]
   );
 
   // Drag and drop implementation
-  const onDragOver = useCallback((event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    // Optional: Add visual feedback
-    if (reactFlowWrapper.current) {
-      reactFlowWrapper.current.classList.add('drag-over');
-    }
-  }, []);
+  const onDragOver = useCallback(
+    (event) => {
+      if (isLocked) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      // Optional: Add visual feedback
+      if (reactFlowWrapper.current) {
+        reactFlowWrapper.current.classList.add('drag-over');
+      }
+    },
+    [isLocked]
+  );
 
   const onDrop = useCallback(
     (event) => {
+      if (isLocked) return;
       event.preventDefault();
 
       if (!reactFlowInstance) return;
@@ -524,13 +547,17 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         reactFlowWrapper.current.classList.remove('drag-over');
       }
     },
-    [reactFlowInstance, handleNodeTypeSelection]
+    [reactFlowInstance, handleNodeTypeSelection, isLocked]
   );
 
-  const onDragStart = useCallback((event, nodeType) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
-    event.dataTransfer.effectAllowed = 'move';
-  }, []);
+  const onDragStart = useCallback(
+    (event, nodeType) => {
+      if (isLocked) return;
+      event.dataTransfer.setData('application/reactflow', nodeType);
+      event.dataTransfer.effectAllowed = 'move';
+    },
+    [isLocked]
+  );
 
   /**
    * 將流程資料儲存到本地檔案
@@ -656,6 +683,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
   // 修改保存函數來設置保存狀態
   const saveToServer = useCallback(async () => {
+    if (isLocked) return;
     // 設置保存中狀態
     setIsSaving(true);
 
@@ -797,11 +825,12 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       // 無論成功或失敗，都重置保存狀態
       setIsSaving(false);
     }
-  }, [nodes, edges, flowMetadata, handleLoadWorkflow]);
+  }, [isLocked, nodes, edges, flowMetadata, handleLoadWorkflow]);
 
   // 處理對話框中的保存操作
   const handleDialogSave = useCallback(
     async (flowName) => {
+      if (isLocked) return;
       console.log(`對話框觸發的保存，流程名稱: ${flowName}`);
       console.log('當前 flowMetadata:', flowMetadata);
 
@@ -930,7 +959,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         setIsSaving(false); // 重置保存狀態
       }
     },
-    [nodes, edges, flowMetadata, saveDialogCallback, handleLoadWorkflow]
+    [
+      nodes,
+      edges,
+      flowMetadata,
+      saveDialogCallback,
+      handleLoadWorkflow,
+      isLocked
+    ]
   );
 
   // 關閉保存對話框
@@ -940,10 +976,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, []);
 
   // 顯示保存對話框的函數
-  const showSaveFlowDialog = useCallback((callback) => {
-    setSaveDialogCallback(() => callback); // 保存回調函數
-    setShowSaveDialog(true);
-  }, []);
+  const showSaveFlowDialog = useCallback(
+    (callback) => {
+      if (isLocked) return;
+      setSaveDialogCallback(() => callback); // 保存回調函數
+      setShowSaveDialog(true);
+    },
+    [isLocked]
+  );
   /**
    * 從本地檔案載入流程資料
    */
@@ -1040,6 +1080,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   useEffect(() => {
     // 監聽來自 Line 節點的保存請求
     const handleSaveRequest = (event) => {
+      if (isLocked) return;
       console.log('收到來自 Line 節點的保存請求', event.detail);
       const { callback } = event.detail;
 
@@ -1057,13 +1098,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     return () => {
       window.removeEventListener('requestSaveFlow', handleSaveRequest);
     };
-  }, [flowMetadata.id, showSaveFlowDialog]);
+  }, [flowMetadata.id, showSaveFlowDialog, isLocked]);
   return (
     <div className='relative w-full h-screen'>
       {/* APA Assistant at top */}
       <APAAssistant
         title={flowMetadata.title}
         onTitleChange={handleTitleChange}
+        isLocked={isLocked}
       />
 
       {/* 添加通知系統 */}
@@ -1090,6 +1132,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             onDrop={onDrop}
             onDragOver={onDragOver}
             sidebarVisible={sidebarVisible} // 將sidebar狀態傳遞給子組件
+            isLocked={isLocked}
           />
         </div>
       </ReactFlowProvider>
@@ -1103,6 +1146,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           handleButtonClick={handleNodeTypeSelection}
           onDragStart={onDragStart}
           nodes={nodes}
+          isLocked={isLocked}
         />
 
         {/* Sidebar toggle button */}
@@ -1162,7 +1206,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           <div className='ml-2'>
             <AutoLayoutButton
               onLayout={handleAutoLayout}
-              disabled={isSaving || nodes.length === 0}
+              disabled={isSaving || nodes.length === 0 || isLocked}
+              isLocked={isLocked}
             />
           </div>
 
@@ -1176,6 +1221,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               title={flowMetadata.title}
               flowId={flowMetadata.id} // 傳入流程ID
               disabled={isSaving}
+              isLocked={isLocked}
             />
           </div>
         </div>
@@ -1184,6 +1230,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           <div className='mt-2 bg-white px-3 py-1 rounded-md shadow text-xs text-gray-500 z-10'>
             Last saved: {new Date(flowMetadata.lastSaved).toLocaleTimeString()}{' '}
             | Version: {flowMetadata.version}
+            {isLocked && (
+              <span className='ml-2 text-orange-600 font-medium'>
+                🔒 已鎖定
+              </span>
+            )}
           </div>
         )}
       </div>

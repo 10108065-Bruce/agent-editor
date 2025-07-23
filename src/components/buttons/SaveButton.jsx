@@ -12,7 +12,8 @@ const SaveButton = ({
   className = '',
   title = '',
   flowId = '',
-  disabled = false
+  disabled = false,
+  isLocked = false // 新增 isLocked 參數
 }) => {
   const { state, errorMessage, setLoading, setSuccess, setError } =
     useButtonState();
@@ -21,6 +22,11 @@ const SaveButton = ({
   const isCreateMode = !flowId || flowId === 'new';
 
   const triggerSave = async () => {
+    if (isLocked) {
+      setError('工作流已鎖定，無法保存');
+      return;
+    }
+
     if (!isTitleValid) {
       setError('請先輸入標題');
       return;
@@ -40,7 +46,7 @@ const SaveButton = ({
   };
 
   const getButtonStyle = () => {
-    if (disabled || (!isTitleValid && !state)) return 'disabled';
+    if (disabled || isLocked || (!isTitleValid && !state)) return 'disabled';
     if (state === 'loading') return 'loading';
     if (state === 'success') return 'success';
     if (state === 'error') return 'error';
@@ -48,6 +54,7 @@ const SaveButton = ({
   };
 
   const getButtonTitle = () => {
+    if (isLocked) return '工作流已鎖定，無法保存';
     if (!isTitleValid && !state) return '請先輸入標題';
     if (disabled) return '目前無法儲存';
     return isCreateMode ? '建立新流程' : '儲存現有流程';
@@ -78,6 +85,7 @@ const SaveButton = ({
         </div>
       );
     }
+
     return <span>{isCreateMode ? 'Create' : 'Save'}</span>;
   };
 
@@ -87,7 +95,7 @@ const SaveButton = ({
     <div className='relative'>
       <BaseButton
         onClick={triggerSave}
-        disabled={disabled || (!isTitleValid && !state)}
+        disabled={disabled || isLocked || (!isTitleValid && !state)} // 新增 isLocked 條件
         title={getButtonTitle()}
         className={className}
         width={buttonWidth}

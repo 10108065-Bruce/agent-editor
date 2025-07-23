@@ -4,7 +4,7 @@ import { CheckIcon, LoadingSpinner } from '../common/Icons';
 import { useButtonState } from '../../hooks/useButtonState';
 import { useNotification } from '../../hooks/useNotification';
 
-const AutoLayoutButton = ({ onLayout, disabled = false }) => {
+const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
   const [layoutDirection, setLayoutDirection] = useState('LR');
   const [showDirectionMenu, setShowDirectionMenu] = useState(false);
   const { state, setLoading, setSuccess, setError } = useButtonState();
@@ -50,7 +50,12 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
   }, []);
 
   const executeLayout = async (direction) => {
-    if (disabled || !onLayout) return;
+    if (disabled || !onLayout || isLocked) return;
+
+    if (isLocked) {
+      notify('工作流已鎖定，無法執行自動排版', 'warning', 3000);
+      return;
+    }
 
     try {
       setLoading();
@@ -72,9 +77,20 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
     }
   };
 
-  const handleLayout = () => executeLayout(layoutDirection);
+  const handleLayout = () => {
+    if (isLocked) {
+      notify('工作流已鎖定，無法執行自動排版', 'warning', 3000);
+      return;
+    }
+    executeLayout(layoutDirection);
+  };
 
   const handleDirectionChange = async (direction) => {
+    if (isLocked) {
+      notify('工作流已鎖定，無法執行自動排版', 'warning', 3000);
+      return;
+    }
+
     setLayoutDirection(direction);
     setShowDirectionMenu(false);
 
@@ -85,14 +101,23 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
 
   const toggleDropdown = (e) => {
     e.stopPropagation();
+    if (isLocked) {
+      notify('工作流已鎖定，無法更改排版設定', 'warning', 3000);
+      return;
+    }
     setShowDirectionMenu(!showDirectionMenu);
   };
 
   const currentDirection = directions.find((d) => d.value === layoutDirection);
 
   const getButtonStyle = () => {
-    if (disabled || state === 'loading') return 'disabled';
+    if (disabled || state === 'loading' || isLocked) return 'disabled';
     return 'primary';
+  };
+
+  const getButtonTitle = () => {
+    if (isLocked) return '工作流已鎖定，無法執行自動排版';
+    return `自動排版 (${currentDirection?.label}) - ${currentDirection?.description}`;
   };
 
   const getButtonContent = () => {
@@ -117,8 +142,11 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
           className='flex items-center justify-center ml-2 pl-2 border-l border-white/30'
           onClick={toggleDropdown}
           style={{
-            cursor: disabled || state === 'loading' ? 'not-allowed' : 'pointer',
-            opacity: disabled || state === 'loading' ? 0.5 : 1
+            cursor:
+              disabled || state === 'loading' || isLocked
+                ? 'not-allowed'
+                : 'pointer',
+            opacity: disabled || state === 'loading' || isLocked ? 0.5 : 1
           }}>
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -147,14 +175,14 @@ const AutoLayoutButton = ({ onLayout, disabled = false }) => {
       ref={dropdownRef}>
       <BaseButton
         onClick={handleLayout}
-        disabled={disabled}
-        title={`自動排版 (${currentDirection?.label}) - ${currentDirection?.description}`}
+        disabled={disabled || isLocked} // 新增 isLocked 條件
+        title={getButtonTitle()}
         width='120px'
         buttonStyle={getButtonStyle()}>
         {getButtonContent()}
       </BaseButton>
 
-      {showDirectionMenu && !disabled && state !== 'loading' && (
+      {showDirectionMenu && !disabled && state !== 'loading' && !isLocked && (
         <div className='absolute top-full left-0 mt-2 p-2 bg-white rounded-md shadow-lg border border-gray-200 z-30 min-w-[200px]'>
           <div className='text-sm text-gray-600 mb-2 px-2 font-medium'>
             選擇排版方向並自動執行:
