@@ -11,12 +11,14 @@ export { ExternalService } from './ExternalService';
 export { WorkflowDataConverter } from './WorkflowDataConverter';
 export { IconUploadService } from './IconUploadService';
 export { AIMService } from './AIMService';
+export { ScheduleTriggerService } from './ScheduleTriggerService';
 // 創建服務實例並導出
 import { WorkflowAPIService } from './WorkflowAPIService';
 import { LLMService } from './LLMService';
 import { ExternalService } from './ExternalService';
 import { IconUploadService } from './IconUploadService';
 import { AIMService } from './AIMService';
+import { ScheduleTriggerService } from './ScheduleTriggerService';
 
 // 創建單例實例
 export const workflowAPIService = new WorkflowAPIService();
@@ -24,3 +26,4 @@ export const llmService = new LLMService();
 export const externalService = new ExternalService();
 export const iconUploadService = new IconUploadService();
 export const aimService = new AIMService();
+export const scheduleTriggerService = new ScheduleTriggerService();

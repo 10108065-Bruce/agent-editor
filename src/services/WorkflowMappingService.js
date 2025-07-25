@@ -27,7 +27,8 @@ export class WorkflowMappingService {
       message: 'line_send_message',
       extract_data: 'extract_data',
       extractData: 'extract_data',
-      aim_ml: 'aim_ml'
+      aim_ml: 'aim_ml',
+      schedule_trigger: 'schedule_trigger'
     };
     return operatorMap[type] || type;
   }
@@ -46,6 +47,7 @@ export class WorkflowMappingService {
       ifElse: 'ifElse',
       knowledge_retrieval: 'knowledgeRetrieval',
       http_request: 'httpRequest',
+      schedule_trigger: 'schedule_trigger',
       timer: 'timer',
       line: 'line_webhook_input',
       event: 'event',
@@ -82,7 +84,8 @@ export class WorkflowMappingService {
       browserExtensionOutput: 'output',
       extract_data: 'advanced',
       extractData: 'advanced',
-      aim_ml: 'advanced'
+      aim_ml: 'advanced',
+      schedule_trigger: 'advanced'
     };
     return categoryMap[type] || 'advanced';
   }
@@ -127,6 +130,8 @@ export class WorkflowMappingService {
         return '事件處理';
       case 'extract_data':
         return '資料提取';
+      case 'schedule_trigger':
+        return '排程觸發';
       default:
         return node.operator;
     }
@@ -159,6 +164,15 @@ export class WorkflowMappingService {
 
     // 在現有的節點類型檢查之後添加：
     const isQOCAAimNode = targetNode && targetNode.type === 'aim_ml';
+
+    // 檢查是否為 Schedule Trigger 節點 - 沒有輸入
+    const isScheduleTriggerNode =
+      targetNode && targetNode.type === 'schedule_trigger';
+
+    // Schedule Trigger 節點沒有輸入連接，直接返回空對象
+    if (isScheduleTriggerNode) {
+      return nodeInput;
+    }
 
     // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
     if (
@@ -614,6 +628,13 @@ export class WorkflowMappingService {
       // };
 
       // break;
+      case 'schedule_trigger':
+        // Schedule Trigger 節點只有一個 trigger 輸出
+        nodeOutput.trigger = {
+          node_id: node.id,
+          type: 'object'
+        };
+        break;
       case 'aim_ml': {
         // QOCA AIM 節點輸出 - 根據節點數據判斷
         const isExplainEnabled =

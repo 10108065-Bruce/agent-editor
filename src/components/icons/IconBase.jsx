@@ -7,6 +7,7 @@ import lineWebhookNode from '../../assets/icn-line-node.svg';
 import aimNode from '../../assets/icon-aim-node.svg';
 import httpNode from '../../assets/icon-http.svg';
 import promptIcon from '../../assets/prompt-generator.svg';
+import scheduleNode from '../../assets/icon-timer-node.svg';
 // Map of icon types to their respective assets
 const iconMap = {
   input: {
@@ -39,6 +40,10 @@ const iconMap = {
   },
   prompt: {
     src: promptIcon
+  },
+  schedule: {
+    src: scheduleNode,
+    alt: 'Schedule Icon'
   }
 };
 

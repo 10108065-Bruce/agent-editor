@@ -235,6 +235,29 @@ export default function useFlowNodes() {
 
       // 根據節點類型的特定回調
       switch (nodeType) {
+        case 'schedule_trigger':
+          // Schedule Trigger 節點的特殊回調處理
+          callbacks.updateNodeData = (key, value) => {
+            console.log(
+              `更新 Schedule Trigger 節點 ${nodeId} 的 ${key} 資料:`,
+              value
+            );
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === nodeId) {
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      [key]: value
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          };
+          break;
         case 'extractData':
         case 'extract_data':
           callbacks.updateNodeData = (key, value) => {
@@ -1003,6 +1026,35 @@ export default function useFlowNodes() {
         id,
         type: 'line_send_message',
         data: {
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
+  // 添加 Schedule Trigger 節點
+  const handleAddScheduleTriggerNode = useCallback(
+    (position) => {
+      const id = `schedule_node_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'schedule_trigger');
+
+      const newNode = {
+        id,
+        type: 'schedule_trigger',
+        data: {
+          schedule_type: 'cron', // 預設為週期性
+          cron_expression: '', // 預設工作日早上9點
+          execute_at: null, // 一次性執行時間
+          timezone: 'Asia/Taipei', // 預設時區
+          enabled: true, // 預設啟用
+          description: '', // 預設描述
           ...nodeCallbacksObject
         },
         position: position || {
@@ -1888,6 +1940,7 @@ export default function useFlowNodes() {
     handleNodeSelection,
     handleAddExtractDataNode,
     handleAddQOCAAimNode,
+    handleAddScheduleTriggerNode,
     undo,
     redo,
     getNodeCallbacks,

@@ -13,7 +13,7 @@ import TimerNode from './nodes/TimerNode';
 import LineMessageNode from './nodes/MessageNode';
 import ExtractDataNode from './nodes/ExtractDataNode';
 import QOCAAimNode from './nodes/QOCAAimNode';
-
+import ScheduleNode from './nodes/ScheduleNode';
 // Apply the withNodeSelection HOC to each node type
 const enhancedNodeTypes = {
   customInput: withNodeSelection(CustomInputNode),
@@ -29,7 +29,8 @@ const enhancedNodeTypes = {
   timer: withNodeSelection(TimerNode),
   line_send_message: withNodeSelection(LineMessageNode),
   extract_data: withNodeSelection(ExtractDataNode),
-  aim_ml: withNodeSelection(QOCAAimNode)
+  aim_ml: withNodeSelection(QOCAAimNode),
+  schedule_trigger: withNodeSelection(ScheduleNode)
 };
 
 export default enhancedNodeTypes;

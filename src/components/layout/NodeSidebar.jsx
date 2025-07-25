@@ -266,7 +266,7 @@ const NodeSidebar = ({
         )}
 
         {/* schedule node */}
-        {/* {filterNodes('schedule trigger') && (
+        {filterNodes('schedule trigger') && (
           <NodeItem
             icon={
               <div>
@@ -280,7 +280,7 @@ const NodeSidebar = ({
             disabled={isLocked}
             disabledReason={isLocked ? '工作流已鎖定' : null}
           />
-        )} */}
+        )}
       </div>
       <VersionDisplay />
     </div>

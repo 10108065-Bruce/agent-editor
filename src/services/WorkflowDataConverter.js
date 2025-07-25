@@ -272,6 +272,34 @@ export class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
+      case 'schedule_trigger': {
+        // Schedule Trigger 節點的數據轉換 - 支持新舊格式
+        return {
+          ...baseData,
+          schedule_type:
+            node.parameters?.schedule_type?.data ||
+            node.parameters?.schedule_type ||
+            'cron',
+          cron_expression:
+            node.parameters?.cron_expression?.data ||
+            node.parameters?.cron_expression ||
+            '',
+          execute_at:
+            node.parameters?.execute_at?.data ||
+            node.parameters?.execute_at ||
+            null,
+          timezone:
+            node.parameters?.timezone?.data ||
+            node.parameters?.timezone ||
+            'Asia/Taipei',
+          enabled:
+            node.parameters?.enabled?.data ?? node.parameters?.enabled ?? true,
+          description:
+            node.parameters?.description?.data ||
+            node.parameters?.description ||
+            ''
+        };
+      }
       case 'http_request':
         // HTTP Request 節點的數據轉換
         return {
@@ -714,6 +742,34 @@ export class WorkflowDataConverter {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
     switch (node.type) {
+      case 'schedule_trigger': {
+        // Schedule Trigger 節點參數轉換 - 直接使用值而不包裝在 data 中
+        if (node.data.schedule_type) {
+          parameters.schedule_type = node.data.schedule_type;
+        }
+
+        if (node.data.cron_expression) {
+          parameters.cron_expression = node.data.cron_expression;
+        }
+
+        if (node.data.execute_at) {
+          parameters.execute_at = node.data.execute_at;
+        }
+
+        if (node.data.timezone) {
+          parameters.timezone = node.data.timezone;
+        }
+
+        if (node.data.enabled !== undefined) {
+          parameters.enabled = node.data.enabled;
+        }
+
+        if (node.data.description) {
+          parameters.description = node.data.description;
+        }
+
+        break;
+      }
       case 'httpRequest':
         // HTTP Request 節點參數轉換
         if (node.data.url) {

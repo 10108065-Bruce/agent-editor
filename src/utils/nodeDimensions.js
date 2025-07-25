@@ -10,6 +10,42 @@ export const calculateNodeDimensions = (node) => {
   const baseHeight = 120;
 
   switch (node.type) {
+    case 'schedule_trigger': {
+      // 基礎高度包含：標題、類型選擇、指定時間、時區、任務描述 // Schedule node 尺寸計算
+      const baseScheduleHeight = 280;
+
+      // 檢查排程類型
+      const scheduleType = node.data?.schedule_type || 'one_time';
+
+      if (scheduleType === 'one_time') {
+        // 一次性排程：需要日期時間選擇器
+        return {
+          width: baseWidth + 64, // 320px，比基礎寬度多 64px 容納日期選擇器
+          height: baseScheduleHeight + 80 // 360px，額外空間給日期時間選擇器
+        };
+      } else if (scheduleType === 'recurring') {
+        // 週期性排程：需要額外的重複設定選項
+        const hasAdvancedRecurring = node.data?.advanced_recurring || false;
+        return {
+          width: baseWidth + 64, // 320px
+          height: hasAdvancedRecurring
+            ? baseScheduleHeight + 140 // 420px，進階重複設定需要更多空間
+            : baseScheduleHeight + 100 // 380px，基本重複設定
+        };
+      } else if (scheduleType === 'cron') {
+        // Cron 表達式：需要額外空間顯示 cron 輸入和說明
+        return {
+          width: baseWidth + 64, // 320px
+          height: baseScheduleHeight + 120 // 400px，cron 表達式和說明需要額外空間
+        };
+      }
+
+      // 預設回傳基礎尺寸
+      return {
+        width: baseWidth + 64, // 320px
+        height: baseScheduleHeight // 280px
+      };
+    }
     case 'customInput': {
       // 根據欄位數量調整高度
       const fieldCount = node.data?.fields?.length || 1;
@@ -201,6 +237,7 @@ export const getNodeDimensionsMap = () => {
     event: { width: 256, height: 180 },
     line_webhook_input: { width: 320, height: 180 },
     line_send_message: { width: 320, height: 200 },
+    schedule_trigger: { width: 320, height: 360 },
     default: { width: 200, height: 100 }
   };
 };
@@ -334,11 +371,17 @@ export const estimateLayoutCanvasSize = (nodes, direction = 'TB') => {
     return dimensions.width > 300 || dimensions.height > 300;
   });
 
+  // 檢查是否有 Schedule 節點（需要特殊處理複雜 UI）
+  const hasScheduleNodes = nodes.some(
+    (node) => node.type === 'schedule_trigger' || node.type === 'schedule_node'
+  );
+
   // 檢查是否有 QOCA AIM 節點（需要特殊處理動態尺寸）
   const hasQocaAimNodes = nodes.some((node) => node.type === 'qocaAim');
 
   // 如果有大尺寸節點或 QOCA AIM 節點，增加額外的緩衝空間
-  const sizeFactor = hasLargeNodes || hasQocaAimNodes ? 1.4 : 1.0;
+  const sizeFactor =
+    hasLargeNodes || hasQocaAimNodes || hasScheduleNodes ? 1.4 : 1.0;
 
   // 基於方向計算預估尺寸
   if (direction === 'LR' || direction === 'RL') {
@@ -468,6 +511,10 @@ export const analyzeConnectionComplexity = (nodes, edges) => {
   // 檢查是否有 QOCA AIM 節點
   const hasQocaAimNodes = nodes.some((node) => node.type === 'qocaAim');
 
+  const hasScheduleNodes = nodes.some(
+    (node) => node.type === 'schedule_trigger' || node.type === 'schedule_node'
+  );
+
   // 計算每個方向的潛在交叉數量
   const directions = ['TB', 'LR', 'BT', 'RL'];
 
@@ -527,7 +574,7 @@ export const analyzeConnectionComplexity = (nodes, edges) => {
   }
 
   // 針對大尺寸節點和 QOCA AIM 節點的特殊建議
-  if (hasLargeNodes || hasQocaAimNodes) {
+  if (hasLargeNodes || hasQocaAimNodes || hasScheduleNodes) {
     analysis.recommendations.push(
       '包含大尺寸節點：建議使用 TB 或 BT 方向以獲得最佳顯示效果'
     );
@@ -545,6 +592,12 @@ export const analyzeConnectionComplexity = (nodes, edges) => {
   if (hasQocaAimNodes) {
     analysis.recommendations.push(
       'QOCA AIM 節點：動態尺寸節點，建議預留額外空間'
+    );
+  }
+  // 針對 Schedule 節點的特殊建議
+  if (hasScheduleNodes) {
+    analysis.recommendations.push(
+      'Schedule 節點：包含日期時間選擇器，建議使用垂直佈局並預留額外空間'
     );
   }
 

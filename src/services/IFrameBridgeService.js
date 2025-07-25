@@ -12,7 +12,8 @@ class IFrameBridgeService {
       downloadRequest: [],
       loadWorkflow: [], // 新增載入工作流事件
       ready: [],
-      tokenReceived: []
+      tokenReceived: [],
+      saveWorkflow: [] // 新增保存工作流事件
     };
 
     // 是否在 iframe 內部
@@ -177,7 +178,11 @@ class IFrameBridgeService {
         // 觸發下載請求事件
         this.triggerEvent('downloadRequest', message.options || {});
         break;
-
+      // save workflow
+      case 'SAVE_WORKFLOW':
+        console.log('收到 SAVE_WORKFLOW 消息，將觸發 saveWorkflow 事件');
+        this.triggerEvent('saveWorkflow');
+        break;
       default:
         console.log(`收到未處理的消息類型: ${message.type}`);
         break;

@@ -363,6 +363,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return false;
     },
     loadWorkflow: loadWorkflowImpl,
+    // saveWorkflow 方法
+    saveWorkflow: saveToServer,
     // 暴露 fitViewToNodes 方法給父組件
     fitViewToNodes: () => {
       if (

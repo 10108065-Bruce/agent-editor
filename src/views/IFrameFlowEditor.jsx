@@ -104,6 +104,34 @@ const IFrameFlowEditor = () => {
     }
   }, []);
 
+  const handleSaveWorkflow = useCallback(async () => {
+    console.log('IFrameFlowEditor: 處理保存工作流請求');
+    // 防止重複執行
+    if (isLoadingRef.current) {
+      console.log('IFrameFlowEditor: 保存工作流已在進行中，忽略重複請求');
+      return;
+    }
+
+    isLoadingRef.current = true;
+    setIsLoading(true);
+    try {
+      if (flowEditorRef.current && flowEditorRef.current.saveWorkflow) {
+        await flowEditorRef.current.saveWorkflow();
+      } else {
+        console.warn(
+          'IFrameFlowEditor: 流程編輯器實例未準備好，無法處理保存請求'
+        );
+      }
+    } catch (err) {
+      console.error('IFrameFlowEditor: 保存工作流時發生錯誤:', err);
+      setError(err.message || '保存時發生未知錯誤');
+    } finally {
+      setIsLoading(false);
+      // 確保無論成功失敗都重置標誌
+      isLoadingRef.current = false;
+    }
+  }, []);
+
   // 處理下載請求
   const handleDownloadRequest = useCallback((options) => {
     console.log('IFrameFlowEditor: 收到下載請求:', options);
@@ -149,12 +177,14 @@ const IFrameFlowEditor = () => {
     iframeBridge.off('loadWorkflow', handleLoadWorkflow);
     iframeBridge.off('downloadRequest', handleDownloadRequest);
     iframeBridge.off('tokenReceived', handleTokenReceived);
+    iframeBridge.off('saveWorkflow', handleSaveWorkflow);
     // 監聽來自服務的標題變更事件
     // iframeBridge.on('titleChange', handleTitleChange);
 
     // 監聽載入工作流事件
     iframeBridge.on('loadWorkflow', handleLoadWorkflow);
-
+    // 監聽保存工作流事件
+    iframeBridge.on('saveWorkflow', handleSaveWorkflow);
     // 監聽下載請求事件
     iframeBridge.on('downloadRequest', handleDownloadRequest);
     // 監聽來自服務的 token 變更事件
