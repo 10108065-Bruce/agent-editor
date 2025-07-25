@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor--dUzJxtU.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-C7P2H3qN.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15846,6 +15846,30 @@ const IFrameFlowEditor = () => {
       isLoadingRef.current = false;
     }
   }, []);
+  const handleSaveWorkflow = useCallback(async () => {
+    console.log("IFrameFlowEditor: 處理保存工作流請求");
+    if (isLoadingRef.current) {
+      console.log("IFrameFlowEditor: 保存工作流已在進行中，忽略重複請求");
+      return;
+    }
+    isLoadingRef.current = true;
+    setIsLoading(true);
+    try {
+      if (flowEditorRef.current && flowEditorRef.current.saveWorkflow) {
+        await flowEditorRef.current.saveWorkflow();
+      } else {
+        console.warn(
+          "IFrameFlowEditor: 流程編輯器實例未準備好，無法處理保存請求"
+        );
+      }
+    } catch (err) {
+      console.error("IFrameFlowEditor: 保存工作流時發生錯誤:", err);
+      setError(err.message || "保存時發生未知錯誤");
+    } finally {
+      setIsLoading(false);
+      isLoadingRef.current = false;
+    }
+  }, []);
   const handleDownloadRequest = useCallback((options) => {
     console.log("IFrameFlowEditor: 收到下載請求:", options);
     if (flowEditorRef.current && flowEditorRef.current.exportFlowData) {
@@ -15867,7 +15891,9 @@ const IFrameFlowEditor = () => {
     iframeBridge.off("loadWorkflow", handleLoadWorkflow);
     iframeBridge.off("downloadRequest", handleDownloadRequest);
     iframeBridge.off("tokenReceived", handleTokenReceived);
+    iframeBridge.off("saveWorkflow", handleSaveWorkflow);
     iframeBridge.on("loadWorkflow", handleLoadWorkflow);
+    iframeBridge.on("saveWorkflow", handleSaveWorkflow);
     iframeBridge.on("downloadRequest", handleDownloadRequest);
     iframeBridge.on("tokenReceived", handleTokenReceived);
     eventsRegistered.current = true;
