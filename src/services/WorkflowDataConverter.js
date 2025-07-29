@@ -495,6 +495,7 @@ export class WorkflowDataConverter {
         return {
           ...baseData,
           selectedFile: node.parameters?.file_id?.data || '',
+          topK: node.parameters?.top_k?.data || 5,
           availableFiles: [
             { id: 'icdcode', name: 'ICDCode.csv' },
             { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }

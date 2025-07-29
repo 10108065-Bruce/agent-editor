@@ -73,6 +73,20 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     [localSelectedFile, updateParentState]
   );
 
+  // 處理檢索筆數選擇
+  const handleTopKSelect = useCallback(
+    (event) => {
+      const newTopK = parseInt(event.target.value, 10);
+
+      // 只有在真正改變時才更新狀態
+      if (newTopK !== topK) {
+        setTopK(newTopK);
+        updateParentState('topK', newTopK);
+      }
+    },
+    [topK, updateParentState]
+  );
+
   // 獲取當前選擇的文件ID
   const getCurrentSelectedFile = useCallback(() => {
     return data?.selectedFile || localSelectedFile;
@@ -240,6 +254,48 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
             {fileLoadError && (
               <p className='text-xs text-red-500 mt-1'>{fileLoadError}</p>
             )}
+          </div>
+        </div>
+
+        {/* 檢索筆數 Section */}
+        <div className='mb-3'>
+          <label className='block text-sm text-gray-700 mb-2 font-bold'>
+            檢索筆數
+          </label>
+          <span className='block text-gray-500 mb-3 text-xs'>
+            顯示1至5筆搜尋結果
+          </span>
+          <div className='relative'>
+            <select
+              className='w-full border border-gray-300 rounded-md p-2 text-sm bg-white appearance-none'
+              value={topK}
+              onChange={handleTopKSelect}
+              style={{
+                paddingRight: '2rem'
+              }}>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <option
+                  key={num}
+                  value={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
+
+            <div className='absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='16'
+                height='16'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'>
+                <polyline points='6 9 12 15 18 9'></polyline>
+              </svg>
+            </div>
           </div>
         </div>
       </div>

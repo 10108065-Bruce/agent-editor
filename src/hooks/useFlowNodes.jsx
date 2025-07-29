@@ -1389,25 +1389,25 @@ export default function useFlowNodes() {
         console.log('源節點是知識檢索節點，檢查連線限制');
 
         // 檢查是否已有輸出連線
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.source === params.source && edge.sourceHandle === 'output'
-        );
+        // const existingEdges = edges.filter(
+        //   (edge) =>
+        //     edge.source === params.source && edge.sourceHandle === 'output'
+        // );
 
-        if (existingEdges.length > 0) {
-          console.log(`知識檢索節點已有輸出連線，拒絕新連線`);
+        // if (existingEdges.length > 0) {
+        //   console.log(`知識檢索節點已有輸出連線，拒絕新連線`);
 
-          // 使用通知系統提示用戶
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
-          }
+        //   // 使用通知系統提示用戶
+        //   if (typeof window !== 'undefined' && window.notify) {
+        //     window.notify({
+        //       message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
+        //       type: 'error',
+        //       duration: 3000
+        //     });
+        //   }
 
-          return; // 不創建新連線
-        }
+        //   return; // 不創建新連線
+        // }
       }
 
       // 檢查源節點是否為extractData節點，只能有一個輸出
