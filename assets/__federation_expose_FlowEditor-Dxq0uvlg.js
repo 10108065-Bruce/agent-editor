@@ -23356,20 +23356,6 @@ function useFlowNodes() {
       }
       if (sourceNode && sourceNode.type === "knowledgeRetrieval") {
         console.log("源節點是知識檢索節點，檢查連線限制");
-        const existingEdges = edges.filter(
-          (edge) => edge.source === params.source && edge.sourceHandle === "output"
-        );
-        if (existingEdges.length > 0) {
-          console.log(`知識檢索節點已有輸出連線，拒絕新連線`);
-          if (typeof window !== "undefined" && window.notify) {
-            window.notify({
-              message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
-              type: "error",
-              duration: 3e3
-            });
-          }
-          return;
-        }
       }
       if (sourceNode && sourceNode.type === "extract_data") {
         console.log("源節點是Extract Data節點，檢查連線限制");
@@ -23734,7 +23720,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "5c81d3393a31f264909e2051e62b7f2871adfefe", "VITE_APP_BUILD_TIME": "2025-07-25T03:12:14.525Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.49.1"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9bec13aaad233ec79d2c47f5533f0e760160936c", "VITE_APP_BUILD_TIME": "2025-07-29T06:27:04.026Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.49.2"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -23803,7 +23789,7 @@ const knowledgeNode = "/agent-editor/assets/icn-knowledge-BSj19GCR.svg";
 
 const lineWebhookNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206a6%206%200%200%201%206-6h20a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6z'%20fill='%23F5F5F5'/%3e%3cg%20clip-path='url(%23eoinu5f72a)'%3e%3cpath%20d='M29%2016c0-7.18-5.82-13-13-13S3%208.82%203%2016s5.82%2013%2013%2013%2013-5.82%2013-13z'%20fill='%2306C755'/%3e%3cpath%20d='M24.521%2014.658c0-3.871-3.877-7.02-8.643-7.02-4.766%200-8.643%203.149-8.643%207.02%200%203.47%203.078%206.378%207.228%206.926.282.061.665.186.761.427.068.255.078.523.029.783l-.124.74c-.038.219-.174.855.748.467.922-.389%204.977-2.934%206.79-5.024%201.254-1.375%201.854-2.773%201.854-4.319z'%20fill='%23fff'/%3e%3cpath%20d='M21.599%2016.855h-2.385a.159.159%200%200%201-.159-.159v-3.699a.159.159%200%200%201%20.16-.159h2.384a.159.159%200%200%201%20.159.16v.6a.16.16%200%200%201-.16.16h-1.62v.624h1.619a.159.159%200%200%201%20.159.159v.607a.159.159%200%200%201-.159.16h-1.62v.624h1.62a.159.159%200%200%201%20.159.159v.602a.159.159%200%200%201-.159.164l.002-.002zM12.66%2016.858a.159.159%200%200%200%20.16-.16v-.6a.16.16%200%200%200-.16-.16h-1.618v-2.94a.159.159%200%200%200-.16-.159h-.603a.16.16%200%200%200-.113.047.159.159%200%200%200-.046.112v3.697a.159.159%200%200%200%20.159.16h2.384l-.002.003zM13.83%2012.831a.462.462%200%200%200-.463.463v3.1a.463.463%200%201%200%20.925%200v-3.1a.462.462%200%200%200-.463-.463zM18.263%2012.831h-.601a.159.159%200%200%200-.16.16v2.197L15.81%2012.9a.099.099%200%200%200-.014-.016l-.01-.01-.008-.007h-.005l-.009-.006h-.004l-.01-.005h-.673a.158.158%200%200%200-.159.159v3.701a.159.159%200%200%200%20.16.159h.601a.159.159%200%200%200%20.159-.159v-2.22l1.695%202.29c.011.015.025.03.042.04l.01.007h.004l.008.004h.024a.193.193%200%200%200%20.043.005h.598a.159.159%200%200%200%20.159-.159v-3.69a.158.158%200%200%200-.159-.162z'%20fill='%2306C755'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='eoinu5f72a'%3e%3cpath%20fill='%23fff'%20transform='translate(3%203)'%20d='M0%200h26v26H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
 
-const aimNode = "/agent-editor/assets/icon-aim-node-BQWIErUc.svg";
+const aimNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206a6%206%200%200%201%206-6h20a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6z'%20fill='%23098D7F'/%3e%3cpath%20d='M21.75%209a1.75%201.75%200%200%201%20.75%203.332v.168a2.252%202.252%200%200%201-2.25%202.25h-1.5a.75.75%200%200%201%200-1.5h1.5a.75.75%200%200%200%20.75-.75v-.168A1.75%201.75%200%200%201%2021.75%209zm0%201a.75.75%200%201%200%200%201.5.75.75%200%200%200%200-1.5zM21.25%2017a2.252%202.252%200%200%201%202.25%202.25v.418a1.75%201.75%200%201%201-1.5%200v-.418a.75.75%200%200%200-.75-.75h-2.5a.75.75%200%200%201%200-1.5h2.5zm1.5%203.5a.75.75%200%201%200%200%201.5.75.75%200%200%200%200-1.5z'%20fill='%23fff'/%3e%3cpath%20d='M14.5%207a2.982%202.982%200%200%201%201.342.324%202.088%202.088%200%200%200%201.816%200A2.922%202.922%200%200%201%2019%207h.75a.75.75%200%200%201%200%201.5H19a1.501%201.501%200%200%200-1.5%201.5v12a1.501%201.501%200%200%200%201.5%201.5h.75a.75.75%200%200%201%200%201.5H19a2.982%202.982%200%200%201-1.342-.324%202.088%202.088%200%200%200-1.816%200A2.94%202.94%200%200%201%2014.5%2025h-.75A6.758%206.758%200%200%201%207%2018.25v-4.5A6.758%206.758%200%200%201%2013.75%207h.75zm-.75%201.5a5.254%205.254%200%200%200-4.9%203.384c-.217.57.256%201.116.865%201.116h1.035a.75.75%200%200%200%20.75-.75v-.002a1.25%201.25%200%201%201%201.5%200v.002a2.252%202.252%200%200%201-2.25%202.25H9.5a1%201%200%200%200-1%201v1.25c0%20.414.336.75.75.75h.001a1.25%201.25%200%201%201%20.004%201.504c-.369.042-.638.384-.528.749A5.254%205.254%200%200%200%2013.75%2023.5h.75A1.501%201.501%200%200%200%2016%2022v-2a1%201%200%200%200-1-1h-.5a.75.75%200%200%200-.75.75v.09a1%201%200%201%201-1.5%200v-.09a2.252%202.252%200%200%201%202.25-2.25h.5a1%201%200%200%200%201-1v-1.25a.748.748%200%200%200-.267-.573%201%201%200%201%201-.601-1.667l.041-.006.154-.008A.75.75%200%200%200%2016%2012.25V10a1.501%201.501%200%200%200-1.5-1.5h-.75z'%20fill='%23fff'/%3e%3c/svg%3e";
 
 const httpNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%206C0%202.68629%202.68629%200%206%200H26C29.3137%200%2032%202.68629%2032%206V26C32%2029.3137%2029.3137%2032%2026%2032H6C2.68629%2032%200%2029.3137%200%2026V6Z'%20fill='%23F8D7DA'/%3e%3cpath%20d='M8.49787%2014.6875V12H10.2036V20H8.49787V16.6875H6.20576V20H4.5V12H6.20576V14.6875H8.49787ZM11.323%2014V12H16.4403V14H14.7345V20H13.0288V14H11.323ZM17.5597%2014V12H22.677V14H20.9712V20H19.2655V14H17.5597ZM27.7942%2012C28.2562%2012%2028.656%2012.1979%2028.9936%2012.5938C29.3312%2012.9896%2029.5%2013.4583%2029.5%2014V15.3125C29.5%2015.8542%2029.3312%2016.3229%2028.9936%2016.7188C28.656%2017.1146%2028.2562%2017.3125%2027.7942%2017.3125H25.5554V20H23.8497V12H27.7942ZM27.7942%2015.3125V14H25.5554V15.3125H27.7942Z'%20fill='%23FC6165'/%3e%3c/svg%3e";
 
@@ -27600,6 +27586,7 @@ class WorkflowDataConverter {
         return {
           ...baseData,
           selectedFile: node.parameters?.file_id?.data || '',
+          topK: node.parameters?.top_k?.data || 5,
           availableFiles: [
             { id: 'icdcode', name: 'ICDCode.csv' },
             { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
@@ -32054,6 +32041,16 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [localSelectedFile, updateParentState]
   );
+  const handleTopKSelect = useCallback$a(
+    (event) => {
+      const newTopK = parseInt(event.target.value, 10);
+      if (newTopK !== topK) {
+        setTopK(newTopK);
+        updateParentState("topK", newTopK);
+      }
+    },
+    [topK, updateParentState]
+  );
   const getCurrentSelectedFile = useCallback$a(() => {
     return data?.selectedFile || localSelectedFile;
   }, [data?.selectedFile, localSelectedFile]);
@@ -32123,43 +32120,86 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-white", children: "知識檢索" })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white p-4 rounded-b-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Knowledge" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded-b-lg", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Knowledge" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: `w-full border ${fileLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm bg-white appearance-none ${isLoadingFiles ? "opacity-70 cursor-wait" : ""}`,
+                value: getCurrentSelectedFile(),
+                onChange: handleFileSelect,
+                onFocus: handleSelectFocus,
+                disabled: isLoadingFiles,
+                style: {
+                  paddingRight: "2rem",
+                  textOverflow: "ellipsis"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "option",
+                    {
+                      value: "",
+                      disabled: true,
+                      children: "選擇檔案..."
+                    }
+                  ),
+                  dataFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "option",
+                    {
+                      value: file.id || file.value,
+                      children: file.name || file.label || file.filename
+                    },
+                    file.id || file.value
+                  ))
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none", children: isLoadingFiles ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "svg",
+              {
+                xmlns: "http://www.w3.org/2000/svg",
+                width: "16",
+                height: "16",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+              }
+            ) })
+          ] }),
+          fileLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: fileLoadError })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-2 font-bold", children: "檢索筆數" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-gray-500 mb-3 text-xs", children: "顯示1至5筆搜尋結果" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
             "select",
             {
-              className: `w-full border ${fileLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm bg-white appearance-none ${isLoadingFiles ? "opacity-70 cursor-wait" : ""}`,
-              value: getCurrentSelectedFile(),
-              onChange: handleFileSelect,
-              onFocus: handleSelectFocus,
-              disabled: isLoadingFiles,
+              className: "w-full border border-gray-300 rounded-md p-2 text-sm bg-white appearance-none",
+              value: topK,
+              onChange: handleTopKSelect,
               style: {
-                paddingRight: "2rem",
-                textOverflow: "ellipsis"
+                paddingRight: "2rem"
               },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "option",
-                  {
-                    value: "",
-                    disabled: true,
-                    children: "選擇檔案..."
-                  }
-                ),
-                dataFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "option",
-                  {
-                    value: file.id || file.value,
-                    children: file.name || file.label || file.filename
-                  },
-                  file.id || file.value
-                ))
-              ]
+              children: [1, 2, 3, 4, 5].map((num) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "option",
+                {
+                  value: num,
+                  children: num
+                },
+                num
+              ))
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none", children: isLoadingFiles ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             "svg",
             {
               xmlns: "http://www.w3.org/2000/svg",
@@ -32174,10 +32214,9 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
               children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
             }
           ) })
-        ] }),
-        fileLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: fileLoadError })
+        ] })
       ] })
-    ] }) }),
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Handle$1,
       {
