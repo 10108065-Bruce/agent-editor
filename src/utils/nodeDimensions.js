@@ -10,6 +10,13 @@ export const calculateNodeDimensions = (node) => {
   const baseHeight = 120;
 
   switch (node.type) {
+    case 'webhook_input': {
+      const hasCurlExample = node.data?.curl_example;
+      return {
+        width: baseWidth + 32,
+        height: hasCurlExample ? baseHeight + 80 : baseHeight + 40 // 200 : 160
+      };
+    }
     case 'schedule_trigger': {
       // 基礎高度包含：標題、類型選擇、指定時間、時區、任務描述 // Schedule node 尺寸計算
       const baseScheduleHeight = 280;

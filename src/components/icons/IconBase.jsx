@@ -8,6 +8,8 @@ import aimNode from '../../assets/icon-aim-node.svg';
 import httpNode from '../../assets/icon-http.svg';
 import promptIcon from '../../assets/prompt-generator.svg';
 import scheduleNode from '../../assets/icon-timer-node.svg';
+import webhookInputNode from '../../assets/icn-webhook-input.svg';
+import webhookOutputNode from '../../assets/icn-webhook-output.svg';
 // Map of icon types to their respective assets
 const iconMap = {
   input: {
@@ -44,6 +46,14 @@ const iconMap = {
   schedule: {
     src: scheduleNode,
     alt: 'Schedule Icon'
+  },
+  webhook_input: {
+    src: webhookInputNode,
+    alt: 'Webhook Input Icon'
+  },
+  webhook_output: {
+    src: webhookOutputNode,
+    alt: 'Webhook Output Icon'
   }
 };
 

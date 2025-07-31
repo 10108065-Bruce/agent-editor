@@ -28,7 +28,8 @@ export class WorkflowMappingService {
       extract_data: 'extract_data',
       extractData: 'extract_data',
       aim_ml: 'aim_ml',
-      schedule_trigger: 'schedule_trigger'
+      schedule_trigger: 'schedule_trigger',
+      webhook_input: 'webhook_input'
     };
     return operatorMap[type] || type;
   }
@@ -48,6 +49,7 @@ export class WorkflowMappingService {
       knowledge_retrieval: 'knowledgeRetrieval',
       http_request: 'httpRequest',
       schedule_trigger: 'schedule_trigger',
+      webhook_input: 'webhook_input',
       timer: 'timer',
       line: 'line_webhook_input',
       event: 'event',
@@ -85,7 +87,8 @@ export class WorkflowMappingService {
       extract_data: 'advanced',
       extractData: 'advanced',
       aim_ml: 'advanced',
-      schedule_trigger: 'advanced'
+      schedule_trigger: 'advanced',
+      webhook_input: 'advanced'
     };
     return categoryMap[type] || 'advanced';
   }

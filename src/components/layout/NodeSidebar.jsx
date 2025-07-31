@@ -281,6 +281,38 @@ const NodeSidebar = ({
             disabledReason={isLocked ? '工作流已鎖定' : null}
           />
         )}
+        {/* webhook input node */}
+        {filterNodes('webhook input') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='webhook_input' />
+              </div>
+            }
+            label='Webhook'
+            onClick={() => handleNodeClick('webhook_input')}
+            nodeType='webhook_input'
+            onDragStart={customDragStart}
+            disabled={isLocked}
+            disabledReason={isLocked ? '工作流已鎖定' : null}
+          />
+        )}
+        {/* webhook output node */}
+        {/* {filterNodes('webhook output') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='webhook_output' />
+              </div>
+            }
+            label='Output'
+            onClick={() => handleNodeClick('webhook_output')}
+            nodeType='webhook_output'
+            onDragStart={customDragStart}
+            disabled={isLocked}
+            disabledReason={isLocked ? '工作流已鎖定' : null}
+          />
+        )} */}
       </div>
       <VersionDisplay />
     </div>

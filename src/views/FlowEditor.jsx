@@ -197,6 +197,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddExtractDataNode,
     handleAddQOCAAimNode,
     handleAddScheduleTriggerNode,
+    handleAddWebhookInputNode,
     handleNodeSelection,
     undo,
     redo,
@@ -481,6 +482,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'schedule_trigger':
           handleAddScheduleTriggerNode(nodePosition);
           break;
+        case 'webhook_input':
+          handleAddWebhookInputNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -503,6 +507,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddQOCAAimNode,
       handleAddNode,
       handleAddScheduleTriggerNode,
+      handleAddWebhookInputNode,
       isLocked
     ]
   );

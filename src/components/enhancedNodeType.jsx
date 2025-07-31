@@ -14,6 +14,7 @@ import LineMessageNode from './nodes/MessageNode';
 import ExtractDataNode from './nodes/ExtractDataNode';
 import QOCAAimNode from './nodes/QOCAAimNode';
 import ScheduleNode from './nodes/ScheduleNode';
+import WebhookInputNode from './nodes/WebhookInputNode';
 // Apply the withNodeSelection HOC to each node type
 const enhancedNodeTypes = {
   customInput: withNodeSelection(CustomInputNode),
@@ -30,7 +31,8 @@ const enhancedNodeTypes = {
   line_send_message: withNodeSelection(LineMessageNode),
   extract_data: withNodeSelection(ExtractDataNode),
   aim_ml: withNodeSelection(QOCAAimNode),
-  schedule_trigger: withNodeSelection(ScheduleNode)
+  schedule_trigger: withNodeSelection(ScheduleNode),
+  webhook_input: withNodeSelection(WebhookInputNode)
 };
 
 export default enhancedNodeTypes;

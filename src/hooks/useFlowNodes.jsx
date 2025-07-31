@@ -1068,6 +1068,53 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 建立webook input節點
+  const handleAddWebhookInputNode = useCallback(
+    (position) => {
+      const id = `webhook_input_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'webhook_input');
+
+      // 檢查是否已存在 webhook input 節點
+      const existingWebhookInputNodes = nodes.filter(
+        (node) => node.type === 'webhook_input'
+      );
+
+      if (existingWebhookInputNodes.length > 0) {
+        // 使用通知系統提示用戶
+        if (typeof window !== 'undefined' && window.notify) {
+          window.notify({
+            message: '每個 Flow 只能有一個 Webhook Input 節點',
+            type: 'warning',
+            duration: 4000
+          });
+        }
+
+        console.warn(
+          '嘗試添加第二個 Webhook Input 節點被阻止，現有節點:',
+          existingWebhookInputNodes.map((n) => n.id)
+        );
+        return; // 阻止添加新的 Webhook Input 節點
+      }
+
+      const newNode = {
+        id,
+        type: 'webhook_input',
+        data: {
+          curl_example: '',
+          webhook_url: '',
+          'X-QOCA-Agent-Api-Key': '',
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
   // 添加 QOCA aim 節點
   const handleAddQOCAAimNode = useCallback(
     (position) => {
@@ -1410,31 +1457,52 @@ export default function useFlowNodes() {
         // }
       }
 
-      // 檢查源節點是否為extractData節點，只能有一個輸出
-      if (sourceNode && sourceNode.type === 'extract_data') {
-        console.log('源節點是Extract Data節點，檢查連線限制');
-
-        // 檢查是否已有輸出連線
+      // 檢查webook input節點的連線限制
+      if (sourceNode && sourceNode.type === 'webhook_input') {
+        console.log('目標是Webhook Input節點，檢查連線限制');
         const existingEdges = edges.filter(
           (edge) =>
             edge.source === params.source && edge.sourceHandle === 'output'
         );
-
         if (existingEdges.length > 0) {
-          console.log(`Extract Data節點已有輸出連線，拒絕新連線`);
-
+          console.log(`Webhook Input節點已有輸出連線，拒絕新連線`);
           // 使用通知系統提示用戶
           if (typeof window !== 'undefined' && window.notify) {
             window.notify({
-              message: `Extract Data節點只能有一個輸出連線，請先刪除現有連線`,
+              message: `Webhook Input節點只能有一個輸出連線，請先刪除現有連線`,
               type: 'error',
               duration: 3000
             });
           }
-
           return; // 不創建新連線
         }
       }
+
+      // 檢查源節點是否為extractData節點，只能有一個輸出
+      // if (sourceNode && sourceNode.type === 'extract_data') {
+      //   console.log('源節點是Extract Data節點，檢查連線限制');
+
+      //   // 檢查是否已有輸出連線
+      //   const existingEdges = edges.filter(
+      //     (edge) =>
+      //       edge.source === params.source && edge.sourceHandle === 'output'
+      //   );
+
+      //   if (existingEdges.length > 0) {
+      //     console.log(`Extract Data節點已有輸出連線，拒絕新連線`);
+
+      //     // 使用通知系統提示用戶
+      //     if (typeof window !== 'undefined' && window.notify) {
+      //       window.notify({
+      //         message: `Extract Data節點只能有一個輸出連線，請先刪除現有連線`,
+      //         type: 'error',
+      //         duration: 3000
+      //       });
+      //     }
+
+      //     return; // 不創建新連線
+      //   }
+      // }
 
       // 檢查目標節點是否為Line Message節點
       // if (targetNode && targetNode.type === 'line_send_message') {
@@ -1941,6 +2009,7 @@ export default function useFlowNodes() {
     handleAddExtractDataNode,
     handleAddQOCAAimNode,
     handleAddScheduleTriggerNode,
+    handleAddWebhookInputNode,
     undo,
     redo,
     getNodeCallbacks,

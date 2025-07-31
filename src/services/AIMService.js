@@ -224,7 +224,7 @@ export class AIMService {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
           }
 
-          const data = await response.json();
+          let data = await response.json();
           console.log('API返回原始AIM模型數據:', data);
 
           // 檢查數據是否為數組
