@@ -23420,23 +23420,6 @@ function useFlowNodes() {
           return;
         }
       }
-      if (sourceNode && sourceNode.type === "extract_data") {
-        console.log("源節點是Extract Data節點，檢查連線限制");
-        const existingEdges = edges.filter(
-          (edge) => edge.source === params.source && edge.sourceHandle === "output"
-        );
-        if (existingEdges.length > 0) {
-          console.log(`Extract Data節點已有輸出連線，拒絕新連線`);
-          if (typeof window !== "undefined" && window.notify) {
-            window.notify({
-              message: `Extract Data節點只能有一個輸出連線，請先刪除現有連線`,
-              type: "error",
-              duration: 3e3
-            });
-          }
-          return;
-        }
-      }
       if (sourceNode && sourceNode.type === "httpRequest") {
         console.log("源節點是 HTTP Request 節點，檢查連線限制");
         const existingEdges = edges.filter(
@@ -23784,7 +23767,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1b230adbe42cd76694d722d4bdae4757246e73e5", "VITE_APP_BUILD_TIME": "2025-07-31T07:48:44.496Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50.0"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1b230adbe42cd76694d722d4bdae4757246e73e5", "VITE_APP_BUILD_TIME": "2025-07-31T07:50:39.400Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50.1"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
