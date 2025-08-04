@@ -12,10 +12,10 @@ export class LLMService {
     this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
     this.pendingRequest = null; // 用於追蹤進行中的請求
 
-    // 文件相關緩存
-    this.filesCache = null;
-    this.lastFilesFetchTime = null;
-    this.pendingFilesRequest = null; // 用於追蹤進行中的文件請求
+    // 知識庫相關緩存
+    this.knowledgeBasesCache = null;
+    this.lastKnowledgeBasesFetchTime = null;
+    this.pendingKnowledgeBasesRequest = null; // 用於追蹤進行中的知識庫請求
 
     // 新增：結構化輸出模型相關緩存
     this.structuredOutputModelsCache = null;
@@ -296,30 +296,30 @@ export class LLMService {
   }
 
   /**
-   * 獲取所有已完成的文件
-   * @returns {Promise<Array>} 文件列表
+   * 獲取所有知識庫列表
+   * @returns {Promise<Array>} 知識庫列表
    */
-  async getCompletedFiles() {
+  async getKnowledgeBases() {
     try {
       // 檢查是否有有效的快取
       const now = Date.now();
       if (
-        this.filesCache &&
-        this.lastFilesFetchTime &&
-        now - this.lastFilesFetchTime < this.cacheExpiryTime
+        this.knowledgeBasesCache &&
+        this.lastKnowledgeBasesFetchTime &&
+        now - this.lastKnowledgeBasesFetchTime < this.cacheExpiryTime
       ) {
-        console.log('使用快取的已完成文件列表');
-        return this.filesCache;
+        console.log('使用快取的知識庫列表');
+        return this.knowledgeBasesCache;
       }
 
       // 如果已經有一個請求在進行中，則返回該請求
-      if (this.pendingFilesRequest) {
-        console.log('已有進行中的文件列表請求，使用相同請求');
-        return this.pendingFilesRequest;
+      if (this.pendingKnowledgeBasesRequest) {
+        console.log('已有進行中的知識庫列表請求，使用相同請求');
+        return this.pendingKnowledgeBasesRequest;
       }
 
       // 創建新請求
-      console.log('獲取已完成文件列表...');
+      console.log('獲取知識庫列表...');
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -327,30 +327,98 @@ export class LLMService {
           Accept: 'application/json'
         }
       });
-      const url = tokenService.createUrlWithWorkspace(
-        `${API_CONFIG.BASE_URL}/agent_designer/files/completed`
-      );
-      this.pendingFilesRequest = fetch(url, options)
+      // 獲取 workspace_id 並替換路徑參數
+      const workspaceId = tokenService.getWorkspaceId();
+      if (!workspaceId) {
+        throw new Error('未設置工作區 ID');
+      }
+      const url = `${API_CONFIG.BASE_URL}/agent_designer/knowledge-bases/workspace/${workspaceId}/list`;
+      this.pendingKnowledgeBasesRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
           }
           return response.json();
         })
-        .then((data) => {
-          console.log('成功獲取已完成文件:', data);
+        .then((responseData) => {
+          console.log('API返回原始知識庫數據:', responseData);
+
+          // 檢查新的 response 格式
+          let knowledgeBases = [];
+
+          if (responseData && responseData.data) {
+            knowledgeBases = responseData.data.knowledge_bases || [];
+          } else {
+            console.warn(
+              'API回應格式不符合預期，檢查是否有 knowledge_bases 陣列'
+            );
+            // 嘗試直接使用 responseData 如果它是陣列
+            if (Array.isArray(responseData)) {
+              knowledgeBases = responseData;
+            }
+          }
+
+          // 如果沒有找到有效數據，返回預設知識庫
+          if (!Array.isArray(knowledgeBases) || knowledgeBases.length === 0) {
+            console.warn('無法從API回應中提取合理的知識庫數據，使用預設知識庫');
+            knowledgeBases = [];
+          }
+
+          // 檢查每個知識庫對象，確保結構正確
+          const processedData = knowledgeBases.map((kb, index) => {
+            if (!kb || typeof kb !== 'object') {
+              console.warn(`知識庫 ${index} 無效，使用替代數據`);
+              return {
+                id: index + 1,
+                name: `知識庫 ${index + 1}`,
+                description: `知識庫 ${index + 1} 的描述`,
+                file_count: 0,
+                updated_at: new Date().toISOString()
+              };
+            }
+
+            // 確保知識庫有ID
+            if (kb.id === undefined || kb.id === null) {
+              console.warn(`知識庫 ${index} 缺少ID，使用索引作為ID`);
+              kb.id = index + 1;
+            }
+
+            // 確保知識庫有名稱
+            if (!kb.name) {
+              console.warn(`知識庫 ${index} 缺少名稱，使用預設名稱`);
+              kb.name = `知識庫 ${kb.id}`;
+            }
+
+            // 確保有描述
+            if (!kb.description) {
+              kb.description = `${kb.name} 的描述`;
+            }
+
+            // 確保有檔案數量
+            if (kb.file_count === undefined || kb.file_count === null) {
+              kb.file_count = 0;
+            }
+
+            // 確保有更新時間
+            if (!kb.updated_at) {
+              kb.updated_at = new Date().toISOString();
+            }
+
+            return kb;
+          });
+
+          console.log('處理後的知識庫數據:', processedData);
 
           // 更新快取
-          this.filesCache = data;
-          this.lastFilesFetchTime = now;
-          this.pendingFilesRequest = null; // 清除進行中的請求
+          this.knowledgeBasesCache = processedData;
+          this.lastKnowledgeBasesFetchTime = now;
+          this.pendingKnowledgeBasesRequest = null; // 清除進行中的請求
 
-          return data;
+          return processedData;
         })
         .catch((error) => {
-          console.error('獲取已完成文件失敗:', error);
-          this.pendingFilesRequest = null; // 清除進行中的請求，即使出錯
-          this.pendingFilesRequest = null;
+          console.error('獲取知識庫失敗:', error);
+          this.pendingKnowledgeBasesRequest = null; // 清除進行中的請求，即使出錯
 
           // 檢查是否為 CORS 錯誤
           if (
@@ -358,23 +426,36 @@ export class LLMService {
             (error.message.includes('NetworkError') ||
               error.message.includes('Failed to fetch'))
           ) {
-            console.log('疑似 CORS 問題，返回預設檔案列表');
+            console.log('疑似 CORS 問題，返回預設知識庫列表');
             // 直接返回預設值而不是再次拋出錯誤
             return [
-              { id: 1, filename: 'ICDCode.csv' },
-              { id: 2, filename: 'Cardiology_Diagnoses.csv' }
+              {
+                id: 1,
+                name: '產品文檔知識庫',
+                description: '存放所有產品相關文檔和規格',
+                file_count: 3,
+                updated_at: new Date().toISOString()
+              }
             ];
           }
 
           throw error;
         });
 
-      return this.pendingFilesRequest;
+      return this.pendingKnowledgeBasesRequest;
     } catch (error) {
-      console.error('獲取已完成文件過程中出錯:', error);
-      this.pendingFilesRequest = null;
+      console.error('獲取知識庫過程中出錯:', error);
+      this.pendingKnowledgeBasesRequest = null;
       throw error;
     }
+  }
+
+  /**
+   * 向後相容方法 - 保持原有的 getCompletedFiles 方法名
+   * @returns {Promise<Array>} 知識庫列表（原文件列表）
+   */
+  async getCompletedFiles() {
+    return this.getKnowledgeBases();
   }
 
   /**
@@ -555,45 +636,53 @@ export class LLMService {
   }
 
   /**
-   * 獲取格式化後的已完成文件選項，適用於下拉選單
-   * @returns {Promise<Array>} 格式化的文件選項
+   * 獲取格式化後的知識庫選項，適用於下拉選單
+   * @returns {Promise<Array>} 格式化的知識庫選項
    */
-  async getFileOptions() {
+  async getKnowledgeBaseOptions() {
     try {
-      const files = await this.getCompletedFiles();
+      const knowledgeBases = await this.getKnowledgeBases();
 
-      // 根據後端返回的格式 [{"filename": '123.csv', "id": 1}] 進行處理
-      return files.map((file) => ({
-        id: file.id.toString(), // 確保ID是字符串
-        value: file.id.toString(), // 用於選項值
-        name: file.filename, // 用於顯示名稱
-        label: file.filename // 用於顯示名稱 (替代)
+      // 根據新的知識庫格式進行處理
+      return knowledgeBases.map((kb) => ({
+        id: kb.id.toString(), // 確保ID是字符串
+        value: kb.id.toString(), // 用於選項值
+        name: kb.name, // 用於顯示名稱
+        label: kb.name, // 用於顯示名稱 (替代)
+        description: kb.description, // 知識庫描述
+        fileCount: kb.file_count, // 檔案數量
+        updatedAt: kb.updated_at // 更新時間
       }));
     } catch (error) {
-      console.error('獲取文件選項失敗:', error);
+      console.error('獲取知識庫選項失敗:', error);
       // 返回一些默認選項，以防API失敗
       return [
         {
-          id: 'icdcode',
-          value: 'icdcode',
-          name: 'ICDCode.csv',
-          label: 'ICDCode.csv'
-        },
-        {
-          id: 'cardiology',
-          value: 'cardiology',
-          name: 'Cardiology_Diagnoses.csv',
-          label: 'Cardiology_Diagnoses.csv'
+          id: '1',
+          value: '1',
+          name: '產品文檔知識庫',
+          label: '產品文檔知識庫',
+          description: '存放所有產品相關文檔和規格',
+          fileCount: 3,
+          updatedAt: new Date().toISOString()
         }
       ];
     }
   }
 
   /**
-   * 預加載模型與文件數據，通常在應用啟動時呼叫
+   * 向後相容方法 - 保持原有的 getFileOptions 方法名
+   * @returns {Promise<Array>} 格式化的知識庫選項（原文件選項）
+   */
+  async getFileOptions() {
+    return this.getKnowledgeBaseOptions();
+  }
+
+  /**
+   * 預加載模型與知識庫數據，通常在應用啟動時呼叫
    */
   preloadData() {
-    console.log('預加載LLM模型、結構化輸出模型和文件列表');
+    console.log('預加載LLM模型、結構化輸出模型和知識庫列表');
 
     // 預加載模型
     this.getModels().catch((err) => {
@@ -605,9 +694,9 @@ export class LLMService {
       console.log('預加載結構化輸出模型失敗:', err);
     });
 
-    // 預加載文件
-    this.getCompletedFiles().catch((err) => {
-      console.log('預加載文件失敗:', err);
+    // 預加載知識庫
+    this.getKnowledgeBases().catch((err) => {
+      console.log('預加載知識庫失敗:', err);
     });
   }
 }

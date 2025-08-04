@@ -4,30 +4,36 @@ import { llmService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
-  const [fileLoadError, setFileLoadError] = useState(null);
+  const [isLoadingKnowledgeBases, setIsLoadingKnowledgeBases] = useState(false);
+  const [knowledgeBaseLoadError, setKnowledgeBaseLoadError] = useState(null);
 
-  // 保存文件選項，使用默認值
-  const [dataFiles, setDataFiles] = useState(
-    data?.availableFiles || [
+  // 保存知識庫選項，使用默認值
+  const [dataKnowledgeBases, setDataKnowledgeBases] = useState(
+    data?.availableKnowledgeBases || [
       {
-        id: 'icdcode',
-        value: 'icdcode',
-        name: 'ICDCode.csv',
-        label: 'ICDCode.csv'
+        id: '1',
+        value: '1',
+        name: '產品文檔知識庫',
+        label: '產品文檔知識庫',
+        description: '存放所有產品相關文檔和規格',
+        fileCount: 3,
+        updatedAt: new Date().toISOString()
       },
       {
-        id: 'cardiology',
-        value: 'cardiology',
-        name: 'Cardiology_Diagnoses.csv',
-        label: 'Cardiology_Diagnoses.csv'
+        id: '2',
+        value: '2',
+        name: '技術手冊知識庫',
+        label: '技術手冊知識庫',
+        description: '技術相關文檔和手冊',
+        fileCount: 1,
+        updatedAt: new Date().toISOString()
       }
     ]
   );
 
-  // 本地選擇的文件ID，從 data 中獲取初始值或為空
-  const [localSelectedFile, setLocalSelectedFile] = useState(
-    data?.selectedFile || ''
+  // 本地選擇的知識庫ID，從 data 中獲取初始值或為空
+  const [localSelectedKnowledgeBase, setLocalSelectedKnowledgeBase] = useState(
+    data?.selectedKnowledgeBase || data?.selectedFile || ''
   );
 
   // 新增 top_k 參數
@@ -58,19 +64,21 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     [data]
   );
 
-  // 處理文件選擇
-  const handleFileSelect = useCallback(
+  // 處理知識庫選擇
+  const handleKnowledgeBaseSelect = useCallback(
     (event) => {
-      const fileId = event.target.value;
-      console.log(`選擇文件: ${fileId}`);
+      const knowledgeBaseId = event.target.value;
+      console.log(`選擇知識庫: ${knowledgeBaseId}`);
 
       // 只有在真正改變時才更新狀態
-      if (fileId !== localSelectedFile) {
-        setLocalSelectedFile(fileId);
-        updateParentState('selectedFile', fileId);
+      if (knowledgeBaseId !== localSelectedKnowledgeBase) {
+        setLocalSelectedKnowledgeBase(knowledgeBaseId);
+        // 同時更新新舊欄位名稱以保持相容性
+        updateParentState('selectedKnowledgeBase', knowledgeBaseId);
+        updateParentState('selectedFile', knowledgeBaseId); // 向後相容
       }
     },
-    [localSelectedFile, updateParentState]
+    [localSelectedKnowledgeBase, updateParentState]
   );
 
   // 處理檢索筆數選擇
@@ -87,43 +95,52 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     [topK, updateParentState]
   );
 
-  // 獲取當前選擇的文件ID
-  const getCurrentSelectedFile = useCallback(() => {
-    return data?.selectedFile || localSelectedFile;
-  }, [data?.selectedFile, localSelectedFile]);
+  // 獲取當前選擇的知識庫ID
+  const getCurrentSelectedKnowledgeBase = useCallback(() => {
+    return (
+      data?.selectedKnowledgeBase ||
+      data?.selectedFile ||
+      localSelectedKnowledgeBase
+    );
+  }, [
+    data?.selectedKnowledgeBase,
+    data?.selectedFile,
+    localSelectedKnowledgeBase
+  ]);
 
-  // 改進檔案載入邏輯，避免重複更新
-  const loadFiles = useCallback(async () => {
+  // 改進知識庫載入邏輯，避免重複更新
+  const loadKnowledgeBases = useCallback(async () => {
     // 避免重複載入
-    if (isLoadingFiles) return;
+    if (isLoadingKnowledgeBases) return;
 
-    console.log('開始加載文件列表...');
-    setIsLoadingFiles(true);
-    setFileLoadError(null);
+    console.log('開始加載知識庫列表...');
+    setIsLoadingKnowledgeBases(true);
+    setKnowledgeBaseLoadError(null);
 
     try {
-      const options = await llmService.getFileOptions();
+      const options = await llmService.getKnowledgeBaseOptions();
 
       // 只有在成功獲取到新的選項時才更新
       if (options && options.length > 0) {
-        console.log('已獲取文件選項:', options);
-        setDataFiles(options);
+        console.log('已獲取知識庫選項:', options);
+        setDataKnowledgeBases(options);
 
         // 只有在當前沒有選擇或選擇無效時才自動選擇第一個
-        const currentFile = getCurrentSelectedFile();
-        const isCurrentFileValid = options.some(
-          (opt) => opt.id === currentFile || opt.value === currentFile
+        const currentKB = getCurrentSelectedKnowledgeBase();
+        const isCurrentKBValid = options.some(
+          (opt) => opt.id === currentKB || opt.value === currentKB
         );
 
-        if (!currentFile || !isCurrentFileValid) {
-          const firstFileId = options[0].id || options[0].value;
-          console.log(`自動選擇第一個文件: ${firstFileId}`);
-          setLocalSelectedFile(firstFileId);
-          updateParentState('selectedFile', firstFileId);
+        if (!currentKB || !isCurrentKBValid) {
+          const firstKBId = options[0].id || options[0].value;
+          console.log(`自動選擇第一個知識庫: ${firstKBId}`);
+          setLocalSelectedKnowledgeBase(firstKBId);
+          updateParentState('selectedKnowledgeBase', firstKBId);
+          updateParentState('selectedFile', firstKBId); // 向後相容
         }
       }
     } catch (error) {
-      console.error('加載文件失敗:', error);
+      console.error('加載知識庫失敗:', error);
 
       // 檢查錯誤訊息是否為"已有進行中的請求"
       if (
@@ -136,29 +153,25 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
         console.log('正在等待其他相同請求完成...');
       } else {
         // 對於其他類型的錯誤，顯示錯誤信息
-        setFileLoadError('無法載入文件列表，請稍後再試');
+        setKnowledgeBaseLoadError('無法載入知識庫列表，請稍後再試');
       }
     } finally {
-      setIsLoadingFiles(false);
+      setIsLoadingKnowledgeBases(false);
     }
-  }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
+  }, [
+    isLoadingKnowledgeBases,
+    getCurrentSelectedKnowledgeBase,
+    updateParentState
+  ]);
 
   // 優化狀態同步邏輯，避免循環更新
   useEffect(() => {
-    // 只在父組件的 selectedFile 確實不同且不為空時才同步
-    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
-      console.log('監測 data.selectedFile 變更：', {
-        'data.selectedFile': data?.selectedFile,
-        localSelectedFile,
-        'node.id': id,
-        shouldSync: true
-      });
-      console.log(
-        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
-      );
-      setLocalSelectedFile(data.selectedFile);
+    // 同步 selectedKnowledgeBase 或 selectedFile (向後相容)
+    const parentSelected = data?.selectedKnowledgeBase || data?.selectedFile;
+    if (parentSelected && parentSelected !== localSelectedKnowledgeBase) {
+      setLocalSelectedKnowledgeBase(parentSelected);
     }
-  }, [data?.selectedFile, id]); // 🔧 移除 localSelectedFile 依賴，避免循環
+  }, [data?.selectedKnowledgeBase, data?.selectedFile, id]); // 🔧 移除 localSelectedKnowledgeBase 依賴，避免循環
 
   // 將 topK 同步分離到獨立的 useEffect
   useEffect(() => {
@@ -170,18 +183,25 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
 
   // 簡化組件掛載時的初始化，減少重複日誌
   useEffect(() => {
-    // 只在組件掛載時載入文件列表一次
-    loadFiles();
+    // 只在組件掛載時載入知識庫列表一次
+    loadKnowledgeBases();
   }, []); // 🔧 空依賴數組，只在掛載時執行一次
 
-  // 移除 onClick 中的 handleReloadFiles，改為使用 onFocus
+  // 移除 onClick 中的 handleReloadKnowledgeBases，改為使用 onFocus
   const handleSelectFocus = useCallback(() => {
-    // 只有在文件列表為空且沒有正在加載時才重新加載
-    if (dataFiles.length === 0 && !isLoadingFiles) {
-      console.log('下拉選單獲得焦點，檢查是否需要重新加載文件');
-      loadFiles();
+    // 只有在知識庫列表為空且沒有正在加載時才重新加載
+    if (dataKnowledgeBases.length === 0 && !isLoadingKnowledgeBases) {
+      loadKnowledgeBases();
     }
-  }, [dataFiles.length, isLoadingFiles, loadFiles]);
+  }, [dataKnowledgeBases.length, isLoadingKnowledgeBases, loadKnowledgeBases]);
+
+  // 格式化顯示選項（包含檔案數量）
+  const formatKnowledgeBaseLabel = useCallback((kb) => {
+    const baseLabel = kb.name || kb.label;
+    const fileCount =
+      kb.fileCount !== undefined ? ` (${kb.fileCount} 個檔案)` : '';
+    return `${baseLabel}${fileCount}`;
+  }, []);
 
   return (
     <div className='rounded-lg shadow-md overflow-visible w-64'>
@@ -199,20 +219,20 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       <div className='bg-white p-4 rounded-b-lg'>
         <div className='mb-3'>
           <label className='block text-sm text-gray-700 mb-1 font-bold'>
-            Knowledge
+            Data Source
           </label>
           <div className='relative'>
             <div className='flex'>
               <select
                 className={`w-full border ${
-                  fileLoadError ? 'border-red-300' : 'border-gray-300'
+                  knowledgeBaseLoadError ? 'border-red-300' : 'border-gray-300'
                 } rounded-md p-2 text-sm bg-white appearance-none ${
-                  isLoadingFiles ? 'opacity-70 cursor-wait' : ''
+                  isLoadingKnowledgeBases ? 'opacity-70 cursor-wait' : ''
                 }`}
-                value={getCurrentSelectedFile()}
-                onChange={handleFileSelect}
+                value={getCurrentSelectedKnowledgeBase()}
+                onChange={handleKnowledgeBaseSelect}
                 onFocus={handleSelectFocus}
-                disabled={isLoadingFiles}
+                disabled={isLoadingKnowledgeBases}
                 style={{
                   paddingRight: '2rem',
                   textOverflow: 'ellipsis'
@@ -220,19 +240,20 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
                 <option
                   value=''
                   disabled>
-                  選擇檔案...
+                  Select file...
                 </option>
-                {dataFiles.map((file) => (
+                {dataKnowledgeBases.map((kb) => (
                   <option
-                    key={file.id || file.value}
-                    value={file.id || file.value}>
-                    {file.name || file.label || file.filename}
+                    key={kb.id || kb.value}
+                    value={kb.id || kb.value}
+                    title={kb.description}>
+                    {formatKnowledgeBaseLabel(kb)}
                   </option>
                 ))}
               </select>
 
               <div className='absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
-                {isLoadingFiles ? (
+                {isLoadingKnowledgeBases ? (
                   <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500'></div>
                 ) : (
                   <svg
@@ -251,9 +272,26 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
               </div>
             </div>
 
-            {fileLoadError && (
-              <p className='text-xs text-red-500 mt-1'>{fileLoadError}</p>
+            {knowledgeBaseLoadError && (
+              <p className='text-xs text-red-500 mt-1'>
+                {knowledgeBaseLoadError}
+              </p>
             )}
+
+            {/* 顯示選中知識庫的描述 */}
+            {/* {getCurrentSelectedKnowledgeBase() &&
+              (() => {
+                const selectedKB = dataKnowledgeBases.find(
+                  (kb) =>
+                    kb.id === getCurrentSelectedKnowledgeBase() ||
+                    kb.value === getCurrentSelectedKnowledgeBase()
+                );
+                return selectedKB?.description ? (
+                  <p className='text-xs text-gray-500 mt-1 italic'>
+                    {selectedKB.description}
+                  </p>
+                ) : null;
+              })()} */}
           </div>
         </div>
 
