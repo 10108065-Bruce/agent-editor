@@ -15,6 +15,7 @@ import ExtractDataNode from './nodes/ExtractDataNode';
 import QOCAAimNode from './nodes/QOCAAimNode';
 import ScheduleNode from './nodes/ScheduleNode';
 import WebhookInputNode from './nodes/WebhookInputNode';
+import WebhookOutputNode from './nodes/WebhookOutputNode';
 // Apply the withNodeSelection HOC to each node type
 const enhancedNodeTypes = {
   customInput: withNodeSelection(CustomInputNode),
@@ -32,7 +33,8 @@ const enhancedNodeTypes = {
   extract_data: withNodeSelection(ExtractDataNode),
   aim_ml: withNodeSelection(QOCAAimNode),
   schedule_trigger: withNodeSelection(ScheduleNode),
-  webhook_input: withNodeSelection(WebhookInputNode)
+  webhook_input: withNodeSelection(WebhookInputNode),
+  webhook_output: withNodeSelection(WebhookOutputNode)
 };
 
 export default enhancedNodeTypes;

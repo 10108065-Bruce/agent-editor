@@ -3,7 +3,7 @@ import { Handle, Position, useEdges, useUpdateNodeInternals } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 
-const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
+const WebhookOutputNode = ({ id, data, isConnectable }) => {
   // 用來追蹤輸入 handle 的狀態
   const [inputs, setInputs] = useState([]);
   // 新增 handleLabels 狀態來儲存每個 handle 的自定義標籤
@@ -42,15 +42,20 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 處理 handle ID，將多連線格式 (output0_0, output0_1) 轉換為基本格式 (output0)
   const processHandleId = (handleId) => {
     // 使用正則表達式匹配多連線格式
+    console.log(handleId);
     if (!handleId) return '';
-    const match = handleId && handleId.match(/^(output\d+)(?:_\d+)?$/);
+    if (typeof handleId !== 'string') {
+      console.warn(`processHandleId: handleId 不是字符串: ${handleId}`);
+      return '';
+    }
+    const match = handleId && handleId.match(/^(text\d+)(?:_\d+)?$/);
     if (match && match[1]) {
       return match[1]; // 返回基本 handle ID
     }
 
     // 如果是舊版 'input' 格式，轉換為 'output0'
     if (handleId === 'input') {
-      return 'output0';
+      return 'text0';
     }
 
     // 其他情況直接返回原始 ID
@@ -81,7 +86,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     initAttempts.current += 1;
     console.log(
-      `初始化 BrowserExtensionOutputNode ${nodeId}，嘗試 #${initAttempts.current}`
+      `初始化 WebhookOutputNode ${nodeId}，嘗試 #${initAttempts.current}`
     );
 
     // 準備收集所有 handle
@@ -138,8 +143,8 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     // 確保至少有一個默認 handle
     if (handleSet.size === 0) {
-      handleSet.add('output0');
-      console.log(`添加默認 handle: output0`);
+      handleSet.add('text0');
+      console.log(`添加默認 handle: text0`);
     }
 
     // 轉換 Set 為數組
@@ -264,8 +269,9 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     // 查找當前最大的輸出索引，以便生成下一個序號
     let maxIndex = -1;
     inputs.forEach((input) => {
-      if (input.id && input.id.startsWith('output')) {
-        const indexStr = input.id.substring(6);
+      console.log(input);
+      if (input.id && input.id.startsWith('text')) {
+        const indexStr = input.id.substring(4);
         const index = parseInt(indexStr, 10);
         if (!isNaN(index) && index > maxIndex) {
           maxIndex = index;
@@ -275,7 +281,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     // 創建新的 handle ID，格式為 "outputX"，其中 X 是遞增的數字
     const newIndex = maxIndex + 1;
-    const newInputId = `output${newIndex}`;
+    const newInputId = `text${newIndex}`;
     const newInputs = [...inputs, { id: newInputId }];
 
     console.log(`新增 handle (${nodeId}):`, newInputId);
@@ -521,12 +527,10 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         className='p-3 rounded-t-lg'
         style={{ backgroundColor: '#f3f4f6' }}>
         <div className='flex items-center'>
-          <div className='w-8 h-8 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2'>
-            <IconBase type='browser' />
+          <div className='w-8 h-8 flex items-center justify-center text-white mr-2'>
+            <IconBase type='webhook_output' />
           </div>
-          <span className='font-medium text-base'>
-            Browser Extension output
-          </span>
+          <span className='font-medium text-base'>Output</span>
         </div>
       </div>
 
@@ -607,14 +611,27 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         </button>
 
         {/* 顯示輸入點的數量，移除連線數量資訊 */}
-        {inputs.length > 0 && (
+        {/* {inputs.length > 0 && (
           <div className='text-xs text-gray-600 mt-2'>
             <div>已有 {inputs.length} 個輸入點</div>
           </div>
-        )}
+        )} */}
       </div>
+      <Handle
+        type='source'
+        position={Position.Right}
+        id='output'
+        style={{
+          background: '#e5e7eb',
+          border: '1px solid #D3D3D3',
+          width: '12px',
+          height: '12px',
+          right: '-6px'
+        }}
+        isConnectable={isConnectable}
+      />
     </div>
   );
 };
 
-export default memo(BrowserExtensionOutputNode);
+export default memo(WebhookOutputNode);

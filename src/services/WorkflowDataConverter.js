@@ -96,6 +96,64 @@ export class WorkflowDataConverter {
         reactFlowNode.data.inputHandles = inputHandles;
       }
 
+      if (node.operator === 'webhook_output') {
+        console.log(`特殊處理 webhook_output 節點: ${node.id}`);
+
+        // 從 node_input 提取所有 handle
+        const inputHandles = [];
+        const handleMap = new Map(); // 用於記錄真實的 handle ID
+
+        if (node.node_input && typeof node.node_input === 'object') {
+          // 直接使用全部 handle ID
+          const handlePattern = /^(text\d+)(?:_\d+)?$/;
+          Object.keys(node.node_input).forEach((key) => {
+            const match = key.match(handlePattern);
+            if (match && match[1]) {
+              const baseHandleId = match[1]; // 提取基本 handle ID (如 output0)
+
+              // 如果這個基本 handle ID 還沒被加入，則添加
+              if (!handleMap.has(baseHandleId)) {
+                handleMap.set(baseHandleId, true);
+                inputHandles.push({ id: baseHandleId });
+                console.log(
+                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
+                );
+              }
+            } else {
+              // 非標準格式的 handle ID 直接添加
+              inputHandles.push({ id: key });
+              console.log(`從 node_input 提取非標準 handle ID: ${key}`);
+            }
+          });
+        }
+
+        // 檢查是否有從參數中保存的 inputHandles
+        if (
+          node.parameters &&
+          node.parameters.inputHandles &&
+          node.parameters.inputHandles.data
+        ) {
+          const savedHandles = node.parameters.inputHandles.data;
+          if (Array.isArray(savedHandles)) {
+            savedHandles.forEach((handleId) => {
+              if (!inputHandles.some((h) => h.id === handleId)) {
+                inputHandles.push({ id: handleId });
+                console.log(`從 parameters 提取 handle: ${handleId}`);
+              }
+            });
+          }
+        }
+
+        // 確保至少有一個默認 handle
+        if (inputHandles.length === 0) {
+          inputHandles.push({ id: 'output0' });
+          console.log(`添加默認 handle: output0`);
+        }
+
+        // 設置節點數據
+        reactFlowNode.data.inputHandles = inputHandles;
+      }
+
       nodes.push(reactFlowNode);
     });
 
@@ -144,6 +202,12 @@ export class WorkflowDataConverter {
           let targetHandle = inputKey;
           // 對於 BrowserExtensionOutput，處理多連線格式
           if (node.operator === 'browser_extension_output') {
+            const match = inputKey.match(/^(output\d+)(?:_\d+)?$/);
+            if (match && match[1]) {
+              targetHandle = match[1]; // 使用基本 handle ID
+            }
+          }
+          if (node.operator === 'webhook_output') {
             const match = inputKey.match(/^(output\d+)(?:_\d+)?$/);
             if (match && match[1]) {
               targetHandle = match[1]; // 使用基本 handle ID
@@ -269,6 +333,18 @@ export class WorkflowDataConverter {
         console.log(`準備移除 handle：${handleId}`);
       };
     }
+    if (node.operator === 'webhook_output') {
+      baseData.onAddOutput = (newInputHandles) => {
+        // 類似於 handleAddWebhookOutput 中的邏輯
+        console.log(`更新節點的 handle：`, newInputHandles);
+        // 實現更新邏輯
+      };
+
+      baseData.onRemoveHandle = (handleId) => {
+        // 實現移除 handle 的邏輯
+        console.log(`準備移除 handle：${handleId}`);
+      };
+    }
 
     // 根據節點類型轉換參數
     switch (node.operator) {
@@ -377,6 +453,42 @@ export class WorkflowDataConverter {
         return {
           ...baseData,
           type: 'browserExtensionOutput',
+          inputHandles: inputHandles
+        };
+      }
+
+      case 'webook_output': {
+        // 從 node_input 提取 handle，但只有在有連線時才提取
+        let inputHandles = [];
+
+        // 檢查是否有 node_input 數據
+        if (
+          node.node_input &&
+          typeof node.node_input === 'object' &&
+          Object.keys(node.node_input).length > 0
+        ) {
+          console.log(
+            `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
+            node.node_input
+          );
+
+          // 從 node_input 提取所有 handle ID
+          inputHandles = Object.keys(node.node_input).map((handleId) => {
+            console.log(`從 node_input 提取 handle ID: ${handleId}`);
+            return { id: handleId };
+          });
+
+          console.log(
+            `節點 ${node.id} 從 node_input 提取的 handle:`,
+            inputHandles
+          );
+        } else {
+          console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
+        }
+
+        return {
+          ...baseData,
+          type: 'webhook_output',
           inputHandles: inputHandles
         };
       }
@@ -1009,6 +1121,76 @@ export class WorkflowDataConverter {
           };
         }
         break;
+      case 'webhook_output':
+        // 重要：保存所有 inputHandles 到 parameters
+        if (
+          node.data &&
+          node.data.inputHandles &&
+          Array.isArray(node.data.inputHandles)
+        ) {
+          // 從實際的 inputHandles 獲取 handle ID 列表
+          const handleIds = node.data.inputHandles.map((h) => h.id);
+
+          // 儲存 handle ID 列表到 parameters
+          parameters.inputHandles = {
+            data: handleIds
+          };
+
+          console.log(
+            `保存節點 ${node.id} 的 ${handleIds.length} 個 handle 到 parameters:`,
+            handleIds
+          );
+
+          // 🔧 修復：驗證 node_input 與 inputHandles 的一致性
+          if (node.data.node_input) {
+            const nodeInputKeys = Object.keys(node.data.node_input);
+            const missingInNodeInput = handleIds.filter(
+              (id) => !nodeInputKeys.includes(id)
+            );
+            const extraInNodeInput = nodeInputKeys.filter(
+              (id) => !handleIds.includes(id)
+            );
+
+            if (missingInNodeInput.length > 0) {
+              console.warn(
+                `節點 ${node.id} 的 node_input 缺少 handles:`,
+                missingInNodeInput
+              );
+            }
+
+            if (extraInNodeInput.length > 0) {
+              console.warn(
+                `節點 ${node.id} 的 node_input 有多餘的 handles:`,
+                extraInNodeInput
+              );
+            }
+
+            // 🔧 修復：確保 node_input 包含所有 inputHandles 中的 handle
+            handleIds.forEach((handleId) => {
+              if (!node.data.node_input[handleId]) {
+                console.log(
+                  `為節點 ${node.id} 添加缺少的 node_input 項目: ${handleId}`
+                );
+                node.data.node_input[handleId] = {
+                  node_id: '',
+                  output_name: '',
+                  type: 'string',
+                  data: '',
+                  is_empty: true,
+                  return_name: ''
+                };
+              }
+            });
+          }
+        } else {
+          console.warn(`節點 ${node.id} 沒有有效的 inputHandles 資料`);
+          // 提供默認值
+          parameters.inputHandles = {
+            data: ['text0']
+          };
+        }
+        break;
+
       case 'extract_data':
       case 'extractData':
         // Extract Data 節點參數

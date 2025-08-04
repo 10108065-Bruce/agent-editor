@@ -298,7 +298,7 @@ const NodeSidebar = ({
           />
         )}
         {/* webhook output node */}
-        {/* {filterNodes('webhook output') && (
+        {filterNodes('webhook output') && (
           <NodeItem
             icon={
               <div>
@@ -312,7 +312,7 @@ const NodeSidebar = ({
             disabled={isLocked}
             disabledReason={isLocked ? '工作流已鎖定' : null}
           />
-        )} */}
+        )}
       </div>
       <VersionDisplay />
     </div>

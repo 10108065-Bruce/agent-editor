@@ -1068,6 +1068,28 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 建立 webhook output 節點
+  const handleAddWebhookOutputNode = useCallback(
+    (position) => {
+      const id = `webhook_output_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'webhook_output');
+      const newNode = {
+        id,
+        type: 'webhook_output',
+        data: {
+          webhookUrl: '', // 默認空 URL
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
   // 建立webook input節點
   const handleAddWebhookInputNode = useCallback(
     (position) => {
@@ -1313,6 +1335,9 @@ export default function useFlowNodes() {
       const targetNode = nodes.find((node) => node.id === targetNodeId);
       const isBrowserExtensionOutput =
         targetNode && targetNode.type === 'browserExtensionOutput';
+
+      const isWebhookOutput =
+        targetNode && targetNode.type === 'webhook_output';
 
       // 檢查目標節點是否為AI節點
       const isAINode =
@@ -1724,6 +1749,138 @@ export default function useFlowNodes() {
         return;
       }
 
+      if (isWebhookOutput) {
+        console.log('目標是 Webhook Output 節點，檢查單一連線限制');
+
+        // 檢查目標 handle 是否已經有連線
+        const existingConnections = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === targetHandle
+        );
+
+        if (existingConnections.length > 0) {
+          console.log(
+            `Webhook Output 節點的 ${targetHandle} 已有連線，拒絕新連線`
+          );
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `${targetHandle} 已有連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+        if (targetHandle === 'new-connection' || !targetHandle) {
+          // 創建新的 handle ID
+          const currentHandles = targetNode.data.inputHandles || [];
+
+          // 找出最大索引
+          let maxIndex = -1;
+          currentHandles.forEach((handle) => {
+            if (handle.id && handle.id.startsWith('text')) {
+              const indexStr = handle.id.substring(4); // 提取 'output' 後面的部分
+              const index = parseInt(indexStr, 10);
+              if (!isNaN(index) && index > maxIndex) {
+                maxIndex = index;
+              }
+            }
+          });
+
+          // 新的 handle ID 使用下一個索引
+          const newIndex = maxIndex + 1;
+          targetHandle = `text${newIndex}`;
+          console.log(`創建新的 handle: ${targetHandle}`);
+
+          // 添加新 handle 到節點
+          safeSetNodes((nds) =>
+            nds.map((node) => {
+              if (node.id === targetNodeId) {
+                const newHandles = [...currentHandles, { id: targetHandle }];
+                console.log(`更新節點 ${targetNodeId} 的 handles:`, newHandles);
+
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    inputHandles: newHandles
+                  }
+                };
+              }
+              return node;
+            })
+          );
+        }
+
+        // 檢查是否已存在完全相同的連接
+        const connectionExists = edges.some(
+          (edge) =>
+            edge.source === params.source &&
+            edge.target === targetNodeId &&
+            edge.targetHandle === targetHandle &&
+            edge.sourceHandle === sourceHandle
+        );
+
+        if (connectionExists) {
+          console.log(`連接已存在，不重複創建`);
+          return; // 直接返回，不創建新連接
+        }
+
+        // 創建唯一的邊緣 ID
+        const edgeId = `${
+          params.source
+        }-${targetNodeId}-${targetHandle}-${sourceHandle}-${Date.now()}`;
+
+        // 創建新連接
+        const newEdge = {
+          id: edgeId,
+          source: params.source,
+          target: targetNodeId,
+          sourceHandle: sourceHandle,
+          targetHandle: targetHandle,
+          type: 'custom-edge'
+        };
+
+        console.log(`創建新連接:`, newEdge);
+
+        // 直接使用 setEdges 避免 safeSetEdges 可能的重複調用問題
+        setEdges((currentEdges) => {
+          // 在更新函數內部再次檢查，防止競態條件
+          const exists = currentEdges.some(
+            (edge) =>
+              edge.source === params.source &&
+              edge.target === targetNodeId &&
+              edge.targetHandle === targetHandle &&
+              edge.sourceHandle === sourceHandle
+          );
+
+          if (exists) {
+            console.log(`在 setEdges 中發現連接已存在，跳過`);
+            return currentEdges;
+          }
+
+          return [...currentEdges, newEdge];
+        });
+
+        // 給 React Flow 一些時間來更新 handle
+        setTimeout(() => {
+          try {
+            const event = new CustomEvent('nodeInternalsChanged', {
+              detail: { id: targetNodeId }
+            });
+            window.dispatchEvent(event);
+          } catch (error) {
+            console.error('無法刷新節點:', error);
+          }
+        }, 10);
+
+        // 重要：對於瀏覽器擴展輸出節點，在這裡直接返回，避免執行下面的通用邏輯
+        return;
+      }
+
       // 對於其他節點，使用標準邏輯
       try {
         // 創建新的邊緣 ID，確保唯一性
@@ -2010,6 +2167,7 @@ export default function useFlowNodes() {
     handleAddQOCAAimNode,
     handleAddScheduleTriggerNode,
     handleAddWebhookInputNode,
+    handleAddWebhookOutputNode,
     undo,
     redo,
     getNodeCallbacks,

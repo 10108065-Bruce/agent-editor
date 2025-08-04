@@ -86,6 +86,15 @@ export const calculateNodeDimensions = (node) => {
       };
     }
 
+    case 'webhook_output': {
+      // 根據輸入 handle 數量動態調整高度
+      const handleCount = node.data?.inputHandles?.length || 1;
+      return {
+        width: baseWidth,
+        height: Math.max(baseHeight + 80, baseHeight + 30 + handleCount * 50)
+      };
+    }
+
     case 'extract_data': {
       // 新增：根據 columns 數量動態調整 ExtractDataNode 高度
       const columnCount = node.data?.columns?.length || 0;
