@@ -21699,6 +21699,15 @@ const calculateNodeDimensions = (node) => {
       };
     }
 
+    case 'webhook_output': {
+      // 根據輸入 handle 數量動態調整高度
+      const handleCount = node.data?.inputHandles?.length || 1;
+      return {
+        width: baseWidth,
+        height: Math.max(baseHeight + 80, baseHeight + 30 + handleCount * 50)
+      };
+    }
+
     case 'extract_data': {
       // 新增：根據 columns 數量動態調整 ExtractDataNode 高度
       const columnCount = node.data?.columns?.length || 0;
@@ -23879,7 +23888,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "aaa593aae259b3d6663bfc8e8be8eb6f9d1fe773", "VITE_APP_BUILD_TIME": "2025-08-04T03:19:23.624Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50.2"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "79e89a8158d9fa6e67017c91d05584506fa75f5e", "VITE_APP_BUILD_TIME": "2025-08-04T08:24:00.559Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50.3"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26264,10 +26273,10 @@ class LLMService {
     this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
     this.pendingRequest = null; // 用於追蹤進行中的請求
 
-    // 文件相關緩存
-    this.filesCache = null;
-    this.lastFilesFetchTime = null;
-    this.pendingFilesRequest = null; // 用於追蹤進行中的文件請求
+    // 知識庫相關緩存
+    this.knowledgeBasesCache = null;
+    this.lastKnowledgeBasesFetchTime = null;
+    this.pendingKnowledgeBasesRequest = null; // 用於追蹤進行中的知識庫請求
 
     // 新增：結構化輸出模型相關緩存
     this.structuredOutputModelsCache = null;
@@ -26548,30 +26557,30 @@ class LLMService {
   }
 
   /**
-   * 獲取所有已完成的文件
-   * @returns {Promise<Array>} 文件列表
+   * 獲取所有知識庫列表
+   * @returns {Promise<Array>} 知識庫列表
    */
-  async getCompletedFiles() {
+  async getKnowledgeBases() {
     try {
       // 檢查是否有有效的快取
       const now = Date.now();
       if (
-        this.filesCache &&
-        this.lastFilesFetchTime &&
-        now - this.lastFilesFetchTime < this.cacheExpiryTime
+        this.knowledgeBasesCache &&
+        this.lastKnowledgeBasesFetchTime &&
+        now - this.lastKnowledgeBasesFetchTime < this.cacheExpiryTime
       ) {
-        console.log('使用快取的已完成文件列表');
-        return this.filesCache;
+        console.log('使用快取的知識庫列表');
+        return this.knowledgeBasesCache;
       }
 
       // 如果已經有一個請求在進行中，則返回該請求
-      if (this.pendingFilesRequest) {
-        console.log('已有進行中的文件列表請求，使用相同請求');
-        return this.pendingFilesRequest;
+      if (this.pendingKnowledgeBasesRequest) {
+        console.log('已有進行中的知識庫列表請求，使用相同請求');
+        return this.pendingKnowledgeBasesRequest;
       }
 
       // 創建新請求
-      console.log('獲取已完成文件列表...');
+      console.log('獲取知識庫列表...');
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -26579,30 +26588,98 @@ class LLMService {
           Accept: 'application/json'
         }
       });
-      const url = tokenService.createUrlWithWorkspace(
-        `${API_CONFIG.BASE_URL}/agent_designer/files/completed`
-      );
-      this.pendingFilesRequest = fetch(url, options)
+      // 獲取 workspace_id 並替換路徑參數
+      const workspaceId = tokenService.getWorkspaceId();
+      if (!workspaceId) {
+        throw new Error('未設置工作區 ID');
+      }
+      const url = `${API_CONFIG.BASE_URL}/agent_designer/knowledge-bases/workspace/${workspaceId}/list`;
+      this.pendingKnowledgeBasesRequest = fetch(url, options)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
           }
           return response.json();
         })
-        .then((data) => {
-          console.log('成功獲取已完成文件:', data);
+        .then((responseData) => {
+          console.log('API返回原始知識庫數據:', responseData);
+
+          // 檢查新的 response 格式
+          let knowledgeBases = [];
+
+          if (responseData && responseData.data) {
+            knowledgeBases = responseData.data.knowledge_bases || [];
+          } else {
+            console.warn(
+              'API回應格式不符合預期，檢查是否有 knowledge_bases 陣列'
+            );
+            // 嘗試直接使用 responseData 如果它是陣列
+            if (Array.isArray(responseData)) {
+              knowledgeBases = responseData;
+            }
+          }
+
+          // 如果沒有找到有效數據，返回預設知識庫
+          if (!Array.isArray(knowledgeBases) || knowledgeBases.length === 0) {
+            console.warn('無法從API回應中提取合理的知識庫數據，使用預設知識庫');
+            knowledgeBases = [];
+          }
+
+          // 檢查每個知識庫對象，確保結構正確
+          const processedData = knowledgeBases.map((kb, index) => {
+            if (!kb || typeof kb !== 'object') {
+              console.warn(`知識庫 ${index} 無效，使用替代數據`);
+              return {
+                id: index + 1,
+                name: `知識庫 ${index + 1}`,
+                description: `知識庫 ${index + 1} 的描述`,
+                file_count: 0,
+                updated_at: new Date().toISOString()
+              };
+            }
+
+            // 確保知識庫有ID
+            if (kb.id === undefined || kb.id === null) {
+              console.warn(`知識庫 ${index} 缺少ID，使用索引作為ID`);
+              kb.id = index + 1;
+            }
+
+            // 確保知識庫有名稱
+            if (!kb.name) {
+              console.warn(`知識庫 ${index} 缺少名稱，使用預設名稱`);
+              kb.name = `知識庫 ${kb.id}`;
+            }
+
+            // 確保有描述
+            if (!kb.description) {
+              kb.description = `${kb.name} 的描述`;
+            }
+
+            // 確保有檔案數量
+            if (kb.file_count === undefined || kb.file_count === null) {
+              kb.file_count = 0;
+            }
+
+            // 確保有更新時間
+            if (!kb.updated_at) {
+              kb.updated_at = new Date().toISOString();
+            }
+
+            return kb;
+          });
+
+          console.log('處理後的知識庫數據:', processedData);
 
           // 更新快取
-          this.filesCache = data;
-          this.lastFilesFetchTime = now;
-          this.pendingFilesRequest = null; // 清除進行中的請求
+          this.knowledgeBasesCache = processedData;
+          this.lastKnowledgeBasesFetchTime = now;
+          this.pendingKnowledgeBasesRequest = null; // 清除進行中的請求
 
-          return data;
+          return processedData;
         })
         .catch((error) => {
-          console.error('獲取已完成文件失敗:', error);
-          this.pendingFilesRequest = null; // 清除進行中的請求，即使出錯
-          this.pendingFilesRequest = null;
+          console.error('獲取知識庫失敗:', error);
+          this.pendingKnowledgeBasesRequest = null; // 清除進行中的請求，即使出錯
 
           // 檢查是否為 CORS 錯誤
           if (
@@ -26610,23 +26687,36 @@ class LLMService {
             (error.message.includes('NetworkError') ||
               error.message.includes('Failed to fetch'))
           ) {
-            console.log('疑似 CORS 問題，返回預設檔案列表');
+            console.log('疑似 CORS 問題，返回預設知識庫列表');
             // 直接返回預設值而不是再次拋出錯誤
             return [
-              { id: 1, filename: 'ICDCode.csv' },
-              { id: 2, filename: 'Cardiology_Diagnoses.csv' }
+              {
+                id: 1,
+                name: '產品文檔知識庫',
+                description: '存放所有產品相關文檔和規格',
+                file_count: 3,
+                updated_at: new Date().toISOString()
+              }
             ];
           }
 
           throw error;
         });
 
-      return this.pendingFilesRequest;
+      return this.pendingKnowledgeBasesRequest;
     } catch (error) {
-      console.error('獲取已完成文件過程中出錯:', error);
-      this.pendingFilesRequest = null;
+      console.error('獲取知識庫過程中出錯:', error);
+      this.pendingKnowledgeBasesRequest = null;
       throw error;
     }
+  }
+
+  /**
+   * 向後相容方法 - 保持原有的 getCompletedFiles 方法名
+   * @returns {Promise<Array>} 知識庫列表（原文件列表）
+   */
+  async getCompletedFiles() {
+    return this.getKnowledgeBases();
   }
 
   /**
@@ -26807,45 +26897,53 @@ class LLMService {
   }
 
   /**
-   * 獲取格式化後的已完成文件選項，適用於下拉選單
-   * @returns {Promise<Array>} 格式化的文件選項
+   * 獲取格式化後的知識庫選項，適用於下拉選單
+   * @returns {Promise<Array>} 格式化的知識庫選項
    */
-  async getFileOptions() {
+  async getKnowledgeBaseOptions() {
     try {
-      const files = await this.getCompletedFiles();
+      const knowledgeBases = await this.getKnowledgeBases();
 
-      // 根據後端返回的格式 [{"filename": '123.csv', "id": 1}] 進行處理
-      return files.map((file) => ({
-        id: file.id.toString(), // 確保ID是字符串
-        value: file.id.toString(), // 用於選項值
-        name: file.filename, // 用於顯示名稱
-        label: file.filename // 用於顯示名稱 (替代)
+      // 根據新的知識庫格式進行處理
+      return knowledgeBases.map((kb) => ({
+        id: kb.id.toString(), // 確保ID是字符串
+        value: kb.id.toString(), // 用於選項值
+        name: kb.name, // 用於顯示名稱
+        label: kb.name, // 用於顯示名稱 (替代)
+        description: kb.description, // 知識庫描述
+        fileCount: kb.file_count, // 檔案數量
+        updatedAt: kb.updated_at // 更新時間
       }));
     } catch (error) {
-      console.error('獲取文件選項失敗:', error);
+      console.error('獲取知識庫選項失敗:', error);
       // 返回一些默認選項，以防API失敗
       return [
         {
-          id: 'icdcode',
-          value: 'icdcode',
-          name: 'ICDCode.csv',
-          label: 'ICDCode.csv'
-        },
-        {
-          id: 'cardiology',
-          value: 'cardiology',
-          name: 'Cardiology_Diagnoses.csv',
-          label: 'Cardiology_Diagnoses.csv'
+          id: '1',
+          value: '1',
+          name: '產品文檔知識庫',
+          label: '產品文檔知識庫',
+          description: '存放所有產品相關文檔和規格',
+          fileCount: 3,
+          updatedAt: new Date().toISOString()
         }
       ];
     }
   }
 
   /**
-   * 預加載模型與文件數據，通常在應用啟動時呼叫
+   * 向後相容方法 - 保持原有的 getFileOptions 方法名
+   * @returns {Promise<Array>} 格式化的知識庫選項（原文件選項）
+   */
+  async getFileOptions() {
+    return this.getKnowledgeBaseOptions();
+  }
+
+  /**
+   * 預加載模型與知識庫數據，通常在應用啟動時呼叫
    */
   preloadData() {
-    console.log('預加載LLM模型、結構化輸出模型和文件列表');
+    console.log('預加載LLM模型、結構化輸出模型和知識庫列表');
 
     // 預加載模型
     this.getModels().catch((err) => {
@@ -26857,9 +26955,9 @@ class LLMService {
       console.log('預加載結構化輸出模型失敗:', err);
     });
 
-    // 預加載文件
-    this.getCompletedFiles().catch((err) => {
-      console.log('預加載文件失敗:', err);
+    // 預加載知識庫
+    this.getKnowledgeBases().catch((err) => {
+      console.log('預加載知識庫失敗:', err);
     });
   }
 }
@@ -32580,26 +32678,32 @@ const IfElseNode$1 = memo$c(IfElseNode);
 const React$j = await importShared('react');
 const {memo: memo$b,useState: useState$j,useEffect: useEffect$c,useCallback: useCallback$c} = React$j;
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [isLoadingFiles, setIsLoadingFiles] = useState$j(false);
-  const [fileLoadError, setFileLoadError] = useState$j(null);
-  const [dataFiles, setDataFiles] = useState$j(
-    data?.availableFiles || [
+  const [isLoadingKnowledgeBases, setIsLoadingKnowledgeBases] = useState$j(false);
+  const [knowledgeBaseLoadError, setKnowledgeBaseLoadError] = useState$j(null);
+  const [dataKnowledgeBases, setDataKnowledgeBases] = useState$j(
+    data?.availableKnowledgeBases || [
       {
-        id: "icdcode",
-        value: "icdcode",
-        name: "ICDCode.csv",
-        label: "ICDCode.csv"
+        id: "1",
+        value: "1",
+        name: "產品文檔知識庫",
+        label: "產品文檔知識庫",
+        description: "存放所有產品相關文檔和規格",
+        fileCount: 3,
+        updatedAt: (/* @__PURE__ */ new Date()).toISOString()
       },
       {
-        id: "cardiology",
-        value: "cardiology",
-        name: "Cardiology_Diagnoses.csv",
-        label: "Cardiology_Diagnoses.csv"
+        id: "2",
+        value: "2",
+        name: "技術手冊知識庫",
+        label: "技術手冊知識庫",
+        description: "技術相關文檔和手冊",
+        fileCount: 1,
+        updatedAt: (/* @__PURE__ */ new Date()).toISOString()
       }
     ]
   );
-  const [localSelectedFile, setLocalSelectedFile] = useState$j(
-    data?.selectedFile || ""
+  const [localSelectedKnowledgeBase, setLocalSelectedKnowledgeBase] = useState$j(
+    data?.selectedKnowledgeBase || data?.selectedFile || ""
   );
   const [topK, setTopK] = useState$j(data?.topK || 5);
   const updateParentState = useCallback$c(
@@ -32620,16 +32724,17 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleFileSelect = useCallback$c(
+  const handleKnowledgeBaseSelect = useCallback$c(
     (event) => {
-      const fileId = event.target.value;
-      console.log(`選擇文件: ${fileId}`);
-      if (fileId !== localSelectedFile) {
-        setLocalSelectedFile(fileId);
-        updateParentState("selectedFile", fileId);
+      const knowledgeBaseId = event.target.value;
+      console.log(`選擇知識庫: ${knowledgeBaseId}`);
+      if (knowledgeBaseId !== localSelectedKnowledgeBase) {
+        setLocalSelectedKnowledgeBase(knowledgeBaseId);
+        updateParentState("selectedKnowledgeBase", knowledgeBaseId);
+        updateParentState("selectedFile", knowledgeBaseId);
       }
     },
-    [localSelectedFile, updateParentState]
+    [localSelectedKnowledgeBase, updateParentState]
   );
   const handleTopKSelect = useCallback$c(
     (event) => {
@@ -32641,55 +32746,56 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [topK, updateParentState]
   );
-  const getCurrentSelectedFile = useCallback$c(() => {
-    return data?.selectedFile || localSelectedFile;
-  }, [data?.selectedFile, localSelectedFile]);
-  const loadFiles = useCallback$c(async () => {
-    if (isLoadingFiles) return;
-    console.log("開始加載文件列表...");
-    setIsLoadingFiles(true);
-    setFileLoadError(null);
+  const getCurrentSelectedKnowledgeBase = useCallback$c(() => {
+    return data?.selectedKnowledgeBase || data?.selectedFile || localSelectedKnowledgeBase;
+  }, [
+    data?.selectedKnowledgeBase,
+    data?.selectedFile,
+    localSelectedKnowledgeBase
+  ]);
+  const loadKnowledgeBases = useCallback$c(async () => {
+    if (isLoadingKnowledgeBases) return;
+    console.log("開始加載知識庫列表...");
+    setIsLoadingKnowledgeBases(true);
+    setKnowledgeBaseLoadError(null);
     try {
-      const options = await llmService.getFileOptions();
+      const options = await llmService.getKnowledgeBaseOptions();
       if (options && options.length > 0) {
-        console.log("已獲取文件選項:", options);
-        setDataFiles(options);
-        const currentFile = getCurrentSelectedFile();
-        const isCurrentFileValid = options.some(
-          (opt) => opt.id === currentFile || opt.value === currentFile
+        console.log("已獲取知識庫選項:", options);
+        setDataKnowledgeBases(options);
+        const currentKB = getCurrentSelectedKnowledgeBase();
+        const isCurrentKBValid = options.some(
+          (opt) => opt.id === currentKB || opt.value === currentKB
         );
-        if (!currentFile || !isCurrentFileValid) {
-          const firstFileId = options[0].id || options[0].value;
-          console.log(`自動選擇第一個文件: ${firstFileId}`);
-          setLocalSelectedFile(firstFileId);
-          updateParentState("selectedFile", firstFileId);
+        if (!currentKB || !isCurrentKBValid) {
+          const firstKBId = options[0].id || options[0].value;
+          console.log(`自動選擇第一個知識庫: ${firstKBId}`);
+          setLocalSelectedKnowledgeBase(firstKBId);
+          updateParentState("selectedKnowledgeBase", firstKBId);
+          updateParentState("selectedFile", firstKBId);
         }
       }
     } catch (error) {
-      console.error("加載文件失敗:", error);
+      console.error("加載知識庫失敗:", error);
       if (error.message && (error.message.includes("已有進行中的") || error.message.includes("進行中的請求") || error.message.includes("使用相同請求"))) {
         console.log("正在等待其他相同請求完成...");
       } else {
-        setFileLoadError("無法載入文件列表，請稍後再試");
+        setKnowledgeBaseLoadError("無法載入知識庫列表，請稍後再試");
       }
     } finally {
-      setIsLoadingFiles(false);
+      setIsLoadingKnowledgeBases(false);
     }
-  }, [isLoadingFiles, getCurrentSelectedFile, updateParentState]);
+  }, [
+    isLoadingKnowledgeBases,
+    getCurrentSelectedKnowledgeBase,
+    updateParentState
+  ]);
   useEffect$c(() => {
-    if (data?.selectedFile && data.selectedFile !== localSelectedFile) {
-      console.log("監測 data.selectedFile 變更：", {
-        "data.selectedFile": data?.selectedFile,
-        localSelectedFile,
-        "node.id": id,
-        shouldSync: true
-      });
-      console.log(
-        `同步文件選擇從 ${localSelectedFile} 到 ${data.selectedFile}`
-      );
-      setLocalSelectedFile(data.selectedFile);
+    const parentSelected = data?.selectedKnowledgeBase || data?.selectedFile;
+    if (parentSelected && parentSelected !== localSelectedKnowledgeBase) {
+      setLocalSelectedKnowledgeBase(parentSelected);
     }
-  }, [data?.selectedFile, id]);
+  }, [data?.selectedKnowledgeBase, data?.selectedFile, id]);
   useEffect$c(() => {
     if (data?.topK && data.topK !== topK) {
       console.log(`同步 topK 值從 ${topK} 到 ${data.topK}`);
@@ -32697,14 +32803,18 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     }
   }, [data?.topK]);
   useEffect$c(() => {
-    loadFiles();
+    loadKnowledgeBases();
   }, []);
   const handleSelectFocus = useCallback$c(() => {
-    if (dataFiles.length === 0 && !isLoadingFiles) {
-      console.log("下拉選單獲得焦點，檢查是否需要重新加載文件");
-      loadFiles();
+    if (dataKnowledgeBases.length === 0 && !isLoadingKnowledgeBases) {
+      loadKnowledgeBases();
     }
-  }, [dataFiles.length, isLoadingFiles, loadFiles]);
+  }, [dataKnowledgeBases.length, isLoadingKnowledgeBases, loadKnowledgeBases]);
+  const formatKnowledgeBaseLabel = useCallback$c((kb) => {
+    const baseLabel = kb.name || kb.label;
+    const fileCount = kb.fileCount !== void 0 ? ` (${kb.fileCount} 個檔案)` : "";
+    return `${baseLabel}${fileCount}`;
+  }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
@@ -32712,17 +32822,17 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded-b-lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Knowledge" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Data Source" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
-                className: `w-full border ${fileLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm bg-white appearance-none ${isLoadingFiles ? "opacity-70 cursor-wait" : ""}`,
-                value: getCurrentSelectedFile(),
-                onChange: handleFileSelect,
+                className: `w-full border ${knowledgeBaseLoadError ? "border-red-300" : "border-gray-300"} rounded-md p-2 text-sm bg-white appearance-none ${isLoadingKnowledgeBases ? "opacity-70 cursor-wait" : ""}`,
+                value: getCurrentSelectedKnowledgeBase(),
+                onChange: handleKnowledgeBaseSelect,
                 onFocus: handleSelectFocus,
-                disabled: isLoadingFiles,
+                disabled: isLoadingKnowledgeBases,
                 style: {
                   paddingRight: "2rem",
                   textOverflow: "ellipsis"
@@ -32733,21 +32843,22 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
                     {
                       value: "",
                       disabled: true,
-                      children: "選擇檔案..."
+                      children: "Select file..."
                     }
                   ),
-                  dataFiles.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  dataKnowledgeBases.map((kb) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "option",
                     {
-                      value: file.id || file.value,
-                      children: file.name || file.label || file.filename
+                      value: kb.id || kb.value,
+                      title: kb.description,
+                      children: formatKnowledgeBaseLabel(kb)
                     },
-                    file.id || file.value
+                    kb.id || kb.value
                   ))
                 ]
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none", children: isLoadingFiles ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none", children: isLoadingKnowledgeBases ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
               "svg",
               {
                 xmlns: "http://www.w3.org/2000/svg",
@@ -32763,7 +32874,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
               }
             ) })
           ] }),
-          fileLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: fileLoadError })
+          knowledgeBaseLoadError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-red-500 mt-1", children: knowledgeBaseLoadError })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
