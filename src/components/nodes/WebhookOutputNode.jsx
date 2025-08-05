@@ -523,21 +523,19 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       className='rounded-lg shadow-md overflow-visible w-64 bg-white'
       style={nodeStyle}>
       {/* 標題部分，帶有圖标 - 使用固定的淺灰色背景 */}
-      <div
-        className='p-3 rounded-t-lg'
-        style={{ backgroundColor: '#f3f4f6' }}>
+      <div className='p-3 rounded-t-lg bg-[#fff8f8]'>
         <div className='flex items-center'>
           <div className='w-8 h-8 flex items-center justify-center text-white mr-2'>
             <IconBase type='webhook_output' />
           </div>
-          <span className='font-medium text-base'>Output</span>
+          <span className='font-medium text-base'>Webhook Response</span>
         </div>
       </div>
-
+      <div className='pl-2 pt-2'>Response</div>
       {/* 動態渲染所有 handle */}
       {inputs.map((input, index) => {
         // 計算 handle 的位置
-        const startY = 65; // 白色部分開始的位置
+        const startY = 95; // 白色部分開始的位置
         const topPosition = startY + index * handleHeight;
 
         // 根據是否有連線設置不同的樣式
