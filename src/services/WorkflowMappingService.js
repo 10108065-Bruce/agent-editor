@@ -30,7 +30,8 @@ export class WorkflowMappingService {
       aim_ml: 'aim_ml',
       schedule_trigger: 'schedule_trigger',
       webhook_input: 'webhook_input',
-      webhook_output: 'webhook_output'
+      webhook_output: 'webhook_output',
+      combine_text: 'combine_text'
     };
     return operatorMap[type] || type;
   }
@@ -52,6 +53,7 @@ export class WorkflowMappingService {
       schedule_trigger: 'schedule_trigger',
       webhook_input: 'webhook_input',
       webhook_output: 'webhook_output',
+      combine_text: 'combine_text',
       timer: 'timer',
       line: 'line_webhook_input',
       event: 'event',
@@ -91,7 +93,8 @@ export class WorkflowMappingService {
       aim_ml: 'advanced',
       schedule_trigger: 'advanced',
       webhook_input: 'advanced',
-      webhook_output: 'advanced'
+      webhook_output: 'advanced',
+      combine_text: 'advanced'
     };
     return categoryMap[type] || 'advanced';
   }
@@ -823,6 +826,13 @@ export class WorkflowMappingService {
         break;
       case 'webhook_output':
         // Add a single output for the browser extension output node
+        nodeOutput.output = {
+          node_id: node.id,
+          type: 'string'
+        };
+        break;
+      case 'combine_text':
+        // Combine Text 節點的輸出
         nodeOutput.output = {
           node_id: node.id,
           type: 'string'

@@ -10,6 +10,7 @@ import promptIcon from '../../assets/prompt-generator.svg';
 import scheduleNode from '../../assets/icon-timer-node.svg';
 import webhookInputNode from '../../assets/icn-webhook-input.svg';
 import webhookOutputNode from '../../assets/icn-webhook-output.svg';
+import CombineTextNode from '../../assets/icon-node-combine-text.svg';
 // Map of icon types to their respective assets
 const iconMap = {
   input: {
@@ -54,6 +55,10 @@ const iconMap = {
   webhook_output: {
     src: webhookOutputNode,
     alt: 'Webhook Output Icon'
+  },
+  combine_text: {
+    src: CombineTextNode,
+    alt: 'Combine Text Icon'
   }
 };
 

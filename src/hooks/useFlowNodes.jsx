@@ -1068,6 +1068,30 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 建立 combine text 節點
+  const handleAddCombineTextNode = useCallback(
+    (position) => {
+      const id = `combine_text_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'combineText');
+      const newNode = {
+        id,
+        type: 'combine_text',
+        data: {
+          inputText: '', // 默認空輸入文字
+          outputText: '', // 默認空輸出文字
+          separator: '', // 默認分隔符
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
   // 建立 webhook output 節點
   const handleAddWebhookOutputNode = useCallback(
     (position) => {
@@ -2168,6 +2192,7 @@ export default function useFlowNodes() {
     handleAddScheduleTriggerNode,
     handleAddWebhookInputNode,
     handleAddWebhookOutputNode,
+    handleAddCombineTextNode,
     undo,
     redo,
     getNodeCallbacks,

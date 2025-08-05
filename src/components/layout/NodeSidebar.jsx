@@ -313,6 +313,22 @@ const NodeSidebar = ({
             disabledReason={isLocked ? '工作流已鎖定' : null}
           />
         )}
+        {/* Combine Text node */}
+        {filterNodes('Combine Text') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='combine_text' />
+              </div>
+            }
+            label='Combine Text'
+            onClick={() => handleNodeClick('combine_text')}
+            nodeType='combine_text'
+            onDragStart={customDragStart}
+            disabled={isLocked}
+            disabledReason={isLocked ? '工作流已鎖定' : null}
+          />
+        )}
       </div>
       <VersionDisplay />
     </div>
