@@ -606,7 +606,7 @@ export class WorkflowDataConverter {
       case 'knowledge_retrieval':
         return {
           ...baseData,
-          selectedFile: node.parameters?.file_id?.data || '',
+          selectedFile: node.parameters?.knowledge_base_id?.data || '',
           topK: node.parameters?.top_k?.data || 5,
           availableFiles: [
             { id: 'icdcode', name: 'ICDCode.csv' },
@@ -1007,7 +1007,7 @@ export class WorkflowDataConverter {
       case 'knowledgeRetrieval':
       case 'knowledge_retrieval':
         if (node.data.selectedFile) {
-          parameters.file_id = { data: node.data.selectedFile };
+          parameters.knowledge_base_id = { data: node.data.selectedFile };
         }
         // 添加 top_k 參數
         parameters.top_k = { data: node.data.topK || 5 };
