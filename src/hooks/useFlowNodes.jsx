@@ -1507,25 +1507,25 @@ export default function useFlowNodes() {
       }
 
       // 檢查webook input節點的連線限制
-      if (sourceNode && sourceNode.type === 'webhook_input') {
-        console.log('目標是Webhook Input節點，檢查連線限制');
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.source === params.source && edge.sourceHandle === 'output'
-        );
-        if (existingEdges.length > 0) {
-          console.log(`Webhook Input節點已有輸出連線，拒絕新連線`);
-          // 使用通知系統提示用戶
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `Webhook Input節點只能有一個輸出連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
-          }
-          return; // 不創建新連線
-        }
-      }
+      // if (sourceNode && sourceNode.type === 'webhook_input') {
+      //   console.log('目標是Webhook Input節點，檢查連線限制');
+      //   const existingEdges = edges.filter(
+      //     (edge) =>
+      //       edge.source === params.source && edge.sourceHandle === 'output'
+      //   );
+      //   if (existingEdges.length > 0) {
+      //     console.log(`Webhook Input節點已有輸出連線，拒絕新連線`);
+      //     // 使用通知系統提示用戶
+      //     if (typeof window !== 'undefined' && window.notify) {
+      //       window.notify({
+      //         message: `Webhook Input節點只能有一個輸出連線，請先刪除現有連線`,
+      //         type: 'error',
+      //         duration: 3000
+      //       });
+      //     }
+      //     return; // 不創建新連線
+      //   }
+      // }
 
       // 檢查源節點是否為extractData節點，只能有一個輸出
       // if (sourceNode && sourceNode.type === 'extract_data') {
