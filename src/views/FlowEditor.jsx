@@ -272,6 +272,29 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           // 獲取該節點類型的回調函數
           const nodeCallbacks = getNodeCallbacks(node.id, node.type);
           console.log(nodeCallbacks);
+          // 特殊處理 combine_text 節點
+          if (node.type === 'combine_text') {
+            console.log(`載入 combine_text 節點 ${node.id} 的數據:`, {
+              textToCombine: node.data.textToCombine,
+              editorHtmlContent: node.data.editorHtmlContent,
+              activeTab: node.data.activeTab
+            });
+
+            // 確保 combine_text 節點有完整的初始狀態
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                // 確保預設值
+                textToCombine: node.data.textToCombine || '',
+                editorHtmlContent: node.data.editorHtmlContent || '',
+                activeTab: node.data.activeTab || 'editor',
+                inputHandles: node.data.inputHandles || [{ id: 'text' }],
+                // 添加回調函數到節點數據中
+                ...nodeCallbacks
+              }
+            };
+          }
           return {
             ...node,
             data: {
@@ -294,6 +317,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           title: apiData.flow_name || prev.flow_name,
           version: apiData.version || prev.version
         }));
+        // 更新全局 flow_id
+        if (typeof window !== 'undefined') {
+          window.currentFlowId = apiData.flow_id;
+        }
 
         // 重要：確保在設置節點後立即更新節點函數
         console.log('載入工作流後立即更新節點函數...');
@@ -398,6 +425,20 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     //   return false;
     // }
   }));
+
+  useEffect(() => {
+    // 設置全局 currentFlowId，供 CombineTextNode 使用
+    if (typeof window !== 'undefined') {
+      window.currentFlowId = flowMetadata.id;
+    }
+
+    // 清理函數
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.currentFlowId;
+      }
+    };
+  }, [flowMetadata.id]);
 
   // 在首次渲染時初始化節點函數
   useEffect(() => {
@@ -709,6 +750,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       debugConnections(edges, '保存前');
       // 重要：在轉換前檢查所有 BrowserExtensionOutput 節點的資料完整性
       nodes.forEach((node) => {
+        if (node.type === 'combine_text') {
+          console.log(`保存前檢查 Combine Text 節點 ${node.id}:`, {
+            textToCombine: node.data.textToCombine,
+            editorHtmlContent: node.data.editorHtmlContent,
+            activeTab: node.data.activeTab,
+            inputHandles: node.data.inputHandles
+          });
+        }
         if (node.type === 'browserExtensionOutput') {
           console.log(`保存前檢查節點 ${node.id}:`, {
             inputHandles: node.data.inputHandles || [],

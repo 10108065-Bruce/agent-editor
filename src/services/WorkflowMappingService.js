@@ -180,6 +180,9 @@ export class WorkflowMappingService {
     const isScheduleTriggerNode =
       targetNode && targetNode.type === 'schedule_trigger';
 
+    // 檢查是否為 Combine Text 節點
+    const isCombineTextNode = targetNode && targetNode.type === 'combine_text';
+
     // Schedule Trigger 節點沒有輸入連接，直接返回空對象
     if (isScheduleTriggerNode) {
       return nodeInput;
@@ -676,6 +679,77 @@ export class WorkflowMappingService {
 
           console.log(
             `QOCA AIM 節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
+          );
+        });
+      }
+      if (isCombineTextNode && targetHandle === 'text') {
+        // 處理 Combine Text 節點的多個輸入
+        targetEdges.forEach((edge, index) => {
+          // 使用 text0, text1, text2 的格式
+          const inputKey = `text${index}`;
+
+          // 查找源節點以獲取 return_name
+          const sourceNode = allNodes.find((n) => n.id === edge.source);
+          let returnName = edge.label || 'output';
+
+          // 根據源節點類型獲取適當的 return_name
+          if (sourceNode) {
+            if (
+              sourceNode.type === 'customInput' ||
+              sourceNode.type === 'input'
+            ) {
+              // 從自定義輸入節點獲取欄位名稱
+              if (
+                sourceNode.data &&
+                sourceNode.data.fields &&
+                Array.isArray(sourceNode.data.fields)
+              ) {
+                if (
+                  edge.sourceHandle === 'output' &&
+                  sourceNode.data.fields[0]
+                ) {
+                  returnName =
+                    sourceNode.data.fields[0].inputName || returnName;
+                }
+              }
+            } else if (sourceNode.type === 'browserExtensionInput') {
+              // 從瀏覽器擴展輸入節點獲取項目名稱
+              if (
+                sourceNode.data &&
+                sourceNode.data.items &&
+                Array.isArray(sourceNode.data.items)
+              ) {
+                const targetItem = sourceNode.data.items.find(
+                  (item) => item.id === edge.sourceHandle
+                );
+                if (targetItem && targetItem.name) {
+                  returnName = targetItem.name;
+                }
+              }
+            } else if (
+              sourceNode.type === 'aiCustomInput' ||
+              sourceNode.type === 'ai'
+            ) {
+              returnName = 'output';
+            } else if (sourceNode.type === 'knowledgeRetrieval') {
+              returnName = 'output';
+            } else {
+              returnName = edge.sourceHandle || 'output';
+            }
+          }
+
+          console.log(`源節點 ${edge.source} 的 return_name: ${returnName}`);
+
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string',
+            return_name: returnName
+          };
+
+          console.log(
+            `Combine Text 節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
           );
         });
       }

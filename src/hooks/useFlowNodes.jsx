@@ -235,6 +235,43 @@ export default function useFlowNodes() {
 
       // 根據節點類型的特定回調
       switch (nodeType) {
+        case 'combine_text': {
+          console.log(`設置 combine_text 節點 ${nodeId} 的回調函數`);
+
+          callbacks.updateNodeData = (key, value) => {
+            console.log(
+              `更新 combine_text 節點 ${nodeId} 的 ${key} 資料:`,
+              value
+            );
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === nodeId) {
+                  const updatedNode = {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      [key]: value
+                    }
+                  };
+
+                  // 特殊處理：如果更新的是 editorHtmlContent，確保狀態同步
+                  if (key === 'editorHtmlContent') {
+                    console.log(
+                      `節點 ${nodeId} 編輯器HTML內容已更新，長度: ${
+                        value?.length || 0
+                      }`
+                    );
+                  }
+
+                  return updatedNode;
+                }
+                return node;
+              })
+            );
+          };
+
+          break;
+        }
         case 'schedule_trigger':
           // Schedule Trigger 節點的特殊回調處理
           callbacks.updateNodeData = (key, value) => {
@@ -1072,14 +1109,37 @@ export default function useFlowNodes() {
   const handleAddCombineTextNode = useCallback(
     (position) => {
       const id = `combine_text_${Date.now()}`;
-      const nodeCallbacksObject = getNodeCallbacks(id, 'combineText');
+      const nodeCallbacksObject = getNodeCallbacks(id, 'combine_text');
+
+      // 獲取當前的 flow_id
+      const getCurrentFlowId = () => {
+        // 方式1: 從 URL 參數獲取
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlFlowId = urlParams.get('flowId') || urlParams.get('flow_id');
+        if (urlFlowId) return urlFlowId;
+
+        // 方式2: 從路徑獲取
+        const pathMatch = window.location.pathname.match(/\/flow\/([^\/]+)/);
+        if (pathMatch) return pathMatch[1];
+
+        // 方式3: 從全局狀態獲取（如果有的話）
+        if (typeof window !== 'undefined' && window.currentFlowId) {
+          return window.currentFlowId;
+        }
+
+        // 預設值
+        return '';
+      };
+
       const newNode = {
         id,
         type: 'combine_text',
         data: {
-          inputText: '', // 默認空輸入文字
-          outputText: '', // 默認空輸出文字
-          separator: '', // 默認分隔符
+          textToCombine: '',
+          editorHtmlContent: '', // 初始化編輯器HTML內容
+          activeTab: 'editor', // 初始化當前tab
+          inputHandles: [{ id: 'text' }],
+          flowId: getCurrentFlowId(), // 添加 flow_id 到節點數據中
           ...nodeCallbacksObject
         },
         position: position || {
@@ -1087,6 +1147,8 @@ export default function useFlowNodes() {
           y: Math.random() * 400
         }
       };
+
+      console.log(`創建 combine_text 節點:`, newNode);
       safeSetNodes((nds) => [...nds, newNode]);
     },
     [safeSetNodes, getNodeCallbacks]

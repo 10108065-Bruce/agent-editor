@@ -603,6 +603,15 @@ export class WorkflowDataConverter {
           compareValue: node.parameters?.compare_value?.data || ''
         };
 
+      case 'combine_text': {
+        return {
+          ...baseData,
+          textToCombine: node.parameters?.text_to_combine?.data || '',
+          editorHtmlContent: node.parameters?.editor_html_content?.data || '',
+          activeTab: node.parameters?.active_tab?.data || 'editor'
+        };
+      }
+
       case 'knowledge_retrieval':
         return {
           ...baseData,
@@ -1302,6 +1311,35 @@ export class WorkflowDataConverter {
         }
 
         console.log('QOCA AIM 節點轉換後的參數:', parameters);
+        break;
+      }
+      case 'combine_text': {
+        console.log('將 combine_text 節點資料轉換為 API 格式:', node.data);
+
+        // Combine Text 節點參數轉換
+        if (node.data.textToCombine !== undefined) {
+          parameters.text_to_combine = { data: node.data.textToCombine };
+        }
+
+        // 保存編輯器 HTML 內容
+        if (node.data.editorHtmlContent !== undefined) {
+          parameters.editor_html_content = {
+            data: node.data.editorHtmlContent
+          };
+        }
+
+        // 保存當前 tab 狀態
+        if (node.data.activeTab !== undefined) {
+          parameters.active_tab = { data: node.data.activeTab };
+        }
+
+        // 保存輸入 handles 信息
+        if (node.data.inputHandles && Array.isArray(node.data.inputHandles)) {
+          const handleIds = node.data.inputHandles.map((h) => h.id);
+          parameters.inputHandles = { data: handleIds };
+        }
+
+        console.log('combine_text 節點轉換後的參數:', parameters);
         break;
       }
       default:

@@ -1,631 +1,559 @@
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, useEdges, useNodes } from 'reactflow';
 import IconBase from '../icons/IconBase';
-import AddIcon from '../icons/AddIcon';
-import AutoResizeTextarea from '../text/AutoResizeText';
+import CombineTextEditor from '../text/CombineTextEditor';
 
-const CombineTextNode = ({ data, isConnectable }) => {
-  // 管理各個狀態
-  const [localUrl, setLocalUrl] = useState(data?.url || '');
-  const [localMethod, setLocalMethod] = useState(data?.method || 'GET');
-  const [headers, setHeaders] = useState(
-    data?.headers || [{ key: '', value: '' }]
+const CombineTextNode = ({ data, isConnectable, id }) => {
+  const edges = useEdges();
+  const nodes = useNodes();
+
+  // 狀態管理
+  const [textToCombine, setTextToCombine] = useState(data?.textToCombine || '');
+  const [showInputPanel, setShowInputPanel] = useState(false);
+  const [filterText, setFilterText] = useState('');
+  const [inputHandles, setInputHandles] = useState(
+    data?.inputHandles || [{ id: 'text0' }]
   );
-  const [localBody, setLocalBody] = useState(data?.body || '');
+  const [activeTab, setActiveTab] = useState(data?.activeTab || 'editor');
+  const [editorContent, setEditorContent] = useState('');
+  const [editorHtmlContent, setEditorHtmlContent] = useState(
+    data?.editorHtmlContent || ''
+  );
 
-  // IME 和用戶輸入狀態追踪 - URL 欄位
-  const isComposingUrlRef = useRef(false);
-  const updateUrlTimeoutRef = useRef(null);
-  const lastExternalUrlRef = useRef(data?.url || '');
-  const isUserInputUrlRef = useRef(false);
+  // 初始化標記，避免重複初始化
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // IME 和用戶輸入狀態追踪 - Body 欄位
-  const isComposingBodyRef = useRef(false);
-  const updateBodyTimeoutRef = useRef(null);
-  const lastExternalBodyRef = useRef(data?.body || '');
-  const isUserInputBodyRef = useRef(false);
+  // Refs
+  const textareaRef = useRef(null);
+  const previewRef = useRef(null);
+  const inputPanelRef = useRef(null);
 
-  // Header 欄位的 IME 狀態追踪
-  const isComposingHeaderKeyRef = useRef({});
-  const isComposingHeaderValueRef = useRef({});
-  const updateHeaderTimeoutRef = useRef({});
-  const isUserInputHeaderRef = useRef({});
-  const lastExternalHeaderRef = useRef({});
+  // 重要：不再使用防抖，而是控制更新頻率
+  const lastUpdateTime = useRef(0);
+  const updateThrottleTime = 1000; // 1秒更新一次父組件狀態
 
-  // 改進的同步狀態 - URL
-  useEffect(() => {
-    if (
-      data?.url !== undefined &&
-      data.url !== lastExternalUrlRef.current &&
-      !isComposingUrlRef.current &&
-      !isUserInputUrlRef.current
-    ) {
-      setLocalUrl(data.url);
-      lastExternalUrlRef.current = data.url;
+  // 計算當前連線數量
+  const connectionCount = edges.filter((edge) => edge.target === id).length;
+
+  // 獲取 flow_id 的方法
+  const getFlowId = useCallback(() => {
+    if (data?.flowId) {
+      return data.flowId;
     }
-  }, [data?.url]);
 
-  // 改進的同步狀態 - Method
-  useEffect(() => {
-    if (data?.method && data.method !== localMethod) {
-      setLocalMethod(data.method);
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlFlowId = urlParams.get('flowId') || urlParams.get('flow_id');
+    if (urlFlowId) {
+      return urlFlowId;
     }
-  }, [data?.method, localMethod]);
 
-  // 改進的同步狀態 - Headers
-  useEffect(() => {
-    if (
-      data?.headers &&
-      JSON.stringify(data.headers) !== JSON.stringify(headers)
-    ) {
-      setHeaders(data.headers);
+    const pathMatch = window.location.pathname.match(/\/flow\/([^\/]+)/);
+    if (pathMatch) {
+      return pathMatch[1];
     }
-  }, [data?.headers, headers]);
 
-  // 改進的同步狀態 - Body
-  useEffect(() => {
-    if (
-      data?.body !== undefined &&
-      data.body !== lastExternalBodyRef.current &&
-      !isComposingBodyRef.current &&
-      !isUserInputBodyRef.current
-    ) {
-      setLocalBody(data.body);
-      lastExternalBodyRef.current = data.body;
+    if (typeof window !== 'undefined' && window.currentFlowId) {
+      return window.currentFlowId;
     }
-  }, [data?.body]);
 
+    return '9e956c37-20ea-47a5-bcd5-3cafc35b967d';
+  }, [data]);
+
+  // 從邊緣獲取連線的節點信息
+  const getConnectedNodes = useCallback(() => {
+    const connectedEdges = edges.filter((edge) => edge.target === id);
+    return connectedEdges.map((edge) => {
+      const sourceNode = nodes.find((n) => n.id === edge.source);
+      return {
+        id: edge.source,
+        name: getNodeDisplayName(sourceNode),
+        outputName: edge.sourceHandle || 'output',
+        handleId: edge.targetHandle,
+        nodeType: sourceNode?.type || 'unknown',
+        data: `QOCA_NODE_ID_${edge.source}_NODE_OUTPUT_NAME_${
+          edge.sourceHandle || 'output'
+        }`,
+        code: `QOCA_NODE_ID_${edge.source}_NODE_OUTPUT_NAME_${
+          edge.sourceHandle || 'output'
+        }`,
+        color: getNodeTagColor(getNodeDisplayName(sourceNode))
+      };
+    });
+  }, [edges, nodes, id]);
+
+  // 獲取節點顯示名稱的輔助函數
+  const getNodeDisplayName = (sourceNode) => {
+    if (!sourceNode) return 'Unknown';
+
+    switch (sourceNode.type) {
+      case 'customInput':
+      case 'input':
+        return 'Input.TEXT';
+      case 'aiCustomInput':
+      case 'ai':
+        return 'AI.TEXT';
+      case 'aim_ml':
+        return 'ML Node.TEXT';
+      case 'browserExtensionInput':
+        return 'Browser Extension Input.TEXT';
+      case 'webhook_input':
+        return 'Webhook.TEXT';
+      case 'knowledgeRetrieval':
+        return 'Knowledge Retrieval.TEXT';
+      case 'extract_data':
+        return 'Extract Data Node.TEXT';
+      case 'line_webhook_input':
+        return 'Line Webhook Input.TEXT';
+      case 'httpRequest':
+        return 'Http Request Node.TEXT';
+      case 'schedule_trigger':
+        return 'schedule node.TEXT';
+      default:
+        return `${
+          sourceNode.type.charAt(0).toUpperCase() + sourceNode.type.slice(1)
+        }.TEXT`;
+    }
+  };
+
+  // 獲取節點標籤顏色
+  const getNodeTagColor = (nodeName) => {
+    const colorMap = {
+      'Input.TEXT': '#3b82f6',
+      'AI.TEXT': '#f97316',
+      'ML Node.TEXT': '#ef4444',
+      'Browser Extension Input.TEXT': '#14b8a6',
+      'Webhook.TEXT': '#22c55e',
+      'Knowledge Retrieval.TEXT': '#a855f7',
+      'Extract Data Node.TEXT': '#ec4899',
+      'Line Webhook Input.TEXT': '#6366f1',
+      'Http Request Node.TEXT': '#eab308',
+      'schedule node.TEXT': '#a78bfa'
+    };
+    return colorMap[nodeName] || '#6b7280';
+  };
+
+  // 更新父組件狀態 - 使用節流而不是防抖
   const updateParentState = useCallback(
     (key, value) => {
       if (data && typeof data.updateNodeData === 'function') {
-        data.updateNodeData(key, value);
-        return true;
+        const now = Date.now();
+
+        // 對於關鍵狀態立即更新
+        if (key === 'activeTab' || key === 'inputHandles') {
+          data.updateNodeData(key, value);
+          return;
+        }
+
+        // 對於文字內容，使用節流控制更新頻率
+        if (now - lastUpdateTime.current > updateThrottleTime) {
+          lastUpdateTime.current = now;
+          data.updateNodeData(key, value);
+        }
       }
-      if (data) {
-        data[key] = value;
-        return true;
-      }
-      return false;
     },
     [data]
   );
 
-  // URL 變更處理 - 支援 IME
-  const handleUrlChange = useCallback(
+  // 生成預設的 JSON 模板
+  const generateDefaultJson = useCallback(() => {
+    const flowId = getFlowId();
+    return JSON.stringify(
+      {
+        flow_id: flowId,
+        func_id: '',
+        data: ''
+      },
+      null,
+      2
+    );
+  }, [getFlowId]);
+
+  // 生成預覽內容
+  const generatePreviewContent = useCallback(() => {
+    if (!textareaRef.current) {
+      return textToCombine || '';
+    }
+
+    const editorTextContent = textareaRef.current.getValue
+      ? textareaRef.current.getValue()
+      : textToCombine;
+
+    return editorTextContent || '';
+  }, [textToCombine]);
+
+  // 處理文字內容變更 - 大幅簡化
+  const handleTextChange = useCallback(
     (e) => {
-      const newUrl = e.target.value;
+      const newContent = e.target.value;
 
-      // 標記為用戶輸入
-      isUserInputUrlRef.current = true;
+      // 立即更新本地狀態以保持響應性
+      setTextToCombine(newContent);
+      setEditorContent(newContent);
 
-      // 立即更新本地狀態
-      setLocalUrl(newUrl);
-      lastExternalUrlRef.current = newUrl;
+      // 節流更新父組件狀態
+      updateParentState('textToCombine', newContent);
 
-      // 清除之前的更新計時器
-      if (updateUrlTimeoutRef.current) {
-        clearTimeout(updateUrlTimeoutRef.current);
-      }
-
-      // 如果不是在組合狀態，延遲更新父組件
-      if (!isComposingUrlRef.current) {
-        updateUrlTimeoutRef.current = setTimeout(() => {
-          updateParentState('url', newUrl);
-
-          // 重置用戶輸入標記
-          setTimeout(() => {
-            isUserInputUrlRef.current = false;
-          }, 100);
-        }, 150);
+      // HTML 內容更新
+      if (textareaRef.current?.innerHTML !== undefined) {
+        const htmlContent = textareaRef.current.innerHTML || '';
+        setEditorHtmlContent(htmlContent);
+        updateParentState('editorHtmlContent', htmlContent);
       }
     },
     [updateParentState]
   );
 
-  // URL IME 組合開始處理
-  const handleUrlCompositionStart = useCallback(() => {
-    isComposingUrlRef.current = true;
-    isUserInputUrlRef.current = true;
-
-    // 清除任何待執行的更新
-    if (updateUrlTimeoutRef.current) {
-      clearTimeout(updateUrlTimeoutRef.current);
-      updateUrlTimeoutRef.current = null;
-    }
+  // 關閉輸入面板
+  const closeInputPanel = useCallback(() => {
+    setShowInputPanel(false);
+    setFilterText('');
   }, []);
 
-  // URL IME 組合結束處理
-  const handleUrlCompositionEnd = useCallback(
-    (e) => {
-      isComposingUrlRef.current = false;
-
-      const finalValue = e.target.value;
-      setLocalUrl(finalValue);
-      lastExternalUrlRef.current = finalValue;
-
-      // 立即更新父組件
-      updateParentState('url', finalValue);
-
-      // 延遲重置用戶輸入標記
-      setTimeout(() => {
-        isUserInputUrlRef.current = false;
-      }, 200);
-    },
-    [updateParentState]
-  );
-
-  // URL 鍵盤事件處理
-  const handleUrlKeyDown = useCallback((e) => {
-    if (e.key === 'Backspace' || e.key === 'Delete') {
-      isUserInputUrlRef.current = true;
-      setTimeout(() => {
-        isUserInputUrlRef.current = false;
-      }, 300);
-    }
-  }, []);
-
-  // Method 變更處理
-  const handleMethodChange = useCallback(
-    (e) => {
-      const newMethod = e.target.value;
-      setLocalMethod(newMethod);
-      updateParentState('method', newMethod);
-    },
-    [updateParentState]
-  );
-
-  // Body 變更處理 - 支援 IME
-  const handleBodyChange = useCallback(
-    (e) => {
-      const newBody = e.target.value;
-
-      // 標記為用戶輸入
-      isUserInputBodyRef.current = true;
-
-      // 立即更新本地狀態
-      setLocalBody(newBody);
-      lastExternalBodyRef.current = newBody;
-
-      // 清除之前的更新計時器
-      if (updateBodyTimeoutRef.current) {
-        clearTimeout(updateBodyTimeoutRef.current);
-      }
-
-      // 如果不是在組合狀態，延遲更新父組件
-      if (!isComposingBodyRef.current) {
-        updateBodyTimeoutRef.current = setTimeout(() => {
-          updateParentState('body', newBody);
-
-          // 重置用戶輸入標記
-          setTimeout(() => {
-            isUserInputBodyRef.current = false;
-          }, 100);
-        }, 150);
+  // 處理panel顯示控制
+  const handleShowPanel = useCallback(
+    (show) => {
+      if (activeTab === 'editor') {
+        setShowInputPanel(show);
+        if (!show) {
+          setFilterText('');
+        }
       }
     },
-    [updateParentState]
+    [activeTab]
   );
 
-  // Body IME 組合開始處理
-  const handleBodyCompositionStart = useCallback(() => {
-    isComposingBodyRef.current = true;
-    isUserInputBodyRef.current = true;
+  // 處理標籤點擊
+  const handleTagClick = useCallback(
+    (nodeInfo) => {
+      if (textareaRef.current && textareaRef.current.insertTagAtCursor) {
+        textareaRef.current.insertTagAtCursor(nodeInfo);
 
-    // 清除任何待執行的更新
-    if (updateBodyTimeoutRef.current) {
-      clearTimeout(updateBodyTimeoutRef.current);
-      updateBodyTimeoutRef.current = null;
+        // 獲取更新後的內容
+        setTimeout(() => {
+          if (textareaRef.current && textareaRef.current.getValue) {
+            const newContent = textareaRef.current.getValue();
+            setTextToCombine(newContent);
+            setEditorContent(newContent);
+
+            // 立即更新父組件狀態（標籤插入是重要操作）
+            if (data && typeof data.updateNodeData === 'function') {
+              data.updateNodeData('textToCombine', newContent);
+            }
+          }
+        }, 0);
+      }
+      closeInputPanel();
+    },
+    [closeInputPanel, data]
+  );
+
+  // 處理標籤拖拽開始
+  const handleTagDragStart = useCallback((e, nodeInfo) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify(nodeInfo));
+    e.dataTransfer.effectAllowed = 'copy';
+  }, []);
+
+  // 處理標籤插入完成
+  const handleTagInsert = useCallback(
+    (tag) => {
+      console.log('標籤已插入:', tag);
+
+      setTimeout(() => {
+        if (textareaRef.current && textareaRef.current.getValue) {
+          const newContent = textareaRef.current.getValue();
+          setTextToCombine(newContent);
+          setEditorContent(newContent);
+
+          // 立即更新父組件狀態
+          if (data && typeof data.updateNodeData === 'function') {
+            data.updateNodeData('textToCombine', newContent);
+          }
+
+          const htmlContent = textareaRef.current.innerHTML || '';
+          setEditorHtmlContent(htmlContent);
+          if (data && typeof data.updateNodeData === 'function') {
+            data.updateNodeData('editorHtmlContent', htmlContent);
+          }
+        }
+      }, 0);
+    },
+    [data]
+  );
+
+  // 處理滾輪事件
+  const handleWheel = useCallback((e) => {
+    const target = e.currentTarget;
+    const isScrollable = target.scrollHeight > target.clientHeight;
+
+    if (isScrollable) {
+      e.stopPropagation();
+      const deltaY = e.deltaY;
+      const currentScrollTop = target.scrollTop;
+      const maxScrollTop = target.scrollHeight - target.clientHeight;
+
+      const newScrollTop = Math.max(
+        0,
+        Math.min(maxScrollTop, currentScrollTop + deltaY)
+      );
+
+      target.scrollTop = newScrollTop;
+      e.preventDefault();
+    } else {
+      e.stopPropagation();
+      e.preventDefault();
     }
   }, []);
 
-  // Body IME 組合結束處理
-  const handleBodyCompositionEnd = useCallback(
-    (e) => {
-      isComposingBodyRef.current = false;
-
-      const finalValue = e.target.value;
-      setLocalBody(finalValue);
-      lastExternalBodyRef.current = finalValue;
-
-      // 立即更新父組件
-      updateParentState('body', finalValue);
-
-      // 延遲重置用戶輸入標記
-      setTimeout(() => {
-        isUserInputBodyRef.current = false;
-      }, 200);
-    },
-    [updateParentState]
-  );
-
-  // Body 鍵盤事件處理
-  const handleBodyKeyDown = useCallback((e) => {
-    if (e.key === 'Backspace' || e.key === 'Delete') {
-      isUserInputBodyRef.current = true;
-      setTimeout(() => {
-        isUserInputBodyRef.current = false;
-      }, 300);
-    }
+  // 處理滑鼠事件
+  const handleMouseDown = useCallback((e) => {
+    e.stopPropagation();
   }, []);
 
-  // 新增 Header
-  const handleAddHeader = useCallback(() => {
-    const newHeader = { key: '', value: '' };
-    const newHeaders = [...headers, newHeader];
-    setHeaders(newHeaders);
-    updateParentState('headers', newHeaders);
-  }, [headers, updateParentState]);
+  const handleMouseMove = useCallback((e) => {
+    e.stopPropagation();
+  }, []);
 
-  // 刪除 Header
-  const handleDeleteHeader = useCallback(
-    (index) => {
-      const newHeaders = headers.filter((_, i) => i !== index);
-      setHeaders(newHeaders);
-      updateParentState('headers', newHeaders);
+  const handleMouseUp = useCallback((e) => {
+    e.stopPropagation();
+  }, []);
 
-      // 清理該索引的相關 ref
-      delete isComposingHeaderKeyRef.current[index];
-      delete isComposingHeaderValueRef.current[index];
-      delete updateHeaderTimeoutRef.current[`key_${index}`];
-      delete updateHeaderTimeoutRef.current[`value_${index}`];
-      delete isUserInputHeaderRef.current[`key_${index}`];
-      delete isUserInputHeaderRef.current[`value_${index}`];
-      delete lastExternalHeaderRef.current[`key_${index}`];
-      delete lastExternalHeaderRef.current[`value_${index}`];
-    },
-    [headers, updateParentState]
+  // 過濾連線節點
+  const filteredNodes = getConnectedNodes().filter((node) =>
+    node.name.toLowerCase().includes(filterText.toLowerCase())
   );
 
-  // 更新 Header Key - 支援 IME
-  const handleHeaderKeyChange = useCallback(
-    (index, value) => {
-      const fieldKey = `key_${index}`;
+  // 處理 Tab 切換
+  const handleTabChange = useCallback(
+    (newTab) => {
+      // 在切換到 preview 前保存當前編輯器狀態
+      if (activeTab === 'editor' && newTab === 'preview') {
+        if (textareaRef.current) {
+          const textContent = textareaRef.current.getValue
+            ? textareaRef.current.getValue()
+            : textToCombine;
+          const htmlContent = textareaRef.current.innerHTML || '';
 
-      // 標記為用戶輸入
-      isUserInputHeaderRef.current[fieldKey] = true;
+          setTextToCombine(textContent);
+          setEditorHtmlContent(htmlContent);
 
-      // 立即更新本地狀態
-      const newHeaders = [...headers];
-      newHeaders[index].key = value;
-      setHeaders(newHeaders);
-      lastExternalHeaderRef.current[fieldKey] = value;
-
-      // 清除之前的更新計時器
-      if (updateHeaderTimeoutRef.current[fieldKey]) {
-        clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
+          // 立即更新父組件狀態
+          if (data && typeof data.updateNodeData === 'function') {
+            data.updateNodeData('textToCombine', textContent);
+            data.updateNodeData('editorHtmlContent', htmlContent);
+          }
+        }
       }
 
-      // 如果不是在組合狀態，延遲更新父組件
-      if (!isComposingHeaderKeyRef.current[index]) {
-        updateHeaderTimeoutRef.current[fieldKey] = setTimeout(() => {
-          updateParentState('headers', newHeaders);
+      setActiveTab(newTab);
 
-          // 重置用戶輸入標記
-          setTimeout(() => {
-            isUserInputHeaderRef.current[fieldKey] = false;
-          }, 100);
-        }, 150);
+      // 立即更新父組件狀態
+      if (data && typeof data.updateNodeData === 'function') {
+        data.updateNodeData('activeTab', newTab);
       }
     },
-    [headers, updateParentState]
+    [activeTab, textToCombine, data]
   );
 
-  // 更新 Header Value - 支援 IME
-  const handleHeaderValueChange = useCallback(
-    (index, value) => {
-      const fieldKey = `value_${index}`;
-
-      // 標記為用戶輸入
-      isUserInputHeaderRef.current[fieldKey] = true;
-
-      // 立即更新本地狀態
-      const newHeaders = [...headers];
-      newHeaders[index].value = value;
-      setHeaders(newHeaders);
-      lastExternalHeaderRef.current[fieldKey] = value;
-
-      // 清除之前的更新計時器
-      if (updateHeaderTimeoutRef.current[fieldKey]) {
-        clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
-      }
-
-      // 如果不是在組合狀態，延遲更新父組件
-      if (!isComposingHeaderValueRef.current[index]) {
-        updateHeaderTimeoutRef.current[fieldKey] = setTimeout(() => {
-          updateParentState('headers', newHeaders);
-
-          // 重置用戶輸入標記
-          setTimeout(() => {
-            isUserInputHeaderRef.current[fieldKey] = false;
-          }, 100);
-        }, 150);
-      }
-    },
-    [headers, updateParentState]
-  );
-
-  // Header Key IME 事件處理
-  const handleHeaderKeyCompositionStart = useCallback((index) => {
-    isComposingHeaderKeyRef.current[index] = true;
-    isUserInputHeaderRef.current[`key_${index}`] = true;
-
-    // 清除任何待執行的更新
-    const fieldKey = `key_${index}`;
-    if (updateHeaderTimeoutRef.current[fieldKey]) {
-      clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
-      updateHeaderTimeoutRef.current[fieldKey] = null;
-    }
-  }, []);
-
-  const handleHeaderKeyCompositionEnd = useCallback(
-    (index, e) => {
-      isComposingHeaderKeyRef.current[index] = false;
-
-      const finalValue = e.target.value;
-      const newHeaders = [...headers];
-      newHeaders[index].key = finalValue;
-      setHeaders(newHeaders);
-      lastExternalHeaderRef.current[`key_${index}`] = finalValue;
-
-      // 立即更新父組件
-      updateParentState('headers', newHeaders);
-
-      // 延遲重置用戶輸入標記
-      setTimeout(() => {
-        isUserInputHeaderRef.current[`key_${index}`] = false;
-      }, 200);
-    },
-    [headers, updateParentState]
-  );
-
-  // Header Value IME 事件處理
-  const handleHeaderValueCompositionStart = useCallback((index) => {
-    isComposingHeaderValueRef.current[index] = true;
-    isUserInputHeaderRef.current[`value_${index}`] = true;
-
-    // 清除任何待執行的更新
-    const fieldKey = `value_${index}`;
-    if (updateHeaderTimeoutRef.current[fieldKey]) {
-      clearTimeout(updateHeaderTimeoutRef.current[fieldKey]);
-      updateHeaderTimeoutRef.current[fieldKey] = null;
-    }
-  }, []);
-
-  const handleHeaderValueCompositionEnd = useCallback(
-    (index, e) => {
-      isComposingHeaderValueRef.current[index] = false;
-
-      const finalValue = e.target.value;
-      const newHeaders = [...headers];
-      newHeaders[index].value = finalValue;
-      setHeaders(newHeaders);
-      lastExternalHeaderRef.current[`value_${index}`] = finalValue;
-
-      // 立即更新父組件
-      updateParentState('headers', newHeaders);
-
-      // 延遲重置用戶輸入標記
-      setTimeout(() => {
-        isUserInputHeaderRef.current[`value_${index}`] = false;
-      }, 200);
-    },
-    [headers, updateParentState]
-  );
-
-  // Header 鍵盤事件處理
-  const handleHeaderKeyDown = useCallback((index, type, e) => {
-    if (e.key === 'Backspace' || e.key === 'Delete') {
-      const fieldKey = `${type}_${index}`;
-      isUserInputHeaderRef.current[fieldKey] = true;
-      setTimeout(() => {
-        isUserInputHeaderRef.current[fieldKey] = false;
-      }, 300);
-    }
-  }, []);
-
-  // 清理計時器
+  // 🔧 一次性初始化
   useEffect(() => {
-    return () => {
-      if (updateUrlTimeoutRef.current) {
-        clearTimeout(updateUrlTimeoutRef.current);
-      }
-      if (updateBodyTimeoutRef.current) {
-        clearTimeout(updateBodyTimeoutRef.current);
-      }
-      Object.values(updateHeaderTimeoutRef.current).forEach((timeout) => {
-        if (timeout) clearTimeout(timeout);
-      });
-    };
-  }, []);
+    if (!isInitialized && data) {
+      console.log('執行一次性初始化同步');
 
-  // Method 選項
-  const methodOptions = [
-    { value: 'GET', label: 'GET' },
-    { value: 'POST', label: 'POST' }
-  ];
+      if (data.activeTab && data.activeTab !== activeTab) {
+        setActiveTab(data.activeTab);
+      }
+      if (
+        data.editorHtmlContent &&
+        data.editorHtmlContent !== editorHtmlContent
+      ) {
+        setEditorHtmlContent(data.editorHtmlContent);
+      }
+      if (data.textToCombine && data.textToCombine !== textToCombine) {
+        setTextToCombine(data.textToCombine);
+        setEditorContent(data.textToCombine);
+      }
+
+      setIsInitialized(true);
+    }
+  }, [data, isInitialized, activeTab, editorHtmlContent, textToCombine]);
+
+  // 初始化預設內容
+  useEffect(() => {
+    if (!textToCombine && data?.textToCombine === undefined && isInitialized) {
+      const defaultContent = generateDefaultJson();
+      setTextToCombine(defaultContent);
+      setEditorContent(defaultContent);
+
+      if (data && typeof data.updateNodeData === 'function') {
+        data.updateNodeData('textToCombine', defaultContent);
+      }
+    }
+  }, [
+    textToCombine,
+    data?.textToCombine,
+    generateDefaultJson,
+    isInitialized,
+    data
+  ]);
+
+  // 動態管理輸入 handles
+  useEffect(() => {
+    const singleHandle = [{ id: 'text' }];
+
+    if (JSON.stringify(singleHandle) !== JSON.stringify(inputHandles)) {
+      setInputHandles(singleHandle);
+      if (data && typeof data.updateNodeData === 'function') {
+        data.updateNodeData('inputHandles', singleHandle);
+      }
+    }
+  }, [inputHandles, data]);
+
+  // 移除會導致無限重新渲染的 useEffect，只保留必要的外部同步
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    let hasChanges = false;
+
+    // 只有在數據真正不同時才同步
+    if (
+      data?.textToCombine !== undefined &&
+      data.textToCombine !== textToCombine &&
+      Math.abs(data.textToCombine.length - textToCombine.length) > 5 // 只有當差異較大時才同步
+    ) {
+      setTextToCombine(data.textToCombine);
+      setEditorContent(data.textToCombine);
+      hasChanges = true;
+    }
+
+    if (data?.activeTab !== undefined && data.activeTab !== activeTab) {
+      setActiveTab(data.activeTab);
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      console.log('外部資料有重大變更，同步本地狀態');
+    }
+  }, [
+    data?.textToCombine,
+    data?.activeTab,
+    isInitialized,
+    textToCombine,
+    activeTab
+  ]);
 
   return (
-    <div className='rounded-lg shadow-md overflow-hidden w-98 max-w-lg'>
-      {/* Header section */}
-      <div className='bg-gray-100 p-4'>
-        <div className='flex items-center'>
-          <div className='w-6 h-6 rounded-full bg-red-400 flex items-center justify-center text-white mr-2'>
-            <IconBase type='http' />
+    <>
+      <div className='rounded-lg shadow-md overflow-hidden w-96'>
+        {/* Header section */}
+        <div className='bg-gray-100 p-4'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center'>
+              <div className='w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center text-white mr-2'>
+                <IconBase type='combine_text' />
+              </div>
+              <span className='font-medium'>Combine Text</span>
+            </div>
+            {connectionCount > 0 && (
+              <span className='text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full'>
+                {/* {connectionCount} 個連線 */}
+                已連線
+              </span>
+            )}
           </div>
-          <span className='font-medium'>HTTP</span>
-        </div>
-      </div>
-
-      <div className='border-t border-gray-200'></div>
-
-      {/* Content area */}
-      <div className='bg-white p-4'>
-        {/* URL section - 關鍵修正部分 */}
-        <div className='mb-4'>
-          <label className='block text-sm text-gray-700 mb-1 font-bold'>
-            url
-          </label>
-          <input
-            type='text'
-            value={localUrl}
-            onChange={handleUrlChange}
-            onCompositionStart={handleUrlCompositionStart}
-            onCompositionEnd={handleUrlCompositionEnd}
-            onKeyDown={handleUrlKeyDown}
-            className='w-full border border-gray-300 rounded p-2 text-sm'
-            placeholder='url'
-          />
         </div>
 
-        {/* Method section */}
-        <div className='mb-4'>
-          <label className='block text-sm text-gray-700 mb-1 font-bold'>
-            Method
-          </label>
-          <div className='relative'>
-            <select
-              className='w-full border border-gray-300 rounded p-2 text-sm bg-white appearance-none'
-              value={localMethod}
-              onChange={handleMethodChange}>
-              {methodOptions.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <div className='absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'>
-                <polyline points='6 9 12 15 18 9'></polyline>
-              </svg>
+        {/* Content area */}
+        <div className='bg-white p-4'>
+          <div className='mb-2'>
+            <label className='block text-sm text-gray-700 mb-1 font-bold'>
+              Compose
+            </label>
+
+            {/* Tab 切換器 */}
+            <div className='flex mb-4 bg-gray-100 rounded-lg p-1 mt-4'>
+              <button
+                onClick={() => handleTabChange('editor')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                  activeTab === 'editor'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}>
+                Editor
+              </button>
+              <button
+                onClick={() => handleTabChange('preview')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                  activeTab === 'preview'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}>
+                Preview
+              </button>
+            </div>
+
+            {/* 內容區域 */}
+            <div className='relative'>
+              {activeTab === 'editor' ? (
+                <CombineTextEditor
+                  key={`editor-${isInitialized}`}
+                  ref={textareaRef}
+                  value={isInitialized ? undefined : textToCombine} // 初始化後不再傳遞 value
+                  onChange={handleTextChange}
+                  onTagInsert={handleTagInsert}
+                  placeholder='點擊此處編輯內容...'
+                  className='bg-gray-900 text-white border-gray-300'
+                  flowId={getFlowId()}
+                  initialHtmlContent={editorHtmlContent}
+                  shouldShowPanel={connectionCount > 0}
+                  showInputPanel={showInputPanel}
+                  onShowPanel={handleShowPanel}
+                  style={{
+                    minHeight: '220px',
+                    maxHeight: '400px',
+                    color: 'rgba(255, 255, 255, 0.9)'
+                  }}
+                  onWheel={handleWheel}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                />
+              ) : (
+                <div
+                  ref={previewRef}
+                  className='font-mono text-sm bg-gray-100 text-gray-800 p-3 rounded border'
+                  style={{
+                    fontFamily:
+                      'Monaco, Menlo, Consolas, "Courier New", monospace',
+                    minHeight: '220px',
+                    maxHeight: '400px',
+                    overflow: 'auto'
+                  }}
+                  onWheel={handleWheel}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}>
+                  <pre className='whitespace-pre-wrap'>
+                    {generatePreviewContent()}
+                  </pre>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Header section - 關鍵修正部分 */}
-        <div className='mb-4'>
-          <label className='block text-sm text-gray-700 mb-2 font-bold'>
-            Header (optional)
-          </label>
-
-          {/* Headers list */}
-          <div className='space-y-2'>
-            {headers.map((header, index) => (
-              <div
-                key={index}
-                className='grid grid-cols-12 gap-2 items-center'>
-                {/* Key column */}
-                <div className='col-span-5'>
-                  <label className='block text-xs text-gray-600 mb-1 font-bold'>
-                    Key
-                  </label>
-                  <input
-                    type='text'
-                    value={header.key}
-                    onChange={(e) =>
-                      handleHeaderKeyChange(index, e.target.value)
-                    }
-                    onCompositionStart={() =>
-                      handleHeaderKeyCompositionStart(index)
-                    }
-                    onCompositionEnd={(e) =>
-                      handleHeaderKeyCompositionEnd(index, e)
-                    }
-                    onKeyDown={(e) => handleHeaderKeyDown(index, 'key', e)}
-                    className='w-full border border-gray-300 rounded px-2 py-1 text-xs'
-                    placeholder='key'
-                  />
-                </div>
-
-                {/* Value column */}
-                <div className='col-span-6'>
-                  <label className='block text-xs text-gray-600 mb-1 font-bold'>
-                    Value
-                  </label>
-                  <input
-                    type='text'
-                    value={header.value}
-                    onChange={(e) =>
-                      handleHeaderValueChange(index, e.target.value)
-                    }
-                    onCompositionStart={() =>
-                      handleHeaderValueCompositionStart(index)
-                    }
-                    onCompositionEnd={(e) =>
-                      handleHeaderValueCompositionEnd(index, e)
-                    }
-                    onKeyDown={(e) => handleHeaderKeyDown(index, 'value', e)}
-                    className='w-full border border-gray-300 rounded px-2 py-1 text-xs'
-                    placeholder='value'
-                  />
-                </div>
-
-                {/* Delete button */}
-                {headers.length > 1 && (
-                  <div className='col-span-1 flex justify-center items-end h-full pb-1 mt-2'>
-                    <button
-                      onClick={() => handleDeleteHeader(index)}
-                      className='text-black-500 hover:text-red-600 text-sm p-1'
-                      title='刪除 Header'>
-                      ✕
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Add Header button */}
-        <button
-          className='w-full bg-teal-500 hover:bg-teal-600 text-white rounded-md p-2 flex justify-center items-center mb-4'
-          onClick={handleAddHeader}>
-          <AddIcon />
-        </button>
-
-        {/* Body section - 關鍵修正部分 - 只有當 method 是 POST 時才顯示 */}
-        {localMethod === 'POST' && (
-          <div className='mb-4'>
-            <label className='block text-sm text-gray-700 mb-1 font-bold'>
-              Body (optional)
-            </label>
-            <AutoResizeTextarea
-              value={localBody}
-              onChange={handleBodyChange}
-              onCompositionStart={handleBodyCompositionStart}
-              onCompositionEnd={handleBodyCompositionEnd}
-              onKeyDown={handleBodyKeyDown}
-              placeholder='{"flow_id": "9e956c37-20ea-47a5-bcd5-3cafc35b967a", "func_id": "q1", "data":"$input"}'
-              className='text-xs font-mono bg-gray-900 text-green-400 border-gray-300'
-              style={{
-                fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace'
-              }}
-            />
-          </div>
-        )}
       </div>
 
-      {/* Handles */}
+      {/* Handle */}
       <Handle
         type='target'
         position={Position.Left}
-        id='body'
+        id='text'
         style={{
           background: '#e5e7eb',
           border: '1px solid #D3D3D3',
           width: '12px',
           height: '12px',
           left: '-6px',
+          top: '50%',
           transform: 'translateY(-50%)'
         }}
         isConnectable={isConnectable}
@@ -640,11 +568,119 @@ const CombineTextNode = ({ data, isConnectable }) => {
           border: '1px solid #D3D3D3',
           width: '12px',
           height: '12px',
-          right: '-6px'
+          right: '-6px',
+          top: '50%',
+          transform: 'translateY(-50%)'
         }}
         isConnectable={isConnectable}
       />
-    </div>
+
+      {/* 輸入面板 */}
+      {showInputPanel && connectionCount > 0 && activeTab === 'editor' && (
+        <div className='fixed inset-0 z-[9999]'>
+          {/* 透明背景層 */}
+          <div
+            className='absolute inset-0 bg-transparent pointer-events-auto'
+            onClick={closeInputPanel}
+          />
+
+          {/* 面板內容 */}
+          <div
+            ref={inputPanelRef}
+            className='absolute bg-white rounded-lg shadow-xl w-80 flex flex-col pointer-events-auto border border-gray-200 z-10 max-h-96'
+            style={{
+              left: `${(data?.position?.x || 0) - 320}px`,
+              top: `${data?.position?.y || 0}px`
+            }}
+            onClick={(e) => e.stopPropagation()}>
+            {/* 標題欄 */}
+            <div className='flex items-center justify-between border-b p-2'>
+              {/* 搜尋框 */}
+              <div className='relative flex-1 mr-2'>
+                <div className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'>
+                    <circle
+                      cx='11'
+                      cy='11'
+                      r='8'></circle>
+                    <line
+                      x1='21'
+                      y1='21'
+                      x2='16.65'
+                      y2='16.65'></line>
+                  </svg>
+                </div>
+                <input
+                  type='text'
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                  placeholder='Search...'
+                  className='w-full pl-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                />
+              </div>
+
+              <button
+                onClick={closeInputPanel}
+                className='text-gray-400 hover:text-gray-600 transition-colors'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='20'
+                  height='20'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'>
+                  <line
+                    x1='18'
+                    y1='6'
+                    x2='6'
+                    y2='18'></line>
+                  <line
+                    x1='6'
+                    y1='6'
+                    x2='18'
+                    y2='18'></line>
+                </svg>
+              </button>
+            </div>
+
+            {/* 節點列表 */}
+            <div className='flex-1 overflow-y-auto p-4'>
+              <span className='mb-3 block'>Input</span>
+              <div className='flex flex-col items-start'>
+                {filteredNodes.map((nodeInfo, index) => (
+                  <div
+                    key={`${nodeInfo.id}-${index}`}
+                    className='flex items-center px-3 py-2 rounded cursor-pointer text-white text-sm font-medium hover:opacity-80 transition-opacity mr-2 mb-2'
+                    style={{ backgroundColor: nodeInfo.color }}
+                    onClick={() => handleTagClick(nodeInfo)}
+                    onDragStart={(e) => handleTagDragStart(e, nodeInfo)}
+                    draggable
+                    title='點擊插入或拖拽到文字區域'>
+                    {nodeInfo.name}
+                  </div>
+                ))}
+
+                {filteredNodes.length === 0 && (
+                  <div className='text-gray-500 text-sm text-center py-4'>
+                    {filterText ? '沒有找到符合的節點' : '沒有連線的節點'}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

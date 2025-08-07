@@ -9,7 +9,7 @@ import httpNode from '../../assets/icon-http.svg';
 import promptIcon from '../../assets/prompt-generator.svg';
 import scheduleNode from '../../assets/icon-timer-node.svg';
 import webhookInputNode from '../../assets/icn-webhook-input.svg';
-import webhookOutputNode from '../../assets/icn-webhook-output.svg';
+import webhookOutputNode from '../../assets/icn-webhook-input.svg';
 import CombineTextNode from '../../assets/icon-node-combine-text.svg';
 // Map of icon types to their respective assets
 const iconMap = {
