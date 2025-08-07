@@ -403,7 +403,7 @@ export class WorkflowMappingService {
           const edge = groupEdges[0];
 
           // 使用保存的標籤或預設值
-          let returnName = handleLabels[baseHandle] || 'output';
+          let returnName = handleLabels[baseHandle] || '';
 
           console.log(
             `單一連線 Handle ${baseHandle} 使用標籤值: ${returnName}`
