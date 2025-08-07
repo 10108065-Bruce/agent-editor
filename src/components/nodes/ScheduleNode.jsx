@@ -36,6 +36,9 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
   const [isLoadingTimezones, setIsLoadingTimezones] = useState(false);
   const [isLoadingDescriptions, setIsLoadingDescriptions] = useState(false);
 
+  // 記錄用戶選擇的預設選項值
+  const [selectedPresetValue, setSelectedPresetValue] = useState('');
+
   // 預設調度設定相關狀態
   const [presetScheduleConfigs, setPresetScheduleConfigs] = useState([]);
   const [isLoadingScheduleConfigs, setIsLoadingScheduleConfigs] =
@@ -198,6 +201,38 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
     }
   }, [data]);
 
+  // 初始化 selectedPresetValue 狀態
+  useEffect(() => {
+    // 在組件載入時，根據當前 cron 表達式設置正確的模式
+    if (cronExpression && presetScheduleConfigs.length > 0) {
+      const matchedConfig = presetScheduleConfigs.find(
+        (config) =>
+          config.cronExpression === cronExpression &&
+          config.value !== 'custom' &&
+          config.cronExpression !== ''
+      );
+
+      if (matchedConfig) {
+        // 找到匹配的預設配置
+        setFrequencyMode('preset');
+        setSelectedPresetValue(matchedConfig.cronExpression);
+      } else {
+        // 沒有找到匹配的預設配置，設置為自訂模式
+        setFrequencyMode('custom');
+        setSelectedPresetValue('');
+      }
+    } else if (presetScheduleConfigs.length > 0 && !cronExpression) {
+      // 沒有 cron 表達式時，默認選擇第一個非自訂的預設選項
+      const firstNonCustomOption = presetScheduleConfigs.find(
+        (config) => config.value !== 'custom' && config.cronExpression !== ''
+      );
+      if (firstNonCustomOption) {
+        setFrequencyMode('preset');
+        setSelectedPresetValue(firstNonCustomOption.cronExpression);
+      }
+    }
+  }, [cronExpression, presetScheduleConfigs]);
+
   // 處理啟用/停用切換
   const handleEnabledToggle = useCallback(() => {
     const newEnabled = !enabled;
@@ -251,6 +286,63 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
     [updateParentState]
   );
 
+  // 下拉選單的 value 綁定邏輯
+  const getDropdownValue = useCallback(() => {
+    if (frequencyMode === 'custom') {
+      // 在自訂模式下，找到後端提供的自訂表達式選項
+      const customOption = presetScheduleConfigs.find(
+        (config) => config.value === 'custom' || config.cronExpression === ''
+      );
+      return customOption ? customOption.cronExpression : '';
+    } else {
+      // 在 preset 模式下，優先使用用戶最後選擇的預設值
+      if (selectedPresetValue) {
+        return selectedPresetValue;
+      } else {
+        // 如果沒有記錄的選擇，使用第一個非自訂的預設選項
+        const firstNonCustomOption = presetScheduleConfigs.find(
+          (config) => config.value !== 'custom' && config.cronExpression !== ''
+        );
+        return firstNonCustomOption ? firstNonCustomOption.cronExpression : '';
+      }
+    }
+  }, [frequencyMode, selectedPresetValue, presetScheduleConfigs]);
+
+  // 下拉選單的 onChange 處理函數
+  const handleFrequencySelectChange = useCallback(
+    (e) => {
+      const selectedValue = e.target.value;
+      // 找到選中的配置
+      const selectedConfig = presetScheduleConfigs.find(
+        (config) => config.cronExpression === selectedValue
+      );
+
+      // 檢查是否為自訂表達式選項（通常 cronExpression 為空或者 value 為 'custom'）
+      const isCustomOption =
+        selectedConfig &&
+        (selectedConfig.value === 'custom' ||
+          selectedConfig.cronExpression === '');
+
+      if (isCustomOption) {
+        setFrequencyMode('custom');
+        setSelectedPresetValue(''); // 清空預設選項記錄
+        // 清空 cron 表達式，讓用戶手動輸入
+        handleCronExpressionChange('');
+      } else {
+        setFrequencyMode('preset');
+        setSelectedPresetValue(selectedValue); // 記錄用戶選擇的預設選項
+
+        if (selectedConfig) {
+          handleCronExpressionChange(selectedConfig.cronExpression);
+        } else {
+          // 如果找不到對應的設定，直接使用選擇的值作為 cron 表達式
+          handleCronExpressionChange(selectedValue);
+        }
+      }
+    },
+    [presetScheduleConfigs, handleCronExpressionChange]
+  );
+
   // 開啟智慧設定助手
   const openSmartDialog = useCallback(async () => {
     setShowSmartDialog(true);
@@ -270,7 +362,7 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
     setUserInput(description);
   }, []);
 
-  // 生成設定
+  // 生成設定函數，智慧處理返回的 cron 表達式
   const generateScheduleSettings = useCallback(async () => {
     if (!userInput.trim()) {
       window.notify?.({
@@ -303,22 +395,27 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
         updateParentState('schedule_type', result.schedule_type);
 
         if (result.schedule_type === 'cron') {
+          // 更新 cron 表達式
           setCronExpression(result.schedule_config.cron_expression);
           updateParentState(
             'cron_expression',
             result.schedule_config.cron_expression
           );
 
-          // 檢查是否為預設選項，如果不是則切換到自訂表達式
-          const isPresetOption = presetScheduleConfigs.some(
+          // 檢查返回的 cron 表達式是否在預設選項中
+          const matchedConfig = presetScheduleConfigs.find(
             (config) =>
               config.cronExpression === result.schedule_config.cron_expression
           );
 
-          if (isPresetOption) {
+          if (matchedConfig) {
+            // 如果找到匹配的預設配置，切換到預設模式並選中該選項
             setFrequencyMode('preset');
+            setSelectedPresetValue(matchedConfig.cronExpression);
           } else {
+            // 如果沒有找到匹配的預設配置，切換到自訂模式
             setFrequencyMode('custom');
+            setSelectedPresetValue('');
           }
         } else if (result.schedule_type === 'once') {
           setExecuteAt(result.schedule_config.execute_at);
@@ -454,33 +551,8 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
                 {/* 整合的下拉選單 */}
                 <div className='space-y-3'>
                   <select
-                    value={
-                      frequencyMode === 'custom' ? 'custom' : cronExpression
-                    }
-                    onChange={(e) => {
-                      const selectedValue = e.target.value;
-                      if (selectedValue === 'custom') {
-                        setFrequencyMode('custom');
-                        // 清空 cron 表達式，讓用戶手動輸入
-                        handleCronExpressionChange('');
-                      } else {
-                        setFrequencyMode('preset');
-                        // 找到對應的調度設定並設定 cron 表達式
-                        const selectedConfig = presetScheduleConfigs.find(
-                          (config) =>
-                            config.value === selectedValue ||
-                            config.cronExpression === selectedValue
-                        );
-                        if (selectedConfig) {
-                          handleCronExpressionChange(
-                            selectedConfig.cronExpression
-                          );
-                        } else {
-                          // 如果找不到對應的設定，直接使用選擇的值作為 cron 表達式
-                          handleCronExpressionChange(selectedValue);
-                        }
-                      }
-                    }}
+                    value={getDropdownValue()}
+                    onChange={handleFrequencySelectChange}
                     disabled={isLoadingScheduleConfigs}
                     className='w-full border border-gray-300 rounded p-2 text-sm bg-white'>
                     {/* 載入中狀態 */}
@@ -488,7 +560,7 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
                       <option>載入頻率選項中...</option>
                     )}
 
-                    {/* 預設頻率選項 */}
+                    {/* 預設頻率選項 - 包含來自後端的所有選項 */}
                     {!isLoadingScheduleConfigs &&
                       presetScheduleConfigs.map((config) => (
                         <option
@@ -591,13 +663,13 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
         <div className='fixed inset-0 z-[9999]'>
           {/* 透明背景層，點擊時關閉對話框 */}
           <div
-            className='absolute inset-0 bg-black bg-opacity-50 pointer-events-auto'
+            className='absolute inset-0 bg-black bg-opacity-50 pointer-events-auto rounded-lg overflow-hidden'
             onClick={closeSmartDialog}
           />
 
           {/* 對話框內容 */}
           <div
-            className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto border border-gray-200 z-10 w-[400px]'
+            className='absolute -left-[250px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto border border-gray-200 z-10 w-[450px]'
             onClick={(e) => {
               e.stopPropagation();
             }}>
