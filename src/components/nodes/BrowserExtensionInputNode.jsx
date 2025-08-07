@@ -3,7 +3,7 @@ import { Handle, Position } from 'reactflow';
 import { iconUploadService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
-
+import uploadIcon from '../../assets/icon-flow-shortcut-default.svg';
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
   // 本地狀態管理
   const [localItems, setLocalItems] = useState(data?.items || []);
@@ -135,24 +135,10 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
         <div
           className='cursor-pointer'
           onClick={() => handleIconClick(index)}>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'>
-            <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'></path>
-            <polyline points='17 8 12 3 7 8'></polyline>
-            <line
-              x1='12'
-              y1='3'
-              x2='12'
-              y2='15'></line>
-          </svg>
+          <img
+            src={uploadIcon}
+            width={32}
+            height={32}></img>
         </div>
       );
     },
@@ -340,7 +326,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       {/* 實際內容容器 - 帶圓角和overflow: hidden */}
       <div className='rounded-lg overflow-hidden'>
         {/* Header section with icon and title */}
-        <div className='bg-gray-100 p-4'>
+        <div className='bg-gray-100 p-4 border-b border-gray-100'>
           <div className='flex items-center'>
             <div className='w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2'>
               <IconBase type='browser' />
@@ -348,9 +334,6 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
             <span className='font-medium'>Browser Extension input</span>
           </div>
         </div>
-
-        {/* Separator line */}
-        <div className='border-t border-gray-200'></div>
 
         {/* White content area */}
         <div className='bg-white p-2'>
@@ -385,20 +368,20 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
                 />
               </div>
 
-              <div className='flex items-center mb-2'>
+              <div className='flex items-start'>
                 <label className='block text-sm text-gray-700 mr-4 font-bold'>
                   icon
                 </label>
-                <div className='flex-1 flex justify-center items-center'>
+                <div className='flex-1 flex justify-center items-center mt-6'>
                   <div
-                    className={`w-10 h-10 flex justify-center items-center ${
+                    className={`w-7 h-7 flex justify-center items-center border border-gray-300 rounded ${
                       isUploading && activeItemRef.current === idx
                         ? 'opacity-50'
                         : ''
                     }`}
                     title='點擊上傳自定義圖標'>
                     {isUploading && activeItemRef.current === idx ? (
-                      <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-gray-500'></div>
+                      <div className='animate-spin rounded-full h-6 w-6'></div>
                     ) : (
                       getIconComponent(item.icon, idx)
                     )}
