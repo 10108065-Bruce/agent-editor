@@ -127,6 +127,10 @@ export class WorkflowMappingService {
         return '結束';
       case 'webhook':
         return 'Webhook';
+      case 'webhook_input':
+        return 'Webhook Input';
+      case 'webhook_output':
+        return 'Webhook Output';
       case 'http_request':
         return 'HTTP Request';
       case 'timer':
@@ -141,6 +145,10 @@ export class WorkflowMappingService {
         return '資料提取';
       case 'schedule_trigger':
         return '排程觸發';
+      case 'aim_ml':
+        return 'QOCA AIM';
+      case 'combine_text':
+        return '組合文字';
       default:
         return node.operator;
     }

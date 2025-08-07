@@ -67,12 +67,16 @@ const CombineTextEditor = forwardRef(
       let node;
       while ((node = walker.nextNode())) {
         if (node.nodeType === Node.TEXT_NODE) {
-          // 跳過刪除按鈕的文字內容
-          if (node.parentElement?.classList?.contains('delete-btn')) {
+          // 跳過標籤顯示名稱和刪除按鈕的文字
+          if (
+            node.parentElement?.classList?.contains('delete-btn') ||
+            node.parentElement?.classList?.contains('tag-display-name')
+          ) {
             continue;
           }
           content += node.textContent;
         } else if (node.classList && node.classList.contains('inline-tag')) {
+          // 只添加標籤的數據內容
           const tagData = node.getAttribute('data-tag-data');
           if (tagData) {
             content += tagData;
@@ -198,6 +202,7 @@ const CombineTextEditor = forwardRef(
 
         // 創建標籤內容
         const tagContent = document.createElement('span');
+        tagContent.className = 'tag-display-name';
         tagContent.textContent = newTag.name;
         tagElement.appendChild(tagContent);
 
@@ -326,7 +331,7 @@ const CombineTextEditor = forwardRef(
                 .writeText(tagData)
                 .then(() => {
                   const originalBg = tagElement.style.backgroundColor;
-                  tagElement.style.backgroundColor = '#10B981';
+                  // tagElement.style.backgroundColor = '#10B981';
                   setTimeout(() => {
                     tagElement.style.backgroundColor = originalBg;
                   }, 200);
@@ -362,7 +367,7 @@ const CombineTextEditor = forwardRef(
               setSelectedTag(null);
             } else if (currentTag) {
               setSelectedTag(currentTag);
-              tagElement.style.boxShadow = '0 0 0 2px #3b82f6';
+              tagElement.style.boxShadow = '0 0 0 2px #FFFFFF';
             }
             return;
           }

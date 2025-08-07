@@ -236,13 +236,7 @@ export default function useFlowNodes() {
       // 根據節點類型的特定回調
       switch (nodeType) {
         case 'combine_text': {
-          console.log(`設置 combine_text 節點 ${nodeId} 的回調函數`);
-
           callbacks.updateNodeData = (key, value) => {
-            console.log(
-              `更新 combine_text 節點 ${nodeId} 的 ${key} 資料:`,
-              value
-            );
             safeSetNodes((nds) =>
               nds.map((node) => {
                 if (node.id === nodeId) {
@@ -253,15 +247,6 @@ export default function useFlowNodes() {
                       [key]: value
                     }
                   };
-
-                  // 特殊處理：如果更新的是 editorHtmlContent，確保狀態同步
-                  if (key === 'editorHtmlContent') {
-                    console.log(
-                      `節點 ${nodeId} 編輯器HTML內容已更新，長度: ${
-                        value?.length || 0
-                      }`
-                    );
-                  }
 
                   return updatedNode;
                 }
