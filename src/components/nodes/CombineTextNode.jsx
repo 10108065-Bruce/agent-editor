@@ -17,22 +17,18 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     data?.inputHandles || [{ id: 'text0' }]
   );
   const [activeTab, setActiveTab] = useState(data?.activeTab || 'editor');
-  const [editorContent, setEditorContent] = useState('');
+  const [editorContent, setEditorContent] = useState(data?.textToCombine || '');
   const [editorHtmlContent, setEditorHtmlContent] = useState(
     data?.editorHtmlContent || ''
   );
 
-  // 初始化標記，避免重複初始化
+  // 初始化標記
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Refs
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
   const inputPanelRef = useRef(null);
-
-  // 重要：不再使用防抖，而是控制更新頻率
-  const lastUpdateTime = useRef(0);
-  const updateThrottleTime = 1000; // 1秒更新一次父組件狀態
 
   // 計算當前連線數量
   const connectionCount = edges.filter((edge) => edge.target === id).length;
@@ -61,29 +57,45 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     return '9e956c37-20ea-47a5-bcd5-3cafc35b967d';
   }, [data]);
 
+  // 獲取當前內容的統一方法
+  const getCurrentContent = useCallback(() => {
+    // 如果在 editor 模式且編輯器可用，優先從編輯器獲取
+    if (
+      activeTab === 'editor' &&
+      textareaRef.current &&
+      textareaRef.current.getValue
+    ) {
+      try {
+        const editorCurrentContent = textareaRef.current.getValue();
+        if (editorCurrentContent) {
+          return editorCurrentContent;
+        }
+      } catch (error) {
+        console.warn('從編輯器獲取內容失敗:', error);
+      }
+    }
+
+    // 從狀態獲取
+    return textToCombine || editorContent || '';
+  }, [textToCombine, editorContent, activeTab]);
+
   const copyToClipboard = async () => {
     try {
-      // 檢查是否有選取的文字
       const selection = window.getSelection();
       let textToCopy = '';
       let copyType = '';
 
       if (selection && selection.toString().trim()) {
-        // 有選取文字，複製選取的內容
         textToCopy = selection.toString();
         copyType = '選取內容';
       } else {
-        // 沒有選取文字，複製預覽的純文字內容
-        textToCopy = generatePreviewContent(); // 使用 generatePreviewContent 而不是 editorHtmlContent
+        textToCopy = getCurrentContent();
         copyType = 'Preview內容';
       }
 
-      // 首先嘗試使用 Clipboard API
       if (navigator.clipboard && navigator.clipboard.writeText) {
         try {
           await navigator.clipboard.writeText(textToCopy);
-
-          // 顯示成功通知
           if (typeof window !== 'undefined' && window.notify) {
             window.notify({
               message: `已複製${copyType}到剪貼板`,
@@ -91,14 +103,12 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               duration: 2000
             });
           }
-
           return;
         } catch (clipboardError) {
           console.warn('Clipboard API 失敗，嘗試 fallback:', clipboardError);
         }
       }
 
-      // Fallback 到傳統方法
       const textArea = document.createElement('textarea');
       textArea.value = textToCopy;
       textArea.style.cssText =
@@ -112,7 +122,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       document.body.removeChild(textArea);
 
       if (successful) {
-        // 顯示成功通知
         if (typeof window !== 'undefined' && window.notify) {
           window.notify({
             message: `已複製${copyType}到剪貼板`,
@@ -215,40 +224,14 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     return colorMap[nodeName] || '#6b7280';
   };
 
-  // 生成預設的 JSON 模板
-  const generateDefaultJson = useCallback(() => {
-    const flowId = getFlowId();
-    return JSON.stringify(
-      {
-        flow_id: flowId,
-        func_id: '',
-        data: ''
-      },
-      null,
-      2
-    );
-  }, [getFlowId]);
-
-  // 生成預覽內容
-  const generatePreviewContent = useCallback(() => {
-    let content = textToCombine || editorContent || '';
-
-    // 如果狀態為空，嘗試從編輯器獲取
-    if (!content && textareaRef.current) {
-      if (textareaRef.current.getValue) {
-        content = textareaRef.current.getValue() || '';
-      } else if (textareaRef.current.textContent) {
-        content = textareaRef.current.textContent || '';
-      }
-    }
-
-    return content;
-  }, [textToCombine, editorContent]);
-
-  // 處理文字內容變更 - 大幅簡化
+  // 處理文字內容變更
   const handleTextChange = useCallback(
     (e) => {
       const newContent = e.target.value;
+      console.log(
+        'handleTextChange 收到新內容:',
+        newContent?.substring(0, 100)
+      );
 
       // 立即同步更新所有相關狀態
       setTextToCombine(newContent);
@@ -260,32 +243,20 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       }
 
       // HTML 內容更新
-      if (textareaRef.current?.innerHTML !== undefined) {
-        const htmlContent = textareaRef.current.innerHTML || '';
-        setEditorHtmlContent(htmlContent);
-        if (data && typeof data.updateNodeData === 'function') {
-          data.updateNodeData('editorHtmlContent', htmlContent);
+      try {
+        if (textareaRef.current?.innerHTML !== undefined) {
+          const htmlContent = textareaRef.current.innerHTML || '';
+          setEditorHtmlContent(htmlContent);
+          if (data && typeof data.updateNodeData === 'function') {
+            data.updateNodeData('editorHtmlContent', htmlContent);
+          }
         }
+      } catch (error) {
+        console.warn('更新 HTML 內容失敗:', error);
       }
     },
     [data]
   );
-
-  const forceRefreshPreview = useCallback(() => {
-    if (textareaRef.current && textareaRef.current.getValue) {
-      const currentContent = textareaRef.current.getValue();
-      setTextToCombine(currentContent);
-      setEditorContent(currentContent);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === 'preview' && !textToCombine && !editorContent) {
-      // 如果 preview 模式下內容為空，嘗試刷新
-      console.log('Preview 模式下內容為空，嘗試刷新');
-      forceRefreshPreview();
-    }
-  }, [activeTab, textToCombine, editorContent, forceRefreshPreview]);
 
   // 關閉輸入面板
   const closeInputPanel = useCallback(() => {
@@ -316,10 +287,12 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         setTimeout(() => {
           if (textareaRef.current && textareaRef.current.getValue) {
             const newContent = textareaRef.current.getValue();
+            console.log('標籤插入後獲取內容:', newContent?.substring(0, 100));
+
             setTextToCombine(newContent);
             setEditorContent(newContent);
 
-            // 立即更新父組件狀態（標籤插入是重要操作）
+            // 立即更新父組件狀態
             if (data && typeof data.updateNodeData === 'function') {
               data.updateNodeData('textToCombine', newContent);
             }
@@ -345,32 +318,109 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       // 使用 requestAnimationFrame 確保 DOM 更新完成後再獲取內容
       requestAnimationFrame(() => {
         if (textareaRef.current) {
-          // 強制編輯器更新內容
-          if (textareaRef.current.forceUpdate) {
-            textareaRef.current.forceUpdate();
-          }
-
           const newContent = textareaRef.current.getValue
             ? textareaRef.current.getValue()
             : textToCombine;
-          const htmlContent = textareaRef.current.innerHTML || '';
+
+          // console.log('setTextToCombine', '標籤插入後內容更新:', newContent);
 
           // 立即更新所有相關狀態
           setTextToCombine(newContent);
           setEditorContent(newContent);
-          setEditorHtmlContent(htmlContent);
 
-          // 立即更新父組件狀態
-          if (data && typeof data.updateNodeData === 'function') {
-            data.updateNodeData('textToCombine', newContent);
-            data.updateNodeData('editorHtmlContent', htmlContent);
+          // 獲取並更新 HTML 內容
+          try {
+            const htmlContent = textareaRef.current.innerHTML || '';
+            setEditorHtmlContent(htmlContent);
+            // console.log('setEditorHtmlContent', 'HTML內容:', htmlContent);
+
+            // 立即更新父組件狀態
+            if (data && typeof data.updateNodeData === 'function') {
+              data.updateNodeData('textToCombine', newContent);
+              data.updateNodeData('editorHtmlContent', htmlContent);
+            }
+          } catch (error) {
+            console.warn('更新 HTML 內容失敗:', error);
+            // 仍然更新文字內容
+            if (data && typeof data.updateNodeData === 'function') {
+              data.updateNodeData('textToCombine', newContent);
+            }
           }
 
-          console.log('標籤插入後內容更新完成:', newContent);
+          // console.log('標籤插入後內容更新完成:', newContent);
         }
       });
     },
     [data, textToCombine]
+  );
+
+  // 處理 Tab 切換
+  const handleTabChange = useCallback(
+    (newTab) => {
+      // console.log(`切換標籤頁: ${activeTab} -> ${newTab}`);
+
+      // 如果從 editor 切換到 preview，需要先同步內容
+      if (activeTab === 'editor' && newTab === 'preview') {
+        if (textareaRef.current && textareaRef.current.getValue) {
+          const currentContent = textareaRef.current.getValue();
+
+          // 獲取 HTML 內容（在切換前獲取，避免 ref 變成 null）
+          let htmlContent = '';
+          try {
+            if (
+              textareaRef.current &&
+              textareaRef.current.innerHTML !== undefined
+            ) {
+              htmlContent = textareaRef.current.innerHTML;
+            }
+          } catch (error) {
+            console.warn('獲取 HTML 內容失敗:', error);
+          }
+
+          // 使用 flushSync 強制立即更新狀態
+          try {
+            flushSync(() => {
+              setTextToCombine(currentContent);
+              setEditorContent(currentContent);
+              if (htmlContent) {
+                setEditorHtmlContent(htmlContent);
+              }
+              setActiveTab(newTab);
+            });
+          } catch (error) {
+            console.error('flushSync 失敗，使用普通更新:', error);
+            setTextToCombine(currentContent);
+            setEditorContent(currentContent);
+            if (htmlContent) {
+              setEditorHtmlContent(htmlContent);
+            }
+            setActiveTab(newTab);
+          }
+
+          // 立即更新父組件狀態
+          if (data && typeof data.updateNodeData === 'function') {
+            data.updateNodeData('textToCombine', currentContent);
+            data.updateNodeData('activeTab', newTab);
+            if (htmlContent) {
+              data.updateNodeData('editorHtmlContent', htmlContent);
+            }
+          }
+        } else {
+          console.log('編輯器 ref 不存在，直接切換標籤頁');
+          setActiveTab(newTab);
+          if (data && typeof data.updateNodeData === 'function') {
+            data.updateNodeData('activeTab', newTab);
+          }
+        }
+      } else {
+        // 其他情況直接切換
+        setActiveTab(newTab);
+        if (data && typeof data.updateNodeData === 'function') {
+          data.updateNodeData('activeTab', newTab);
+        }
+      }
+    },
+    [activeTab, data]
   );
 
   // 處理滾輪事件
@@ -415,53 +465,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     node.name.toLowerCase().includes(filterText.toLowerCase())
   );
 
-  // 處理 Tab 切換
-  const handleTabChange = useCallback(
-    (newTab) => {
-      // 在切換到 preview 前保存當前編輯器狀態
-      if (activeTab === 'editor' && newTab === 'preview') {
-        if (textareaRef.current) {
-          const textContent = textareaRef.current.getValue
-            ? textareaRef.current.getValue()
-            : textToCombine;
-          const htmlContent = textareaRef.current.innerHTML || '';
-
-          // 立即同步更新狀態，不使用異步
-          setTextToCombine(textContent);
-          setEditorHtmlContent(htmlContent);
-          setEditorContent(textContent);
-
-          // 立即更新父組件狀態
-          if (data && typeof data.updateNodeData === 'function') {
-            data.updateNodeData('textToCombine', textContent);
-            data.updateNodeData('editorHtmlContent', htmlContent);
-          }
-
-          // 使用 flushSync 確保狀態立即更新
-          try {
-            flushSync(() => {
-              setActiveTab(newTab);
-            });
-          } catch (error) {
-            // 降級方案：直接設置狀態
-            setActiveTab(newTab);
-          }
-        } else {
-          setActiveTab(newTab);
-        }
-      } else {
-        setActiveTab(newTab);
-      }
-
-      // 立即更新父組件狀態
-      if (data && typeof data.updateNodeData === 'function') {
-        data.updateNodeData('activeTab', newTab);
-      }
-    },
-    [activeTab, textToCombine, data]
-  );
-
-  // 🔧 一次性初始化
+  // 一次性初始化
   useEffect(() => {
     if (!isInitialized && data) {
       console.log('執行一次性初始化同步');
@@ -475,33 +479,14 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       ) {
         setEditorHtmlContent(data.editorHtmlContent);
       }
-      if (data.textToCombine && data.textToCombine !== textToCombine) {
+      if (data.textToCombine !== undefined) {
         setTextToCombine(data.textToCombine);
         setEditorContent(data.textToCombine);
       }
 
       setIsInitialized(true);
     }
-  }, [data, isInitialized, activeTab, editorHtmlContent, textToCombine]);
-
-  // 初始化預設內容
-  useEffect(() => {
-    if (!textToCombine && data?.textToCombine === undefined && isInitialized) {
-      const defaultContent = generateDefaultJson();
-      setTextToCombine(defaultContent);
-      setEditorContent(defaultContent);
-
-      if (data && typeof data.updateNodeData === 'function') {
-        data.updateNodeData('textToCombine', defaultContent);
-      }
-    }
-  }, [
-    textToCombine,
-    data?.textToCombine,
-    generateDefaultJson,
-    isInitialized,
-    data
-  ]);
+  }, [data, isInitialized, activeTab, editorHtmlContent]);
 
   // 動態管理輸入 handles
   useEffect(() => {
@@ -514,39 +499,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       }
     }
   }, [inputHandles, data]);
-
-  // 移除會導致無限重新渲染的 useEffect，只保留必要的外部同步
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    let hasChanges = false;
-
-    // 只有在數據真正不同時才同步
-    if (
-      data?.textToCombine !== undefined &&
-      data.textToCombine !== textToCombine &&
-      Math.abs(data.textToCombine.length - textToCombine.length) > 5 // 只有當差異較大時才同步
-    ) {
-      setTextToCombine(data.textToCombine);
-      setEditorContent(data.textToCombine);
-      hasChanges = true;
-    }
-
-    if (data?.activeTab !== undefined && data.activeTab !== activeTab) {
-      setActiveTab(data.activeTab);
-      hasChanges = true;
-    }
-
-    if (hasChanges) {
-      console.log('外部資料有重大變更，同步本地狀態');
-    }
-  }, [
-    data?.textToCombine,
-    data?.activeTab,
-    isInitialized,
-    textToCombine,
-    activeTab
-  ]);
 
   return (
     <>
@@ -562,7 +514,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             </div>
             {connectionCount > 0 && (
               <span className='text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full'>
-                {/* {connectionCount} 個連線 */}
                 已連線
               </span>
             )}
@@ -625,7 +576,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                 <CombineTextEditor
                   key={`editor-${isInitialized}`}
                   ref={textareaRef}
-                  value={isInitialized ? undefined : textToCombine} // 初始化後不再傳遞 value
+                  value={isInitialized ? undefined : textToCombine}
                   onChange={handleTextChange}
                   onTagInsert={handleTagInsert}
                   placeholder='點擊此處編輯內容...'
@@ -669,7 +620,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                       whiteSpace: 'pre-wrap',
                       margin: 0
                     }}>
-                    {generatePreviewContent()}
+                    {getCurrentContent()}
                   </pre>
                 </div>
               )}
@@ -726,7 +677,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             style={{
               left: `${(data?.position?.x || 0) - 320}px`,
               top: `${data?.position?.y || 0}px`,
-              maxHeight: '400px' // 設定最大高度
+              maxHeight: '400px'
             }}
             onClick={(e) => e.stopPropagation()}>
             {/* 標題欄 - 固定在頂部 */}
@@ -796,7 +747,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                 maxHeight: 'calc(400px - 60px)'
               }}
               onWheelCapture={(e) => {
-                // 使用事件捕獲來更早地阻止事件
                 e.stopPropagation();
               }}
               onMouseDownCapture={(e) => e.stopPropagation()}>

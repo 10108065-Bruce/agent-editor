@@ -301,7 +301,7 @@ const CombineTextEditor = forwardRef(
           editorRef.current.innerHTML = content;
           setTimeout(() => {
             isUpdatingFromExternal.current = false;
-          }, 100);
+          }, 500);
         }
       }
     }));
@@ -380,7 +380,6 @@ const CombineTextEditor = forwardRef(
         });
 
         // 設置游標位置
-        const rect = editorRef.current.getBoundingClientRect();
         const x = e.clientX;
         const y = e.clientY;
 
@@ -394,7 +393,7 @@ const CombineTextEditor = forwardRef(
           } else {
             setTimeout(() => {
               onShowPanel(true);
-            }, 100);
+            }, 500);
           }
         }
       },
@@ -517,17 +516,14 @@ const CombineTextEditor = forwardRef(
     );
 
     // 處理輸入
-    const handleInput = useCallback(
-      (e) => {
-        if (!isComposing && !isRestoring && !isUpdatingFromExternal.current) {
-          // 使用 setTimeout 來延遲處理，避免阻塞輸入
-          setTimeout(() => {
-            handleContentChange();
-          }, 0);
-        }
-      },
-      [isComposing, isRestoring, handleContentChange]
-    );
+    const handleInput = useCallback(() => {
+      if (!isComposing && !isRestoring && !isUpdatingFromExternal.current) {
+        // 使用 setTimeout 來延遲處理，避免阻塞輸入
+        setTimeout(() => {
+          handleContentChange();
+        }, 0);
+      }
+    }, [isComposing, isRestoring, handleContentChange]);
 
     // 自動調整高度
     useEffect(() => {
@@ -582,7 +578,7 @@ const CombineTextEditor = forwardRef(
         setTimeout(() => {
           setIsRestoring(false);
           isUpdatingFromExternal.current = false;
-        }, 100);
+        }, 500);
       }
     }, [initialHtmlContent, isInitialized, getEditorTextContent]);
 
@@ -604,7 +600,7 @@ const CombineTextEditor = forwardRef(
         setTimeout(() => {
           isUpdatingFromExternal.current = false;
           handleContentChange();
-        }, 100);
+        }, 500);
       }
     }, [
       value,
@@ -631,7 +627,7 @@ const CombineTextEditor = forwardRef(
 
         setTimeout(() => {
           isUpdatingFromExternal.current = false;
-        }, 100);
+        }, 500);
       }
     }, [value, isInitialized, isFocused]);
 
