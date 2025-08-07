@@ -617,6 +617,7 @@ export class WorkflowDataConverter {
           ...baseData,
           selectedFile: node.parameters?.knowledge_base_id?.data || '',
           topK: node.parameters?.top_k?.data || 5,
+          threshold: node.parameters?.threshold?.data || 0.7,
           availableFiles: [
             { id: 'icdcode', name: 'ICDCode.csv' },
             { id: 'cardiology', name: 'Cardiology_Diagnoses.csv' }
@@ -1020,6 +1021,11 @@ export class WorkflowDataConverter {
         }
         // 添加 top_k 參數
         parameters.top_k = { data: node.data.topK || 5 };
+        // 添加 threshold 參數
+        parameters.threshold = {
+          type: 'float',
+          data: node.data.threshold || 0.7
+        };
         break;
       case 'ifElse':
         if (node.data.variableName) {

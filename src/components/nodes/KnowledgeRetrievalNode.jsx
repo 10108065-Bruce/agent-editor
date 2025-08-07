@@ -39,6 +39,9 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   // 新增 top_k 參數
   const [topK, setTopK] = useState(data?.topK || 5);
 
+  // 新增相關性閾值參數
+  const [threshold, setThreshold] = useState(data?.threshold || 0.7);
+
   // 統一更新父組件狀態的輔助函數
   const updateParentState = useCallback(
     (key, value) => {
@@ -93,6 +96,21 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       }
     },
     [topK, updateParentState]
+  );
+
+  // 處理相關性閾值變更
+  const handleThresholdChange = useCallback(
+    (event) => {
+      const newThreshold = parseFloat(event.target.value);
+
+      // 驗證輸入值範圍 (0-1)
+      if (newThreshold >= 0 && newThreshold <= 1 && !isNaN(newThreshold)) {
+        setThreshold(newThreshold);
+        updateParentState('threshold', newThreshold);
+        console.log(`更新相關性閾值: ${newThreshold}`);
+      }
+    },
+    [updateParentState]
   );
 
   // 獲取當前選擇的知識庫ID
@@ -180,6 +198,14 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
       setTopK(data.topK);
     }
   }, [data?.topK]); // 🔧 移除 topK 依賴，避免循環
+
+  // 同步 threshold 值
+  useEffect(() => {
+    if (data?.threshold !== undefined && data.threshold !== threshold) {
+      console.log(`同步 threshold 值從 ${threshold} 到 ${data.threshold}`);
+      setThreshold(data.threshold);
+    }
+  }, [data?.threshold]); //  移除 threshold 依賴，避免循環
 
   // 簡化組件掛載時的初始化，減少重複日誌
   useEffect(() => {
@@ -277,21 +303,6 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
                 {knowledgeBaseLoadError}
               </p>
             )}
-
-            {/* 顯示選中知識庫的描述 */}
-            {/* {getCurrentSelectedKnowledgeBase() &&
-              (() => {
-                const selectedKB = dataKnowledgeBases.find(
-                  (kb) =>
-                    kb.id === getCurrentSelectedKnowledgeBase() ||
-                    kb.value === getCurrentSelectedKnowledgeBase()
-                );
-                return selectedKB?.description ? (
-                  <p className='text-xs text-gray-500 mt-1 italic'>
-                    {selectedKB.description}
-                  </p>
-                ) : null;
-              })()} */}
           </div>
         </div>
 
@@ -334,6 +345,28 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
                 <polyline points='6 9 12 15 18 9'></polyline>
               </svg>
             </div>
+          </div>
+        </div>
+
+        {/* 相關性 Section */}
+        <div className='mb-3'>
+          <label className='block text-sm text-gray-700 mb-2 font-bold'>
+            相關性
+          </label>
+          <div className='relative'>
+            <input
+              type='number'
+              className='w-full border border-gray-300 rounded-md p-2 text-sm bg-white'
+              value={threshold}
+              onChange={handleThresholdChange}
+              min='0'
+              max='1'
+              step='0.1'
+              placeholder='1.0'
+              style={{
+                paddingRight: '1rem'
+              }}
+            />
           </div>
         </div>
       </div>

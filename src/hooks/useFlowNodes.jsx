@@ -1277,6 +1277,7 @@ export default function useFlowNodes() {
           ],
           selectedFile: '', // 默認不選擇
           topK: 5, // 添加默認的 top_k 值
+          threshold: 0.7,
           ...nodeCallbacksObject
         },
         position: position || {
