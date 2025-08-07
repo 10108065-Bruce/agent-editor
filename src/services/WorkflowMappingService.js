@@ -383,7 +383,7 @@ export class WorkflowMappingService {
             const inputKey = `${baseHandle}_${index + 1}`;
 
             // 使用保存的標籤或原始的 return_name 或預設值
-            let returnName = handleLabels[baseHandle] || 'output';
+            let returnName = handleLabels[baseHandle] || '';
 
             console.log(`多連線 Handle ${inputKey} 使用標籤值: ${returnName}`);
 
