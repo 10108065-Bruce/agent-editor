@@ -266,7 +266,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         outputName: edge.sourceHandle || 'output',
         handleId: edge.targetHandle,
         nodeType: sourceNode?.type || 'unknown',
-        data: `QOCA__NODE_ID_${edge.source}__NODE_OUTPUT_NAME__${
+        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${
           edge.sourceHandle || 'output'
         }`,
         code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${
