@@ -232,7 +232,7 @@ const NodeSidebar = ({
         )}
 
         {/* QOCA aim node */}
-        {filterNodes('QOCA aim Node') && (
+        {/* {filterNodes('QOCA aim Node') && (
           <NodeItem
             icon={
               <div>
@@ -246,7 +246,7 @@ const NodeSidebar = ({
             disabled={isLocked}
             disabledReason={isLocked ? '工作流已鎖定' : null}
           />
-        )}
+        )} */}
 
         {/* http node */}
         {filterNodes('HTTP') && (
