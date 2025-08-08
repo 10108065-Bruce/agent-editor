@@ -428,28 +428,86 @@ export class WorkflowMappingService {
       }
       // 處理 Combine Text 節點
       else if (isCombineTextNode && targetHandle === 'text') {
-        targetEdges.forEach((edge, index) => {
-          const inputKey = `text${index}`;
+        // 首先獲取現有的 node_input，以保持連線的穩定性
+        const existingNodeInput = targetNode.data?.node_input || {};
 
+        // 創建一個映射，將現有的連線按 node_id 分組
+        const existingConnections = new Map();
+        Object.entries(existingNodeInput).forEach(([key, value]) => {
+          if (key.startsWith('text') && value.node_id) {
+            existingConnections.set(value.node_id, {
+              key,
+              value,
+              index: parseInt(key.replace('text', '')) || 0
+            });
+          }
+        });
+
+        // 按源節點 ID 排序邊緣，確保穩定的順序
+        const sortedEdges = targetEdges.sort((a, b) => {
+          // 優先保持現有連線的順序
+          const aExisting = existingConnections.get(a.source);
+          const bExisting = existingConnections.get(b.source);
+
+          if (aExisting && bExisting) {
+            return aExisting.index - bExisting.index;
+          } else if (aExisting) {
+            return -1; // 現有連線優先
+          } else if (bExisting) {
+            return 1;
+          } else {
+            // 對於新連線，使用節點 ID 排序確保穩定性
+            return a.source.localeCompare(b.source);
+          }
+        });
+
+        // 追蹤已使用的索引
+        const usedIndices = new Set();
+
+        // 先處理現有連線，保持其原有索引
+        sortedEdges.forEach((edge) => {
+          const existingConnection = existingConnections.get(edge.source);
+          if (existingConnection) {
+            usedIndices.add(existingConnection.index);
+          }
+        });
+
+        // 處理每個連線
+        sortedEdges.forEach((edge) => {
           const sourceNode = allNodes.find((n) => n.id === edge.source);
           let returnName = edge.label || 'output';
 
+          // 根據源節點類型獲取適當的 return_name
           if (sourceNode) {
             returnName = getReturnNameFromSourceNode(sourceNode, edge);
           }
 
+          // 確定輸入鍵
+          let inputKey;
+          const existingConnection = existingConnections.get(edge.source);
+
+          if (existingConnection) {
+            // 使用現有的鍵值，保持穩定性
+            inputKey = existingConnection.key;
+          } else {
+            // 為新連線找到最小的可用索引
+            let newIndex = 0;
+            while (usedIndices.has(newIndex)) {
+              newIndex++;
+            }
+            inputKey = `text${newIndex}`;
+            usedIndices.add(newIndex);
+          }
+
           console.log(`源節點 ${edge.source} 的 return_name: ${returnName}`);
 
+          // 添加到 nodeInput
           nodeInput[inputKey] = {
             node_id: edge.source,
             output_name: edge.sourceHandle || 'output',
             type: 'string',
             return_name: returnName
           };
-
-          console.log(
-            `Combine Text 節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
-          );
 
           // 標記為已處理
           processedEdges.add(

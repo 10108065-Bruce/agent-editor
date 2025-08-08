@@ -144,6 +144,117 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     }
   };
 
+  // 添加 useEffect 來同步 node_input 狀態
+  useEffect(() => {
+    // 當邊緣連線改變時，同步更新 node_input 到節點數據
+    const connectedEdges = edges.filter((edge) => edge.target === id);
+
+    if (
+      connectedEdges.length > 0 &&
+      data &&
+      typeof data.updateNodeData === 'function'
+    ) {
+      // 獲取當前的 node_input（如果存在）
+      const currentNodeInput = data.node_input || {};
+
+      // 創建新的 node_input 映射
+      const newNodeInput = {};
+
+      // 保持現有連線的穩定索引
+      const existingConnections = new Map();
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith('text') && value.node_id) {
+          existingConnections.set(value.node_id, {
+            key,
+            value,
+            index: parseInt(key.replace('text', '')) || 0
+          });
+        }
+      });
+
+      // 按源節點 ID 排序，確保穩定順序
+      const sortedEdges = connectedEdges.sort((a, b) => {
+        const aExisting = existingConnections.get(a.source);
+        const bExisting = existingConnections.get(b.source);
+
+        if (aExisting && bExisting) {
+          return aExisting.index - bExisting.index;
+        } else if (aExisting) {
+          return -1;
+        } else if (bExisting) {
+          return 1;
+        } else {
+          return a.source.localeCompare(b.source);
+        }
+      });
+
+      // 追蹤已使用的索引
+      const usedIndices = new Set();
+
+      // 建構 node_input
+      sortedEdges.forEach((edge) => {
+        const existingConnection = existingConnections.get(edge.source);
+        let inputKey;
+
+        if (existingConnection) {
+          inputKey = existingConnection.key;
+          usedIndices.add(existingConnection.index);
+        } else {
+          let newIndex = 0;
+          while (usedIndices.has(newIndex)) {
+            newIndex++;
+          }
+          inputKey = `text${newIndex}`;
+          usedIndices.add(newIndex);
+        }
+
+        // 獲取 return_name
+        const sourceNode = nodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || 'output';
+
+        if (sourceNode) {
+          // 根據源節點類型設置 return_name
+          if (
+            sourceNode.type === 'customInput' ||
+            sourceNode.type === 'input'
+          ) {
+            if (sourceNode.data?.fields?.[0]?.inputName) {
+              returnName = sourceNode.data.fields[0].inputName;
+            }
+          } else if (sourceNode.type === 'browserExtensionInput') {
+            const targetItem = sourceNode.data?.items?.find(
+              (item) => item.id === edge.sourceHandle
+            );
+            if (targetItem?.name) {
+              returnName = targetItem.name;
+            }
+          } else if (
+            sourceNode.type === 'aiCustomInput' ||
+            sourceNode.type === 'ai'
+          ) {
+            returnName = 'output';
+          } else if (sourceNode.type === 'knowledgeRetrieval') {
+            returnName = 'output';
+          } else if (sourceNode.type === 'schedule_trigger') {
+            returnName = 'trigger';
+          }
+        }
+
+        newNodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+      });
+
+      // 只有當 node_input 真的有變化時才更新
+      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
+        data.updateNodeData('node_input', newNodeInput);
+      }
+    }
+  }, [edges, id, data, nodes]);
+
   // 從邊緣獲取連線的節點信息
   const getConnectedNodes = useCallback(() => {
     const connectedEdges = edges.filter((edge) => edge.target === id);
