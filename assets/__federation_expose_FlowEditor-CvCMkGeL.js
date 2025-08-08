@@ -23937,7 +23937,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2d41d25a6157b89f9c47affea992fbe3861a9293", "VITE_APP_BUILD_TIME": "2025-08-08T02:11:40.142Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50.5"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "a31e573e7439bfbbc1e740435b479f0c38a3c47b", "VITE_APP_BUILD_TIME": "2025-08-08T07:53:23.364Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.50.6"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -25332,13 +25332,558 @@ class WorkflowMappingService {
    * @param {Array} allNodes - 所有節點數據
    * @returns {Object} - API 格式的節點輸入
    */
-  // 在 WorkflowServicesIntegration.js 中修改 extractNodeInputForAPI 方法
-
   static extractNodeInputForAPI(nodeId, edges, allNodes) {
-    // 輔助函數：從源節點獲取 return_name
-    function getReturnNameFromSourceNode(sourceNode, edge) {
-      let returnName = edge.label || 'output';
+    const nodeInput = {};
+    console.log(`提取節點 ${nodeId} 的輸入連接`);
 
+    // 獲取目標節點
+    const targetNode = allNodes.find((n) => n.id === nodeId);
+    if (!targetNode) {
+      console.warn(`找不到節點 ${nodeId}`);
+      return nodeInput;
+    }
+
+    // 檢查節點類型
+    const isBrowserExtensionOutput =
+      targetNode.type === 'browserExtensionOutput';
+    const isWebookOutputNode = targetNode.type === 'webhook_output';
+    const isQOCAAimNode = targetNode && targetNode.type === 'aim_ml';
+    const isScheduleTriggerNode =
+      targetNode && targetNode.type === 'schedule_trigger';
+    const isCombineTextNode = targetNode && targetNode.type === 'combine_text';
+    const isAINode =
+      targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
+    const isMessageNode = targetNode.type === 'line_send_message';
+    const isExtractDataNode = targetNode.type === 'extract_data';
+
+    // Schedule Trigger 節點沒有輸入連接，直接返回空對象
+    if (isScheduleTriggerNode) {
+      return nodeInput;
+    }
+
+    // 特殊處理 BrowserExtensionOutput 節點，確保所有 inputHandles 都被保留
+    if (
+      isBrowserExtensionOutput &&
+      targetNode.data &&
+      targetNode.data.inputHandles
+    ) {
+      console.log(`處理 BrowserExtensionOutput 節點的所有 input handles`);
+
+      // 保存原始的 node_input 資訊
+      const originalNodeInput = targetNode.data.node_input || {};
+
+      // 保存原始的 handleLabels 狀態，用於映射 handle ID
+      const handleLabels = {};
+
+      // 首先檢查 node_input 中是否存在 return_name
+      Object.entries(originalNodeInput).forEach(([key, value]) => {
+        if (value && value.return_name) {
+          // 使用 processHandleId 或等效邏輯轉換 handle ID
+          const baseHandleId = key.split('_')[0];
+          handleLabels[baseHandleId] = value.return_name;
+          console.log(
+            `從 node_input 讀取標籤: ${baseHandleId} => ${value.return_name}`
+          );
+        }
+      });
+
+      // 還原 input 到 output0 的映射 (處理第一個預設 handle 的情況)
+      if (
+        originalNodeInput.input &&
+        originalNodeInput.input.return_name &&
+        !handleLabels.output0
+      ) {
+        handleLabels.output0 = originalNodeInput.input.return_name;
+        console.log(
+          `特殊處理: 將 input.return_name (${originalNodeInput.input.return_name}) 映射到 output0`
+        );
+      }
+
+      // 查找所有連線到此節點的邊
+      const relevantEdges = edges.filter((edge) => edge.target === nodeId);
+
+      // 按基本 handle 分組
+      const handleGroups = {};
+      relevantEdges.forEach((edge) => {
+        // 確保有效的 targetHandle
+        if (!edge.targetHandle) {
+          console.warn(`邊緣 ${edge.id} 沒有有效的 targetHandle，跳過`);
+          return;
+        }
+
+        const baseHandle = edge.targetHandle.split('_')[0];
+        if (!handleGroups[baseHandle]) {
+          handleGroups[baseHandle] = [];
+        }
+        handleGroups[baseHandle].push(edge);
+      });
+
+      // 遍歷所有基本 handle
+      Object.keys(handleGroups).forEach((baseHandle) => {
+        const groupEdges = handleGroups[baseHandle];
+
+        if (groupEdges.length > 1) {
+          // 多連線情況
+          groupEdges.forEach((edge, index) => {
+            const inputKey = `${baseHandle}_${index + 1}`;
+
+            // 使用保存的標籤或原始的 return_name 或預設值
+            let returnName = handleLabels[baseHandle] || 'output';
+
+            console.log(`多連線 Handle ${inputKey} 使用標籤值: ${returnName}`);
+
+            nodeInput[inputKey] = {
+              node_id: edge.source,
+              output_name: edge.sourceHandle || 'output',
+              type: 'string',
+              return_name: returnName
+            };
+
+            console.log(
+              `多連線 Handle: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
+            );
+          });
+        } else {
+          // 單一連線情況
+          const edge = groupEdges[0];
+
+          // 使用保存的標籤或預設值
+          let returnName = handleLabels[baseHandle] || 'output';
+
+          console.log(
+            `單一連線 Handle ${baseHandle} 使用標籤值: ${returnName}`
+          );
+
+          nodeInput[baseHandle] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string',
+            return_name: returnName
+          };
+
+          console.log(
+            `單一連線 Handle: ${edge.source} -> ${nodeId}:${baseHandle} (return_name: ${returnName})`
+          );
+        }
+      });
+
+      // 處理未連線的 handle
+      targetNode.data.inputHandles
+        .filter((handle) => !handleGroups[handle.id])
+        .forEach((handle) => {
+          const baseHandleId = handle.id;
+
+          // 使用保存的標籤或空字串
+          let returnName = handleLabels[baseHandleId] || '';
+
+          console.log(
+            `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
+          );
+
+          nodeInput[baseHandleId] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true,
+            return_name: returnName
+          };
+
+          console.log(
+            `保留未連線的 handle: ${baseHandleId} (return_name: ${returnName})`
+          );
+        });
+
+      return nodeInput;
+    }
+
+    // 特殊處理 webhook_output 節點
+    if (isWebookOutputNode && targetNode.data && targetNode.data.inputHandles) {
+      console.log(`處理 webhook output 節點的所有 input handles`);
+
+      // 保存原始的 node_input 資訊
+      const originalNodeInput = targetNode.data.node_input || {};
+
+      // 保存原始的 handleLabels 狀態，用於映射 handle ID
+      const handleLabels = {};
+
+      // 首先檢查 node_input 中是否存在 return_name
+      Object.entries(originalNodeInput).forEach(([key, value]) => {
+        if (value && value.return_name) {
+          // 使用 processHandleId 或等效邏輯轉換 handle ID
+          const baseHandleId = key.split('_')[0]; // 簡化版的 processHandleId
+          handleLabels[baseHandleId] = value.return_name;
+        }
+      });
+
+      // 還原 input 到 text0 的映射 (處理第一個預設 handle 的情況)
+      if (
+        originalNodeInput.input &&
+        originalNodeInput.input.return_name &&
+        !handleLabels.text0
+      ) {
+        handleLabels.text0 = originalNodeInput.input.return_name;
+      }
+
+      // 查找所有連線到此節點的邊
+      const relevantEdges = edges.filter((edge) => edge.target === nodeId);
+
+      // 按基本 handle 分組
+      const handleGroups = {};
+      relevantEdges.forEach((edge) => {
+        // 確保有效的 targetHandle
+        if (!edge.targetHandle) {
+          console.warn(`邊緣 ${edge.id} 沒有有效的 targetHandle，跳過`);
+          return;
+        }
+
+        const baseHandle = edge.targetHandle.split('_')[0];
+        if (!handleGroups[baseHandle]) {
+          handleGroups[baseHandle] = [];
+        }
+        handleGroups[baseHandle].push(edge);
+      });
+
+      // 遍歷所有基本 handle
+      Object.keys(handleGroups).forEach((baseHandle) => {
+        const groupEdges = handleGroups[baseHandle];
+
+        if (groupEdges.length > 1) {
+          // 多連線情況
+          groupEdges.forEach((edge, index) => {
+            const inputKey = `${baseHandle}_${index + 1}`;
+
+            // 使用保存的標籤或原始的 return_name 或預設值
+            let returnName = handleLabels[baseHandle] || '';
+
+            nodeInput[inputKey] = {
+              node_id: edge.source,
+              output_name: edge.sourceHandle || 'output',
+              type: 'string',
+              return_name: returnName
+            };
+          });
+        } else {
+          // 單一連線情況
+          const edge = groupEdges[0];
+
+          // 使用保存的標籤或預設值
+          let returnName = handleLabels[baseHandle] || '';
+
+          nodeInput[baseHandle] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string',
+            return_name: returnName
+          };
+        }
+      });
+
+      // 處理未連線的 handle
+      targetNode.data.inputHandles
+        .filter((handle) => !handleGroups[handle.id])
+        .forEach((handle) => {
+          const baseHandleId = handle.id;
+
+          // 使用保存的標籤或空字串
+          let returnName = handleLabels[baseHandleId] || '';
+
+          console.log(
+            `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
+          );
+
+          nodeInput[baseHandleId] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true,
+            return_name: returnName
+          };
+        });
+
+      return nodeInput;
+    }
+
+    // 獲取所有以該節點為目標的邊緣
+    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
+
+    // 如果沒有連接，處理特殊情況
+    if (relevantEdges.length === 0) {
+      // 對於 AI 節點，仍需檢查是否有直接輸入的 promptText
+      if (isAINode && targetNode.data?.promptText) {
+        nodeInput.prompt = {
+          type: 'string',
+          data: targetNode.data.promptText,
+          node_id: ''
+        };
+      }
+      return nodeInput;
+    }
+
+    // AI 節點的特殊處理邏輯 ===
+    if (isAINode) {
+      // 分別收集 context 和 prompt 連線
+      const contextEdges = [];
+      const promptEdges = [];
+
+      relevantEdges.forEach((edge) => {
+        const targetHandle = edge.targetHandle || 'input';
+
+        // 檢查是否為 context 相關的 handle
+        if (
+          targetHandle === 'context-input' ||
+          targetHandle.startsWith('context-input_') ||
+          targetHandle.startsWith('context')
+        ) {
+          contextEdges.push(edge);
+        }
+        // 檢查是否為 prompt 相關的 handle
+        else if (
+          targetHandle === 'prompt-input' ||
+          targetHandle.startsWith('prompt-input_') ||
+          targetHandle.startsWith('prompt')
+        ) {
+          promptEdges.push(edge);
+        }
+      });
+
+      // 處理 context 連線 - 統一使用 context0, context1, context2 格式
+      contextEdges.forEach((edge, index) => {
+        const inputKey = `context${index}`;
+
+        // 查找源節點以獲取 return_name
+        const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
+          edge,
+          allNodes
+        );
+
+        // 添加到 nodeInput
+        nodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+      });
+
+      // 處理 prompt 連線 - 只使用 "prompt" 作為 key
+      if (promptEdges.length > 0) {
+        const edge = promptEdges[0]; // 只取第一個連接，因為 prompt 只能有一個
+        const inputKey = 'prompt';
+
+        // 查找源節點以獲取 return_name
+        const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
+          edge,
+          allNodes
+        );
+
+        nodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+      }
+
+      // 檢查是否有直接輸入的 promptText（當沒有 prompt 連線時）
+      if (targetNode.data?.promptText && promptEdges.length === 0) {
+        nodeInput.prompt = {
+          type: 'string',
+          data: targetNode.data.promptText,
+          node_id: '' // 空 node_id 表示使用直接輸入的文本
+        };
+      }
+
+      return nodeInput;
+    }
+
+    // Combine Text 節點的特殊處理邏輯
+    if (isCombineTextNode && targetNode.data) {
+      // 獲取原始的 node_input 資訊（如果存在）
+      const originalNodeInput = targetNode.data.node_input || {};
+      console.log('原始 node_input:', originalNodeInput);
+
+      // 建立現有連線的映射，保持原有的索引
+      const existingConnections = new Map();
+      Object.entries(originalNodeInput).forEach(([key, value]) => {
+        if (key.startsWith('text') && value.node_id) {
+          existingConnections.set(value.node_id, {
+            key,
+            value,
+            index: parseInt(key.replace('text', '')) || 0
+          });
+        }
+      });
+
+      const sortedEdges = relevantEdges.sort((a, b) => {
+        const aExisting = existingConnections.get(a.source);
+        const bExisting = existingConnections.get(b.source);
+
+        if (aExisting && bExisting) {
+          // 兩個都是已存在的連線，按原有索引排序
+          return aExisting.index - bExisting.index;
+        } else if (aExisting) {
+          // a 是已存在的連線，排在前面
+          return -1;
+        } else if (bExisting) {
+          // b 是已存在的連線，排在前面
+          return 1;
+        } else {
+          // 兩個都是新連線，按節點 ID 字母順序排序
+          return a.source.localeCompare(b.source);
+        }
+      });
+
+      // 追蹤已使用的索引
+      const usedIndices = new Set();
+
+      // 分配輸入鍵
+      sortedEdges.forEach((edge) => {
+        // 檢查是否是已存在的連線
+        const existingConnection = existingConnections.get(edge.source);
+        let inputKey;
+
+        if (existingConnection) {
+          // 使用原有的鍵
+          inputKey = existingConnection.key;
+          usedIndices.add(existingConnection.index);
+          console.log(`保持原有連線: ${edge.source} -> ${inputKey}`);
+        } else {
+          // 為新連線分配新的索引
+          let newIndex = 0;
+          while (usedIndices.has(newIndex)) {
+            newIndex++;
+          }
+          inputKey = `text${newIndex}`;
+          usedIndices.add(newIndex);
+          console.log(`新連線分配索引: ${edge.source} -> ${inputKey}`);
+        }
+
+        // 查找源節點以獲取 return_name
+        const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
+          edge,
+          allNodes
+        );
+
+        // 添加到 nodeInput
+        nodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+      });
+
+      return nodeInput;
+    }
+
+    // 按 targetHandle 分組邊緣
+    const handleGroups = {};
+
+    // 首先，分組所有邊緣
+    relevantEdges.forEach((edge) => {
+      const targetHandle = edge.targetHandle || 'input';
+
+      // 初始化組
+      if (!handleGroups[targetHandle]) {
+        handleGroups[targetHandle] = [];
+      }
+
+      // 添加邊緣到組
+      handleGroups[targetHandle].push(edge);
+    });
+
+    // 處理每個句柄組 - 保持原始處理邏輯不變
+    Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
+      // 特殊處理 Message 節點的多個連接
+      if (isMessageNode && targetHandle.startsWith('message')) {
+        // 處理 Message 節點的多個連接，參考 AI 節點的 context 處理方式
+        targetEdges.forEach((edge, index) => {
+          // 對於多個連接到同一個 message handle，創建 message0, message1, message2 等輸入鍵
+          const inputKey =
+            targetEdges.length > 1 ? `message${index}` : 'message0';
+
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+        });
+      } else if (isExtractDataNode && targetHandle === 'context-input') {
+        // 處理 Extract Data 節點的輸入
+        targetEdges.forEach((edge) => {
+          const inputKey = 'context_to_extract_from';
+
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+        });
+      } else if (isQOCAAimNode && targetHandle === 'input') {
+        // 處理 QOCA AIM 節點的輸入
+        targetEdges.forEach((edge) => {
+          const inputKey = 'context';
+
+          // 添加到 nodeInput，只儲存 node_id，不帶其他參數
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+        });
+      }
+      // 其他節點類型的處理...
+      else {
+        // 處理多個連接到同一 handle 的情況
+        if (targetEdges.length > 1) {
+          targetEdges.forEach((edge, index) => {
+            // 創建唯一的輸入鍵
+            const inputKey = `${targetHandle}_${index + 1}`;
+
+            // 添加到 nodeInput
+            nodeInput[inputKey] = {
+              node_id: edge.source,
+              output_name: edge.sourceHandle || 'output',
+              type: 'string'
+            };
+
+            console.log(
+              `多重輸入連接: ${edge.source} -> ${nodeId}:${inputKey}`
+            );
+          });
+        } else if (targetEdges.length === 1) {
+          // 單一連接，直接使用原始句柄
+          const edge = targetEdges[0];
+
+          nodeInput[targetHandle] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+
+          console.log(`輸入連接: ${edge.source} -> ${nodeId}:${targetHandle}`);
+        }
+      }
+    });
+
+    return nodeInput;
+  }
+
+  /**
+   * 輔助函數：從源節點獲取 return_name
+   * @param {Object} edge - 邊緣對象
+   * @param {Array} allNodes - 所有節點數組
+   * @returns {string} - return_name 值
+   */
+  static getReturnNameFromSourceNode(edge, allNodes) {
+    const sourceNode = allNodes.find((n) => n.id === edge.source);
+    let returnName = edge.label || 'output';
+
+    if (sourceNode) {
       if (sourceNode.type === 'customInput' || sourceNode.type === 'input') {
         // 從自定義輸入節點獲取欄位名稱
         if (
@@ -25369,7 +25914,6 @@ class WorkflowMappingService {
           const targetItem = sourceNode.data.items.find(
             (item) => item.id === edge.sourceHandle
           );
-
           if (targetItem && targetItem.name) {
             returnName = targetItem.name;
           } else {
@@ -25391,307 +25935,9 @@ class WorkflowMappingService {
       } else {
         returnName = edge.sourceHandle || 'output';
       }
-
-      return returnName;
     }
 
-    const nodeInput = {};
-    console.log(`提取節點 ${nodeId} 的輸入連接`);
-
-    // 獲取目標節點
-    const targetNode = allNodes.find((n) => n.id === nodeId);
-    if (!targetNode) {
-      console.warn(`找不到節點 ${nodeId}`);
-      return nodeInput;
-    }
-
-    // 檢查節點類型
-    const isBrowserExtensionOutput =
-      targetNode.type === 'browserExtensionOutput';
-    const isWebookOutputNode = targetNode.type === 'webhook_output';
-    const isQOCAAimNode = targetNode && targetNode.type === 'aim_ml';
-    const isScheduleTriggerNode =
-      targetNode && targetNode.type === 'schedule_trigger';
-    const isCombineTextNode = targetNode && targetNode.type === 'combine_text';
-
-    // Schedule Trigger 節點沒有輸入連接，直接返回空對象
-    if (isScheduleTriggerNode) {
-      return nodeInput;
-    }
-
-    // 特殊處理 BrowserExtensionOutput 節點
-    if (
-      isBrowserExtensionOutput &&
-      targetNode.data &&
-      targetNode.data.inputHandles
-    ) {
-      // ... 保持原有的 BrowserExtensionOutput 處理邏輯不變
-      console.log(`處理 BrowserExtensionOutput 節點的所有 input handles`);
-      // [原有邏輯保持不變]
-      return nodeInput;
-    }
-
-    // 特殊處理 webhook_output 節點
-    if (isWebookOutputNode && targetNode.data && targetNode.data.inputHandles) {
-      // ... 保持原有的 webhook_output 處理邏輯不變
-      console.log(`處理 webhook output 節點的所有 input handles`);
-      // [原有邏輯保持不變]
-      return nodeInput;
-    }
-
-    // 獲取所有以該節點為目標的邊緣
-    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
-    console.log(`找到 ${relevantEdges.length} 個輸入連接`);
-
-    // 如果沒有連接，直接返回空對象（普通節點）
-    if (relevantEdges.length === 0) {
-      return nodeInput;
-    }
-
-    // 按 targetHandle 分組邊緣
-    const handleGroups = {};
-
-    // 首先，分組所有邊緣
-    relevantEdges.forEach((edge) => {
-      const targetHandle = edge.targetHandle || 'input';
-
-      // 初始化組
-      if (!handleGroups[targetHandle]) {
-        handleGroups[targetHandle] = [];
-      }
-
-      // 添加邊緣到組
-      handleGroups[targetHandle].push(edge);
-    });
-
-    // 新增：用於追蹤已處理的連接，避免重複處理
-    const processedEdges = new Set();
-
-    // 檢查節點類型
-    const isAINode =
-      targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
-    const isMessageNode = targetNode.type === 'line_send_message';
-    const isExtractDataNode = targetNode.type === 'extract_data';
-
-    // 處理每個句柄組
-    Object.entries(handleGroups).forEach(([targetHandle, targetEdges]) => {
-      // 特殊處理 AI 節點的 context-input
-      if (isAINode && targetHandle.startsWith('context')) {
-        // 對於 context-input，我們需要處理多個連接
-        targetEdges.forEach((edge, index) => {
-          const inputKey = `context${index}`;
-
-          // 查找源節點以獲取 return_name
-          const sourceNode = allNodes.find((n) => n.id === edge.source);
-          let returnName = edge.label || 'output';
-
-          // 根據源節點類型獲取適當的 return_name
-          if (sourceNode) {
-            returnName = getReturnNameFromSourceNode(sourceNode, edge);
-          }
-
-          console.log(`源節點 ${edge.source} 的 return_name: ${returnName}`);
-
-          // 添加到 nodeInput
-          nodeInput[inputKey] = {
-            node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string',
-            return_name: returnName
-          };
-
-          // 標記為已處理
-          processedEdges.add(
-            `${edge.source}-${edge.target}-${edge.targetHandle}-${edge.sourceHandle}`
-          );
-        });
-      }
-      // 處理 AI 節點的 prompt-input
-      else if (isAINode && targetHandle === 'prompt-input') {
-        const edge = targetEdges[0]; // prompt 只取第一個連接
-
-        const inputKey = 'prompt';
-
-        // 查找源節點以獲取 return_name
-        const sourceNode = allNodes.find((n) => n.id === edge.source);
-        let returnName = edge.label || 'output';
-
-        // 根據源節點類型獲取適當的 return_name
-        if (sourceNode) {
-          returnName = getReturnNameFromSourceNode(sourceNode, edge);
-        }
-
-        // 添加到 nodeInput
-        nodeInput[inputKey] = {
-          node_id: edge.source,
-          output_name: edge.sourceHandle || 'output',
-          type: 'string',
-          return_name: returnName
-        };
-
-        console.log(
-          `AI節點Prompt連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
-        );
-
-        // 標記為已處理
-        targetEdges.forEach((edge) => {
-          processedEdges.add(
-            `${edge.source}-${edge.target}-${edge.targetHandle}-${edge.sourceHandle}`
-          );
-        });
-      }
-      // 處理 Message 節點
-      else if (isMessageNode && targetHandle.startsWith('message')) {
-        targetEdges.forEach((edge, index) => {
-          const inputKey =
-            targetEdges.length > 1 ? `message${index}` : 'message0';
-
-          nodeInput[inputKey] = {
-            node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string'
-          };
-
-          // 標記為已處理
-          processedEdges.add(
-            `${edge.source}-${edge.target}-${edge.targetHandle}-${edge.sourceHandle}`
-          );
-        });
-      }
-      // 處理 Extract Data 節點
-      else if (isExtractDataNode && targetHandle === 'context-input') {
-        targetEdges.forEach((edge) => {
-          const inputKey = 'context_to_extract_from';
-
-          nodeInput[inputKey] = {
-            node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string'
-          };
-
-          // 標記為已處理
-          processedEdges.add(
-            `${edge.source}-${edge.target}-${edge.targetHandle}-${edge.sourceHandle}`
-          );
-        });
-      }
-      // 處理 QOCA AIM 節點
-      else if (isQOCAAimNode && targetHandle === 'input') {
-        targetEdges.forEach((edge) => {
-          const inputKey = 'context';
-
-          nodeInput[inputKey] = {
-            node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string'
-          };
-
-          console.log(
-            `QOCA AIM 節點連接: ${edge.source} -> ${nodeId}:${inputKey}`
-          );
-
-          // 標記為已處理
-          processedEdges.add(
-            `${edge.source}-${edge.target}-${edge.targetHandle}-${edge.sourceHandle}`
-          );
-        });
-      }
-      // 處理 Combine Text 節點
-      else if (isCombineTextNode && targetHandle === 'text') {
-        targetEdges.forEach((edge, index) => {
-          const inputKey = `text${index}`;
-
-          const sourceNode = allNodes.find((n) => n.id === edge.source);
-          let returnName = edge.label || 'output';
-
-          if (sourceNode) {
-            returnName = getReturnNameFromSourceNode(sourceNode, edge);
-          }
-
-          console.log(`源節點 ${edge.source} 的 return_name: ${returnName}`);
-
-          nodeInput[inputKey] = {
-            node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string',
-            return_name: returnName
-          };
-
-          console.log(
-            `Combine Text 節點連接: ${edge.source} -> ${nodeId}:${inputKey} (return_name: ${returnName})`
-          );
-
-          // 標記為已處理
-          processedEdges.add(
-            `${edge.source}-${edge.target}-${edge.targetHandle}-${edge.sourceHandle}`
-          );
-        });
-      }
-      // 其他節點類型的處理
-      else {
-        // 過濾掉已經被特殊處理的邊緣
-        const unprocessedEdges = targetEdges.filter((edge) => {
-          const edgeKey = `${edge.source}-${edge.target}-${edge.targetHandle}-${edge.sourceHandle}`;
-          return !processedEdges.has(edgeKey);
-        });
-
-        if (unprocessedEdges.length === 0) {
-          return; // 所有邊緣都已被處理，跳過
-        }
-
-        // 處理多個連接到同一 handle 的情況
-        if (unprocessedEdges.length > 1) {
-          unprocessedEdges.forEach((edge, index) => {
-            const inputKey = `${targetHandle}_${index + 1}`;
-
-            nodeInput[inputKey] = {
-              node_id: edge.source,
-              output_name: edge.sourceHandle || 'output',
-              type: 'string'
-            };
-
-            console.log(
-              `多重輸入連接: ${edge.source} -> ${nodeId}:${inputKey}`
-            );
-          });
-        } else if (unprocessedEdges.length === 1) {
-          const edge = unprocessedEdges[0];
-
-          nodeInput[targetHandle] = {
-            node_id: edge.source,
-            output_name: edge.sourceHandle || 'output',
-            type: 'string'
-          };
-
-          console.log(`輸入連接: ${edge.source} -> ${nodeId}:${targetHandle}`);
-        }
-      }
-    });
-
-    // 處理 AI 節點的直接輸入 prompt 文本
-    if (targetNode) {
-      if (isAINode && targetNode.data?.promptText) {
-        // 檢查是否已有連線到 prompt-input
-        const hasPromptConnection = edges.some(
-          (edge) =>
-            edge.target === nodeId && edge.targetHandle === 'prompt-input'
-        );
-
-        // 如果沒有連線到 prompt-input 但有 promptText，則創建一個特殊的 prompt 輸入
-        if (!hasPromptConnection) {
-          nodeInput.prompt = {
-            type: 'string',
-            data: targetNode.data.promptText,
-            node_id: '' // 空 node_id 表示使用直接輸入的文本
-          };
-          console.log(
-            `AI節點使用直接輸入的 prompt 文本: "${targetNode.data.promptText}"`
-          );
-        }
-      }
-    }
-
-    return nodeInput;
+    return returnName;
   }
 
   /**
@@ -38608,6 +38854,83 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       }
     }
   };
+  useEffect$3(() => {
+    const connectedEdges = edges.filter((edge) => edge.target === id);
+    if (connectedEdges.length > 0 && data && typeof data.updateNodeData === "function") {
+      const currentNodeInput = data.node_input || {};
+      const newNodeInput = {};
+      const existingConnections = /* @__PURE__ */ new Map();
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith("text") && value.node_id) {
+          existingConnections.set(value.node_id, {
+            key,
+            value,
+            index: parseInt(key.replace("text", "")) || 0
+          });
+        }
+      });
+      const sortedEdges = connectedEdges.sort((a, b) => {
+        const aExisting = existingConnections.get(a.source);
+        const bExisting = existingConnections.get(b.source);
+        if (aExisting && bExisting) {
+          return aExisting.index - bExisting.index;
+        } else if (aExisting) {
+          return -1;
+        } else if (bExisting) {
+          return 1;
+        } else {
+          return a.source.localeCompare(b.source);
+        }
+      });
+      const usedIndices = /* @__PURE__ */ new Set();
+      sortedEdges.forEach((edge) => {
+        const existingConnection = existingConnections.get(edge.source);
+        let inputKey;
+        if (existingConnection) {
+          inputKey = existingConnection.key;
+          usedIndices.add(existingConnection.index);
+        } else {
+          let newIndex = 0;
+          while (usedIndices.has(newIndex)) {
+            newIndex++;
+          }
+          inputKey = `text${newIndex}`;
+          usedIndices.add(newIndex);
+        }
+        const sourceNode = nodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || "output";
+        if (sourceNode) {
+          if (sourceNode.type === "customInput" || sourceNode.type === "input") {
+            if (sourceNode.data?.fields?.[0]?.inputName) {
+              returnName = sourceNode.data.fields[0].inputName;
+            }
+          } else if (sourceNode.type === "browserExtensionInput") {
+            const targetItem = sourceNode.data?.items?.find(
+              (item) => item.id === edge.sourceHandle
+            );
+            if (targetItem?.name) {
+              returnName = targetItem.name;
+            }
+          } else if (sourceNode.type === "aiCustomInput" || sourceNode.type === "ai") {
+            returnName = "output";
+          } else if (sourceNode.type === "knowledgeRetrieval") {
+            returnName = "output";
+          } else if (sourceNode.type === "schedule_trigger") {
+            returnName = "trigger";
+          }
+        }
+        newNodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || "output",
+          type: "string",
+          return_name: returnName
+        };
+      });
+      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
+        data.updateNodeData("node_input", newNodeInput);
+      }
+    }
+  }, [edges, id, data, nodes]);
   const getConnectedNodes = useCallback$2(() => {
     const connectedEdges = edges.filter((edge) => edge.target === id);
     return connectedEdges.map((edge) => {
@@ -38618,7 +38941,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         outputName: edge.sourceHandle || "output",
         handleId: edge.targetHandle,
         nodeType: sourceNode?.type || "unknown",
-        data: `QOCA__NODE_ID_${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
+        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
         code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
         color: getNodeTagColor(getNodeDisplayName(sourceNode))
       };
