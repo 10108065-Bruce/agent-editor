@@ -155,10 +155,10 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         outputName: edge.sourceHandle || 'output',
         handleId: edge.targetHandle,
         nodeType: sourceNode?.type || 'unknown',
-        data: `QOCA_NODE_ID_${edge.source}_NODE_OUTPUT_NAME_${
+        data: `QOCA__NODE_ID_${edge.source}__NODE_OUTPUT_NAME__${
           edge.sourceHandle || 'output'
         }`,
-        code: `QOCA_NODE_ID_${edge.source}_NODE_OUTPUT_NAME_${
+        code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${
           edge.sourceHandle || 'output'
         }`,
         color: getNodeTagColor(getNodeDisplayName(sourceNode))
