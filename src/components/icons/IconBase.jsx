@@ -11,6 +11,7 @@ import scheduleNode from '../../assets/icon-timer-node.svg';
 import webhookInputNode from '../../assets/icn-webhook-input.svg';
 import webhookOutputNode from '../../assets/icn-webhook-input.svg';
 import CombineTextNode from '../../assets/icon-node-combine-text.svg';
+import RouterSwitchNode from '../../assets/icon-node-router.svg';
 // Map of icon types to their respective assets
 const iconMap = {
   input: {
@@ -59,6 +60,10 @@ const iconMap = {
   combine_text: {
     src: CombineTextNode,
     alt: 'Combine Text Icon'
+  },
+  router_switch: {
+    src: RouterSwitchNode,
+    alt: 'Router Switch Icon'
   }
 };
 

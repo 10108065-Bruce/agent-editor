@@ -329,6 +329,22 @@ const NodeSidebar = ({
             disabledReason={isLocked ? '工作流已鎖定' : null}
           />
         )}
+        {/* Router Switch node */}
+        {filterNodes('Router Switch') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='router_switch' />
+              </div>
+            }
+            label='Router Switch'
+            onClick={() => handleNodeClick('router_switch')}
+            nodeType='router_switch'
+            onDragStart={customDragStart}
+            disabled={isLocked}
+            disabledReason={isLocked ? '工作流已鎖定' : null}
+          />
+        )}
       </div>
       <VersionDisplay />
     </div>

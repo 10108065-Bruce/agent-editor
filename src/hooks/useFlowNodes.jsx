@@ -235,6 +235,28 @@ export default function useFlowNodes() {
 
       // 根據節點類型的特定回調
       switch (nodeType) {
+        case 'router_switch':
+          callbacks.updateNodeData = (key, value) => {
+            console.log(
+              `更新 Router Switch 節點 ${nodeId} 的 ${key} 資料:`,
+              value
+            );
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === nodeId) {
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      [key]: value
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          };
+          break;
         case 'combine_text': {
           callbacks.updateNodeData = (key, value) => {
             safeSetNodes((nds) =>
@@ -1090,6 +1112,45 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 建立 router switch 節點
+  const handleAddRouterSwitchNode = useCallback(
+    (position) => {
+      const id = `router_switch_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'router_switch');
+
+      // 預設的 router 結構
+      const defaultRouters = [
+        {
+          router_id: 'router0',
+          router_name: 'Router',
+          ai_condition: ''
+        },
+        {
+          router_id: 'other_router',
+          router_name: 'Other',
+          ai_condition: ''
+        }
+      ];
+
+      const newNode = {
+        id,
+        type: 'router_switch',
+        data: {
+          llm_id: '1', // 預設模型 ID
+          routers: defaultRouters,
+          ...nodeCallbacksObject
+        },
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        }
+      };
+
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
   // 建立 combine text 節點
   const handleAddCombineTextNode = useCallback(
     (position) => {
@@ -1626,6 +1687,31 @@ export default function useFlowNodes() {
       //     return; // 不創建新連線
       //   }
       // }
+
+      if (targetNode && targetNode.type === 'router_switch') {
+        console.log('目標是 Router Switch 節點，檢查連線限制');
+
+        // 檢查是否已有輸入連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === 'input'
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`Router Switch 節點已有輸入連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `Router Switch 節點只能有一個輸入連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
 
       // 檢查源節點是否為 HTTP Request 節點，只能有一個輸出
       if (sourceNode && sourceNode.type === 'httpRequest') {
@@ -2241,6 +2327,7 @@ export default function useFlowNodes() {
     handleAddWebhookInputNode,
     handleAddWebhookOutputNode,
     handleAddCombineTextNode,
+    handleAddRouterSwitchNode,
     undo,
     redo,
     getNodeCallbacks,

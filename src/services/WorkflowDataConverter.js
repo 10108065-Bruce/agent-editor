@@ -348,6 +348,16 @@ export class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
+      case 'router_switch': {
+        // Router Switch 節點的數據轉換
+        const routersData = node.parameters?.routers?.data || [];
+
+        return {
+          ...baseData,
+          llm_id: node.parameters?.llm_id?.data?.toString() || '1',
+          routers: Array.isArray(routersData) ? routersData : []
+        };
+      }
       case 'schedule_trigger': {
         // Schedule Trigger 節點的數據轉換 - 支持新舊格式
         return {
@@ -865,6 +875,39 @@ export class WorkflowDataConverter {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
     switch (node.type) {
+      case 'router_switch': {
+        // Router Switch 節點參數轉換
+        if (node.data.llm_id) {
+          const modelValue = node.data.llm_id || '1';
+          const safeModelValue =
+            typeof modelValue !== 'string'
+              ? modelValue.toString()
+              : modelValue || '1';
+          parameters.llm_id = { data: Number(safeModelValue) };
+        }
+
+        // 處理 routers 數據
+        if (node.data.routers && Array.isArray(node.data.routers)) {
+          parameters.routers = { data: node.data.routers };
+        } else {
+          // 預設結構
+          parameters.routers = {
+            data: [
+              {
+                router_id: 'router0',
+                router_name: 'Router',
+                ai_condition: ''
+              },
+              {
+                router_id: 'other_router',
+                router_name: 'Other',
+                ai_condition: ''
+              }
+            ]
+          };
+        }
+        break;
+      }
       case 'schedule_trigger': {
         // Schedule Trigger 節點參數轉換 - 直接使用值而不包裝在 data 中
         if (node.data.schedule_type) {

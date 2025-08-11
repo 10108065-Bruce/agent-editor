@@ -17,6 +17,7 @@ import ScheduleNode from './nodes/ScheduleNode';
 import WebhookInputNode from './nodes/WebhookInputNode';
 import WebhookOutputNode from './nodes/WebhookOutputNode';
 import CombineTextNode from './nodes/CombineTextNode';
+import RouterSwitchNode from './nodes/RouterSwitchNode';
 // Apply the withNodeSelection HOC to each node type
 const enhancedNodeTypes = {
   customInput: withNodeSelection(CustomInputNode),
@@ -36,7 +37,8 @@ const enhancedNodeTypes = {
   schedule_trigger: withNodeSelection(ScheduleNode),
   webhook_input: withNodeSelection(WebhookInputNode),
   webhook_output: withNodeSelection(WebhookOutputNode),
-  combine_text: withNodeSelection(CombineTextNode)
+  combine_text: withNodeSelection(CombineTextNode),
+  router_switch: withNodeSelection(RouterSwitchNode)
 };
 
 export default enhancedNodeTypes;

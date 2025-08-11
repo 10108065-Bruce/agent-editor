@@ -201,6 +201,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddWebhookOutputNode,
     handleAddCombineTextNode,
     handleNodeSelection,
+    handleAddRouterSwitchNode,
     undo,
     redo,
     setNodes: setFlowNodes,
@@ -534,6 +535,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'combine_text':
           handleAddCombineTextNode(nodePosition);
           break;
+        case 'router_switch':
+          handleAddRouterSwitchNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -559,6 +563,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddWebhookInputNode,
       handleAddWebhookOutputNode,
       handleAddCombineTextNode,
+      handleAddRouterSwitchNode,
       isLocked
     ]
   );
