@@ -7,7 +7,7 @@ import DeleteIcon from '../icons/DeleteIcon';
 import dragIcon from '../../assets/icon-drag-handle-line.svg';
 import AutoResizeTextarea from '../../components/text/AutoResizeText';
 
-const RouterSwitchNode = ({ data, isConnectable }) => {
+const RouterSwitchNode = ({ data, isConnectable, id }) => {
   // 狀態管理
   const [selectedModelId, setSelectedModelId] = useState(data?.llm_id || '1');
   const [routers, setRouters] = useState(
@@ -15,7 +15,10 @@ const RouterSwitchNode = ({ data, isConnectable }) => {
       {
         router_id: 'router0',
         router_name: 'Router',
-        ai_condition: ''
+        ai_condition: '',
+        connection_id: `router_${Date.now()}_${Math.random()
+          .toString(36)
+          .substr(2, 9)}`
       }
     ]
   );
@@ -258,10 +261,9 @@ const RouterSwitchNode = ({ data, isConnectable }) => {
   // Calculate otherRouters early to avoid "before initialization" error
   const otherRouters = routers.filter((r) => r.router_id !== 'other_router');
 
-  // 新增 router
+  // 新增 router - 修改版本，避免名稱重複
   const addRouter = useCallback(() => {
-    const newRouterIndex = otherRouters.length;
-    if (newRouterIndex >= 8) {
+    if (otherRouters.length >= 8) {
       if (typeof window !== 'undefined' && window.notify) {
         window.notify({
           message: '最多只能添加 8 個 Router',
@@ -271,10 +273,41 @@ const RouterSwitchNode = ({ data, isConnectable }) => {
       }
       return;
     }
+
+    // 找到目前 router_id 中的最大數字
+    let maxRouterId = -1;
+    otherRouters.forEach((router) => {
+      const match = router.router_id.match(/^router(\d+)$/);
+      if (match) {
+        const routerNum = parseInt(match[1], 10);
+        if (routerNum > maxRouterId) {
+          maxRouterId = routerNum;
+        }
+      }
+    });
+
+    // 新的 router_id 使用最大數字+1
+    const newRouterId = maxRouterId + 1;
+
+    // 找到下一個可用的 router 名稱編號
+    const existingNames = otherRouters.map((router) => router.router_name);
+    let nextNumber = 1;
+
+    // 從 1 開始檢查，找到第一個不存在的 Router 編號
+    while (existingNames.includes(`Router ${nextNumber}`)) {
+      nextNumber++;
+    }
+
+    // 生成獨立的連線識別 ID (使用時間戳確保唯一性)
+    const connectionId = `router_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
     const newRouter = {
-      router_id: `router${newRouterIndex}`,
-      router_name: `Router ${newRouterIndex + 1}`,
-      ai_condition: ''
+      router_id: `router${newRouterId}`,
+      router_name: `Router ${nextNumber}`,
+      ai_condition: '',
+      connection_id: connectionId // 新增獨立的連線識別 ID
     };
 
     const newRouters = [...otherRouters, newRouter];
@@ -295,24 +328,73 @@ const RouterSwitchNode = ({ data, isConnectable }) => {
         return;
       }
 
+      // 🔧 修復：獲取要刪除的 router 的 connection_id，用於斷開連線
+      const routerToDelete = otherRouters[routerIndex];
+      const connectionIdToDelete =
+        routerToDelete.connection_id || routerToDelete.router_id;
+
+      console.log(
+        `準備刪除 router ${routerToDelete.router_id}，connection_id: ${connectionIdToDelete}`
+      );
+
+      // 🔧 修復：在刪除 router 前先斷開所有使用此 connection_id 的連線
+      if (typeof window !== 'undefined' && window.deleteEdgesBySourceHandle) {
+        // 獲取當前節點的 ID
+        const currentNodeId = id; // 假設節點 ID 在組件中可用
+
+        // 斷開所有從此節點使用被刪除 router 的 connection_id 的連線
+        window.deleteEdgesBySourceHandle(currentNodeId, connectionIdToDelete);
+
+        console.log(`已斷開與 ${connectionIdToDelete} 相關的所有連線`);
+      }
+
       const newRouters = otherRouters.filter(
         (_, index) => index !== routerIndex
       );
+
+      // 重新編號 router_id，但保留 connection_id
       const renumberedRouters = newRouters.map((router, index) => ({
         ...router,
-        router_id: `router${index}`
+        router_id: `router${index}`,
+        // 保留原有的 connection_id，如果沒有則生成新的
+        connection_id:
+          router.connection_id ||
+          `router_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       }));
 
       updateRoutersToParent(renumberedRouters);
+
+      // 🔧 修復：額外的清理工作 - 通知其他組件 router 已被刪除
+      if (typeof window !== 'undefined') {
+        const event = new CustomEvent('routerDeleted', {
+          detail: {
+            nodeId: id,
+            deletedRouter: routerToDelete,
+            remainingRouters: renumberedRouters
+          }
+        });
+        window.dispatchEvent(event);
+      }
     },
-    [otherRouters, updateRoutersToParent]
+    [otherRouters, updateRoutersToParent, id]
   );
 
   // 更新 router 名稱
   const updateRouterName = useCallback(
     (index, newName) => {
       const updatedRouters = otherRouters.map((router, i) =>
-        i === index ? { ...router, router_name: newName } : router
+        i === index
+          ? {
+              ...router,
+              router_name: newName,
+              // 確保 connection_id 存在
+              connection_id:
+                router.connection_id ||
+                `router_${Date.now()}_${Math.random()
+                  .toString(36)
+                  .substr(2, 9)}`
+            }
+          : router
       );
       updateRoutersToParent(updatedRouters);
     },
@@ -323,12 +405,45 @@ const RouterSwitchNode = ({ data, isConnectable }) => {
   const updateAiCondition = useCallback(
     (index, newCondition) => {
       const updatedRouters = otherRouters.map((router, i) =>
-        i === index ? { ...router, ai_condition: newCondition } : router
+        i === index
+          ? {
+              ...router,
+              ai_condition: newCondition,
+              // 確保 connection_id 存在
+              connection_id:
+                router.connection_id ||
+                `router_${Date.now()}_${Math.random()
+                  .toString(36)
+                  .substr(2, 9)}`
+            }
+          : router
       );
       updateRoutersToParent(updatedRouters);
     },
     [otherRouters, updateRoutersToParent]
   );
+
+  const ensureConnectionIds = useCallback((routers) => {
+    return routers.map((router) => ({
+      ...router,
+      connection_id:
+        router.connection_id ||
+        `router_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    }));
+  }, []);
+
+  useEffect(() => {
+    if (data?.routers !== undefined) {
+      const dataRoutersString = JSON.stringify(data.routers);
+      const currentRoutersString = JSON.stringify(routers);
+
+      if (dataRoutersString !== currentRoutersString) {
+        // 確保所有 router 都有 connection_id
+        const routersWithConnectionIds = ensureConnectionIds(data.routers);
+        setRouters(routersWithConnectionIds);
+      }
+    }
+  }, [data?.routers, ensureConnectionIds]);
 
   const handleDragStart = useCallback((e, index) => {
     setDraggedIndex(index);
@@ -441,13 +556,15 @@ const RouterSwitchNode = ({ data, isConnectable }) => {
   // 獲取所有輸出 handles（包括 other）
   const getAllOutputHandles = useCallback(() => {
     const handles = otherRouters.map((router) => ({
-      id: router.router_id,
-      name: router.router_name
+      id: router.connection_id || router.router_id, // 優先使用 connection_id
+      name: router.router_name,
+      router_id: router.router_id // 保留 router_id 作為參考
     }));
 
     handles.push({
       id: 'other_router',
-      name: 'Other'
+      name: 'Other',
+      router_id: 'other_router'
     });
 
     return handles;

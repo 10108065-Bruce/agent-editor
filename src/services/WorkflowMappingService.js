@@ -297,32 +297,63 @@ export class WorkflowMappingService {
         }
       });
 
-      // 處理未連線的 handle
+      const connectedHandles = Object.keys(handleGroups);
       targetNode.data.inputHandles
-        .filter((handle) => !handleGroups[handle.id])
+        .filter((handle) => !connectedHandles.includes(handle.id))
         .forEach((handle) => {
           const baseHandleId = handle.id;
 
-          // 使用保存的標籤或空字串
-          let returnName = handleLabels[baseHandleId] || '';
-
-          console.log(
-            `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
+          // 檢查這個 handle 是否確實存在於 inputHandles 中（避免處理已刪除的 handle）
+          const isValidHandle = targetNode.data.inputHandles.some(
+            (h) => h.id === baseHandleId
           );
 
-          nodeInput[baseHandleId] = {
-            node_id: '',
-            output_name: '',
-            type: 'string',
-            data: '',
-            is_empty: true,
-            return_name: returnName
-          };
+          if (isValidHandle) {
+            // 使用保存的標籤或空字串
+            let returnName = handleLabels[baseHandleId] || '';
 
-          console.log(
-            `保留未連線的 handle: ${baseHandleId} (return_name: ${returnName})`
-          );
+            console.log(
+              `未連線但有效的 Handle ${baseHandleId} 使用標籤值: ${returnName}`
+            );
+
+            nodeInput[baseHandleId] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: returnName
+            };
+
+            console.log(
+              `保留未連線的有效 handle: ${baseHandleId} (return_name: ${returnName})`
+            );
+          } else {
+            console.log(
+              `跳過無效的 handle: ${baseHandleId}（已從 inputHandles 中移除）`
+            );
+          }
         });
+
+      const validHandleIds = targetNode.data.inputHandles.map((h) => h.id);
+      const nodeInputKeys = Object.keys(nodeInput);
+
+      // 移除不再有效的 nodeInput 項目
+      nodeInputKeys.forEach((key) => {
+        const baseKey = key.split('_')[0];
+        if (
+          !validHandleIds.includes(baseKey) &&
+          !connectedHandles.includes(baseKey)
+        ) {
+          console.log(`移除無效的 nodeInput 項目: ${key}`);
+          delete nodeInput[key];
+        }
+      });
+
+      console.log(
+        `最終的 nodeInput 包含 ${Object.keys(nodeInput).length} 個項目:`,
+        Object.keys(nodeInput)
+      );
 
       return nodeInput;
     }

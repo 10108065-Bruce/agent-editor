@@ -1123,12 +1123,18 @@ export default function useFlowNodes() {
         {
           router_id: 'router0',
           router_name: 'Router',
-          ai_condition: ''
+          ai_condition: '',
+          connection_id: `router_${Date.now()}_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`
         },
         {
           router_id: 'other_router',
           router_name: 'Other',
-          ai_condition: ''
+          ai_condition: '',
+          connection_id: `router_${Date.now()}_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`
         }
       ];
 
@@ -2293,6 +2299,150 @@ export default function useFlowNodes() {
       }
     };
   }, [deleteEdgesByHandle, deleteEdgesBySourceHandle]);
+
+  // 添加清理無效邊緣的方法
+  const cleanupInvalidEdges = useCallback(() => {
+    setEdges((currentEdges) => {
+      const validEdges = currentEdges.filter((edge) => {
+        // 檢查源節點是否存在
+        const sourceNode = nodes.find((node) => node.id === edge.source);
+        const targetNode = nodes.find((node) => node.id === edge.target);
+
+        if (!sourceNode || !targetNode) {
+          console.log(`移除無效邊緣 ${edge.id}: 源節點或目標節點不存在`);
+          return false;
+        }
+
+        // 特殊檢查 router_switch 節點的輸出 handle 是否仍然有效
+        if (sourceNode.type === 'router_switch') {
+          const routers = sourceNode.data?.routers || [];
+          const isValidSourceHandle = routers.some(
+            (router) =>
+              router.connection_id === edge.sourceHandle ||
+              router.router_id === edge.sourceHandle
+          );
+
+          if (!isValidSourceHandle && edge.sourceHandle !== 'other_router') {
+            console.log(
+              `移除無效邊緣 ${edge.id}: router_switch 的 sourceHandle ${edge.sourceHandle} 已不存在`
+            );
+            return false;
+          }
+        }
+
+        // 檢查 browser extension output 節點的輸入 handle 是否仍然有效
+        if (targetNode.type === 'browserExtensionOutput') {
+          const inputHandles = targetNode.data?.inputHandles || [];
+          const baseTargetHandle = edge.targetHandle?.split('_')[0];
+          const isValidTargetHandle = inputHandles.some(
+            (handle) => handle.id === baseTargetHandle
+          );
+
+          if (!isValidTargetHandle) {
+            console.log(
+              `移除無效邊緣 ${edge.id}: browserExtensionOutput 的 targetHandle ${edge.targetHandle} 已不存在`
+            );
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      // 如果有邊緣被移除，記錄日誌
+      if (validEdges.length !== currentEdges.length) {
+        console.log(
+          `清理了 ${currentEdges.length - validEdges.length} 個無效邊緣`
+        );
+      }
+
+      return validEdges;
+    });
+  }, [nodes, setEdges]);
+
+  // 添加清理節點 node_input 的方法
+  const cleanupNodeInputs = useCallback(() => {
+    setNodes((currentNodes) => {
+      return currentNodes.map((node) => {
+        // 只處理有 node_input 的節點
+        if (!node.data?.node_input) return node;
+
+        const nodeInput = { ...node.data.node_input };
+        const connectedSources = new Set();
+
+        // 收集所有連接到此節點的邊緣的源信息
+        edges
+          .filter((edge) => edge.target === node.id)
+          .forEach((edge) => {
+            connectedSources.add(
+              `${edge.source}:${edge.sourceHandle || 'output'}`
+            );
+          });
+
+        let hasChanges = false;
+        const cleanedNodeInput = {};
+
+        // 檢查每個 node_input 項目
+        Object.entries(nodeInput).forEach(([key, value]) => {
+          if (value.is_empty || !value.node_id) {
+            // 保留空的 node_input 項目
+            cleanedNodeInput[key] = value;
+          } else {
+            // 檢查是否有對應的邊緣
+            const sourceKey = `${value.node_id}:${
+              value.output_name || 'output'
+            }`;
+            if (connectedSources.has(sourceKey)) {
+              cleanedNodeInput[key] = value;
+            } else {
+              console.log(`移除節點 ${node.id} 的孤兒 node_input 項目: ${key}`);
+              hasChanges = true;
+            }
+          }
+        });
+
+        if (hasChanges) {
+          console.log(`清理節點 ${node.id} 的 node_input，移除了孤兒項目`);
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              node_input: cleanedNodeInput
+            }
+          };
+        }
+
+        return node;
+      });
+    });
+  }, [nodes, edges, setNodes]);
+
+  useEffect(() => {
+    // 延遲執行清理，避免在正常操作中干擾
+    const timeoutId = setTimeout(() => {
+      cleanupInvalidEdges();
+      cleanupNodeInputs();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [nodes.length, edges.length]); // 只在節點或邊緣數量變化時觸發
+
+  // 暴露清理方法供外部使用
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.cleanupInvalidEdges = cleanupInvalidEdges;
+      window.cleanupNodeInputs = cleanupNodeInputs;
+      window.currentEdges = edges; // 暴露當前邊緣供其他組件使用
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.cleanupInvalidEdges;
+        delete window.cleanupNodeInputs;
+        delete window.currentEdges;
+      }
+    };
+  }, [cleanupInvalidEdges, cleanupNodeInputs, edges]);
 
   return {
     nodes,
