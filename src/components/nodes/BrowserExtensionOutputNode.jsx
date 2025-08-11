@@ -63,10 +63,8 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     const labels = {};
     Object.entries(data.node_input).forEach(([key, value]) => {
-      console.log('loadLabelsFromNodeInput:', key, value);
       if (value && value.return_name) {
         const baseHandleId = processHandleId(key);
-        console.log(`讀取 ${key} 的 return_name:`, value.return_name);
         labels[baseHandleId] = value.return_name;
       }
     });
@@ -180,7 +178,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             is_empty: true,
             return_name: '' // 確保有 return_name 屬性
           };
-          console.log(`為 handle ${baseHandleId} 創建 node_input 項`);
         }
         // 確保所有多連線格式的項都有 return_name 屬性
         else if (handleMapping[baseHandleId]) {
@@ -192,7 +189,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
               )
             ) {
               nodeInput[key].return_name = '';
-              console.log(`為 handle ${key} 添加 return_name 屬性`);
             }
           });
         }
@@ -280,7 +276,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
     console.log(`新增 handle (${nodeId}):`, newInputId);
 
-    // 🔧 修復：先保存當前的標籤狀態，避免在狀態更新時丟失
     const currentLabels = { ...handleLabels };
 
     // 更新本地狀態
@@ -296,7 +291,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         is_empty: true,
         return_name: '' // 確保有 return_name 屬性
       };
-      console.log(`已在 node_input 中添加 ${newInputId}`);
     }
 
     // 更新 inputHandles
@@ -316,7 +310,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       try {
         data.updateNodeData('inputHandles', newInputs);
         data.updateNodeData('node_input', data.node_input);
-        console.log(`已同步更新節點數據: inputHandles 和 node_input`);
       } catch (err) {
         console.warn('同步更新節點數據時出錯:', err);
       }
@@ -327,7 +320,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       setHandleLabels((prevLabels) => {
         // 合併之前的標籤和當前保存的標籤
         const mergedLabels = { ...currentLabels, ...prevLabels };
-        console.log('合併後的標籤:', mergedLabels);
+
         return mergedLabels;
       });
     }, 0);
@@ -350,8 +343,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       // 過濾掉要刪除的 handle
       const newInputs = inputs.filter((input) => input.id !== handleId);
 
-      console.log(`刪除 handle (${nodeId}):`, handleId);
-
       // 🔧 修復：保存當前標籤狀態，除了要刪除的handle
       const currentLabels = { ...handleLabels };
       delete currentLabels[handleId];
@@ -368,7 +359,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
           const baseHandleId = processHandleId(key);
           if (baseHandleId === handleId) {
             delete updatedNodeInput[key];
-            console.log(`從 node_input 中刪除 ${key}`);
           }
         });
 
@@ -386,14 +376,10 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       // 從標籤狀態中刪除
       setHandleLabels(currentLabels);
 
-      // 🔧 修復：確保同步更新節點數據
       if (data.updateNodeData) {
         try {
           data.updateNodeData('inputHandles', newInputs);
           data.updateNodeData('node_input', data.node_input);
-          console.log(
-            `已同步更新節點數據: 刪除 ${handleId} 後的 inputHandles 和 node_input`
-          );
         } catch (err) {
           console.warn('同步更新節點數據時出錯:', err);
         }
@@ -419,8 +405,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 處理標籤變更的函數 - 避免無限循環
   const handleLabelChange = useCallback(
     (handleId, newLabel) => {
-      console.log(`標籤變更: ${handleId} -> ${newLabel}`);
-
       // 🔧 修復：立即更新本地標籤狀態，避免延遲導致的丟失
       setHandleLabels((prev) => {
         // 如果標籤沒有變化，不更新
@@ -461,8 +445,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
         }
       }
 
-      console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
-
       // 確保立即更新到後端 - 如果有 updateNodeData 方法
       if (data.updateNodeData && data.node_input) {
         try {
@@ -497,7 +479,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
           // 調用更新方法
           data.updateNodeData('node_input', updatedNodeInput);
-          console.log(`已將 ${handleId} 的標籤變更同步到後端`);
         } catch (err) {
           console.warn('更新節點數據時出錯:', err);
         }
@@ -560,11 +541,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   }, [data, nodeId]);
 
   useEffect(() => {
-    const handleRouterDeleted = (event) => {
-      const { nodeId: deletedFromNodeId } = event.detail;
-
-      console.log(`收到 router 刪除事件，來源節點: ${deletedFromNodeId}`);
-
+    const handleRouterDeleted = () => {
       // 稍微延遲執行清理，確保連線已經被正確斷開
       setTimeout(() => {
         cleanupOrphanNodeInputs();

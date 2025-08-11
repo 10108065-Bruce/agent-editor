@@ -258,7 +258,7 @@ export class WorkflowMappingService {
             const inputKey = `${baseHandle}_${index + 1}`;
 
             // 使用保存的標籤或原始的 return_name 或預設值
-            let returnName = handleLabels[baseHandle] || 'output';
+            let returnName = handleLabels[baseHandle] || '';
 
             console.log(`多連線 Handle ${inputKey} 使用標籤值: ${returnName}`);
 
@@ -278,7 +278,7 @@ export class WorkflowMappingService {
           const edge = groupEdges[0];
 
           // 使用保存的標籤或預設值
-          let returnName = handleLabels[baseHandle] || 'output';
+          let returnName = handleLabels[baseHandle] || '';
 
           console.log(
             `單一連線 Handle ${baseHandle} 使用標籤值: ${returnName}`
@@ -290,10 +290,6 @@ export class WorkflowMappingService {
             type: 'string',
             return_name: returnName
           };
-
-          console.log(
-            `單一連線 Handle: ${edge.source} -> ${nodeId}:${baseHandle} (return_name: ${returnName})`
-          );
         }
       });
 
@@ -324,10 +320,6 @@ export class WorkflowMappingService {
               is_empty: true,
               return_name: returnName
             };
-
-            console.log(
-              `保留未連線的有效 handle: ${baseHandleId} (return_name: ${returnName})`
-            );
           } else {
             console.log(
               `跳過無效的 handle: ${baseHandleId}（已從 inputHandles 中移除）`
@@ -345,23 +337,15 @@ export class WorkflowMappingService {
           !validHandleIds.includes(baseKey) &&
           !connectedHandles.includes(baseKey)
         ) {
-          console.log(`移除無效的 nodeInput 項目: ${key}`);
           delete nodeInput[key];
         }
       });
-
-      console.log(
-        `最終的 nodeInput 包含 ${Object.keys(nodeInput).length} 個項目:`,
-        Object.keys(nodeInput)
-      );
 
       return nodeInput;
     }
 
     // 特殊處理 webhook_output 節點
     if (isWebookOutputNode && targetNode.data && targetNode.data.inputHandles) {
-      console.log(`處理 webhook output 節點的所有 input handles`);
-
       // 保存原始的 node_input 資訊
       const originalNodeInput = targetNode.data.node_input || {};
 
@@ -742,7 +726,7 @@ export class WorkflowMappingService {
    */
   static getReturnNameFromSourceNode(edge, allNodes) {
     const sourceNode = allNodes.find((n) => n.id === edge.source);
-    let returnName = edge.label || 'output';
+    let returnName = edge.label || '';
 
     if (sourceNode) {
       if (sourceNode.type === 'customInput' || sourceNode.type === 'input') {

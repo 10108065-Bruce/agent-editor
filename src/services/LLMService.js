@@ -36,18 +36,16 @@ export class LLMService {
         this.lastFetchTime &&
         now - this.lastFetchTime < this.cacheExpiryTime
       ) {
-        console.log('使用快取的LLM模型列表');
         return this.modelsCache;
       }
 
       // 如果已經有一個請求在進行中，則返回該請求
       if (this.pendingRequest) {
-        console.log('已有進行中的LLM模型請求，使用相同請求');
         return this.pendingRequest;
       }
 
       // 創建新請求
-      console.log('獲取LLM模型列表...');
+
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -66,8 +64,6 @@ export class LLMService {
           return response.json();
         })
         .then((data) => {
-          console.log('API返回原始模型數據:', data);
-
           // 檢查數據是否為數組
           if (!Array.isArray(data)) {
             console.warn('API返回的模型數據不是陣列');
@@ -79,7 +75,6 @@ export class LLMService {
               Array.isArray(data.models)
             ) {
               data = data.models;
-              console.log('從API回應中提取models陣列:', data);
             } else {
               // 如果無法提取合理的數據，則返回預設模型
               console.warn('無法從API回應中提取合理的模型數據，使用預設模型');
@@ -123,8 +118,6 @@ export class LLMService {
 
             return model;
           });
-
-          console.log('處理後的模型數據:', processedData);
 
           // 更新快取
           this.modelsCache = processedData;
@@ -179,18 +172,15 @@ export class LLMService {
         this.lastStructuredOutputFetchTime &&
         now - this.lastStructuredOutputFetchTime < this.cacheExpiryTime
       ) {
-        console.log('使用快取的結構化輸出模型列表');
         return this.structuredOutputModelsCache;
       }
 
       // 如果已經有一個請求在進行中，則返回該請求
       if (this.pendingStructuredOutputRequest) {
-        console.log('已有進行中的結構化輸出模型請求，使用相同請求');
         return this.pendingStructuredOutputRequest;
       }
 
       // 創建新請求
-      console.log('獲取結構化輸出模型列表...');
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -254,8 +244,6 @@ export class LLMService {
             return model;
           });
 
-          console.log('處理後的結構化輸出模型數據:', processedData);
-
           // 更新快取
           this.structuredOutputModelsCache = processedData;
           this.lastStructuredOutputFetchTime = now;
@@ -308,18 +296,15 @@ export class LLMService {
         this.lastKnowledgeBasesFetchTime &&
         now - this.lastKnowledgeBasesFetchTime < this.cacheExpiryTime
       ) {
-        console.log('使用快取的知識庫列表');
         return this.knowledgeBasesCache;
       }
 
       // 如果已經有一個請求在進行中，則返回該請求
       if (this.pendingKnowledgeBasesRequest) {
-        console.log('已有進行中的知識庫列表請求，使用相同請求');
         return this.pendingKnowledgeBasesRequest;
       }
 
       // 創建新請求
-      console.log('獲取知識庫列表...');
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -341,8 +326,6 @@ export class LLMService {
           return response.json();
         })
         .then((responseData) => {
-          console.log('API返回原始知識庫數據:', responseData);
-
           // 檢查新的 response 格式
           let knowledgeBases = [];
 
@@ -407,8 +390,6 @@ export class LLMService {
             return kb;
           });
 
-          console.log('處理後的知識庫數據:', processedData);
-
           // 更新快取
           this.knowledgeBasesCache = processedData;
           this.lastKnowledgeBasesFetchTime = now;
@@ -426,8 +407,6 @@ export class LLMService {
             (error.message.includes('NetworkError') ||
               error.message.includes('Failed to fetch'))
           ) {
-            console.log('疑似 CORS 問題，返回預設知識庫列表');
-            // 直接返回預設值而不是再次拋出錯誤
             return [
               {
                 id: 1,
@@ -465,7 +444,6 @@ export class LLMService {
   async getModelOptions() {
     try {
       const models = await this.getModels();
-      console.log('API返回的模型數據:', models);
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
@@ -488,10 +466,6 @@ export class LLMService {
         ];
       }
 
-      // 檢查第一個模型的結構，確認關鍵屬性
-      const sampleModel = models[0];
-      console.log('模型數據結構示例:', sampleModel);
-
       // 將API返回的模型數據轉換為select選項格式
       const options = models.map((model, index) => {
         // 確保模型對象存在
@@ -499,14 +473,6 @@ export class LLMService {
           console.warn(`遇到無效的模型數據，索引: ${index}`);
           return { value: `${index + 1}`, label: `Model ${index + 1}` };
         }
-
-        // 記錄每個模型的關鍵屬性，幫助診斷
-        console.log(`處理模型 ${index}:`, {
-          id: model.id,
-          name: model.name,
-          display_name: model.display_name,
-          is_default: model.is_default
-        });
 
         // 取得 ID，確保是字串型別
         let modelId = '1'; // 預設 ID
@@ -530,7 +496,6 @@ export class LLMService {
         };
       });
 
-      console.log('最終格式化的選項:', options);
       return options;
     } catch (error) {
       console.error('獲取模型選項失敗:', error);
@@ -551,7 +516,6 @@ export class LLMService {
   async getStructuredOutputModelOptions() {
     try {
       const models = await this.getStructuredOutputModels();
-      console.log('API返回的結構化輸出模型數據:', models);
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
@@ -591,14 +555,6 @@ export class LLMService {
           };
         }
 
-        // 記錄每個模型的關鍵屬性，幫助診斷
-        console.log(`處理結構化輸出模型 ${index}:`, {
-          id: model.id,
-          display_name: model.display_name,
-          description: model.description,
-          provider: model.provider
-        });
-
         // 取得 ID，確保是字串型別
         let modelId = '0'; // 預設 ID
         if (model.id !== undefined && model.id !== null) {
@@ -619,7 +575,6 @@ export class LLMService {
         };
       });
 
-      console.log('最終格式化的結構化輸出選項:', options);
       return options;
     } catch (error) {
       console.error('獲取結構化輸出模型選項失敗:', error);

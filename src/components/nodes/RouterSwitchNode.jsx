@@ -571,7 +571,8 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
   }, [otherRouters]);
 
   const outputHandles = getAllOutputHandles();
-
+  const HANDLE_SPACING = 40; // Handle 之間的垂直間距
+  const LABEL_HEIGHT = 32; // 每個標籤的高度（包含 padding 和 margin）
   return (
     <>
       <div className='rounded-lg shadow-md overflow-hidden w-[400px]'>
@@ -791,45 +792,60 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
       />
 
       {/* 右側標籤區域 */}
-      <div className='absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 ml-2 space-y-2 pointer-events-none'>
-        {outputHandles.map((handle) => (
-          <div
-            key={handle.id}
-            className='flex items-center mb-4'
-            style={{ pointerEvents: 'none' }}>
+      <div className='absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2 ml-2 pointer-events-none'>
+        {outputHandles.map((handle, index) => {
+          // 🔧 修復：使用與 Handle 相同的位置計算邏輯
+          const verticalOffset =
+            (index - (outputHandles.length - 1) / 2) * HANDLE_SPACING;
+
+          return (
             <div
-              className='w-3 h-3 rounded-full'
+              key={handle.id}
+              className='flex items-center absolute'
               style={{
-                background: '#e5e7eb',
-                border: '1px solid #D3D3D3',
-                transform: 'translateX(-6px)'
-              }}
-            />
-            <div
-              className='w-4 h-0.5'
-              style={{
-                backgroundColor: '#00ced1',
-                transform: 'translateX(-6px)'
-              }}
-            />
-            <span
-              className={`inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none ${
-                handle.id === 'other_router' ? 'bg-gray-500' : 'bg-cyan-500'
-              }`}
-              style={{
-                transform: 'translateX(-6px)',
-                backgroundColor: '#00ced1'
+                pointerEvents: 'none',
+                top: `${verticalOffset}px`,
+                transform: 'translateY(-50%)', // 確保標籤垂直置中
+                left: 0
               }}>
-              {handle.name}
-            </span>
-          </div>
-        ))}
+              <div
+                className='w-3 h-3 rounded-full'
+                style={{
+                  background: '#e5e7eb',
+                  border: '1px solid #D3D3D3',
+                  transform: 'translateX(-6px)'
+                }}
+              />
+              <div
+                className='w-4 h-0.5'
+                style={{
+                  backgroundColor: '#00ced1',
+                  transform: 'translateX(-6px)'
+                }}
+              />
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none ${
+                  handle.id === 'other_router' ? 'bg-gray-500' : 'bg-cyan-500'
+                }`}
+                style={{
+                  transform: 'translateX(-6px)',
+                  backgroundColor: '#00ced1'
+                }}>
+                {handle.name}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Output Handles */}
       {outputHandles.map((handle, index) => {
         const labelWidth = calculateLabelWidth(handle.name);
         const totalWidth = labelWidth + 8;
+
+        // 🔧 修復：使用統一的位置計算邏輯
+        const verticalOffset =
+          (index - (outputHandles.length - 1) / 2) * HANDLE_SPACING;
 
         return (
           <Handle
@@ -841,11 +857,9 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
               background: 'transparent',
               border: 'none',
               width: `${totalWidth}px`,
-              height: '32px',
+              height: `${LABEL_HEIGHT}px`, // 使用統一的高度
               right: `-${totalWidth + 6}px`,
-              top: `calc(50% + ${
-                (index - (outputHandles.length - 1) / 2) * 40
-              }px)`,
+              top: `calc(50% + ${verticalOffset}px)`, // 使用相同的計算邏輯
               transform: 'translateY(-50%)',
               cursor: 'crosshair',
               zIndex: 10
