@@ -255,92 +255,81 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
   // 實現 loadWorkflow 的邏輯，這將在 useImperativeHandle 中被引用
   const loadWorkflowImpl = async (flowId) => {
-    // 先判斷flowId是否為new
     if (flowId !== 'new') {
       try {
         const apiData = await workflowAPIService.loadWorkflow(flowId);
-        // 檢查是否有 is_locked 屬性並設置狀態
+
         // eslint-disable-next-line no-prototype-builtins
         if (apiData.hasOwnProperty('is_locked')) {
           setIsLocked(apiData.is_locked);
         }
+
         const { nodes: transformedNodes, edges: transformedEdges } =
           WorkflowDataConverter.transformToReactFlowFormat(apiData);
-        // 🔧 重要修復：為載入的節點重新添加回調函數
+
+        // 為載入的節點重新添加回調函數
         const nodesWithCallbacks = transformedNodes.map((node) => {
-          console.log(`為載入的節點 ${node.id} (${node.type}) 添加回調函數`);
-
-          // 獲取該節點類型的回調函數
           const nodeCallbacks = getNodeCallbacks(node.id, node.type);
-          console.log(nodeCallbacks);
-          // 特殊處理 combine_text 節點
-          if (node.type === 'combine_text') {
-            console.log(`載入 combine_text 節點 ${node.id} 的數據:`, {
-              textToCombine: node.data.textToCombine,
-              editorHtmlContent: node.data.editorHtmlContent,
-              activeTab: node.data.activeTab
-            });
 
-            // 確保 combine_text 節點有完整的初始狀態
+          if (node.type === 'combine_text') {
             return {
               ...node,
               data: {
                 ...node.data,
-                // 確保預設值
                 textToCombine: node.data.textToCombine || '',
                 editorHtmlContent: node.data.editorHtmlContent || '',
                 activeTab: node.data.activeTab || 'editor',
                 inputHandles: node.data.inputHandles || [{ id: 'text' }],
-                // 添加回調函數到節點數據中
                 ...nodeCallbacks
               }
             };
           }
+
           return {
             ...node,
             data: {
               ...node.data,
-              // 添加回調函數到節點數據中
               ...nodeCallbacks
             }
           };
         });
 
-        // console.log('載入的節點（已添加回調）:', nodesWithCallbacks);
+        // 先設置節點，確保所有節點都已準備好
         setFlowNodes(nodesWithCallbacks);
-        setFlowEdges(transformedEdges);
 
-        debugBrowserExtensionOutput(transformedNodes, transformedEdges);
-
-        setFlowMetadata((prev) => ({
-          ...prev,
-          id: apiData.flow_id,
-          title: apiData.flow_name || prev.flow_name,
-          version: apiData.version || prev.version
-        }));
-        // 更新全局 flow_id
-        if (typeof window !== 'undefined') {
-          window.currentFlowId = apiData.flow_id;
-        }
-
-        // 重要：確保在設置節點後立即更新節點函數
-        console.log('載入工作流後立即更新節點函數...');
-        // updateNodeFunctions();
-
-        // 再次確保函數更新，增加一個延遲的更新以捕獲任何同步更新可能錯過的節點
+        // 等待一個渲染週期，然後設置邊緣
         setTimeout(() => {
-          console.log('載入工作流後再次確認節點函數...');
-          updateNodeFunctions();
+          setFlowEdges(transformedEdges);
 
-          // 載入完成後，執行一次畫布縮放以顯示所有節點
-          if (
-            reactFlowControlsRef.current &&
-            reactFlowControlsRef.current.fitViewToNodes
-          ) {
-            console.log('載入工作流後，執行一次畫布縮放以顯示所有節點...');
-            reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+          debugBrowserExtensionOutput(transformedNodes, transformedEdges);
+
+          setFlowMetadata((prev) => ({
+            ...prev,
+            id: apiData.flow_id,
+            title: apiData.flow_name || prev.flow_name,
+            version: apiData.version || prev.version
+          }));
+
+          if (typeof window !== 'undefined') {
+            window.currentFlowId = apiData.flow_id;
           }
-        }, 300);
+
+          console.log('載入工作流後立即更新節點函數...');
+
+          // 延遲更新節點函數和視圖縮放
+          setTimeout(() => {
+            console.log('載入工作流後再次確認節點函數...');
+            updateNodeFunctions();
+
+            if (
+              reactFlowControlsRef.current &&
+              reactFlowControlsRef.current.fitViewToNodes
+            ) {
+              console.log('載入工作流後，執行一次畫布縮放以顯示所有節點...');
+              reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+            }
+          }, 500); // 增加延遲時間，確保所有handle都已正確渲染
+        }, 100); // 給節點時間完成初始化
 
         window.notify({
           message: '工作流載入成功',

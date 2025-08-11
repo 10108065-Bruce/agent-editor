@@ -37,23 +37,19 @@ export class WorkflowDataConverter {
       };
 
       // 特殊處理 BrowserExtensionOutput 節點
-      // 在 transformToReactFlowFormat 方法中的 BrowserExtensionOutput 節點處理邏輯
       if (node.operator === 'browser_extension_output') {
         console.log(`特殊處理 BrowserExtensionOutput 節點: ${node.id}`);
 
         // 從 node_input 提取所有 handle
         const inputHandles = [];
-        const handleMap = new Map(); // 用於記錄真實的 handle ID
+        const handleMap = new Map();
 
         if (node.node_input && typeof node.node_input === 'object') {
-          // 直接使用全部 handle ID
           const handlePattern = /^(output\d+)(?:_\d+)?$/;
           Object.keys(node.node_input).forEach((key) => {
             const match = key.match(handlePattern);
             if (match && match[1]) {
-              const baseHandleId = match[1]; // 提取基本 handle ID (如 output0)
-
-              // 如果這個基本 handle ID 還沒被加入，則添加
+              const baseHandleId = match[1];
               if (!handleMap.has(baseHandleId)) {
                 handleMap.set(baseHandleId, true);
                 inputHandles.push({ id: baseHandleId });
@@ -61,10 +57,23 @@ export class WorkflowDataConverter {
                   `從 node_input 提取基本 handle ID: ${baseHandleId}`
                 );
               }
+            } else if (key === 'input') {
+              // 處理舊版 'input' 格式，轉換為 'output0'
+              if (!handleMap.has('output0')) {
+                handleMap.set('output0', true);
+                inputHandles.push({ id: 'output0' });
+                console.log(`將舊版 'input' 轉換為 'output0'`);
+              }
             } else {
-              // 非標準格式的 handle ID 直接添加
-              inputHandles.push({ id: key });
-              console.log(`從 node_input 提取非標準 handle ID: ${key}`);
+              // 非標準格式的 handle ID 直接添加，但確保格式正確
+              const normalizedId = key.startsWith('output')
+                ? key
+                : `output${inputHandles.length}`;
+              if (!handleMap.has(normalizedId)) {
+                handleMap.set(normalizedId, true);
+                inputHandles.push({ id: normalizedId });
+                console.log(`標準化 handle ID: ${key} -> ${normalizedId}`);
+              }
             }
           });
         }
@@ -78,9 +87,10 @@ export class WorkflowDataConverter {
           const savedHandles = node.parameters.inputHandles.data;
           if (Array.isArray(savedHandles)) {
             savedHandles.forEach((handleId) => {
-              if (!inputHandles.some((h) => h.id === handleId)) {
-                inputHandles.push({ id: handleId });
-                console.log(`從 parameters 提取 handle: ${handleId}`);
+              const normalizedId = handleId === 'input' ? 'output0' : handleId;
+              if (!inputHandles.some((h) => h.id === normalizedId)) {
+                inputHandles.push({ id: normalizedId });
+                console.log(`從 parameters 提取 handle: ${normalizedId}`);
               }
             });
           }
@@ -92,26 +102,44 @@ export class WorkflowDataConverter {
           console.log(`添加默認 handle: output0`);
         }
 
-        // 設置節點數據
+        // 設置節點數據，確保所有必要的屬性都存在
         reactFlowNode.data.inputHandles = inputHandles;
+
+        // 確保 node_input 與 inputHandles 同步
+        if (!reactFlowNode.data.node_input) {
+          reactFlowNode.data.node_input = {};
+        }
+
+        // 為每個 handle 確保有對應的 node_input 項目
+        inputHandles.forEach((handle) => {
+          if (!reactFlowNode.data.node_input[handle.id]) {
+            reactFlowNode.data.node_input[handle.id] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: ''
+            };
+          }
+        });
+
+        // 重要：立即標記節點為已初始化，避免重複初始化
+        reactFlowNode.data.isPreInitialized = true;
       }
 
       if (node.operator === 'webhook_output') {
         console.log(`特殊處理 webhook_output 節點: ${node.id}`);
 
-        // 從 node_input 提取所有 handle
         const inputHandles = [];
-        const handleMap = new Map(); // 用於記錄真實的 handle ID
+        const handleMap = new Map();
 
         if (node.node_input && typeof node.node_input === 'object') {
-          // 直接使用全部 handle ID
           const handlePattern = /^(text\d+)(?:_\d+)?$/;
           Object.keys(node.node_input).forEach((key) => {
             const match = key.match(handlePattern);
             if (match && match[1]) {
-              const baseHandleId = match[1]; // 提取基本 handle ID (如 output0)
-
-              // 如果這個基本 handle ID 還沒被加入，則添加
+              const baseHandleId = match[1];
               if (!handleMap.has(baseHandleId)) {
                 handleMap.set(baseHandleId, true);
                 inputHandles.push({ id: baseHandleId });
@@ -119,15 +147,26 @@ export class WorkflowDataConverter {
                   `從 node_input 提取基本 handle ID: ${baseHandleId}`
                 );
               }
+            } else if (key === 'input') {
+              // 處理舊版 'input' 格式，轉換為 'text0'
+              if (!handleMap.has('text0')) {
+                handleMap.set('text0', true);
+                inputHandles.push({ id: 'text0' });
+                console.log(`將舊版 'input' 轉換為 'text0'`);
+              }
             } else {
-              // 非標準格式的 handle ID 直接添加
-              inputHandles.push({ id: key });
-              console.log(`從 node_input 提取非標準 handle ID: ${key}`);
+              const normalizedId = key.startsWith('text')
+                ? key
+                : `text${inputHandles.length}`;
+              if (!handleMap.has(normalizedId)) {
+                handleMap.set(normalizedId, true);
+                inputHandles.push({ id: normalizedId });
+                console.log(`標準化 handle ID: ${key} -> ${normalizedId}`);
+              }
             }
           });
         }
 
-        // 檢查是否有從參數中保存的 inputHandles
         if (
           node.parameters &&
           node.parameters.inputHandles &&
@@ -136,47 +175,75 @@ export class WorkflowDataConverter {
           const savedHandles = node.parameters.inputHandles.data;
           if (Array.isArray(savedHandles)) {
             savedHandles.forEach((handleId) => {
-              if (!inputHandles.some((h) => h.id === handleId)) {
-                inputHandles.push({ id: handleId });
-                console.log(`從 parameters 提取 handle: ${handleId}`);
+              const normalizedId = handleId === 'input' ? 'text0' : handleId;
+              if (!inputHandles.some((h) => h.id === normalizedId)) {
+                inputHandles.push({ id: normalizedId });
+                console.log(`從 parameters 提取 handle: ${normalizedId}`);
               }
             });
           }
         }
 
-        // 確保至少有一個默認 handle
         if (inputHandles.length === 0) {
-          inputHandles.push({ id: 'output0' });
-          console.log(`添加默認 handle: output0`);
+          inputHandles.push({ id: 'text0' });
+          console.log(`添加默認 handle: text0`);
         }
 
-        // 設置節點數據
         reactFlowNode.data.inputHandles = inputHandles;
+
+        if (!reactFlowNode.data.node_input) {
+          reactFlowNode.data.node_input = {};
+        }
+
+        inputHandles.forEach((handle) => {
+          if (!reactFlowNode.data.node_input[handle.id]) {
+            reactFlowNode.data.node_input[handle.id] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: ''
+            };
+          }
+        });
+
+        reactFlowNode.data.isPreInitialized = true;
       }
 
       nodes.push(reactFlowNode);
     });
 
-    // 處理連接關係
+    // 處理連接關係 - 延遲處理，確保所有節點都已設置
+    setTimeout(() => {
+      this.createEdgesFromNodeInputs(flowPipeline, nodes, edges);
+    }, 0);
+
+    console.log(`轉換完成: ${nodes.length} 個節點, 準備創建連接`);
+
+    // 自動布局（如果位置都是 0,0）
+    this.autoLayout(nodes);
+
+    return { nodes, edges };
+  }
+
+  // 新增方法：從 node_input 創建邊緣
+  static createEdgesFromNodeInputs(flowPipeline, nodes, edges) {
     flowPipeline.forEach((node) => {
-      // 檢查節點類型
       const isAINode = node.operator === 'ask_ai';
       const isKnowledgeNode = node.operator === 'knowledge_retrieval';
       const isMessageNode = node.operator === 'line_send_message';
       const isExtractDataNode = node.operator === 'extract_data';
       const isQOCAAimNode = node.operator === 'aim_ml';
-      // 處理節點之間的連接
+
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
 
-        // 如果是 AI 節點，檢查是否有直接輸入的提示文本
         if (isAINode) {
           const promptInput = node.node_input.prompt;
           if (promptInput && promptInput.node_id === '') {
-            // 找到對應的 ReactFlow 節點
             const reactFlowNode = nodes.find((n) => n.id === node.id);
             if (reactFlowNode) {
-              // 設置直接輸入的 promptText
               reactFlowNode.data.promptText = promptInput.data || '';
               console.log(
                 `設置AI節點直接輸入的提示文本: "${promptInput.data}"`
@@ -185,58 +252,52 @@ export class WorkflowDataConverter {
           }
         }
 
-        // 創建連接 - 忽略標記為 is_empty 的空連接
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          // 跳過直接輸入的提示文本，已在上面處理
           if (inputKey === 'prompt' && inputValue.node_id === '') {
             return;
           }
 
-          // 跳過空連接（沒有源節點）
           if (!inputValue.node_id || inputValue.is_empty === true) {
             console.log(`跳過空連接: ${node.id}:${inputKey}`);
             return;
           }
 
-          // 為不同類型的節點處理特殊的 targetHandle
           let targetHandle = inputKey;
-          // 對於 BrowserExtensionOutput，處理多連線格式
+
+          // 處理不同節點類型的特殊targetHandle
           if (node.operator === 'browser_extension_output') {
             const match = inputKey.match(/^(output\d+)(?:_\d+)?$/);
             if (match && match[1]) {
-              targetHandle = match[1]; // 使用基本 handle ID
+              targetHandle = match[1];
+            } else if (inputKey === 'input') {
+              targetHandle = 'output0';
             }
           }
+
           if (node.operator === 'webhook_output') {
-            const match = inputKey.match(/^(output\d+)(?:_\d+)?$/);
+            const match = inputKey.match(/^(text\d+)(?:_\d+)?$/);
             if (match && match[1]) {
-              targetHandle = match[1]; // 使用基本 handle ID
+              targetHandle = match[1];
+            } else if (inputKey === 'input') {
+              targetHandle = 'text0';
             }
           }
-          // AI 節點特殊處理
+
           if (isAINode) {
-            // 處理 context 相關的輸入鍵
             if (inputKey.startsWith('context')) {
               targetHandle = 'context-input';
-            }
-            // 處理 prompt 相關的輸入鍵
-            else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
+            } else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
               targetHandle = 'prompt-input';
             }
-          }
-          // 知識檢索節點特殊處理
-          else if (isKnowledgeNode) {
-            // 統一使用 passage 作為目標 handle
+          } else if (isKnowledgeNode) {
             if (inputKey === 'passage' || inputKey === 'input') {
               targetHandle = 'passage';
             }
           } else if (isMessageNode) {
-            // 對於消息節點，統一使用 message 作為目標 handle
             if (inputKey.startsWith('message') || inputKey === 'input') {
               targetHandle = 'message';
             }
           } else if (isExtractDataNode) {
-            // 對於 Extract Data 節點，統一使用 context-input 作為目標 handle
             if (
               inputKey === 'context_to_extract_from' ||
               inputKey === 'input'
@@ -244,13 +305,11 @@ export class WorkflowDataConverter {
               targetHandle = 'context-input';
             }
           } else if (isQOCAAimNode) {
-            // 對於 QOCA AIM 節點，處理輸入連接
             if (inputKey === 'context' || inputKey === 'input') {
               targetHandle = 'input';
             }
           }
 
-          // 為每個邊緣創建一個唯一的 ID
           const edgeId = `${inputValue.node_id}-${node.id}-${inputKey}-${
             inputValue.output_name || 'output'
           }`;
@@ -259,14 +318,12 @@ export class WorkflowDataConverter {
             `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${targetHandle}`
           );
 
-          // 確認目標節點存在
           const targetNode = nodes.find((n) => n.id === node.id);
           if (!targetNode) {
             console.warn(`找不到目標節點 ${node.id}，跳過邊緣創建`);
             return;
           }
 
-          // 創建邊緣，添加 return_name 支持
           const edge = {
             id: edgeId,
             source: inputValue.node_id,
@@ -276,7 +333,6 @@ export class WorkflowDataConverter {
             type: 'custom-edge'
           };
 
-          // 如果有 return_name 屬性，添加為標籤
           if (inputValue.return_name) {
             edge.label = inputValue.return_name;
             console.log(
@@ -284,7 +340,6 @@ export class WorkflowDataConverter {
             );
           }
 
-          // 記錄詳細信息，幫助除錯
           console.log('創建的邊緣詳情:', {
             id: edge.id,
             source: edge.source,
@@ -298,13 +353,6 @@ export class WorkflowDataConverter {
         });
       }
     });
-
-    console.log(`轉換完成: ${nodes.length} 個節點, ${edges.length} 個連接`);
-
-    // 自動布局（如果位置都是 0,0）
-    this.autoLayout(nodes);
-
-    return { nodes, edges };
   }
   /**
    * 將 API 節點數據轉換為 ReactFlow 節點數據
