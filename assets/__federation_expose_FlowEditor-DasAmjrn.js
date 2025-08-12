@@ -24118,7 +24118,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "3848c215e0a83c961b757f9d05661dfbd1eec218", "VITE_APP_BUILD_TIME": "2025-08-12T01:57:25.736Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.1"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1c3fa9e0278492679b36e3f3e8d9f4788f04f2ca", "VITE_APP_BUILD_TIME": "2025-08-12T07:12:13.960Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.2"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26164,6 +26164,17 @@ class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
+      case 'router_switch': {
+        // Router Switch 節點根據 routers 數組動態生成輸出
+        const routers = node.data?.routers || [];
+
+        routers.forEach((router) => {
+          // 使用 router_id 作為 node_output 的 key
+          nodeOutput[router.router_id] = {};
+        });
+
+        break;
+      }
       // case 'httpRequest':
       // HTTP Request 節點輸出
       // nodeOutput.output = {
