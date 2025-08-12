@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$B = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$1,memo: memo$o,useRef: useRef$m,useState: useState$x,useEffect: useEffect$q,forwardRef: forwardRef$2,useCallback: useCallback$n} = React$B;
+const {createContext,useContext,useMemo: useMemo$2,memo: memo$o,useRef: useRef$m,useState: useState$x,useEffect: useEffect$q,forwardRef: forwardRef$2,useCallback: useCallback$n} = React$B;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3893,7 +3893,7 @@ const useStoreApi = () => {
   if (store === null) {
     throw new Error(zustandErrorMessage);
   }
-  return useMemo$1(() => ({
+  return useMemo$2(() => ({
     getState: store.getState,
     setState: store.setState,
     subscribe: store.subscribe,
@@ -4289,7 +4289,7 @@ const SmoothStepEdge = memo$o(({ sourceX, sourceY, targetX, targetY, label, labe
   return React$B.createElement(BaseEdge, { path, labelX, labelY, label, labelStyle, labelShowBg, labelBgStyle, labelBgPadding, labelBgBorderRadius, style: style2, markerEnd, markerStart, interactionWidth });
 });
 SmoothStepEdge.displayName = "SmoothStepEdge";
-const StepEdge = memo$o((props) => React$B.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$1(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
+const StepEdge = memo$o((props) => React$B.createElement(SmoothStepEdge, { ...props, pathOptions: useMemo$2(() => ({ borderRadius: 0, offset: props.pathOptions?.offset }), [props.pathOptions?.offset]) }));
 StepEdge.displayName = "StepEdge";
 function getStraightPath({ sourceX, sourceY, targetX, targetY }) {
   const [labelX, labelY, offsetX, offsetY] = getEdgeCenter({
@@ -5060,7 +5060,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
   const [keyPressed, setKeyPressed] = useState$x(false);
   const modifierPressed = useRef$m(false);
   const pressedKeys = useRef$m(/* @__PURE__ */ new Set([]));
-  const [keyCodes, keysToWatch] = useMemo$1(() => {
+  const [keyCodes, keysToWatch] = useMemo$2(() => {
     if (keyCode !== null) {
       const keyCodeArr = Array.isArray(keyCode) ? keyCode : [keyCode];
       const keys = keyCodeArr.filter((kc) => typeof kc === "string").map((kc) => kc.split("+"));
@@ -5279,7 +5279,7 @@ const selector$b = (s) => ({
 const useViewportHelper = () => {
   const store = useStoreApi();
   const { d3Zoom, d3Selection } = useStore(selector$b, shallow$1);
-  const viewportHelperFunctions = useMemo$1(() => {
+  const viewportHelperFunctions = useMemo$2(() => {
     if (d3Selection && d3Zoom) {
       return {
         zoomIn: (options) => d3Zoom.scaleBy(getD3Transition(d3Selection, options?.duration), 1.2),
@@ -5510,7 +5510,7 @@ function useReactFlow() {
     const partiallyVisible = partially && overlappingArea > 0;
     return partiallyVisible || overlappingArea >= nodeRect.width * nodeRect.height;
   }, []);
-  return useMemo$1(() => {
+  return useMemo$2(() => {
     return {
       ...viewportHelper,
       getNodes,
@@ -6747,7 +6747,7 @@ const NodeRenderer = (props) => {
   const { nodesDraggable, nodesConnectable, nodesFocusable, elementsSelectable, updateNodeDimensions, onError } = useStore(selector$5, shallow$1);
   const nodes = useVisibleNodes(props.onlyRenderVisibleElements);
   const resizeObserverRef = useRef$m();
-  const resizeObserver = useMemo$1(() => {
+  const resizeObserver = useMemo$2(() => {
     if (typeof ResizeObserver === "undefined") {
       return null;
     }
@@ -6816,8 +6816,8 @@ var wrapEdge = (EdgeComponent) => {
     const [updateHover, setUpdateHover] = useState$x(false);
     const [updating, setUpdating] = useState$x(false);
     const store = useStoreApi();
-    const markerStartUrl = useMemo$1(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
-    const markerEndUrl = useMemo$1(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
+    const markerStartUrl = useMemo$2(() => `url('#${getMarkerId(markerStart, rfId)}')`, [markerStart, rfId]);
+    const markerEndUrl = useMemo$2(() => `url('#${getMarkerId(markerEnd, rfId)}')`, [markerEnd, rfId]);
     if (hidden) {
       return null;
     }
@@ -7094,7 +7094,7 @@ const MarkerSymbols = {
 };
 function useMarkerSymbol(type) {
   const store = useStoreApi();
-  const symbol = useMemo$1(() => {
+  const symbol = useMemo$2(() => {
     const symbolExists = Object.prototype.hasOwnProperty.call(MarkerSymbols, type);
     if (!symbolExists) {
       store.getState().onError?.("009", errorMessages["error009"](type));
@@ -7300,7 +7300,7 @@ function ConnectionLineWrapper({ containerStyle: containerStyle2, style: style2,
 function useNodeOrEdgeTypes(nodeOrEdgeTypes, createTypes) {
   useRef$m(null);
   useStoreApi();
-  const typesParsed = useMemo$1(() => {
+  const typesParsed = useMemo$2(() => {
     return createTypes(nodeOrEdgeTypes);
   }, [nodeOrEdgeTypes]);
   return typesParsed;
@@ -24118,7 +24118,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0e1674d49633edec265c1e7e57a364ba12063f57", "VITE_APP_BUILD_TIME": "2025-08-11T07:06:04.084Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.0"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "3848c215e0a83c961b757f9d05661dfbd1eec218", "VITE_APP_BUILD_TIME": "2025-08-12T01:57:25.736Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.1"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -25363,7 +25363,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
 const CustomInputNode$1 = memo$i(CustomInputNode);
 
 const API_CONFIG = {
-  BASE_URL: "http://172.20.2.5:9000/v1",
+  BASE_URL: "https://api-dev-qoca-apa.qrilab.com/v1",
   CREATE_WEBHOOK_URL: "https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook"
 };
 
@@ -39039,20 +39039,19 @@ const CombineTextEditor = forwardRef$1(
 CombineTextEditor.displayName = "CombineTextEditor";
 
 const React$7 = await importShared('react');
-const {memo: memo$1,useState: useState$8,useEffect: useEffect$4,useCallback: useCallback$3,useRef: useRef$3} = React$7;
+const {memo: memo$1,useState: useState$8,useEffect: useEffect$4,useCallback: useCallback$3,useRef: useRef$3,useMemo: useMemo$1} = React$7;
 const {flushSync} = await importShared('react-dom');
 
 const CombineTextNode = ({ data, isConnectable, id }) => {
   const edges = useEdges();
   const nodes = useNodes();
-  const [textToCombine, setTextToCombine] = useState$8(data?.textToCombine || "");
+  const [content, setContent] = useState$8(data?.textToCombine || "");
   const [showInputPanel, setShowInputPanel] = useState$8(false);
   const [filterText, setFilterText] = useState$8("");
   const [inputHandles, setInputHandles] = useState$8(
     data?.inputHandles || [{ id: "text0" }]
   );
   const [activeTab, setActiveTab] = useState$8(data?.activeTab || "editor");
-  const [editorContent, setEditorContent] = useState$8(data?.textToCombine || "");
   const [editorHtmlContent, setEditorHtmlContent] = useState$8(
     data?.editorHtmlContent || ""
   );
@@ -39060,39 +39059,132 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   const textareaRef = useRef$3(null);
   const previewRef = useRef$3(null);
   const inputPanelRef = useRef$3(null);
-  const connectionCount = edges.filter((edge) => edge.target === id).length;
-  const getFlowId = useCallback$3(() => {
-    if (data?.flowId) {
-      return data.flowId;
+  const stableContentRef = useRef$3(data?.textToCombine || "");
+  const updateTimeoutRef = useRef$3(null);
+  const isUpdatingRef = useRef$3(false);
+  const lastRenderContentRef = useRef$3("");
+  const connectionCount = useMemo$1(
+    () => edges.filter((edge) => edge.target === id).length,
+    [edges, id]
+  );
+  const getEditorContent = useCallback$3(() => {
+    if (!textareaRef.current) return null;
+    try {
+      if (typeof textareaRef.current.getValue === "function") {
+        return textareaRef.current.getValue();
+      }
+    } catch (error) {
+      console.warn("獲取編輯器內容失敗:", error);
     }
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlFlowId = urlParams.get("flowId") || urlParams.get("flow_id");
-    if (urlFlowId) {
-      return urlFlowId;
-    }
-    const pathMatch = window.location.pathname.match(/\/flow\/([^\/]+)/);
-    if (pathMatch) {
-      return pathMatch[1];
-    }
-    if (typeof window !== "undefined" && window.currentFlowId) {
-      return window.currentFlowId;
-    }
-    return "9e956c37-20ea-47a5-bcd5-3cafc35b967d";
-  }, [data]);
-  const getCurrentContent = useCallback$3(() => {
-    if (activeTab === "editor" && textareaRef.current && textareaRef.current.getValue) {
+    return null;
+  }, []);
+  const updateContent = useCallback$3(
+    (newContent) => {
+      if (isUpdatingRef.current) return;
+      if (!newContent && stableContentRef.current) {
+        console.warn("拒絕空內容更新，保持現有內容");
+        return;
+      }
+      if (newContent === stableContentRef.current) {
+        return;
+      }
+      isUpdatingRef.current = true;
       try {
-        const editorCurrentContent = textareaRef.current.getValue();
-        if (editorCurrentContent) {
-          return editorCurrentContent;
+        stableContentRef.current = newContent;
+        setContent(newContent);
+        if (data && typeof data.updateNodeData === "function") {
+          data.updateNodeData("textToCombine", newContent);
         }
-      } catch (error) {
-        console.warn("從編輯器獲取內容失敗:", error);
+      } finally {
+        setTimeout(() => {
+          isUpdatingRef.current = false;
+        }, 100);
+      }
+    },
+    [data]
+  );
+  const getCurrentContent = useCallback$3(() => {
+    if (activeTab === "editor") {
+      const editorContent = getEditorContent();
+      if (editorContent !== null) {
+        return editorContent;
       }
     }
-    return textToCombine || editorContent || "";
-  }, [textToCombine, editorContent, activeTab]);
-  const copyToClipboard = async () => {
+    return content || stableContentRef.current || "";
+  }, [activeTab, content, getEditorContent]);
+  const handleTextChange = useCallback$3(
+    (e) => {
+      const newContent = e.target.value;
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      updateTimeoutRef.current = setTimeout(() => {
+        updateContent(newContent, "handleTextChange");
+        if (textareaRef.current) {
+          try {
+            const htmlContent = textareaRef.current.innerHTML || "";
+            if (htmlContent !== editorHtmlContent) {
+              setEditorHtmlContent(htmlContent);
+              if (data && typeof data.updateNodeData === "function") {
+                data.updateNodeData("editorHtmlContent", htmlContent);
+              }
+            }
+          } catch (error) {
+            console.warn("更新 HTML 內容失敗:", error);
+          }
+        }
+      }, 300);
+    },
+    [updateContent, editorHtmlContent, data]
+  );
+  const handleTagInsert = useCallback$3(() => {
+    setTimeout(() => {
+      const editorContent = getEditorContent();
+      if (editorContent) {
+        updateContent(editorContent, "handleTagInsert");
+        if (textareaRef.current) {
+          try {
+            const htmlContent = textareaRef.current.innerHTML || "";
+            setEditorHtmlContent(htmlContent);
+            if (data && typeof data.updateNodeData === "function") {
+              data.updateNodeData("editorHtmlContent", htmlContent);
+            }
+          } catch (error) {
+            console.warn("更新 HTML 內容失敗:", error);
+          }
+        }
+      }
+    }, 200);
+  }, [getEditorContent, updateContent, data]);
+  const handleTabChange = useCallback$3(
+    (newTab) => {
+      if (activeTab === "editor" && newTab === "preview") {
+        const currentContent = getEditorContent();
+        if (currentContent && currentContent !== stableContentRef.current) {
+          try {
+            flushSync(() => {
+              updateContent(currentContent, "handleTabChange");
+              setActiveTab(newTab);
+            });
+          } catch (error) {
+            console.error("flushSync 失敗:", error);
+            updateContent(currentContent, "handleTabChange");
+            setActiveTab(newTab);
+          }
+          if (data && typeof data.updateNodeData === "function") {
+            data.updateNodeData("activeTab", newTab);
+          }
+          return;
+        }
+      }
+      setActiveTab(newTab);
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData("activeTab", newTab);
+      }
+    },
+    [activeTab, getEditorContent, updateContent, data]
+  );
+  const copyToClipboard = useCallback$3(async () => {
     try {
       const selection = window.getSelection();
       let textToCopy = "";
@@ -39148,7 +39240,187 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         });
       }
     }
-  };
+  }, [getCurrentContent]);
+  const closeInputPanel = useCallback$3(() => {
+    setShowInputPanel(false);
+    setFilterText("");
+  }, []);
+  const handleShowPanel = useCallback$3(
+    (show) => {
+      if (activeTab === "editor") {
+        setShowInputPanel(show);
+        if (!show) {
+          setFilterText("");
+        }
+      }
+    },
+    [activeTab]
+  );
+  const handleTagClick = useCallback$3(
+    (nodeInfo) => {
+      if (textareaRef.current && textareaRef.current.insertTagAtCursor) {
+        textareaRef.current.insertTagAtCursor(nodeInfo);
+        setTimeout(() => {
+          const newContent = getEditorContent();
+          if (newContent) {
+            updateContent(newContent, "handleTagClick");
+          }
+        }, 100);
+      }
+      closeInputPanel();
+    },
+    [getEditorContent, updateContent, closeInputPanel]
+  );
+  const handleTagDragStart = useCallback$3((e, nodeInfo) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify(nodeInfo));
+    e.dataTransfer.effectAllowed = "copy";
+  }, []);
+  const handleWheel = useCallback$3((e) => {
+    const target = e.currentTarget;
+    const isScrollable = target.scrollHeight > target.clientHeight;
+    if (isScrollable) {
+      e.stopPropagation();
+      const deltaY = e.deltaY;
+      const currentScrollTop = target.scrollTop;
+      const maxScrollTop = target.scrollHeight - target.clientHeight;
+      const newScrollTop = Math.max(
+        0,
+        Math.min(maxScrollTop, currentScrollTop + deltaY)
+      );
+      target.scrollTop = newScrollTop;
+      e.preventDefault();
+    } else {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, []);
+  const handleMouseDown = useCallback$3((e) => e.stopPropagation(), []);
+  const handleMouseMove = useCallback$3((e) => e.stopPropagation(), []);
+  const handleMouseUp = useCallback$3((e) => e.stopPropagation(), []);
+  const getFlowId = useCallback$3(() => {
+    if (data?.flowId) return data.flowId;
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlFlowId = urlParams.get("flowId") || urlParams.get("flow_id");
+    if (urlFlowId) return urlFlowId;
+    const pathMatch = window.location.pathname.match(/\/flow\/([^\/]+)/);
+    if (pathMatch) return pathMatch[1];
+    if (typeof window !== "undefined" && window.currentFlowId) {
+      return window.currentFlowId;
+    }
+    return "";
+  }, [data?.flowId]);
+  const connectedNodesInfo = useMemo$1(() => {
+    const connectedEdges = edges.filter((edge) => edge.target === id);
+    return connectedEdges.map((edge) => {
+      const sourceNode = nodes.find((n) => n.id === edge.source);
+      const getNodeDisplayName = (sourceNode2) => {
+        if (!sourceNode2) return "Unknown";
+        switch (sourceNode2.type) {
+          case "customInput":
+          case "input":
+            return "Input";
+          case "aiCustomInput":
+          case "ai":
+            return "AI";
+          case "aim_ml":
+            return "ML Node";
+          case "browserExtensionInput":
+            return "Browser Extension Input";
+          case "webhook_input":
+            return "Webhook Input Node";
+          case "knowledgeRetrieval":
+            return "Knowledge Retrieval";
+          case "extract_data":
+            return "Extract Data Node";
+          case "line_webhook_input":
+            return "Line Webhook Input";
+          case "httpRequest":
+            return "HTTP Request Node";
+          case "schedule_trigger":
+            return "Schedule node";
+          case "combine_text":
+            return "Combine Text Node";
+          case "webhook_output":
+            return "Webhook Output Node";
+          case "browserExtensionOutput":
+            return "Browser Extension Output";
+          case "router_switch":
+            return "Router Switch Node";
+          default:
+            return `${sourceNode2.type.charAt(0).toUpperCase() + sourceNode2.type.slice(1)}`;
+        }
+      };
+      const getNodeTagColor = (nodeName2) => {
+        const colorMap = {
+          Input: "#0075FF",
+          AI: "#FFAA1E",
+          "Knowledge Retrieval": "#87CEEB",
+          "Browser Extension Input": "#1FCD28",
+          "Line Webhook Input": "#06C755",
+          "Extract Data Node": "#D97706",
+          "ML Node": "#098D7F",
+          "HTTP Request Node": "#F8D7DA",
+          "Schedule node": "#DCCAFA",
+          "Webhook Input Node": "#FC6165",
+          "Combine Text Node": "#4E7ECF",
+          "Router Switch Node": "#00ced1"
+        };
+        return colorMap[nodeName2] || "#6b7280";
+      };
+      const nodeName = getNodeDisplayName(sourceNode);
+      return {
+        id: edge.source,
+        name: nodeName,
+        outputName: edge.sourceHandle || "output",
+        handleId: edge.targetHandle,
+        nodeType: sourceNode?.type || "unknown",
+        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
+        code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
+        color: getNodeTagColor(nodeName)
+      };
+    });
+  }, [edges, nodes, id]);
+  const filteredNodes = useMemo$1(
+    () => connectedNodesInfo.filter(
+      (node) => node.name.toLowerCase().includes(filterText.toLowerCase())
+    ),
+    [connectedNodesInfo, filterText]
+  );
+  const previewContent = useMemo$1(() => {
+    const displayContent = getCurrentContent();
+    if (displayContent !== lastRenderContentRef.current) {
+      console.log("Preview 內容更新:", displayContent?.substring(0, 100));
+      lastRenderContentRef.current = displayContent;
+    }
+    return displayContent || "點擊此處編輯內容...";
+  }, [getCurrentContent]);
+  useEffect$4(() => {
+    if (!isInitialized && data) {
+      console.log("執行一次性初始化同步");
+      const initialContent = data.textToCombine || "";
+      stableContentRef.current = initialContent;
+      lastRenderContentRef.current = initialContent;
+      if (data.activeTab && data.activeTab !== activeTab) {
+        setActiveTab(data.activeTab);
+      }
+      if (data.editorHtmlContent && data.editorHtmlContent !== editorHtmlContent) {
+        setEditorHtmlContent(data.editorHtmlContent);
+      }
+      if (initialContent !== content) {
+        setContent(initialContent);
+      }
+      setIsInitialized(true);
+    }
+  }, [data, isInitialized, activeTab, editorHtmlContent, content]);
+  useEffect$4(() => {
+    const singleHandle = [{ id: "text" }];
+    if (JSON.stringify(singleHandle) !== JSON.stringify(inputHandles)) {
+      setInputHandles(singleHandle);
+      if (data && typeof data.updateNodeData === "function") {
+        data.updateNodeData("inputHandles", singleHandle);
+      }
+    }
+  }, [inputHandles, data]);
   useEffect$4(() => {
     const connectedEdges = edges.filter((edge) => edge.target === id);
     if (connectedEdges.length > 0 && data && typeof data.updateNodeData === "function") {
@@ -39226,274 +39498,13 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       }
     }
   }, [edges, id, data, nodes]);
-  const getConnectedNodes = useCallback$3(() => {
-    const connectedEdges = edges.filter((edge) => edge.target === id);
-    return connectedEdges.map((edge) => {
-      const sourceNode = nodes.find((n) => n.id === edge.source);
-      return {
-        id: edge.source,
-        name: getNodeDisplayName(sourceNode),
-        outputName: edge.sourceHandle || "output",
-        handleId: edge.targetHandle,
-        nodeType: sourceNode?.type || "unknown",
-        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
-        code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
-        color: getNodeTagColor(getNodeDisplayName(sourceNode))
-      };
-    });
-  }, [edges, nodes, id]);
-  const getNodeDisplayName = (sourceNode) => {
-    if (!sourceNode) return "Unknown";
-    switch (sourceNode.type) {
-      case "customInput":
-      case "input":
-        return "Input";
-      case "aiCustomInput":
-      case "ai":
-        return "AI";
-      case "aim_ml":
-        return "ML Node";
-      case "browserExtensionInput":
-        return "Browser Extension Input";
-      case "webhook_input":
-        return "Webhook Input Node";
-      case "knowledgeRetrieval":
-        return "Knowledge Retrieval";
-      case "extract_data":
-        return "Extract Data Node";
-      case "line_webhook_input":
-        return "Line Webhook Input";
-      case "httpRequest":
-        return "HTTP Request Node";
-      case "schedule_trigger":
-        return "Schedule node";
-      case "combine_text":
-        return "Combine Text Node";
-      case "webhook_output":
-        return "Webhook Output Node";
-      case "browserExtensionOutput":
-        return "Browser Extension Output";
-      default:
-        return `${sourceNode.type.charAt(0).toUpperCase() + sourceNode.type.slice(1)}`;
-    }
-  };
-  const getNodeTagColor = (nodeName) => {
-    const colorMap = {
-      Input: "#0075FF",
-      AI: "#FFAA1E",
-      "Knowledge Retrieval": "#87CEEB",
-      "Browser Extension Input": "#1FCD28",
-      "Line Webhook Input": "#06C755",
-      "Extract Data Node": "#D97706",
-      "ML Node": "#098D7F",
-      "HTTP Request Node": "#F8D7DA",
-      "Schedule node": "#DCCAFA",
-      "Webhook Input Node": "#FC6165",
-      "Combine Text Node": "#4E7ECF"
+  useEffect$4(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
     };
-    return colorMap[nodeName] || "#6b7280";
-  };
-  const handleTextChange = useCallback$3(
-    (e) => {
-      const newContent = e.target.value;
-      console.log(
-        "handleTextChange 收到新內容:",
-        newContent?.substring(0, 100)
-      );
-      setTextToCombine(newContent);
-      setEditorContent(newContent);
-      if (data && typeof data.updateNodeData === "function") {
-        data.updateNodeData("textToCombine", newContent);
-      }
-      try {
-        if (textareaRef.current?.innerHTML !== void 0) {
-          const htmlContent = textareaRef.current.innerHTML || "";
-          setEditorHtmlContent(htmlContent);
-          if (data && typeof data.updateNodeData === "function") {
-            data.updateNodeData("editorHtmlContent", htmlContent);
-          }
-        }
-      } catch (error) {
-        console.warn("更新 HTML 內容失敗:", error);
-      }
-    },
-    [data]
-  );
-  const closeInputPanel = useCallback$3(() => {
-    setShowInputPanel(false);
-    setFilterText("");
   }, []);
-  const handleShowPanel = useCallback$3(
-    (show) => {
-      if (activeTab === "editor") {
-        setShowInputPanel(show);
-        if (!show) {
-          setFilterText("");
-        }
-      }
-    },
-    [activeTab]
-  );
-  const handleTagClick = useCallback$3(
-    (nodeInfo) => {
-      if (textareaRef.current && textareaRef.current.insertTagAtCursor) {
-        textareaRef.current.insertTagAtCursor(nodeInfo);
-        setTimeout(() => {
-          if (textareaRef.current && textareaRef.current.getValue) {
-            const newContent = textareaRef.current.getValue();
-            console.log("標籤插入後獲取內容:", newContent?.substring(0, 100));
-            setTextToCombine(newContent);
-            setEditorContent(newContent);
-            if (data && typeof data.updateNodeData === "function") {
-              data.updateNodeData("textToCombine", newContent);
-            }
-          }
-        }, 0);
-      }
-      closeInputPanel();
-    },
-    [closeInputPanel, data]
-  );
-  const handleTagDragStart = useCallback$3((e, nodeInfo) => {
-    e.dataTransfer.setData("text/plain", JSON.stringify(nodeInfo));
-    e.dataTransfer.effectAllowed = "copy";
-  }, []);
-  const handleTagInsert = useCallback$3(
-    (tag) => {
-      console.log("標籤已插入:", tag);
-      requestAnimationFrame(() => {
-        if (textareaRef.current) {
-          const newContent = textareaRef.current.getValue ? textareaRef.current.getValue() : textToCombine;
-          setTextToCombine(newContent);
-          setEditorContent(newContent);
-          try {
-            const htmlContent = textareaRef.current.innerHTML || "";
-            setEditorHtmlContent(htmlContent);
-            if (data && typeof data.updateNodeData === "function") {
-              data.updateNodeData("textToCombine", newContent);
-              data.updateNodeData("editorHtmlContent", htmlContent);
-            }
-          } catch (error) {
-            console.warn("更新 HTML 內容失敗:", error);
-            if (data && typeof data.updateNodeData === "function") {
-              data.updateNodeData("textToCombine", newContent);
-            }
-          }
-        }
-      });
-    },
-    [data, textToCombine]
-  );
-  const handleTabChange = useCallback$3(
-    (newTab) => {
-      if (activeTab === "editor" && newTab === "preview") {
-        if (textareaRef.current && textareaRef.current.getValue) {
-          const currentContent = textareaRef.current.getValue();
-          let htmlContent = "";
-          try {
-            if (textareaRef.current && textareaRef.current.innerHTML !== void 0) {
-              htmlContent = textareaRef.current.innerHTML;
-            }
-          } catch (error) {
-            console.warn("獲取 HTML 內容失敗:", error);
-          }
-          try {
-            flushSync(() => {
-              setTextToCombine(currentContent);
-              setEditorContent(currentContent);
-              if (htmlContent) {
-                setEditorHtmlContent(htmlContent);
-              }
-              setActiveTab(newTab);
-            });
-          } catch (error) {
-            console.error("flushSync 失敗，使用普通更新:", error);
-            setTextToCombine(currentContent);
-            setEditorContent(currentContent);
-            if (htmlContent) {
-              setEditorHtmlContent(htmlContent);
-            }
-            setActiveTab(newTab);
-          }
-          if (data && typeof data.updateNodeData === "function") {
-            data.updateNodeData("textToCombine", currentContent);
-            data.updateNodeData("activeTab", newTab);
-            if (htmlContent) {
-              data.updateNodeData("editorHtmlContent", htmlContent);
-            }
-          }
-        } else {
-          console.log("編輯器 ref 不存在，直接切換標籤頁");
-          setActiveTab(newTab);
-          if (data && typeof data.updateNodeData === "function") {
-            data.updateNodeData("activeTab", newTab);
-          }
-        }
-      } else {
-        setActiveTab(newTab);
-        if (data && typeof data.updateNodeData === "function") {
-          data.updateNodeData("activeTab", newTab);
-        }
-      }
-    },
-    [activeTab, data]
-  );
-  const handleWheel = useCallback$3((e) => {
-    const target = e.currentTarget;
-    const isScrollable = target.scrollHeight > target.clientHeight;
-    if (isScrollable) {
-      e.stopPropagation();
-      const deltaY = e.deltaY;
-      const currentScrollTop = target.scrollTop;
-      const maxScrollTop = target.scrollHeight - target.clientHeight;
-      const newScrollTop = Math.max(
-        0,
-        Math.min(maxScrollTop, currentScrollTop + deltaY)
-      );
-      target.scrollTop = newScrollTop;
-      e.preventDefault();
-    } else {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }, []);
-  const handleMouseDown = useCallback$3((e) => {
-    e.stopPropagation();
-  }, []);
-  const handleMouseMove = useCallback$3((e) => {
-    e.stopPropagation();
-  }, []);
-  const handleMouseUp = useCallback$3((e) => {
-    e.stopPropagation();
-  }, []);
-  const filteredNodes = getConnectedNodes().filter(
-    (node) => node.name.toLowerCase().includes(filterText.toLowerCase())
-  );
-  useEffect$4(() => {
-    if (!isInitialized && data) {
-      console.log("執行一次性初始化同步");
-      if (data.activeTab && data.activeTab !== activeTab) {
-        setActiveTab(data.activeTab);
-      }
-      if (data.editorHtmlContent && data.editorHtmlContent !== editorHtmlContent) {
-        setEditorHtmlContent(data.editorHtmlContent);
-      }
-      if (data.textToCombine !== void 0) {
-        setTextToCombine(data.textToCombine);
-        setEditorContent(data.textToCombine);
-      }
-      setIsInitialized(true);
-    }
-  }, [data, isInitialized, activeTab, editorHtmlContent]);
-  useEffect$4(() => {
-    const singleHandle = [{ id: "text" }];
-    if (JSON.stringify(singleHandle) !== JSON.stringify(inputHandles)) {
-      setInputHandles(singleHandle);
-      if (data && typeof data.updateNodeData === "function") {
-        data.updateNodeData("inputHandles", singleHandle);
-      }
-    }
-  }, [inputHandles, data]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-96", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[#dbeafe] p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
@@ -39511,7 +39522,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               "button",
               {
                 onClick: copyToClipboard,
-                className: "px-3 py-1  text-white rounded-md transition-colors text-sm flex items-center space-x-1",
+                className: "px-3 py-1 text-white rounded-md transition-colors text-sm flex items-center space-x-1",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "img",
                   {
@@ -39552,7 +39563,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
           CombineTextEditor,
           {
             ref: textareaRef,
-            value: isInitialized ? void 0 : textToCombine,
+            value: isInitialized ? void 0 : content,
             onChange: handleTextChange,
             onTagInsert: handleTagInsert,
             placeholder: "點擊此處編輯內容...",
@@ -39599,7 +39610,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                   whiteSpace: "pre-wrap",
                   margin: 0
                 },
-                children: getCurrentContent()
+                children: previewContent
               }
             )
           }
@@ -39752,12 +39763,8 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               "div",
               {
                 className: "flex-1 overflow-y-auto p-4 min-h-0",
-                style: {
-                  maxHeight: "calc(400px - 60px)"
-                },
-                onWheelCapture: (e) => {
-                  e.stopPropagation();
-                },
+                style: { maxHeight: "calc(400px - 60px)" },
+                onWheelCapture: (e) => e.stopPropagation(),
                 onMouseDownCapture: (e) => e.stopPropagation(),
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mb-3 block text-sm font-medium text-gray-700", children: "Input" }),
@@ -41316,7 +41323,7 @@ const React$4 = await importShared('react');
 const {useState: useState$4} = React$4;
 const LoadWorkflowButton = ({ onLoad }) => {
   const [workflowId, setWorkflowId] = useState$4(
-    "19217351-a0b5-43b6-8a50-d17faab91b91"
+    "cb419ef0-ac18-4f73-9178-499b31136e48"
   );
   const [showInput, setShowInput] = useState$4(false);
   const { state, setLoading, setSuccess, setError } = useButtonState();
