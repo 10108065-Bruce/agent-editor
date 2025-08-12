@@ -795,6 +795,17 @@ export class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
+      case 'router_switch': {
+        // Router Switch 節點根據 routers 數組動態生成輸出
+        const routers = node.data?.routers || [];
+
+        routers.forEach((router) => {
+          // 使用 router_id 作為 node_output 的 key
+          nodeOutput[router.router_id] = {};
+        });
+
+        break;
+      }
       // case 'httpRequest':
       // HTTP Request 節點輸出
       // nodeOutput.output = {
