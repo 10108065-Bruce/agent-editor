@@ -207,7 +207,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     setNodes: setFlowNodes,
     setEdges: setFlowEdges,
     getNodeCallbacks,
-    handleAutoLayout
+    handleAutoLayout,
+    startWorkflowLoading,
+    finishWorkflowLoading
   } = useFlowNodes();
 
   // 儲存流程元資料
@@ -257,6 +259,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const loadWorkflowImpl = async (flowId) => {
     if (flowId !== 'new') {
       try {
+        // 在開始載入前暫停清理功能
+        if (startWorkflowLoading) {
+          startWorkflowLoading();
+        }
+
         const apiData = await workflowAPIService.loadWorkflow(flowId);
 
         // eslint-disable-next-line no-prototype-builtins
@@ -294,13 +301,12 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           };
         });
 
-        // 先設置節點，確保所有節點都已準備好
+        // 同時設置節點和邊緣，避免中間狀態
         setFlowNodes(nodesWithCallbacks);
+        setFlowEdges(transformedEdges);
 
-        // 等待一個渲染週期，然後設置邊緣
+        // 確保所有設置完成後再恢復清理功能
         setTimeout(() => {
-          setFlowEdges(transformedEdges);
-
           debugBrowserExtensionOutput(transformedNodes, transformedEdges);
 
           setFlowMetadata((prev) => ({
@@ -328,8 +334,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               console.log('載入工作流後，執行一次畫布縮放以顯示所有節點...');
               reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
             }
-          }, 500); // 增加延遲時間，確保所有handle都已正確渲染
-        }, 100); // 給節點時間完成初始化
+
+            // 所有操作完成後恢復清理功能
+            if (finishWorkflowLoading) {
+              finishWorkflowLoading();
+            }
+          }, 500);
+        }, 100);
 
         window.notify({
           message: '工作流載入成功',
@@ -339,6 +350,12 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         return true;
       } catch (error) {
         console.error('載入工作流失敗:', error);
+
+        // 載入失敗時也要恢復清理功能
+        if (finishWorkflowLoading) {
+          finishWorkflowLoading();
+        }
+
         window.notify({
           message: '載入工作流失敗',
           type: 'error',

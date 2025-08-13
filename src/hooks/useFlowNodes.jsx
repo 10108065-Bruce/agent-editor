@@ -26,6 +26,7 @@ export default function useFlowNodes() {
   const redoStack = useRef([]);
   const nodeCallbacks = useRef({});
   const isUpdatingNodes = useRef(false);
+  const isLoadingWorkflow = useRef(false);
 
   // dagre 自動排版函數
   const handleAutoLayout = useCallback(
@@ -2418,14 +2419,45 @@ export default function useFlowNodes() {
   }, [nodes, edges, setNodes]);
 
   useEffect(() => {
+    // 只有在非載入狀態且節點/邊緣穩定後才清理
+    if (isLoadingWorkflow.current) {
+      return;
+    }
+
     // 延遲執行清理，避免在正常操作中干擾
     const timeoutId = setTimeout(() => {
       cleanupInvalidEdges();
       cleanupNodeInputs();
-    }, 500);
+    }, 1000); // 增加延遲時間，確保載入完成
 
     return () => clearTimeout(timeoutId);
   }, [nodes.length, edges.length]); // 只在節點或邊緣數量變化時觸發
+
+  // 添加工作流載入控制函數
+  const startWorkflowLoading = useCallback(() => {
+    isLoadingWorkflow.current = true;
+  }, []);
+
+  const finishWorkflowLoading = useCallback(() => {
+    // 延遲恢復清理功能，確保所有設置都完成
+    setTimeout(() => {
+      isLoadingWorkflow.current = false;
+    }, 2000);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.startWorkflowLoading = startWorkflowLoading;
+      window.finishWorkflowLoading = finishWorkflowLoading;
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete window.startWorkflowLoading;
+        delete window.finishWorkflowLoading;
+      }
+    };
+  }, [startWorkflowLoading, finishWorkflowLoading]);
 
   // 暴露清理方法供外部使用
   useEffect(() => {
@@ -2483,6 +2515,8 @@ export default function useFlowNodes() {
     getNodeCallbacks,
     handleAutoLayout, // 新增的自動排版函數
     deleteEdgesByHandle,
-    deleteEdgesBySourceHandle
+    deleteEdgesBySourceHandle,
+    startWorkflowLoading,
+    finishWorkflowLoading
   };
 }
