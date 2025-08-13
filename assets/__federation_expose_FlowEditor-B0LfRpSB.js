@@ -24144,7 +24144,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6ab054b03dd4c3438c96cfbd2e20be4567fe9c4b", "VITE_APP_BUILD_TIME": "2025-08-13T06:23:12.277Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.5"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "027300ae1afc908452623bc5f1e3c97650f334ac", "VITE_APP_BUILD_TIME": "2025-08-13T06:42:30.349Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.6"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -40985,7 +40985,7 @@ class FileIOService {
 }
 
 /**
- * 增強版 IFrameBridgeService - 改善訊息處理可靠性和順序
+ * 增強版 IFrameBridgeService - 處理從母網站接收標題修改及下載JSON功能
  */
 class IFrameBridgeService {
   constructor() {
@@ -40996,7 +40996,7 @@ class IFrameBridgeService {
     this.eventHandlers = {
       titleChange: [],
       downloadRequest: [],
-      loadWorkflow: [],
+      loadWorkflow: [], // 新增載入工作流事件
       ready: [],
       tokenReceived: [],
       saveWorkflow: [],
@@ -41047,8 +41047,6 @@ class IFrameBridgeService {
       setTimeout(() => {
         this.sendReadyMessage();
       }, 300); // 增加延遲時間
-
-      console.log('IFrameBridgeService 已初始化 - 在 iframe 模式中運行');
     } else {
       console.log('IFrameBridgeService 已初始化 - 在獨立模式中運行');
     }
@@ -41227,8 +41225,6 @@ class IFrameBridgeService {
         return;
       }
 
-      console.log('收到訊息:', message.type);
-
       // 將訊息加入處理佇列
       this.queueMessage(message);
     } catch (error) {
@@ -41240,8 +41236,6 @@ class IFrameBridgeService {
    * 處理 PING 訊息
    */
   handlePingMessage(message) {
-    console.log('收到 PING，發送 PONG 回應');
-
     // 立即回應PONG
     this.sendToParent({
       type: 'PONG',
@@ -41285,10 +41279,6 @@ class IFrameBridgeService {
   handleSetFlowId(message) {
     if (message.flowId) {
       const flowId = message.flowId;
-      console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
-      console.log(
-        `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
-      );
 
       // 延遲觸發，確保所有必要資料都已設置
       setTimeout(() => {
@@ -41302,17 +41292,8 @@ class IFrameBridgeService {
    */
   handleSetFlowIdAndToken(message) {
     if (message.flowId && message.token && message.selectedWorkspaceId) {
-      console.log(
-        `接收到 API Token 和 Flow ID (存儲類型: ${message.storage || 'local'})`
-      );
-
       const flowId = message.flowId;
       const selectedWorkspaceId = message.selectedWorkspaceId;
-
-      console.log(`準備觸發 tokenReceived 事件`);
-      console.log(
-        `註冊的 tokenReceived 處理程序數量: ${this.eventHandlers.tokenReceived.length}`
-      );
 
       // 先觸發 token 接收事件
       this.triggerEvent('tokenReceived', {
@@ -41323,7 +41304,6 @@ class IFrameBridgeService {
 
       // 延遲觸發 loadWorkflow，確保 token 已設置
       setTimeout(() => {
-        console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
         this.triggerEvent('loadWorkflow', flowId);
       }, 500);
     } else {
@@ -41340,11 +41320,6 @@ class IFrameBridgeService {
    */
   handleSetTitle(message) {
     if (message.title) {
-      console.log(`準備觸發 titleChange 事件，標題值: "${message.title}"`);
-      console.log(
-        `註冊的 titleChange 處理程序數量: ${this.eventHandlers.titleChange.length}`
-      );
-
       // 觸發標題變更事件
       this.triggerEvent('titleChange', message.title);
     } else {
@@ -41356,11 +41331,6 @@ class IFrameBridgeService {
    * 處理下載請求
    */
   handleDownloadRequest(message) {
-    console.log('準備觸發 downloadRequest 事件，選項:', message.options || {});
-    console.log(
-      `註冊的 downloadRequest 處理程序數量: ${this.eventHandlers.downloadRequest.length}`
-    );
-
     // 觸發下載請求事件
     this.triggerEvent('downloadRequest', message.options || {});
   }
@@ -41368,8 +41338,7 @@ class IFrameBridgeService {
   /**
    * 處理保存工作流
    */
-  handleSaveWorkflow(message) {
-    console.log('收到 SAVE_WORKFLOW 消息，將觸發 saveWorkflow 事件');
+  handleSaveWorkflow() {
     this.triggerEvent('saveWorkflow');
   }
 
@@ -41391,7 +41360,7 @@ class IFrameBridgeService {
       const targetOrigin = this.parentOrigin || '*';
 
       window.parent.postMessage(message, targetOrigin);
-      console.log(`已向父頁面發送消息: ${message.type}`, message);
+
       return true;
     } catch (error) {
       console.error('向父頁面發送消息時出錯:', error);
@@ -41414,14 +41383,11 @@ class IFrameBridgeService {
     );
 
     if (isAlreadyRegistered) {
-      console.log(`回調函數已註冊於 ${eventType} 事件`);
       return false;
     }
 
     this.eventHandlers[eventType].push(callback);
-    console.log(
-      `已註冊 ${eventType} 事件處理程序，當前處理程序數量: ${this.eventHandlers[eventType].length}`
-    );
+
     return true;
   }
 
@@ -41441,9 +41407,6 @@ class IFrameBridgeService {
         setTimeout(() => {
           const retryHandlers = this.eventHandlers[eventType];
           if (retryHandlers.length > 0) {
-            console.log(
-              `延遲重試觸發 ${eventType} 事件，處理程序數量: ${retryHandlers.length}`
-            );
             this.triggerEventWithHandlers(eventType, data, retryHandlers);
           } else {
             console.log(`${eventType} 事件延遲重試後仍無處理程序，跳過`);
@@ -41462,13 +41425,9 @@ class IFrameBridgeService {
    * 執行事件處理器
    */
   triggerEventWithHandlers(eventType, data, handlers) {
-    console.log(`正在觸發 ${eventType} 事件，處理程序數量: ${handlers.length}`);
-
     handlers.forEach((handler, index) => {
       try {
-        console.log(`執行 ${eventType} 事件處理程序 #${index + 1}`);
         handler(data);
-        console.log(`${eventType} 事件處理程序 #${index + 1} 執行成功`);
       } catch (error) {
         console.error(
           `執行 ${eventType} 事件處理程序 #${index + 1} 時出錯:`,
@@ -41524,7 +41483,6 @@ class IFrameBridgeService {
         timestamp: new Date().toISOString()
       });
 
-      console.log('已向父頁面發送下載請求', { filename });
       return true;
     } catch (error) {
       console.error('發送下載請求時出錯:', error);
