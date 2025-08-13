@@ -23185,7 +23185,7 @@ function useFlowNodes() {
           connection_id: `router_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         },
         {
-          router_id: "other_router",
+          router_id: "default_router",
           router_name: "Other",
           ai_condition: "",
           connection_id: `router_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -23984,7 +23984,7 @@ function useFlowNodes() {
           const isValidSourceHandle = routers.some(
             (router) => router.connection_id === edge.sourceHandle || router.router_id === edge.sourceHandle
           );
-          if (!isValidSourceHandle && edge.sourceHandle !== "other_router") {
+          if (!isValidSourceHandle && edge.sourceHandle !== "default_router") {
             console.log(
               `移除無效邊緣 ${edge.id}: router_switch 的 sourceHandle ${edge.sourceHandle} 已不存在`
             );
@@ -24144,7 +24144,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6ab054b03dd4c3438c96cfbd2e20be4567fe9c4b", "VITE_APP_BUILD_TIME": "2025-08-13T06:18:19.289Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.4"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6ab054b03dd4c3438c96cfbd2e20be4567fe9c4b", "VITE_APP_BUILD_TIME": "2025-08-13T06:23:12.277Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.5"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -28785,7 +28785,7 @@ class WorkflowDataConverter {
                 ai_condition: ''
               },
               {
-                router_id: 'other_router',
+                router_id: 'default_router',
                 router_name: 'Other',
                 ai_condition: ''
               }
@@ -40051,11 +40051,11 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     (newRouters) => {
       const routersWithOther = [...newRouters];
       const hasOtherRouter = routersWithOther.some(
-        (router) => router.router_id === "other_router"
+        (router) => router.router_id === "default_router"
       );
       if (!hasOtherRouter) {
         routersWithOther.push({
-          router_id: "other_router",
+          router_id: "default_router",
           router_name: "Other",
           ai_condition: ""
         });
@@ -40066,7 +40066,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const otherRouters = routers.filter((r) => r.router_id !== "other_router");
+  const otherRouters = routers.filter((r) => r.router_id !== "default_router");
   const addRouter = useCallback$2(() => {
     if (otherRouters.length >= 8) {
       if (typeof window !== "undefined" && window.notify) {
@@ -40272,9 +40272,9 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
       // 保留 router_id 作為參考
     }));
     handles.push({
-      id: "other_router",
+      id: "default_router",
       name: "Other",
-      router_id: "other_router"
+      router_id: "default_router"
     });
     return handles;
   }, [otherRouters]);
@@ -40516,7 +40516,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "span",
               {
-                className: `inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none ${handle.id === "other_router" ? "bg-gray-500" : "bg-cyan-500"}`,
+                className: `inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none ${handle.id === "default_router" ? "bg-gray-500" : "bg-cyan-500"}`,
                 style: {
                   transform: "translateX(-6px)",
                   backgroundColor: "#00ced1"
