@@ -13,11 +13,22 @@ class IFrameBridgeService {
       loadWorkflow: [], // 新增載入工作流事件
       ready: [],
       tokenReceived: [],
-      saveWorkflow: [] // 新增保存工作流事件
+      saveWorkflow: [],
+      connectionEstablished: []
     };
 
     // 是否在 iframe 內部
     this.isInIframe = false;
+
+    // 訊息處理相關
+    this.messageQueue = [];
+    this.isProcessingMessages = false;
+    this.recentMessages = new Map();
+    this.MESSAGE_CACHE_TIME = 2000; // 訊息緩存時間
+
+    // 連接狀態
+    this.connectionEstablished = false;
+    this.parentOrigin = '*'; // 父頁面來源
 
     // 初始化
     this.init();
@@ -46,152 +57,307 @@ class IFrameBridgeService {
         false
       );
 
-      // 通知父頁面我們已準備好
-      this.sendToParent({
-        type: 'READY',
-        timestamp: new Date().toISOString()
-      });
-
-      // 觸發內部準備好事件
-      this.triggerEvent('ready', {
-        timestamp: new Date().toISOString()
-      });
-
-      console.log('IFrameBridgeService 已初始化 - 在 iframe 模式中運行');
+      // 延遲發送準備好消息，確保事件監聽器已註冊
+      setTimeout(() => {
+        this.sendReadyMessage();
+      }, 300); // 增加延遲時間
     } else {
       console.log('IFrameBridgeService 已初始化 - 在獨立模式中運行');
     }
   }
 
   /**
-   * 處理來自父頁面的消息
-   * @param {MessageEvent} event - 消息事件對象
+   * 發送準備好消息
    */
-  handleIncomingMessage(event) {
-    const message = event.data;
+  sendReadyMessage() {
+    this.sendToParent({
+      type: 'READY',
+      timestamp: new Date().toISOString(),
+      capabilities: {
+        messageHandling: true,
+        workflowLoading: true,
+        dataExport: true
+      }
+    });
 
-    // 檢查消息結構
-    if (!message || !message.type) {
-      return;
+    // 延遲觸發內部準備好事件，確保組件有時間註冊事件處理器
+    setTimeout(() => {
+      this.triggerEvent('ready', {
+        timestamp: new Date().toISOString()
+      });
+    }, 100);
+  }
+
+  /**
+   * 檢查訊息是否重複
+   */
+  isDuplicateMessage(message) {
+    if (!message || !message.type) return false;
+
+    const messageKey = `${message.type}-${message.timestamp || Date.now()}`;
+    const now = Date.now();
+
+    if (this.recentMessages.has(messageKey)) {
+      const lastTime = this.recentMessages.get(messageKey);
+      if (now - lastTime < this.MESSAGE_CACHE_TIME) {
+        return true;
+      }
     }
 
-    console.log('收到消息:', message);
+    this.recentMessages.set(messageKey, now);
 
-    // 根據消息類型處理
+    // 清理過期訊息
+    this.cleanupRecentMessages(now);
+
+    return false;
+  }
+
+  /**
+   * 清理過期訊息記錄
+   */
+  cleanupRecentMessages(now) {
+    this.recentMessages.forEach((timestamp, key) => {
+      if (now - timestamp > this.MESSAGE_CACHE_TIME * 2) {
+        this.recentMessages.delete(key);
+      }
+    });
+  }
+
+  /**
+   * 將訊息加入處理佇列
+   */
+  queueMessage(message) {
+    this.messageQueue.push({
+      ...message,
+      receivedAt: Date.now()
+    });
+
+    if (!this.isProcessingMessages) {
+      this.processMessageQueue();
+    }
+  }
+
+  /**
+   * 處理訊息佇列
+   */
+  async processMessageQueue() {
+    this.isProcessingMessages = true;
+
+    while (this.messageQueue.length > 0) {
+      const message = this.messageQueue.shift();
+
+      try {
+        await this.processMessage(message);
+
+        // 短暫延遲，避免過於頻繁的處理
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      } catch (error) {
+        console.error('處理訊息時發生錯誤:', error);
+      }
+    }
+
+    this.isProcessingMessages = false;
+  }
+
+  /**
+   * 處理單個訊息
+   */
+  async processMessage(message) {
+    console.log(`處理訊息: ${message.type}`, message);
+
+    // 發送確認訊息
+    this.sendAcknowledgment(message);
+
+    // 根據訊息類型處理
     switch (message.type) {
       case 'PING':
-        // 立即回應PONG
-        this.sendToParent({
-          type: 'PONG',
-          timestamp: new Date().toISOString()
-        });
-
-        // 同時重新發送READY消息以確保連接建立
-        this.sendToParent({
-          type: 'READY',
-          timestamp: new Date().toISOString()
-        });
+        this.handlePingMessage(message);
         break;
+
       case 'SET_FLOW_ID':
-        if (message.flowId) {
-          const flowId = message.flowId;
-          // 更詳細的日誌，顯示將要觸發的事件類型和數據
-          console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
-          console.log(
-            `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
-          );
-
-          // 觸發流ID變更事件
-          this.triggerEvent('loadWorkflow', flowId);
-        }
+        this.handleSetFlowId(message);
         break;
-      case 'SET_FLOW_ID_AND_TOKEN':
-        if (
-          message.flowId &&
-          message.token &&
-          message.storage &&
-          message.selectedWorkspaceId
-        ) {
-          console.log(
-            `接收到 API Token (存儲類型: ${message.storage || 'local'})`
-          );
 
-          const flowId = message.flowId;
-          const selectedWorkspaceId = message.selectedWorkspaceId;
-          // 更詳細的日誌，顯示將要觸發的事件類型和數據
-          console.log(`準備觸發 tokenReceived 事件，流ID: "${flowId}"`);
-          console.log(
-            `註冊的 tokenReceived 處理程序數量: ${this.eventHandlers.tokenReceived.length}`
-          );
-          // const storage =
-          //   message.storage === 'session' ? sessionStorage : localStorage;
-          // storage.setItem('api_token', message.token);
-          this.triggerEvent('tokenReceived', {
-            token: message.token,
-            storage: message.storage || 'local',
-            selectedWorkspaceId
-          });
-          setTimeout(() => {
-            // 觸發流ID變更事件
-            console.log(`準備觸發 loadWorkflow 事件，流ID: "${flowId}"`);
-            this.triggerEvent('loadWorkflow', flowId);
-          }, 500);
-        }
+      case 'SET_FLOW_ID_AND_TOKEN':
+        this.handleSetFlowIdAndToken(message);
         break;
 
       case 'SET_TITLE':
-        if (message.title) {
-          // 更詳細的日誌，顯示將要觸發的事件類型和數據
-          console.log(`準備觸發 titleChange 事件，標題值: "${message.title}"`);
-          console.log(
-            `註冊的 titleChange 處理程序數量: ${this.eventHandlers.titleChange.length}`
-          );
-
-          // 觸發標題變更事件
-          // this.triggerEvent('titleChange', message.title);
-
-          // 如果標題可作為工作流ID，觸發載入工作流事件
-          // const workflowId = message.title;
-          // console.log(`準備觸發 loadWorkflow 事件，工作流ID: "${workflowId}"`);
-          // console.log(
-          //   `註冊的 loadWorkflow 處理程序數量: ${this.eventHandlers.loadWorkflow.length}`
-          // );
-
-          // if (workflowId) {
-          //   this.triggerEvent('loadWorkflow', workflowId);
-          // }
-        } else {
-          console.warn('收到 SET_TITLE 消息，但標題為空');
-        }
+        this.handleSetTitle(message);
         break;
 
       case 'REQUEST_DATA_FOR_DOWNLOAD':
-        // 日誌顯示下載請求事件
-        console.log(
-          `準備觸發 downloadRequest 事件，選項:`,
-          message.options || {}
-        );
-        console.log(
-          `註冊的 downloadRequest 處理程序數量: ${this.eventHandlers.downloadRequest.length}`
-        );
+        this.handleDownloadRequest(message);
+        break;
 
-        // 觸發下載請求事件
-        this.triggerEvent('downloadRequest', message.options || {});
-        break;
-      // save workflow
       case 'SAVE_WORKFLOW':
-        console.log('收到 SAVE_WORKFLOW 消息，將觸發 saveWorkflow 事件');
-        this.triggerEvent('saveWorkflow');
+        this.handleSaveWorkflow(message);
         break;
+
+      case 'READY_CHECK':
+        this.handleReadyCheck(message);
+        break;
+
       default:
-        console.log(`收到未處理的消息類型: ${message.type}`);
+        console.log(`收到未處理的訊息類型: ${message.type}`);
         break;
     }
   }
 
   /**
+   * 發送確認訊息
+   */
+  sendAcknowledgment(originalMessage) {
+    this.sendToParent({
+      type: 'MESSAGE_ACKNOWLEDGED',
+      originalType: originalMessage.type,
+      originalTimestamp: originalMessage.timestamp,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  /**
+   * 處理來自父頁面的消息
+   */
+  handleIncomingMessage(event) {
+    try {
+      const message = event.data;
+
+      // 檢查消息結構
+      if (!message || !message.type) {
+        return;
+      }
+
+      // 記錄父頁面來源
+      if (event.origin !== 'null') {
+        this.parentOrigin = event.origin;
+      }
+
+      // 檢查是否是重複訊息
+      if (this.isDuplicateMessage(message)) {
+        console.log('偵測到重複訊息，跳過處理:', message.type);
+        return;
+      }
+
+      // 將訊息加入處理佇列
+      this.queueMessage(message);
+    } catch (error) {
+      console.error('處理來自父頁面的訊息時發生錯誤:', error);
+    }
+  }
+
+  /**
+   * 處理 PING 訊息
+   */
+  handlePingMessage(message) {
+    // 立即回應PONG
+    this.sendToParent({
+      type: 'PONG',
+      timestamp: new Date().toISOString(),
+      originalPingTime: message.timestamp
+    });
+
+    // 同時重新發送READY消息以確保連接建立
+    this.sendToParent({
+      type: 'READY',
+      timestamp: new Date().toISOString(),
+      status: 'responding-to-ping'
+    });
+
+    // 標記連接已建立
+    if (!this.connectionEstablished) {
+      this.connectionEstablished = true;
+      this.triggerEvent('connectionEstablished', {
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  /**
+   * 處理就緒檢查
+   */
+  handleReadyCheck(message) {
+    console.log('收到 READY_CHECK，發送狀態回應');
+
+    this.sendToParent({
+      type: 'READY',
+      timestamp: new Date().toISOString(),
+      status: 'ready-check-response',
+      originalMessage: message.timestamp
+    });
+  }
+
+  /**
+   * 處理設置 Flow ID
+   */
+  handleSetFlowId(message) {
+    if (message.flowId) {
+      const flowId = message.flowId;
+
+      // 延遲觸發，確保所有必要資料都已設置
+      setTimeout(() => {
+        this.triggerEvent('loadWorkflow', flowId);
+      }, 200);
+    }
+  }
+
+  /**
+   * 處理設置 Flow ID 和 Token
+   */
+  handleSetFlowIdAndToken(message) {
+    if (message.flowId && message.token && message.selectedWorkspaceId) {
+      const flowId = message.flowId;
+      const selectedWorkspaceId = message.selectedWorkspaceId;
+
+      // 先觸發 token 接收事件
+      this.triggerEvent('tokenReceived', {
+        token: message.token,
+        storage: message.storage || 'local',
+        selectedWorkspaceId
+      });
+
+      // 延遲觸發 loadWorkflow，確保 token 已設置
+      setTimeout(() => {
+        this.triggerEvent('loadWorkflow', flowId);
+      }, 500);
+    } else {
+      console.warn('SET_FLOW_ID_AND_TOKEN 訊息缺少必要資料:', {
+        hasFlowId: !!message.flowId,
+        hasToken: !!message.token,
+        hasWorkspaceId: !!message.selectedWorkspaceId
+      });
+    }
+  }
+
+  /**
+   * 處理設置標題
+   */
+  handleSetTitle(message) {
+    if (message.title) {
+      // 觸發標題變更事件
+      this.triggerEvent('titleChange', message.title);
+    } else {
+      console.warn('收到 SET_TITLE 消息，但標題為空');
+    }
+  }
+
+  /**
+   * 處理下載請求
+   */
+  handleDownloadRequest(message) {
+    // 觸發下載請求事件
+    this.triggerEvent('downloadRequest', message.options || {});
+  }
+
+  /**
+   * 處理保存工作流
+   */
+  handleSaveWorkflow() {
+    this.triggerEvent('saveWorkflow');
+  }
+
+  /**
    * 向父頁面發送消息
-   * @param {Object} message - 要發送的消息對象
    */
   sendToParent(message) {
     if (!this.isInIframe) {
@@ -200,8 +366,15 @@ class IFrameBridgeService {
     }
 
     try {
-      window.parent.postMessage(message, '*');
-      console.log(`已向父頁面發送消息: ${message.type}`, message);
+      // 確保消息有時間戳
+      message.timestamp = message.timestamp || new Date().toISOString();
+      message.source = 'iframe-app';
+
+      // 使用記錄的父頁面來源，或通配符
+      const targetOrigin = this.parentOrigin || '*';
+
+      window.parent.postMessage(message, targetOrigin);
+
       return true;
     } catch (error) {
       console.error('向父頁面發送消息時出錯:', error);
@@ -211,9 +384,6 @@ class IFrameBridgeService {
 
   /**
    * 註冊事件處理程序
-   * @param {string} eventType - 事件類型
-   * @param {Function} callback - 回調函數
-   * @returns {boolean} - 是否成功註冊
    */
   on(eventType, callback) {
     if (!this.eventHandlers[eventType]) {
@@ -221,17 +391,22 @@ class IFrameBridgeService {
       return false;
     }
 
-    this.eventHandlers[eventType].push(callback);
-    console.log(
-      `已註冊 ${eventType} 事件處理程序，當前處理程序數量: ${this.eventHandlers[eventType].length}`
+    // 檢查是否已註冊相同的回調函數
+    const isAlreadyRegistered = this.eventHandlers[eventType].some(
+      (handler) => handler === callback
     );
+
+    if (isAlreadyRegistered) {
+      return false;
+    }
+
+    this.eventHandlers[eventType].push(callback);
+
     return true;
   }
 
   /**
    * 觸發特定事件的所有處理程序
-   * @param {string} eventType - 事件類型
-   * @param {*} data - 要傳遞給處理程序的數據
    */
   triggerEvent(eventType, data) {
     if (!this.eventHandlers[eventType]) {
@@ -239,20 +414,34 @@ class IFrameBridgeService {
       return;
     }
 
-    if (this.eventHandlers[eventType].length === 0) {
-      console.warn(`觸發 ${eventType} 事件，但沒有註冊的處理程序`);
+    const handlers = this.eventHandlers[eventType];
+    if (handlers.length === 0) {
+      // 對於 ready 事件，如果沒有處理器，延遲重試
+      if (eventType === 'ready') {
+        setTimeout(() => {
+          const retryHandlers = this.eventHandlers[eventType];
+          if (retryHandlers.length > 0) {
+            this.triggerEventWithHandlers(eventType, data, retryHandlers);
+          } else {
+            console.log(`${eventType} 事件延遲重試後仍無處理程序，跳過`);
+          }
+        }, 500);
+      } else {
+        console.warn(`觸發 ${eventType} 事件，但沒有註冊的處理程序`);
+      }
       return;
     }
 
-    console.log(
-      `正在觸發 ${eventType} 事件，處理程序數量: ${this.eventHandlers[eventType].length}`
-    );
+    this.triggerEventWithHandlers(eventType, data, handlers);
+  }
 
-    this.eventHandlers[eventType].forEach((handler, index) => {
+  /**
+   * 執行事件處理器
+   */
+  triggerEventWithHandlers(eventType, data, handlers) {
+    handlers.forEach((handler, index) => {
       try {
-        console.log(`執行 ${eventType} 事件處理程序 #${index + 1}`);
         handler(data);
-        console.log(`${eventType} 事件處理程序 #${index + 1} 執行成功`);
       } catch (error) {
         console.error(
           `執行 ${eventType} 事件處理程序 #${index + 1} 時出錯:`,
@@ -264,9 +453,6 @@ class IFrameBridgeService {
 
   /**
    * 取消註冊事件處理程序
-   * @param {string} eventType - 事件類型
-   * @param {Function} callback - 要移除的回調函數
-   * @returns {boolean} - 是否成功取消註冊
    */
   off(eventType, callback) {
     if (!this.eventHandlers[eventType]) {
@@ -293,18 +479,17 @@ class IFrameBridgeService {
 
   /**
    * 向父頁面發送JSON數據以進行下載
-   * @param {Object} data - 要下載的JSON數據
-   * @param {string} filename - 檔案名稱
-   * @returns {boolean} - 是否成功發送下載請求
    */
   requestDownload(data, filename) {
     if (!this.isInIframe) {
       console.warn('無法請求下載：未在 iframe 中運行');
       return false;
     }
-    // Create a clean, serializable copy of the data
-    const serializableData = JSON.parse(JSON.stringify(data));
+
     try {
+      // 創建可序列化的數據副本
+      const serializableData = JSON.parse(JSON.stringify(data));
+
       this.sendToParent({
         type: 'DOWNLOAD_JSON',
         data: serializableData,
@@ -312,12 +497,44 @@ class IFrameBridgeService {
         timestamp: new Date().toISOString()
       });
 
-      console.log('已向父頁面發送下載請求', { filename });
       return true;
     } catch (error) {
       console.error('發送下載請求時出錯:', error);
       return false;
     }
+  }
+
+  /**
+   * 獲取連接狀態
+   */
+  getConnectionStatus() {
+    return this.connectionEstablished;
+  }
+
+  /**
+   * 清理和銷毀服務
+   */
+  destroy() {
+    console.log('正在銷毀 IFrameBridgeService...');
+
+    // 移除事件監聽器
+    window.removeEventListener('message', this.handleIncomingMessage);
+
+    // 清理所有事件處理程序
+    Object.keys(this.eventHandlers).forEach((eventType) => {
+      this.eventHandlers[eventType] = [];
+    });
+
+    // 清理訊息佇列和緩存
+    this.messageQueue = [];
+    this.recentMessages.clear();
+
+    // 重置狀態
+    this.initialized = false;
+    this.connectionEstablished = false;
+    this.isProcessingMessages = false;
+
+    console.log('IFrameBridgeService 已成功銷毀');
   }
 }
 
