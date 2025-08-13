@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DasAmjrn.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-BUpqlKr7.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15794,73 +15794,165 @@ const React$2 = await importShared('react');
 const {useEffect: useEffect$1,useState: useState$1,useCallback,useRef} = React$2;
 const IFrameFlowEditor = () => {
   const [flowTitle, setFlowTitle] = useState$1("");
-  const flowEditorRef = useRef(null);
   const [isLoading, setIsLoading] = useState$1(false);
   const [error, setError] = useState$1(null);
+  const flowEditorRef = useRef(null);
   const eventsRegistered = useRef(false);
-  const handleTokenReceived = useCallback((data) => {
-    console.log("IFrameFlowEditor: 從 Bridge 接收到 token");
-    const { token, storage } = typeof data === "object" ? data : { token: data, storage: "local" };
-    const storageObj = storage === "session" ? sessionStorage : localStorage;
-    if (flowEditorRef.current && flowEditorRef.current.setToken) {
-      tokenService.setToken(token, storage);
-      tokenService.setWorkspaceId(
-        data.selectedWorkspaceId || "default_workspace",
-        storage
-      );
-    } else {
-      console.log("IFrameFlowEditor: 流程編輯器引用不可用，暫存 token");
-      storageObj.setItem("pending_token", token);
-      tokenService.setToken(token, storage);
-      tokenService.setWorkspaceId(
-        data.selectedWorkspaceId || "default_workspace",
-        storage
-      );
-    }
-  }, []);
   const isLoadingRef = useRef(false);
-  const handleLoadWorkflow = useCallback(async (workflowId) => {
-    console.log("IFrameFlowEditor: 處理載入工作流請求:", workflowId);
-    if (isLoadingRef.current) {
-      console.log("IFrameFlowEditor: 載入工作流已在進行中，忽略重複請求");
-      return;
+  const dataValidationRef = useRef({
+    hasToken: false,
+    hasWorkspaceId: false,
+    hasFlowId: false,
+    allRequiredDataReceived: false
+  });
+  const validateRequiredData = useCallback((flowId = null) => {
+    const token = tokenService.getToken();
+    const workspaceId = tokenService.getWorkspaceId();
+    const validation = {
+      hasToken: !!token,
+      hasWorkspaceId: !!workspaceId,
+      hasFlowId: !!flowId,
+      allRequiredDataReceived: false
+    };
+    if (flowId === "new" || !flowId) {
+      validation.allRequiredDataReceived = validation.hasToken && validation.hasWorkspaceId;
+    } else {
+      validation.allRequiredDataReceived = validation.hasToken && validation.hasWorkspaceId && validation.hasFlowId;
     }
-    isLoadingRef.current = true;
-    setIsLoading(true);
-    try {
-      if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
-        console.log("IFrameFlowEditor: 調用流程編輯器載入方法");
-        const result = await flowEditorRef.current.loadWorkflow(workflowId);
-        console.log("IFrameFlowEditor: 載入工作流結果:", result);
-      } else {
-        console.warn(
-          "IFrameFlowEditor: 流程編輯器實例未準備好，無法處理載入請求"
-        );
-        setError("流程編輯器未準備好");
-      }
-    } catch (err) {
-      console.error("IFrameFlowEditor: 載入工作流時發生錯誤:", err);
-      setError(err.message || "載入時發生未知錯誤");
-    } finally {
-      setIsLoading(false);
-      isLoadingRef.current = false;
-    }
+    dataValidationRef.current = validation;
+    console.log("IFrameFlowEditor: 資料驗證結果", {
+      ...validation,
+      token: token ? `${token.substring(0, 10)}...` : "null",
+      workspaceId,
+      flowId: flowId || "null"
+    });
+    return validation;
   }, []);
+  const handleTokenReceived = useCallback(
+    (data) => {
+      console.log("IFrameFlowEditor: 接收到 token 資料", {
+        hasToken: !!data.token,
+        storage: data.storage,
+        hasWorkspaceId: !!data.selectedWorkspaceId
+      });
+      try {
+        if (data.token) {
+          tokenService.setToken(data.token, data.storage || "local");
+        }
+        if (data.selectedWorkspaceId) {
+          tokenService.setWorkspaceId(
+            data.selectedWorkspaceId,
+            data.storage || "local"
+          );
+        }
+        const validation = validateRequiredData();
+        iframeBridge.sendToParent({
+          type: "MESSAGE_ACKNOWLEDGED",
+          originalType: "SET_FLOW_ID_AND_TOKEN",
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          validation
+        });
+      } catch (error2) {
+        console.error("IFrameFlowEditor: 處理 token 時發生錯誤:", error2);
+        setError("無法設置認證資訊");
+      }
+    },
+    [validateRequiredData]
+  );
+  const handleLoadWorkflow = useCallback(
+    async (workflowId) => {
+      console.log("IFrameFlowEditor: 處理載入工作流請求:", workflowId);
+      if (isLoadingRef.current) {
+        console.log("IFrameFlowEditor: 載入工作流已在進行中，忽略重複請求");
+        return;
+      }
+      const validation = validateRequiredData(workflowId);
+      if (!validation.allRequiredDataReceived) {
+        console.warn(
+          "IFrameFlowEditor: 缺少必要資料，無法載入工作流",
+          validation
+        );
+        setTimeout(() => {
+          const retryValidation = validateRequiredData(workflowId);
+          if (retryValidation.allRequiredDataReceived) {
+            console.log("IFrameFlowEditor: 重試載入工作流");
+            handleLoadWorkflow(workflowId);
+          } else {
+            console.error("IFrameFlowEditor: 重試後仍缺少必要資料");
+            setError("缺少必要的認證資訊，無法載入工作流");
+          }
+        }, 1e3);
+        return;
+      }
+      isLoadingRef.current = true;
+      setIsLoading(true);
+      setError(null);
+      try {
+        if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
+          console.log("IFrameFlowEditor: 開始載入工作流");
+          if (typeof flowEditorRef.current.loadWorkflow === "function") {
+            const result = await flowEditorRef.current.loadWorkflow(workflowId);
+            console.log("IFrameFlowEditor: 載入工作流結果:", result);
+            iframeBridge.sendToParent({
+              type: "WORKFLOW_LOADED",
+              workflowId,
+              success: !!result,
+              timestamp: (/* @__PURE__ */ new Date()).toISOString()
+            });
+          } else {
+            throw new Error("FlowEditor loadWorkflow 方法不可用");
+          }
+        } else {
+          console.warn("IFrameFlowEditor: FlowEditor 實例未準備好");
+          setError("編輯器未準備好");
+          setTimeout(() => {
+            if (flowEditorRef.current) {
+              handleLoadWorkflow(workflowId);
+            }
+          }, 1e3);
+        }
+      } catch (err) {
+        console.error("IFrameFlowEditor: 載入工作流時發生錯誤:", err);
+        setError(err.message || "載入時發生未知錯誤");
+        iframeBridge.sendToParent({
+          type: "WORKFLOW_LOAD_ERROR",
+          workflowId,
+          error: err.message,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        });
+      } finally {
+        setIsLoading(false);
+        isLoadingRef.current = false;
+      }
+    },
+    [validateRequiredData]
+  );
   const handleSaveWorkflow = useCallback(async () => {
     console.log("IFrameFlowEditor: 處理保存工作流請求");
     if (isLoadingRef.current) {
       console.log("IFrameFlowEditor: 保存工作流已在進行中，忽略重複請求");
       return;
     }
+    const validation = validateRequiredData();
+    if (!validation.hasToken || !validation.hasWorkspaceId) {
+      console.warn(
+        "IFrameFlowEditor: 缺少必要資料，無法保存工作流",
+        validation
+      );
+      setError("缺少認證資訊，無法保存工作流");
+      return;
+    }
     isLoadingRef.current = true;
     setIsLoading(true);
     try {
       if (flowEditorRef.current && flowEditorRef.current.saveWorkflow) {
-        await flowEditorRef.current.saveWorkflow();
+        const result = await flowEditorRef.current.saveWorkflow();
+        console.log("IFrameFlowEditor: 保存工作流結果:", result);
       } else {
         console.warn(
-          "IFrameFlowEditor: 流程編輯器實例未準備好，無法處理保存請求"
+          "IFrameFlowEditor: FlowEditor 實例未準備好，無法處理保存請求"
         );
+        setError("編輯器未準備好");
       }
     } catch (err) {
       console.error("IFrameFlowEditor: 保存工作流時發生錯誤:", err);
@@ -15869,24 +15961,46 @@ const IFrameFlowEditor = () => {
       setIsLoading(false);
       isLoadingRef.current = false;
     }
-  }, []);
+  }, [validateRequiredData]);
   const handleDownloadRequest = useCallback((options) => {
     console.log("IFrameFlowEditor: 收到下載請求:", options);
-    if (flowEditorRef.current && flowEditorRef.current.exportFlowData) {
-      const flowData = flowEditorRef.current.exportFlowData();
-      console.log("IFrameFlowEditor: 已從編輯器匯出數據:", flowData);
-      const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-      const safeTitle = (flowData.title || "未命名_流程").replace(/\s+/g, "_");
-      const filename = `${safeTitle}_${date}.json`;
-      const result = iframeBridge.requestDownload(flowData, filename);
-      console.log("IFrameFlowEditor: 下載請求結果:", result);
-    } else {
-      console.warn(
-        "IFrameFlowEditor: 流程編輯器實例未準備好，無法處理下載請求"
-      );
+    try {
+      if (flowEditorRef.current && flowEditorRef.current.exportFlowData) {
+        const flowData = flowEditorRef.current.exportFlowData();
+        console.log("IFrameFlowEditor: 已從編輯器匯出數據");
+        const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+        const safeTitle = (flowData.title || "未命名_流程").replace(
+          /\s+/g,
+          "_"
+        );
+        const filename = `${safeTitle}_${date}.json`;
+        const result = iframeBridge.requestDownload(flowData, filename);
+        console.log("IFrameFlowEditor: 下載請求結果:", result);
+      } else {
+        console.warn(
+          "IFrameFlowEditor: FlowEditor 實例未準備好，無法處理下載請求"
+        );
+        setError("編輯器未準備好，無法匯出資料");
+      }
+    } catch (error2) {
+      console.error("IFrameFlowEditor: 處理下載請求時發生錯誤:", error2);
+      setError("無法匯出流程資料");
     }
   }, []);
+  useCallback(() => {
+    return new Promise((resolve) => {
+      const checkReady = () => {
+        if (flowEditorRef.current) {
+          resolve(true);
+        } else {
+          setTimeout(checkReady, 100);
+        }
+      };
+      checkReady();
+    });
+  }, []);
   useEffect$1(() => {
+    if (eventsRegistered.current) return;
     console.log("IFrameFlowEditor: 註冊事件處理器");
     iframeBridge.off("loadWorkflow", handleLoadWorkflow);
     iframeBridge.off("downloadRequest", handleDownloadRequest);
@@ -15898,39 +16012,171 @@ const IFrameFlowEditor = () => {
     iframeBridge.on("tokenReceived", handleTokenReceived);
     eventsRegistered.current = true;
     const pendingToken = localStorage.getItem("pending_token");
-    if (pendingToken && flowEditorRef.current && flowEditorRef.current.setToken) {
-      flowEditorRef.current.setToken(pendingToken);
+    if (pendingToken && flowEditorRef.current) {
+      tokenService.setToken(pendingToken);
       localStorage.removeItem("pending_token");
     }
+    setTimeout(() => {
+      console.log("IFrameFlowEditor: 發送初始就緒消息");
+      iframeBridge.sendToParent({
+        type: "READY",
+        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+        capabilities: {
+          loadWorkflow: true,
+          saveWorkflow: true,
+          exportData: true
+        }
+      });
+    }, 500);
     return () => {
       console.log("IFrameFlowEditor: 移除事件處理器");
       iframeBridge.off("loadWorkflow", handleLoadWorkflow);
       iframeBridge.off("downloadRequest", handleDownloadRequest);
       iframeBridge.off("tokenReceived", handleTokenReceived);
+      iframeBridge.off("saveWorkflow", handleSaveWorkflow);
+      eventsRegistered.current = false;
     };
-  }, [handleLoadWorkflow, handleDownloadRequest, handleTokenReceived]);
+  }, [
+    handleLoadWorkflow,
+    handleDownloadRequest,
+    handleTokenReceived,
+    handleSaveWorkflow
+  ]);
   useEffect$1(() => {
-    const timeout = setTimeout(() => {
+    let readyTimer;
+    let healthCheckTimer;
+    readyTimer = setTimeout(() => {
       console.log("IFrameFlowEditor: 重新發送 READY 消息");
       iframeBridge.sendToParent({
         type: "READY",
-        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+        status: "initialized"
       });
     }, 1e3);
-    return () => clearTimeout(timeout);
+    healthCheckTimer = setInterval(() => {
+      const validation = validateRequiredData();
+      console.log("IFrameFlowEditor: 健康檢查", validation);
+    }, 1e4);
+    return () => {
+      if (readyTimer) clearTimeout(readyTimer);
+      if (healthCheckTimer) clearInterval(healthCheckTimer);
+    };
+  }, [validateRequiredData]);
+  useEffect$1(() => {
+    const checkFlowEditorRef = () => {
+      if (flowEditorRef.current) {
+        console.log("IFrameFlowEditor: FlowEditor 引用已就緒");
+        const requiredMethods = [
+          "loadWorkflow",
+          "saveWorkflow",
+          "exportFlowData"
+        ];
+        const missingMethods = requiredMethods.filter(
+          (method) => typeof flowEditorRef.current[method] !== "function"
+        );
+        if (missingMethods.length > 0) {
+          console.warn(
+            "IFrameFlowEditor: FlowEditor 缺少必要方法:",
+            missingMethods
+          );
+        } else {
+          console.log("IFrameFlowEditor: FlowEditor 所有必要方法已就緒");
+        }
+      }
+    };
+    const timer = setTimeout(checkFlowEditorRef, 1e3);
+    return () => clearTimeout(timer);
   }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "iframe-flow-editor-container", children: [
-    error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "error-message", children: [
-      "載入工作流失敗: ",
-      error
-    ] }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "error-message",
+        style: {
+          position: "fixed",
+          top: "10px",
+          right: "10px",
+          background: "#ff4444",
+          color: "white",
+          padding: "10px",
+          borderRadius: "4px",
+          zIndex: 9999,
+          maxWidth: "300px"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: "bold", marginBottom: "5px" }, children: "載入錯誤" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px" }, children: error }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => setError(null),
+              style: {
+                background: "transparent",
+                border: "none",
+                color: "white",
+                float: "right",
+                cursor: "pointer",
+                fontSize: "16px",
+                marginTop: "-20px"
+              },
+              children: "×"
+            }
+          )
+        ]
+      }
+    ),
+    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "loading-indicator",
+        style: {
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "rgba(0, 0, 0, 0.8)",
+          color: "white",
+          padding: "20px",
+          borderRadius: "8px",
+          zIndex: 9998,
+          textAlign: "center"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: "10px" }, children: "載入中..." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                width: "30px",
+                height: "30px",
+                border: "3px solid #333",
+                borderTop: "3px solid #fff",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+                margin: "0 auto"
+              }
+            }
+          )
+        ]
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
       {
         ref: flowEditorRef,
         initialTitle: flowTitle
       }
-    )
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("style", { jsx: true, children: `
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      ` })
   ] });
 };
 
