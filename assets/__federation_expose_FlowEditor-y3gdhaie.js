@@ -24144,7 +24144,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6ab054b03dd4c3438c96cfbd2e20be4567fe9c4b", "VITE_APP_BUILD_TIME": "2025-08-13T06:09:10.668Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.3"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6ab054b03dd4c3438c96cfbd2e20be4567fe9c4b", "VITE_APP_BUILD_TIME": "2025-08-13T06:18:19.289Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.4"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -41046,7 +41046,7 @@ class IFrameBridgeService {
       // 延遲發送準備好消息，確保事件監聽器已註冊
       setTimeout(() => {
         this.sendReadyMessage();
-      }, 100);
+      }, 300); // 增加延遲時間
 
       console.log('IFrameBridgeService 已初始化 - 在 iframe 模式中運行');
     } else {
@@ -41068,10 +41068,12 @@ class IFrameBridgeService {
       }
     });
 
-    // 觸發內部準備好事件
-    this.triggerEvent('ready', {
-      timestamp: new Date().toISOString()
-    });
+    // 延遲觸發內部準備好事件，確保組件有時間註冊事件處理器
+    setTimeout(() => {
+      this.triggerEvent('ready', {
+        timestamp: new Date().toISOString()
+      });
+    }, 100);
   }
 
   /**
@@ -41434,10 +41436,32 @@ class IFrameBridgeService {
 
     const handlers = this.eventHandlers[eventType];
     if (handlers.length === 0) {
-      console.warn(`觸發 ${eventType} 事件，但沒有註冊的處理程序`);
+      // 對於 ready 事件，如果沒有處理器，延遲重試
+      if (eventType === 'ready') {
+        setTimeout(() => {
+          const retryHandlers = this.eventHandlers[eventType];
+          if (retryHandlers.length > 0) {
+            console.log(
+              `延遲重試觸發 ${eventType} 事件，處理程序數量: ${retryHandlers.length}`
+            );
+            this.triggerEventWithHandlers(eventType, data, retryHandlers);
+          } else {
+            console.log(`${eventType} 事件延遲重試後仍無處理程序，跳過`);
+          }
+        }, 500);
+      } else {
+        console.warn(`觸發 ${eventType} 事件，但沒有註冊的處理程序`);
+      }
       return;
     }
 
+    this.triggerEventWithHandlers(eventType, data, handlers);
+  }
+
+  /**
+   * 執行事件處理器
+   */
+  triggerEventWithHandlers(eventType, data, handlers) {
     console.log(`正在觸發 ${eventType} 事件，處理程序數量: ${handlers.length}`);
 
     handlers.forEach((handler, index) => {

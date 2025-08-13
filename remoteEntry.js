@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-BUpqlKr7.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-y3gdhaie.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16000,7 +16000,6 @@ const IFrameFlowEditor = () => {
     });
   }, []);
   useEffect$1(() => {
-    if (eventsRegistered.current) return;
     console.log("IFrameFlowEditor: 註冊事件處理器");
     iframeBridge.off("loadWorkflow", handleLoadWorkflow);
     iframeBridge.off("downloadRequest", handleDownloadRequest);
@@ -16016,18 +16015,6 @@ const IFrameFlowEditor = () => {
       tokenService.setToken(pendingToken);
       localStorage.removeItem("pending_token");
     }
-    setTimeout(() => {
-      console.log("IFrameFlowEditor: 發送初始就緒消息");
-      iframeBridge.sendToParent({
-        type: "READY",
-        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-        capabilities: {
-          loadWorkflow: true,
-          saveWorkflow: true,
-          exportData: true
-        }
-      });
-    }, 500);
     return () => {
       console.log("IFrameFlowEditor: 移除事件處理器");
       iframeBridge.off("loadWorkflow", handleLoadWorkflow);
