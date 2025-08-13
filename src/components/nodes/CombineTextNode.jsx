@@ -504,7 +504,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     }
   }, [inputHandles, data]);
 
-  // 優化的邊緣連線同步 - 減少頻繁更新
+  // 優化的邊緣連線同步 - 使用唯一的連線識別
   useEffect(() => {
     const connectedEdges = edges.filter((edge) => edge.target === id);
 
@@ -516,10 +516,14 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       const currentNodeInput = data.node_input || {};
       const newNodeInput = {};
 
+      // 使用 node_id + output_name 作為唯一連線識別
       const existingConnections = new Map();
       Object.entries(currentNodeInput).forEach(([key, value]) => {
         if (key.startsWith('text') && value.node_id) {
-          existingConnections.set(value.node_id, {
+          const connectionKey = `${value.node_id}:${
+            value.output_name || 'output'
+          }`;
+          existingConnections.set(connectionKey, {
             key,
             value,
             index: parseInt(key.replace('text', '')) || 0
@@ -528,8 +532,12 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       });
 
       const sortedEdges = connectedEdges.sort((a, b) => {
-        const aExisting = existingConnections.get(a.source);
-        const bExisting = existingConnections.get(b.source);
+        // 使用相同的 key 格式
+        const aConnectionKey = `${a.source}:${a.sourceHandle || 'output'}`;
+        const bConnectionKey = `${b.source}:${b.sourceHandle || 'output'}`;
+
+        const aExisting = existingConnections.get(aConnectionKey);
+        const bExisting = existingConnections.get(bConnectionKey);
 
         if (aExisting && bExisting) {
           return aExisting.index - bExisting.index;
@@ -545,7 +553,9 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       const usedIndices = new Set();
 
       sortedEdges.forEach((edge) => {
-        const existingConnection = existingConnections.get(edge.source);
+        // 使用相同的 key 格式檢查現有連線
+        const connectionKey = `${edge.source}:${edge.sourceHandle || 'output'}`;
+        const existingConnection = existingConnections.get(connectionKey);
         let inputKey;
 
         if (existingConnection) {
@@ -587,6 +597,9 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             returnName = 'output';
           } else if (sourceNode.type === 'schedule_trigger') {
             returnName = 'trigger';
+          } else if (sourceNode.type === 'router_switch') {
+            // 為 Router Switch Node 設置正確的 return_name
+            returnName = edge.sourceHandle || 'output';
           }
         }
 

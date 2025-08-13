@@ -549,11 +549,14 @@ export class WorkflowMappingService {
       const originalNodeInput = targetNode.data.node_input || {};
       console.log('原始 node_input:', originalNodeInput);
 
-      // 建立現有連線的映射，保持原有的索引
+      // 建立現有連線的映射，使用 node_id + output_name 作為唯一 key
       const existingConnections = new Map();
       Object.entries(originalNodeInput).forEach(([key, value]) => {
         if (key.startsWith('text') && value.node_id) {
-          existingConnections.set(value.node_id, {
+          const connectionKey = `${value.node_id}:${
+            value.output_name || 'output'
+          }`;
+          existingConnections.set(connectionKey, {
             key,
             value,
             index: parseInt(key.replace('text', '')) || 0
@@ -562,8 +565,12 @@ export class WorkflowMappingService {
       });
 
       const sortedEdges = relevantEdges.sort((a, b) => {
-        const aExisting = existingConnections.get(a.source);
-        const bExisting = existingConnections.get(b.source);
+        // 使用相同的 key 格式
+        const aConnectionKey = `${a.source}:${a.sourceHandle || 'output'}`;
+        const bConnectionKey = `${b.source}:${b.sourceHandle || 'output'}`;
+
+        const aExisting = existingConnections.get(aConnectionKey);
+        const bExisting = existingConnections.get(bConnectionKey);
 
         if (aExisting && bExisting) {
           // 兩個都是已存在的連線，按原有索引排序
@@ -585,15 +592,15 @@ export class WorkflowMappingService {
 
       // 分配輸入鍵
       sortedEdges.forEach((edge) => {
-        // 檢查是否是已存在的連線
-        const existingConnection = existingConnections.get(edge.source);
+        // 使用相同的 key 格式檢查現有連線
+        const connectionKey = `${edge.source}:${edge.sourceHandle || 'output'}`;
+        const existingConnection = existingConnections.get(connectionKey);
         let inputKey;
 
         if (existingConnection) {
           // 使用原有的鍵
           inputKey = existingConnection.key;
           usedIndices.add(existingConnection.index);
-          console.log(`保持原有連線: ${edge.source} -> ${inputKey}`);
         } else {
           // 為新連線分配新的索引
           let newIndex = 0;
@@ -602,7 +609,6 @@ export class WorkflowMappingService {
           }
           inputKey = `text${newIndex}`;
           usedIndices.add(newIndex);
-          console.log(`新連線分配索引: ${edge.source} -> ${inputKey}`);
         }
 
         // 查找源節點以獲取 return_name

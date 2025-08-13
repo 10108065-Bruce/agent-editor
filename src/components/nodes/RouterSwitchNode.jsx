@@ -556,7 +556,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
   // 獲取所有輸出 handles（包括 other）
   const getAllOutputHandles = useCallback(() => {
     const handles = otherRouters.map((router) => ({
-      id: router.connection_id || router.router_id, // 優先使用 connection_id
+      id: router.router_id,
       name: router.router_name,
       router_id: router.router_id // 保留 router_id 作為參考
     }));
@@ -778,7 +778,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
       <Handle
         type='target'
         position={Position.Left}
-        id='input'
+        id='context'
         style={{
           background: '#e5e7eb',
           borderColor: '#D3D3D3',
