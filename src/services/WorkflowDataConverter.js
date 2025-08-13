@@ -947,7 +947,7 @@ export class WorkflowDataConverter {
                 ai_condition: ''
               },
               {
-                router_id: 'other_router',
+                router_id: 'default_router',
                 router_name: 'Other',
                 ai_condition: ''
               }

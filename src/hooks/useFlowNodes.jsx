@@ -1130,7 +1130,7 @@ export default function useFlowNodes() {
             .substr(2, 9)}`
         },
         {
-          router_id: 'other_router',
+          router_id: 'default_router',
           router_name: 'Other',
           ai_condition: '',
           connection_id: `router_${Date.now()}_${Math.random()
@@ -2323,7 +2323,7 @@ export default function useFlowNodes() {
               router.router_id === edge.sourceHandle
           );
 
-          if (!isValidSourceHandle && edge.sourceHandle !== 'other_router') {
+          if (!isValidSourceHandle && edge.sourceHandle !== 'default_router') {
             console.log(
               `移除無效邊緣 ${edge.id}: router_switch 的 sourceHandle ${edge.sourceHandle} 已不存在`
             );

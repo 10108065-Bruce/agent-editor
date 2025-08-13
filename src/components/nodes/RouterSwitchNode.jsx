@@ -239,13 +239,13 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     (newRouters) => {
       const routersWithOther = [...newRouters];
 
-      // 確保總是有 other_router
+      // 確保總是有 default_router
       const hasOtherRouter = routersWithOther.some(
-        (router) => router.router_id === 'other_router'
+        (router) => router.router_id === 'default_router'
       );
       if (!hasOtherRouter) {
         routersWithOther.push({
-          router_id: 'other_router',
+          router_id: 'default_router',
           router_name: 'Other',
           ai_condition: ''
         });
@@ -259,7 +259,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
   );
 
   // Calculate otherRouters early to avoid "before initialization" error
-  const otherRouters = routers.filter((r) => r.router_id !== 'other_router');
+  const otherRouters = routers.filter((r) => r.router_id !== 'default_router');
 
   // 新增 router - 修改版本，避免名稱重複
   const addRouter = useCallback(() => {
@@ -562,9 +562,9 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     }));
 
     handles.push({
-      id: 'other_router',
+      id: 'default_router',
       name: 'Other',
-      router_id: 'other_router'
+      router_id: 'default_router'
     });
 
     return handles;
@@ -825,7 +825,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
               />
               <span
                 className={`inline-flex items-center px-3 py-1 rounded text-xs font-medium text-white whitespace-nowrap select-none ${
-                  handle.id === 'other_router' ? 'bg-gray-500' : 'bg-cyan-500'
+                  handle.id === 'default_router' ? 'bg-gray-500' : 'bg-cyan-500'
                 }`}
                 style={{
                   transform: 'translateX(-6px)',
