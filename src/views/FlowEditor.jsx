@@ -27,12 +27,17 @@ import { iframeBridge } from '../services/IFrameBridgeService';
 
 import 'reactflow/dist/style.css';
 import { CustomEdge } from '../components/CustomEdge';
-import { WorkflowDataConverter, workflowAPIService } from '../services/index';
+import {
+  WorkflowDataConverter,
+  WorkflowMappingService,
+  workflowAPIService
+} from '../services/index';
 
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
 import Notification from '../components/common/Notification';
 import SaveFlowDialog from '../components/common/SaveFlowDialog';
 import AutoLayoutButton from '../components/buttons/AutoLayoutButton';
+import { calculateNodeDimensions } from '../utils/nodeDimensions';
 
 // 內部 ReactFlow 組件，使用 useReactFlow hook
 const ReactFlowWithControls = forwardRef(
@@ -466,10 +471,135 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     [onTitleChange, isLocked]
   );
 
+  // 修改輔助函數，添加節點類型參數
+  const getViewportCenterPosition = useCallback(
+    (nodeType) => {
+      if (!reactFlowInstance) {
+        return { x: 400, y: 300 }; // 預設位置
+      }
+
+      try {
+        // 獲取視窗中心的流程座標
+        let centerPosition;
+
+        // 方法1: 使用 screenToFlowPosition
+        const reactFlowBounds =
+          reactFlowWrapper.current?.getBoundingClientRect();
+        if (reactFlowBounds) {
+          const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
+          const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
+
+          centerPosition = reactFlowInstance.screenToFlowPosition({
+            x: centerX,
+            y: centerY
+          });
+        } else {
+          // 方法2: 使用 viewport 計算
+          const viewport = reactFlowInstance.getViewport();
+          const containerWidth = reactFlowWrapper.current?.clientWidth || 800;
+          const containerHeight = reactFlowWrapper.current?.clientHeight || 600;
+
+          centerPosition = {
+            x: (-viewport.x + containerWidth / 2) / viewport.zoom,
+            y: (-viewport.y + containerHeight / 2) / viewport.zoom
+          };
+        }
+
+        // 計算節點尺寸
+        const nodeDimensions = calculateNodeDimensions({
+          type: nodeType,
+          data: {} // 使用預設數據來計算基本尺寸
+        });
+
+        // 將節點中心對齊到視窗中心
+        // 節點左上角位置 = 視窗中心位置 - 節點尺寸的一半
+        const adjustedPosition = {
+          x: centerPosition.x - nodeDimensions.width / 2,
+          y: centerPosition.y - nodeDimensions.height / 2
+        };
+
+        return adjustedPosition;
+      } catch (error) {
+        console.error('計算視窗中心位置失敗:', error);
+        return { x: 400, y: 300 };
+      }
+    },
+    [reactFlowInstance]
+  );
+
+  // 添加節點類型轉換函數
+  const getReactFlowNodeType = useCallback((sidebarNodeType) => {
+    const typeMapping = {
+      input: 'customInput',
+      ai: 'aiCustomInput',
+      'browser extension input': 'browserExtensionInput',
+      'browser extension output': 'browserExtensionOutput',
+      'knowledge retrieval': 'knowledgeRetrieval',
+      end: 'end',
+      webhook: 'webhook',
+      http_request: 'httpRequest',
+      event: 'event',
+      timer: 'timer',
+      line_webhook_input: 'line_webhook_input',
+      line_send_message: 'line_send_message',
+      extract_data: 'extract_data',
+      aim_ml: 'aim_ml',
+      schedule_trigger: 'schedule_trigger',
+      webhook_input: 'webhook_input',
+      webhook_output: 'webhook_output',
+      combine_text: 'combine_text',
+      router_switch: 'router_switch'
+    };
+
+    return typeMapping[sidebarNodeType] || 'default';
+  }, []);
+
   // 處理從側邊欄選擇的節點類型，加入位置參數支持拖放
   const handleNodeTypeSelection = useCallback(
     (nodeType, position = null) => {
       if (isLocked) return;
+
+      // 使用提供的位置（拖拽）或視窗中心位置（點擊）
+      let nodePosition = position;
+
+      // 如果沒有提供位置（點擊側邊欄），計算置中位置
+      if (!position && reactFlowInstance) {
+        try {
+          // 獲取視窗中心位置
+          const reactFlowBounds =
+            reactFlowWrapper.current?.getBoundingClientRect();
+
+          if (reactFlowBounds) {
+            const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
+            const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
+
+            const centerPosition = reactFlowInstance.screenToFlowPosition({
+              x: centerX,
+              y: centerY
+            });
+
+            // 根據節點類型獲取對應的 ReactFlow 類型
+            const reactFlowNodeType =
+              WorkflowMappingService.getOperatorFromType(nodeType);
+
+            // 計算節點尺寸
+            const nodeDimensions = calculateNodeDimensions({
+              type: reactFlowNodeType,
+              data: {}
+            });
+
+            // 調整位置，讓節點中心對齊視窗中心
+            nodePosition = {
+              x: centerPosition.x - nodeDimensions.width / 2,
+              y: centerPosition.y - nodeDimensions.height / 2
+            };
+          }
+        } catch (error) {
+          console.error('計算置中位置失敗:', error);
+          nodePosition = { x: 400, y: 300 };
+        }
+      }
+
       // Default position for click-added nodes
       const defaultPosition = {
         x: Math.random() * 400,
@@ -477,7 +607,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       };
 
       // Use provided position (from drag & drop) or default position
-      const nodePosition = position || defaultPosition;
+      // const nodePosition = position || defaultPosition;
       switch (nodeType) {
         case 'input':
           handleAddInputNode(nodePosition);
@@ -565,6 +695,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddWebhookOutputNode,
       handleAddCombineTextNode,
       handleAddRouterSwitchNode,
+      reactFlowInstance,
       isLocked
     ]
   );
