@@ -24144,7 +24144,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "027300ae1afc908452623bc5f1e3c97650f334ac", "VITE_APP_BUILD_TIME": "2025-08-13T06:42:30.349Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.6"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "81b35a7368b61638c15bd38bf3874dfb332d06ee", "VITE_APP_BUILD_TIME": "2025-08-18T02:14:44.868Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.7"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -42437,14 +42437,100 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     },
     [onTitleChange, isLocked]
   );
+  useCallback(
+    (nodeType) => {
+      if (!reactFlowInstance) {
+        return { x: 400, y: 300 };
+      }
+      try {
+        let centerPosition;
+        const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+        if (reactFlowBounds) {
+          const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
+          const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
+          centerPosition = reactFlowInstance.screenToFlowPosition({
+            x: centerX,
+            y: centerY
+          });
+        } else {
+          const viewport = reactFlowInstance.getViewport();
+          const containerWidth = reactFlowWrapper.current?.clientWidth || 800;
+          const containerHeight = reactFlowWrapper.current?.clientHeight || 600;
+          centerPosition = {
+            x: (-viewport.x + containerWidth / 2) / viewport.zoom,
+            y: (-viewport.y + containerHeight / 2) / viewport.zoom
+          };
+        }
+        const nodeDimensions = calculateNodeDimensions({
+          type: nodeType,
+          data: {}
+          // 使用預設數據來計算基本尺寸
+        });
+        const adjustedPosition = {
+          x: centerPosition.x - nodeDimensions.width / 2,
+          y: centerPosition.y - nodeDimensions.height / 2
+        };
+        return adjustedPosition;
+      } catch (error) {
+        console.error("計算視窗中心位置失敗:", error);
+        return { x: 400, y: 300 };
+      }
+    },
+    [reactFlowInstance]
+  );
+  useCallback((sidebarNodeType) => {
+    const typeMapping = {
+      input: "customInput",
+      ai: "aiCustomInput",
+      "browser extension input": "browserExtensionInput",
+      "browser extension output": "browserExtensionOutput",
+      "knowledge retrieval": "knowledgeRetrieval",
+      end: "end",
+      webhook: "webhook",
+      http_request: "httpRequest",
+      event: "event",
+      timer: "timer",
+      line_webhook_input: "line_webhook_input",
+      line_send_message: "line_send_message",
+      extract_data: "extract_data",
+      aim_ml: "aim_ml",
+      schedule_trigger: "schedule_trigger",
+      webhook_input: "webhook_input",
+      webhook_output: "webhook_output",
+      combine_text: "combine_text",
+      router_switch: "router_switch"
+    };
+    return typeMapping[sidebarNodeType] || "default";
+  }, []);
   const handleNodeTypeSelection = useCallback(
     (nodeType, position = null) => {
       if (isLocked) return;
-      const defaultPosition = {
-        x: Math.random() * 400,
-        y: Math.random() * 400
-      };
-      const nodePosition = position || defaultPosition;
+      let nodePosition = position;
+      if (!position && reactFlowInstance) {
+        try {
+          const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+          if (reactFlowBounds) {
+            const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
+            const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
+            const centerPosition = reactFlowInstance.screenToFlowPosition({
+              x: centerX,
+              y: centerY
+            });
+            const reactFlowNodeType = WorkflowMappingService.getOperatorFromType(nodeType);
+            const nodeDimensions = calculateNodeDimensions({
+              type: reactFlowNodeType,
+              data: {}
+            });
+            nodePosition = {
+              x: centerPosition.x - nodeDimensions.width / 2,
+              y: centerPosition.y - nodeDimensions.height / 2
+            };
+          }
+        } catch (error) {
+          console.error("計算置中位置失敗:", error);
+          nodePosition = { x: 400, y: 300 };
+        }
+      }
       switch (nodeType) {
         case "input":
           handleAddInputNode(nodePosition);
@@ -42532,6 +42618,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddWebhookOutputNode,
       handleAddCombineTextNode,
       handleAddRouterSwitchNode,
+      reactFlowInstance,
       isLocked
     ]
   );
