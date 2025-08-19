@@ -23258,6 +23258,20 @@ function useFlowNodes() {
         data: {
           webhookUrl: "",
           // 默認空 URL
+          // 初始化 inputHandles，默認有一個 text0 handle
+          inputHandles: [{ id: "text0" }],
+          // 初始化 node_input，為 text0 handle 創建對應項目
+          node_input: {
+            text0: {
+              node_id: "",
+              output_name: "",
+              type: "string",
+              data: "",
+              is_empty: true,
+              return_name: ""
+              // 初始為空，等待用戶輸入
+            }
+          },
           ...nodeCallbacksObject
         },
         position: position || {
@@ -24144,7 +24158,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9d20457b956a1be59899d86440d76d115a1d3911", "VITE_APP_BUILD_TIME": "2025-08-19T02:42:40.846Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.9"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9d20457b956a1be59899d86440d76d115a1d3911", "VITE_APP_BUILD_TIME": "2025-08-19T07:37:51.359Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.10"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
