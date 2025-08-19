@@ -1212,11 +1212,27 @@ export default function useFlowNodes() {
     (position) => {
       const id = `webhook_output_${Date.now()}`;
       const nodeCallbacksObject = getNodeCallbacks(id, 'webhook_output');
+
+      // 完整初始化 Webhook Output 節點，參考 BrowserExtensionOutput 的邏輯
       const newNode = {
         id,
         type: 'webhook_output',
         data: {
           webhookUrl: '', // 默認空 URL
+          // 初始化 inputHandles，默認有一個 text0 handle
+          inputHandles: [{ id: 'text0' }],
+          // 初始化 node_input，為 text0 handle 創建對應項目
+          node_input: {
+            text0: {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: '' // 初始為空，等待用戶輸入
+            }
+          },
+
           ...nodeCallbacksObject
         },
         position: position || {
@@ -1224,6 +1240,7 @@ export default function useFlowNodes() {
           y: Math.random() * 400
         }
       };
+
       safeSetNodes((nds) => [...nds, newNode]);
     },
     [safeSetNodes, getNodeCallbacks]
