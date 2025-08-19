@@ -17,10 +17,15 @@ export class LLMService {
     this.lastKnowledgeBasesFetchTime = null;
     this.pendingKnowledgeBasesRequest = null; // 用於追蹤進行中的知識庫請求
 
-    // 新增：結構化輸出模型相關緩存
+    // 結構化輸出模型相關緩存
     this.structuredOutputModelsCache = null;
     this.lastStructuredOutputFetchTime = null;
     this.pendingStructuredOutputRequest = null; // 用於追蹤進行中的結構化輸出請求
+
+    // Function Calling 模型相關緩存
+    this.functionCallingModelsCache = null;
+    this.lastFunctionCallingFetchTime = null;
+    this.pendingFunctionCallingRequest = null; // 用於追蹤進行中的 function calling 請求
   }
 
   /**
@@ -160,7 +165,161 @@ export class LLMService {
   }
 
   /**
-   * 新增：獲取支援結構化輸出的LLM模型
+   * 獲取支援 Function Calling 的LLM模型
+   * @param {boolean} requireParallelToolCalls - 是否要求支援 parallel tool calls 功能
+   * @returns {Promise<Array>} Function Calling 模型列表
+   */
+  async getFunctionCallingModels(requireParallelToolCalls = true) {
+    try {
+      // 檢查是否有有效的快取
+      const now = Date.now();
+      const cacheKey = `fc_${requireParallelToolCalls}`;
+      if (
+        this.functionCallingModelsCache &&
+        this.functionCallingModelsCache[cacheKey] &&
+        this.lastFunctionCallingFetchTime &&
+        now - this.lastFunctionCallingFetchTime < this.cacheExpiryTime
+      ) {
+        return this.functionCallingModelsCache[cacheKey];
+      }
+
+      // 如果已經有一個請求在進行中，則返回該請求
+      if (this.pendingFunctionCallingRequest) {
+        return this.pendingFunctionCallingRequest;
+      }
+
+      // 創建新請求
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      });
+
+      // 建構 URL 與查詢參數
+      const params = new URLSearchParams({
+        require_parallel_tool_calls: requireParallelToolCalls.toString()
+      });
+
+      const url = `${API_CONFIG.BASE_URL}/agent_designer/llm/function-calling?${params}`;
+
+      this.pendingFunctionCallingRequest = fetch(url, options)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('API返回原始 Function Calling 模型數據:', data);
+
+          // 檢查數據是否為數組
+          if (!Array.isArray(data)) {
+            console.warn('API返回的 Function Calling 模型數據不是陣列');
+            // 返回預設模型
+            data = [
+              {
+                id: 15,
+                display_name: 'GPT-5',
+                description:
+                  'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+                provider: 'AZURE_OPENAI'
+              }
+            ];
+          }
+
+          // 檢查每個模型對象，確保結構正確
+          const processedData = data.map((model, index) => {
+            if (!model || typeof model !== 'object') {
+              console.warn(`Function Calling 模型 ${index} 無效，使用替代數據`);
+              return {
+                id: index + 1,
+                display_name: `Function Calling Model ${index + 1}`,
+                description: `Function Calling 模型 ${index + 1}`,
+                provider: 'AZURE_OPENAI'
+              };
+            }
+
+            // 確保模型有ID
+            if (model.id === undefined || model.id === null) {
+              console.warn(
+                `Function Calling 模型 ${index} 缺少ID，使用索引作為ID`
+              );
+              model.id = index + 1;
+            }
+
+            // 確保模型有顯示名稱
+            if (!model.display_name) {
+              console.warn(
+                `Function Calling 模型 ${index} 缺少顯示名稱，使用預設名稱`
+              );
+              model.display_name = `Function Calling Model ${model.id}`;
+            }
+
+            return model;
+          });
+
+          // 更新快取
+          if (!this.functionCallingModelsCache) {
+            this.functionCallingModelsCache = {};
+          }
+          this.functionCallingModelsCache[cacheKey] = processedData;
+          this.lastFunctionCallingFetchTime = now;
+          this.pendingFunctionCallingRequest = null; // 清除進行中的請求
+
+          return processedData;
+        })
+        .catch((error) => {
+          console.error('獲取 Function Calling 模型失敗:', error);
+          this.pendingFunctionCallingRequest = null; // 清除進行中的請求，即使出錯
+
+          // 返回預設模型，而不是拋出錯誤
+          return [
+            {
+              id: 15,
+              display_name: 'GPT-5',
+              description:
+                'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+              provider: 'AZURE_OPENAI'
+            },
+            {
+              id: 17,
+              display_name: 'GPT-5 mini',
+              description:
+                'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
+              provider: 'AZURE_OPENAI'
+            }
+          ];
+        });
+
+      return this.pendingFunctionCallingRequest;
+    } catch (error) {
+      console.error('獲取 Function Calling 模型過程中出錯:', error);
+      this.pendingFunctionCallingRequest = null;
+
+      // 返回預設模型，而不是拋出錯誤
+      return [
+        {
+          id: 15,
+          display_name: 'GPT-5',
+          description:
+            'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+          provider: 'AZURE_OPENAI'
+        },
+        {
+          id: 17,
+          display_name: 'GPT-5 mini',
+          description:
+            'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
+          provider: 'AZURE_OPENAI'
+        }
+      ];
+    }
+  }
+
+  /**
+   * 獲取支援結構化輸出的LLM模型
    * @returns {Promise<Array>} 結構化輸出模型列表
    */
   async getStructuredOutputModels() {
@@ -510,7 +669,101 @@ export class LLMService {
   }
 
   /**
-   * 新增：獲取格式化後的結構化輸出模型選項，適用於下拉選單
+   * 獲取格式化後的 Function Calling 模型選項，適用於下拉選單
+   * @param {boolean} requireParallelToolCalls - 是否要求支援 parallel tool calls 功能
+   * @returns {Promise<Array>} 格式化的 Function Calling 模型選項
+   */
+  async getFunctionCallingModelOptions(requireParallelToolCalls = true) {
+    try {
+      const models = await this.getFunctionCallingModels(
+        requireParallelToolCalls
+      );
+
+      // 檢查模型數據是否有效
+      if (!models || !Array.isArray(models)) {
+        console.warn('Function Calling 模型數據無效或不是陣列，使用默認選項');
+        return [
+          {
+            value: '15',
+            label: 'GPT-5',
+            description:
+              'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+            provider: 'AZURE_OPENAI'
+          }
+        ];
+      }
+
+      if (models.length === 0) {
+        console.warn('API返回的 Function Calling 模型陣列為空，使用默認選項');
+        return [
+          {
+            value: '15',
+            label: 'GPT-5',
+            description:
+              'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+            provider: 'AZURE_OPENAI'
+          }
+        ];
+      }
+
+      // 將API返回的 Function Calling 模型數據轉換為select選項格式
+      const options = models.map((model, index) => {
+        // 確保模型對象存在
+        if (!model) {
+          console.warn(`遇到無效的 Function Calling 模型數據，索引: ${index}`);
+          return {
+            value: `${index + 1}`,
+            label: `Function Calling Model ${index + 1}`,
+            description: '',
+            provider: 'AZURE_OPENAI'
+          };
+        }
+
+        // 取得 ID，確保是字串型別
+        let modelId = '15'; // 預設 ID
+        if (model.id !== undefined && model.id !== null) {
+          modelId = model.id.toString();
+        } else {
+          modelId = `${index + 1}`; // 使用索引+1作為ID
+        }
+
+        // 取得顯示名稱
+        const displayLabel =
+          model.display_name || `Function Calling Model ${modelId}`;
+
+        return {
+          value: modelId,
+          label: displayLabel,
+          description: model.description || '',
+          provider: model.provider || 'AZURE_OPENAI'
+        };
+      });
+
+      return options;
+    } catch (error) {
+      console.error('獲取 Function Calling 模型選項失敗:', error);
+      // 返回一些默認選項，以防API失敗
+      return [
+        {
+          value: '15',
+          label: 'GPT-5',
+          description:
+            'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+          provider: 'AZURE_OPENAI'
+        },
+        {
+          value: '17',
+          label: 'GPT-5 mini',
+          description:
+            'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
+          provider: 'AZURE_OPENAI'
+        }
+      ];
+    }
+  }
+
+  /**
+   * 獲取格式化後的結構化輸出模型選項，適用於下拉選單
    * @returns {Promise<Array>} 格式化的結構化輸出模型選項
    */
   async getStructuredOutputModelOptions() {
@@ -642,6 +895,11 @@ export class LLMService {
     // 預加載模型
     this.getModels().catch((err) => {
       console.log('預加載模型失敗:', err);
+    });
+
+    // 預加載 Function Calling 模型
+    this.getFunctionCallingModels().catch((err) => {
+      console.log('預加載 Function Calling 模型失敗:', err);
     });
 
     // 預加載結構化輸出模型

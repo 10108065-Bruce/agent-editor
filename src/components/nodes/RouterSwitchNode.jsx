@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, useUpdateNodeInternals } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import { llmService } from '../../services/index';
 import AddIcon from '../icons/AddIcon';
@@ -8,6 +8,7 @@ import dragIcon from '../../assets/icon-drag-handle-line.svg';
 import AutoResizeTextarea from '../../components/text/AutoResizeText';
 
 const RouterSwitchNode = ({ data, isConnectable, id }) => {
+  const updateNodeInternals = useUpdateNodeInternals();
   // 狀態管理
   const [selectedModelId, setSelectedModelId] = useState(data?.llm_id || '1');
   const [routers, setRouters] = useState(
@@ -76,19 +77,15 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
 
     setIsLoadingModels(true);
     try {
-      console.log('開始載入模型選項...');
-      const options = await llmService.getModelOptions();
+      const options = await llmService.getFunctionCallingModelOptions(true);
 
       // 檢查選項是否真的有變化，避免不必要的更新
       const optionsString = JSON.stringify(options);
       const lastOptionsString = JSON.stringify(lastModelOptionsRef.current);
 
       if (optionsString === lastOptionsString) {
-        console.log('模型選項未變化，跳過更新');
         return;
       }
-
-      console.log('API 返回的模型選項:', options);
 
       if (options && options.length > 0) {
         setModelOptions(options);
@@ -110,9 +107,22 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
           updateParentState('llm_id', defaultModel);
         }
       } else {
+        // 更新 fallback 選項為 Function Calling 模型
         const fallbackOptions = [
-          { value: '1', label: 'O3-mini (預設)' },
-          { value: '2', label: 'GPT-4 (預設)' }
+          {
+            value: '15',
+            label: 'GPT-5 (預設)',
+            description:
+              'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+            provider: 'AZURE_OPENAI'
+          },
+          {
+            value: '17',
+            label: 'GPT-5 mini (預設)',
+            description:
+              'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
+            provider: 'AZURE_OPENAI'
+          }
         ];
         setModelOptions(fallbackOptions);
         lastModelOptionsRef.current = fallbackOptions;
@@ -139,8 +149,20 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
       }
 
       const fallbackOptions = [
-        { value: '1', label: 'O3-mini (預設)' },
-        { value: '2', label: 'GPT-4 (預設)' }
+        {
+          value: '15',
+          label: 'GPT-5 (預設)',
+          description:
+            'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
+          provider: 'AZURE_OPENAI'
+        },
+        {
+          value: '17',
+          label: 'GPT-5 mini (預設)',
+          description:
+            'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
+          provider: 'AZURE_OPENAI'
+        }
       ];
       setModelOptions(fallbackOptions);
       lastModelOptionsRef.current = fallbackOptions;
@@ -239,7 +261,6 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     (newRouters) => {
       const routersWithOther = [...newRouters];
 
-      // 確保總是有 default_router
       const hasOtherRouter = routersWithOther.some(
         (router) => router.router_id === 'default_router'
       );
@@ -254,8 +275,18 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
       console.log('更新 routers 到父組件:', routersWithOther);
       setRouters(routersWithOther);
       updateParentState('routers', routersWithOther);
+
+      // 立即通知 ReactFlow 重新計算這個節點的內部結構
+      setTimeout(() => {
+        updateNodeInternals(id);
+      }, 0);
+
+      // // 🔧 保險起見，再觸發一次
+      // setTimeout(() => {
+      //   updateNodeInternals(id);
+      // }, 100);
     },
-    [updateParentState]
+    [updateParentState, updateNodeInternals, id]
   );
 
   // Calculate otherRouters early to avoid "before initialization" error
@@ -314,7 +345,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     updateRoutersToParent(newRouters);
   }, [otherRouters, updateRoutersToParent]);
 
-  // 刪除 router
+  //  deleteRouter 函數 - 保持原有 router_id
   const deleteRouter = useCallback(
     (routerIndex) => {
       if (otherRouters.length <= 1) {
@@ -328,41 +359,32 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
         return;
       }
 
-      // 🔧 修復：獲取要刪除的 router 的 connection_id，用於斷開連線
       const routerToDelete = otherRouters[routerIndex];
-      const connectionIdToDelete =
-        routerToDelete.connection_id || routerToDelete.router_id;
+      const handleIdToDelete = routerToDelete.router_id;
 
-      console.log(
-        `準備刪除 router ${routerToDelete.router_id}，connection_id: ${connectionIdToDelete}`
-      );
-
-      // 🔧 修復：在刪除 router 前先斷開所有使用此 connection_id 的連線
+      // 在刪除 router 前先斷開所有使用此 router_id 的連線
       if (typeof window !== 'undefined' && window.deleteEdgesBySourceHandle) {
         // 獲取當前節點的 ID
         const currentNodeId = id; // 假設節點 ID 在組件中可用
 
-        // 斷開所有從此節點使用被刪除 router 的 connection_id 的連線
-        window.deleteEdgesBySourceHandle(currentNodeId, connectionIdToDelete);
-
-        console.log(`已斷開與 ${connectionIdToDelete} 相關的所有連線`);
+        // 斷開所有從此節點使用被刪除 router 的 router_id 的連線
+        window.deleteEdgesBySourceHandle(currentNodeId, handleIdToDelete);
       }
 
       const newRouters = otherRouters.filter(
         (_, index) => index !== routerIndex
       );
 
-      // 重新編號 router_id，但保留 connection_id
-      const renumberedRouters = newRouters.map((router, index) => ({
+      // 保持原有的 router_id 不變，只確保 connection_id 存在
+      const routersWithConnectionIds = newRouters.map((router) => ({
         ...router,
-        router_id: `router${index}`,
-        // 保留原有的 connection_id，如果沒有則生成新的
+        // 保持原有的 router_id 不變！
         connection_id:
           router.connection_id ||
           `router_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       }));
 
-      updateRoutersToParent(renumberedRouters);
+      updateRoutersToParent(routersWithConnectionIds);
 
       // 🔧 修復：額外的清理工作 - 通知其他組件 router 已被刪除
       if (typeof window !== 'undefined') {
@@ -370,7 +392,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
           detail: {
             nodeId: id,
             deletedRouter: routerToDelete,
-            remainingRouters: renumberedRouters
+            remainingRouters: routersWithConnectionIds
           }
         });
         window.dispatchEvent(event);
@@ -482,6 +504,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     setDragOverIndex(null);
   }, []);
 
+  // handleDrop 函數 - 保持原有 router_id 不變
   const handleDrop = useCallback(
     (e, dropIndex) => {
       e.preventDefault();
@@ -530,20 +553,31 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
       // 在計算出的位置插入項目
       newRouters.splice(insertIndex, 0, draggedItem);
 
-      // 重新編號 router_id
-      const renumberedRouters = newRouters.map((router, index) => ({
+      // 保持原有的 router_id 和 connection_id 不變
+      const routersWithConnectionIds = newRouters.map((router) => ({
         ...router,
-        router_id: `router${index}`
+        // 保持原有的 router_id 不變！
+        // 只確保 connection_id 存在
+        connection_id:
+          router.connection_id ||
+          `router_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       }));
 
       // 更新狀態
-      updateRoutersToParent(renumberedRouters);
+      updateRoutersToParent(routersWithConnectionIds);
 
       // 清理拖拽狀態
       setDraggedIndex(null);
       setDragOverIndex(null);
+
+      updateRoutersToParent(routersWithConnectionIds);
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+
+      // 立即更新節點內部結構
+      updateNodeInternals(id);
     },
-    [draggedIndex, otherRouters, updateRoutersToParent]
+    [draggedIndex, otherRouters, updateRoutersToParent, updateNodeInternals, id]
   );
 
   // 計算標籤寬度
@@ -553,18 +587,21 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     return baseWidth + text.length * charWidth;
   };
 
-  // 獲取所有輸出 handles（包括 other）
+  // 獲取所有輸出 handles（包括 other） - 使用 router_id 作為 handle ID
   const getAllOutputHandles = useCallback(() => {
     const handles = otherRouters.map((router) => ({
+      // 使用 router_id 作為 handle 的 id，保持 React Flow handle 標識符的穩定性
       id: router.router_id,
       name: router.router_name,
-      router_id: router.router_id // 保留 router_id 作為參考
+      router_id: router.router_id,
+      connection_id: router.connection_id
     }));
 
     handles.push({
       id: 'default_router',
       name: 'Other',
-      router_id: 'default_router'
+      router_id: 'default_router',
+      connection_id: 'default_router'
     });
 
     return handles;
