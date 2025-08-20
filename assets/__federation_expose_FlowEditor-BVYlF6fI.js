@@ -24158,7 +24158,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9d20457b956a1be59899d86440d76d115a1d3911", "VITE_APP_BUILD_TIME": "2025-08-19T07:37:51.359Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.10"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "03a50a4d9d8fdf996fc539e252ac642abddf070b", "VITE_APP_BUILD_TIME": "2025-08-20T01:44:47.952Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.11"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -43479,39 +43479,29 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         ]
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          AutoLayoutButton,
-          {
-            onLayout: handleAutoLayout,
-            disabled: isSaving || nodes.length === 0 || isLocked,
-            isLocked
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          SaveButton,
-          {
-            onSave: saveToServer,
-            title: flowMetadata.title,
-            flowId: flowMetadata.id,
-            disabled: isSaving,
-            isLocked
-          }
-        ) })
-      ] }),
-      flowMetadata.lastSaved && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 bg-white px-3 py-1 rounded-md shadow text-xs text-gray-500 z-10", children: [
-        "Last saved: ",
-        new Date(flowMetadata.lastSaved).toLocaleTimeString(),
-        " ",
-        "| Version: ",
-        flowMetadata.version,
-        isLocked && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-orange-600 font-medium", children: "🔒 已鎖定" })
-      ] })
-    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        AutoLayoutButton,
+        {
+          onLayout: handleAutoLayout,
+          disabled: isSaving || nodes.length === 0 || isLocked,
+          isLocked
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SaveButton,
+        {
+          onSave: saveToServer,
+          title: flowMetadata.title,
+          flowId: flowMetadata.id,
+          disabled: isSaving,
+          isLocked
+        }
+      ) })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       SaveFlowDialog,
       {
