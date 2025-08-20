@@ -24158,7 +24158,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "03a50a4d9d8fdf996fc539e252ac642abddf070b", "VITE_APP_BUILD_TIME": "2025-08-20T01:44:47.952Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.11"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "03a50a4d9d8fdf996fc539e252ac642abddf070b", "VITE_APP_BUILD_TIME": "2025-08-20T04:10:30.348Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.12"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24517,6 +24517,18 @@ const NodeSidebar = ({
               label: "Extract Data",
               onClick: () => handleNodeClick("extract_data"),
               nodeType: "extract_data",
+              onDragStart: customDragStart,
+              disabled: isLocked,
+              disabledReason: isLocked ? "工作流已鎖定" : null
+            }
+          ),
+          filterNodes("QOCA aim Node") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NodeItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "aim" }) }),
+              label: "QOCA aim",
+              onClick: () => handleNodeClick("aim_ml"),
+              nodeType: "aim_ml",
               onDragStart: customDragStart,
               disabled: isLocked,
               disabledReason: isLocked ? "工作流已鎖定" : null
