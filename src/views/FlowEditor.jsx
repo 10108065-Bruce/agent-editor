@@ -1429,7 +1429,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           </div>
         </div>
         {/* Flow metadata info - now positioned below the action buttons */}
-        {flowMetadata.lastSaved && (
+        {/* {flowMetadata.lastSaved && (
           <div className='mt-2 bg-white px-3 py-1 rounded-md shadow text-xs text-gray-500 z-10'>
             Last saved: {new Date(flowMetadata.lastSaved).toLocaleTimeString()}{' '}
             | Version: {flowMetadata.version}
@@ -1439,7 +1439,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               </span>
             )}
           </div>
-        )}
+        )} */}
       </div>
       {/* 保存流程對話框 - 添加在最後，確保 z-index 最高 */}
       <SaveFlowDialog
