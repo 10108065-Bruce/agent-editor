@@ -344,22 +344,58 @@ export class WorkflowMappingService {
       return nodeInput;
     }
 
-    // 特殊處理 webhook_output 節點
+    // 特殊處理 webhook_output 節點的部分
     if (isWebookOutputNode && targetNode.data && targetNode.data.inputHandles) {
       // 保存原始的 node_input 資訊
       const originalNodeInput = targetNode.data.node_input || {};
 
-      // 保存原始的 handleLabels 狀態，用於映射 handle ID
+      // 改進 handleLabels 構建邏輯，確保捕獲所有 return_name
       const handleLabels = {};
 
       // 首先檢查 node_input 中是否存在 return_name
       Object.entries(originalNodeInput).forEach(([key, value]) => {
         if (value && value.return_name) {
-          // 使用 processHandleId 或等效邏輯轉換 handle ID
-          const baseHandleId = key.split('_')[0]; // 簡化版的 processHandleId
-          handleLabels[baseHandleId] = value.return_name;
+          // 使用更完整的邏輯處理 handle ID
+          let baseHandleId;
+
+          // 處理多連線格式 (例如 text1_1, text1_2)
+          const multiConnectionMatch = key.match(/^(text\d+)(?:_\d+)?$/);
+          if (multiConnectionMatch && multiConnectionMatch[1]) {
+            baseHandleId = multiConnectionMatch[1];
+          }
+          // 處理舊版 'input' 格式
+          else if (key === 'input') {
+            baseHandleId = 'text0';
+          }
+          // 其他情況直接使用原始 key
+          else {
+            baseHandleId = key;
+          }
+
+          // 如果已經有標籤，保留原有的；否則設置新的
+          if (!handleLabels[baseHandleId]) {
+            handleLabels[baseHandleId] = value.return_name;
+            console.log(
+              `保存 handle ${baseHandleId} 的 return_name: ${value.return_name}`
+            );
+          }
         }
       });
+
+      // 檢查前端狀態中的 handleLabels（如果存在）
+      if (
+        targetNode.data.handleLabels &&
+        typeof targetNode.data.handleLabels === 'object'
+      ) {
+        // 合併前端狀態的標籤，但不覆蓋已有的
+        Object.entries(targetNode.data.handleLabels).forEach(
+          ([handleId, label]) => {
+            if (label && !handleLabels[handleId]) {
+              handleLabels[handleId] = label;
+            }
+          }
+        );
+      }
 
       // 還原 input 到 text0 的映射 (處理第一個預設 handle 的情況)
       if (
@@ -424,14 +460,24 @@ export class WorkflowMappingService {
         }
       });
 
-      // 處理未連線的 handle
+      // 處理未連線的 handle，確保保留 return_name
+      const connectedHandles = Object.keys(handleGroups);
       targetNode.data.inputHandles
-        .filter((handle) => !handleGroups[handle.id])
+        .filter((handle) => !connectedHandles.includes(handle.id))
         .forEach((handle) => {
           const baseHandleId = handle.id;
 
-          // 使用保存的標籤或空字串
+          // 優先使用 handleLabels，然後檢查 originalNodeInput 中的直接對應
           let returnName = handleLabels[baseHandleId] || '';
+
+          // 如果 handleLabels 中沒有，嘗試從 originalNodeInput 中的直接對應找
+          if (
+            !returnName &&
+            originalNodeInput[baseHandleId] &&
+            originalNodeInput[baseHandleId].return_name
+          ) {
+            returnName = originalNodeInput[baseHandleId].return_name;
+          }
 
           console.log(
             `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
@@ -446,6 +492,34 @@ export class WorkflowMappingService {
             return_name: returnName
           };
         });
+
+      // 最後的檢查，確保所有 inputHandles 都被處理
+      targetNode.data.inputHandles.forEach((handle) => {
+        const baseHandleId = handle.id;
+
+        // 如果這個 handle 既不在連線中，也不在 nodeInput 中，確保它被處理
+        if (!nodeInput[baseHandleId]) {
+          let returnName = handleLabels[baseHandleId] || '';
+
+          // 再次嘗試從 originalNodeInput 中查找
+          if (
+            !returnName &&
+            originalNodeInput[baseHandleId] &&
+            originalNodeInput[baseHandleId].return_name
+          ) {
+            returnName = originalNodeInput[baseHandleId].return_name;
+          }
+
+          nodeInput[baseHandleId] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true,
+            return_name: returnName
+          };
+        }
+      });
 
       return nodeInput;
     }
