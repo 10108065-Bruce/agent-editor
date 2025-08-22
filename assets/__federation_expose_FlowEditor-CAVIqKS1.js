@@ -24158,7 +24158,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "03a50a4d9d8fdf996fc539e252ac642abddf070b", "VITE_APP_BUILD_TIME": "2025-08-20T04:10:30.348Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.12"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0eec74323f38ffaa29f151bbd3062a6486a1ec54", "VITE_APP_BUILD_TIME": "2025-08-22T02:04:16.732Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.13"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -25765,22 +25765,58 @@ class WorkflowMappingService {
       return nodeInput;
     }
 
-    // 特殊處理 webhook_output 節點
+    // 特殊處理 webhook_output 節點的部分
     if (isWebookOutputNode && targetNode.data && targetNode.data.inputHandles) {
       // 保存原始的 node_input 資訊
       const originalNodeInput = targetNode.data.node_input || {};
 
-      // 保存原始的 handleLabels 狀態，用於映射 handle ID
+      // 改進 handleLabels 構建邏輯，確保捕獲所有 return_name
       const handleLabels = {};
 
       // 首先檢查 node_input 中是否存在 return_name
       Object.entries(originalNodeInput).forEach(([key, value]) => {
         if (value && value.return_name) {
-          // 使用 processHandleId 或等效邏輯轉換 handle ID
-          const baseHandleId = key.split('_')[0]; // 簡化版的 processHandleId
-          handleLabels[baseHandleId] = value.return_name;
+          // 使用更完整的邏輯處理 handle ID
+          let baseHandleId;
+
+          // 處理多連線格式 (例如 text1_1, text1_2)
+          const multiConnectionMatch = key.match(/^(text\d+)(?:_\d+)?$/);
+          if (multiConnectionMatch && multiConnectionMatch[1]) {
+            baseHandleId = multiConnectionMatch[1];
+          }
+          // 處理舊版 'input' 格式
+          else if (key === 'input') {
+            baseHandleId = 'text0';
+          }
+          // 其他情況直接使用原始 key
+          else {
+            baseHandleId = key;
+          }
+
+          // 如果已經有標籤，保留原有的；否則設置新的
+          if (!handleLabels[baseHandleId]) {
+            handleLabels[baseHandleId] = value.return_name;
+            console.log(
+              `保存 handle ${baseHandleId} 的 return_name: ${value.return_name}`
+            );
+          }
         }
       });
+
+      // 檢查前端狀態中的 handleLabels（如果存在）
+      if (
+        targetNode.data.handleLabels &&
+        typeof targetNode.data.handleLabels === 'object'
+      ) {
+        // 合併前端狀態的標籤，但不覆蓋已有的
+        Object.entries(targetNode.data.handleLabels).forEach(
+          ([handleId, label]) => {
+            if (label && !handleLabels[handleId]) {
+              handleLabels[handleId] = label;
+            }
+          }
+        );
+      }
 
       // 還原 input 到 text0 的映射 (處理第一個預設 handle 的情況)
       if (
@@ -25845,14 +25881,24 @@ class WorkflowMappingService {
         }
       });
 
-      // 處理未連線的 handle
+      // 處理未連線的 handle，確保保留 return_name
+      const connectedHandles = Object.keys(handleGroups);
       targetNode.data.inputHandles
-        .filter((handle) => !handleGroups[handle.id])
+        .filter((handle) => !connectedHandles.includes(handle.id))
         .forEach((handle) => {
           const baseHandleId = handle.id;
 
-          // 使用保存的標籤或空字串
+          // 優先使用 handleLabels，然後檢查 originalNodeInput 中的直接對應
           let returnName = handleLabels[baseHandleId] || '';
+
+          // 如果 handleLabels 中沒有，嘗試從 originalNodeInput 中的直接對應找
+          if (
+            !returnName &&
+            originalNodeInput[baseHandleId] &&
+            originalNodeInput[baseHandleId].return_name
+          ) {
+            returnName = originalNodeInput[baseHandleId].return_name;
+          }
 
           console.log(
             `未連線 Handle ${baseHandleId} 使用標籤值: ${returnName}`
@@ -25867,6 +25913,34 @@ class WorkflowMappingService {
             return_name: returnName
           };
         });
+
+      // 最後的檢查，確保所有 inputHandles 都被處理
+      targetNode.data.inputHandles.forEach((handle) => {
+        const baseHandleId = handle.id;
+
+        // 如果這個 handle 既不在連線中，也不在 nodeInput 中，確保它被處理
+        if (!nodeInput[baseHandleId]) {
+          let returnName = handleLabels[baseHandleId] || '';
+
+          // 再次嘗試從 originalNodeInput 中查找
+          if (
+            !returnName &&
+            originalNodeInput[baseHandleId] &&
+            originalNodeInput[baseHandleId].return_name
+          ) {
+            returnName = originalNodeInput[baseHandleId].return_name;
+          }
+
+          nodeInput[baseHandleId] = {
+            node_id: '',
+            output_name: '',
+            type: 'string',
+            data: '',
+            is_empty: true,
+            return_name: returnName
+          };
+        }
+      });
 
       return nodeInput;
     }
@@ -38321,9 +38395,8 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     const bottomPadding = 30;
     return headerHeight + inputs.length * handleHeight + buttonAreaHeight + textAreaHeight + bottomPadding;
   }, [inputs.length]);
-  useEdges();
+  const edges = useEdges();
   const processHandleId = (handleId) => {
-    console.log(handleId);
     if (!handleId) return "";
     if (typeof handleId !== "string") {
       console.warn(`processHandleId: handleId 不是字符串: ${handleId}`);
@@ -38342,10 +38415,8 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     if (!data.node_input) return {};
     const labels = {};
     Object.entries(data.node_input).forEach(([key, value]) => {
-      console.log("loadLabelsFromNodeInput:", key, value);
       if (value && value.return_name) {
         const baseHandleId = processHandleId(key);
-        console.log(`讀取 ${key} 的 return_name:`, value.return_name);
         labels[baseHandleId] = value.return_name;
       }
     });
@@ -38355,9 +38426,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     if (isUpdating.current || isInitialized.current) return;
     isUpdating.current = true;
     initAttempts.current += 1;
-    console.log(
-      `初始化 WebhookOutputNode ${nodeId}，嘗試 #${initAttempts.current}`
-    );
     const handleSet = /* @__PURE__ */ new Set();
     if (data.node_input && typeof data.node_input === "object") {
       const inputKeys = Object.keys(data.node_input);
@@ -38370,9 +38438,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       });
     }
     if (data.inputHandles && Array.isArray(data.inputHandles)) {
-      console.log(
-        `從 inputHandles 屬性載入 ${data.inputHandles.length} 個 handle`
-      );
       data.inputHandles.forEach((handle) => {
         if (handle && handle.id) {
           const baseHandleId = processHandleId(handle.id);
@@ -38383,7 +38448,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       });
     }
     if (data.parameters && data.parameters.inputHandles && data.parameters.inputHandles.data) {
-      console.log(`從參數中載入 handle`);
       const paramHandles = data.parameters.inputHandles.data;
       if (Array.isArray(paramHandles)) {
         paramHandles.forEach((handleId) => {
@@ -38396,10 +38460,8 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     }
     if (handleSet.size === 0) {
       handleSet.add("text0");
-      console.log(`添加默認 handle: text0`);
     }
     const handles = Array.from(handleSet).map((id2) => ({ id: String(id2) }));
-    console.log(`最終設置節點 ${nodeId} 的 inputs:`, handles);
     setInputs(handles);
     if (data.node_input) {
       const nodeInput = { ...data.node_input };
@@ -38423,7 +38485,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
             return_name: ""
             // 確保有 return_name 屬性
           };
-          console.log(`為 handle ${baseHandleId} 創建 node_input 項`);
         } else if (handleMapping[baseHandleId]) {
           handleMapping[baseHandleId].forEach((key) => {
             if (!Object.prototype.hasOwnProperty.call(
@@ -38431,7 +38492,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
               "return_name"
             )) {
               nodeInput[key].return_name = "";
-              console.log(`為 handle ${key} 添加 return_name 屬性`);
             }
           });
         }
@@ -38444,14 +38504,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     const initialLabels = loadLabelsFromNodeInput();
     if (Object.keys(initialLabels).length > 0) {
       setHandleLabels(initialLabels);
-      console.log("設置初始標籤:", initialLabels);
     }
-    console.log(`節點 ${nodeId} 完整資料:`, {
-      handles,
-      node_input: data.node_input || {},
-      inputHandles: data.inputHandles || [],
-      labels: initialLabels
-    });
     isInitialized.current = true;
     const updateTimes = [0, 50, 150, 300, 600, 1e3, 1500];
     updateTimes.forEach((delay) => {
@@ -38469,7 +38522,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
   }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
   useEffect$6(() => {
     if (inputs.length > 0) {
-      console.log(`inputs 更新為 ${inputs.length} 個 handle，更新內部結構`);
       setTimeout(() => {
         try {
           updateNodeInternals(nodeId);
@@ -38479,10 +38531,46 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       }, 50);
     }
   }, [inputs, nodeId, updateNodeInternals]);
+  useEffect$6(() => {
+    const nodeEdges = edges.filter((edge) => edge.target === nodeId);
+    if (data.node_input) {
+      const updatedNodeInput = { ...data.node_input };
+      let hasChanges = false;
+      inputs.forEach((input) => {
+        const handleId = input.id;
+        const hasConnection = nodeEdges.some((edge) => {
+          const baseHandle = edge.targetHandle ? edge.targetHandle.split("_")[0] : "";
+          return baseHandle === handleId;
+        });
+        if (!hasConnection && updatedNodeInput[handleId] && updatedNodeInput[handleId].node_id) {
+          const currentReturnName = updatedNodeInput[handleId].return_name || handleLabels[handleId] || "";
+          updatedNodeInput[handleId] = {
+            node_id: "",
+            output_name: "",
+            type: "string",
+            data: "",
+            is_empty: true,
+            return_name: currentReturnName
+            // 保留 return_name
+          };
+          hasChanges = true;
+        }
+      });
+      if (hasChanges) {
+        data.node_input = updatedNodeInput;
+        if (data.updateNodeData) {
+          try {
+            data.updateNodeData("node_input", updatedNodeInput);
+          } catch (err) {
+            console.warn("同步更新節點數據時出錯:", err);
+          }
+        }
+      }
+    }
+  }, [edges, nodeId, inputs, data, handleLabels]);
   const handleAddOutput = useCallback$5(() => {
     let maxIndex = -1;
     inputs.forEach((input) => {
-      console.log(input);
       if (input.id && input.id.startsWith("text")) {
         const indexStr = input.id.substring(4);
         const index = parseInt(indexStr, 10);
@@ -38494,7 +38582,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     const newIndex = maxIndex + 1;
     const newInputId = `text${newIndex}`;
     const newInputs = [...inputs, { id: newInputId }];
-    console.log(`新增 handle (${nodeId}):`, newInputId);
     const currentLabels = { ...handleLabels };
     setInputs(newInputs);
     if (data.node_input) {
@@ -38507,7 +38594,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
         return_name: ""
         // 確保有 return_name 屬性
       };
-      console.log(`已在 node_input 中添加 ${newInputId}`);
     }
     if (data.inputHandles) {
       data.inputHandles = newInputs;
@@ -38521,7 +38607,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       try {
         data.updateNodeData("inputHandles", newInputs);
         data.updateNodeData("node_input", data.node_input);
-        console.log(`已同步更新節點數據: inputHandles 和 node_input`);
       } catch (err) {
         console.warn("同步更新節點數據時出錯:", err);
       }
@@ -38529,7 +38614,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     setTimeout(() => {
       setHandleLabels((prevLabels) => {
         const mergedLabels = { ...currentLabels, ...prevLabels };
-        console.log("合併後的標籤:", mergedLabels);
         return mergedLabels;
       });
     }, 0);
@@ -38546,7 +38630,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
   const handleDeleteInput = useCallback$5(
     (handleId) => {
       const newInputs = inputs.filter((input) => input.id !== handleId);
-      console.log(`刪除 handle (${nodeId}):`, handleId);
       const currentLabels = { ...handleLabels };
       delete currentLabels[handleId];
       setInputs(newInputs);
@@ -38556,7 +38639,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
           const baseHandleId = processHandleId(key);
           if (baseHandleId === handleId) {
             delete updatedNodeInput[key];
-            console.log(`從 node_input 中刪除 ${key}`);
           }
         });
         data.node_input = updatedNodeInput;
@@ -38570,9 +38652,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
         try {
           data.updateNodeData("inputHandles", newInputs);
           data.updateNodeData("node_input", data.node_input);
-          console.log(
-            `已同步更新節點數據: 刪除 ${handleId} 後的 inputHandles 和 node_input`
-          );
         } catch (err) {
           console.warn("同步更新節點數據時出錯:", err);
         }
@@ -38592,26 +38671,29 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
   );
   const handleLabelChange = useCallback$5(
     (handleId, newLabel) => {
-      console.log(`標籤變更: ${handleId} -> ${newLabel}`);
       setHandleLabels((prev) => {
         if (prev[handleId] === newLabel) return prev;
         const updatedLabels = { ...prev, [handleId]: newLabel };
-        console.log("更新標籤狀態:", updatedLabels);
         return updatedLabels;
       });
       if (data.node_input) {
-        Object.keys(data.node_input).forEach((key) => {
+        const updatedNodeInput = { ...data.node_input };
+        Object.keys(updatedNodeInput).forEach((key) => {
           const baseKey = processHandleId(key);
           if (baseKey === handleId) {
-            data.node_input[key].return_name = newLabel;
-            data.node_input[key].has_return_name = true;
+            updatedNodeInput[key] = {
+              ...updatedNodeInput[key],
+              return_name: newLabel,
+              has_return_name: true
+              // 標記為有 return_name
+            };
           }
         });
-        const baseHandleExists = Object.keys(data.node_input).some(
+        const baseHandleExists = Object.keys(updatedNodeInput).some(
           (key) => processHandleId(key) === handleId
         );
         if (!baseHandleExists) {
-          data.node_input[handleId] = {
+          updatedNodeInput[handleId] = {
             node_id: "",
             output_name: "",
             type: "string",
@@ -38622,32 +38704,16 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
             // 標記為有 return_name
           };
         }
+        data.node_input = updatedNodeInput;
       }
-      console.log(`已更新 ${handleId} 的標籤為: ${newLabel}`);
+      if (!data.handleLabels) {
+        data.handleLabels = {};
+      }
+      data.handleLabels[handleId] = newLabel;
       if (data.updateNodeData && data.node_input) {
         try {
-          const updatedNodeInput = JSON.parse(JSON.stringify(data.node_input));
-          Object.keys(updatedNodeInput).forEach((key) => {
-            const baseKey = processHandleId(key);
-            if (baseKey === handleId) {
-              updatedNodeInput[key].return_name = newLabel;
-              updatedNodeInput[key].has_return_name = true;
-            }
-          });
-          if (!Object.keys(updatedNodeInput).some(
-            (key) => processHandleId(key) === handleId
-          )) {
-            updatedNodeInput[handleId] = {
-              node_id: "",
-              output_name: "",
-              type: "string",
-              data: "",
-              is_empty: true,
-              return_name: newLabel,
-              has_return_name: true
-            };
-          }
-          data.updateNodeData("node_input", updatedNodeInput);
+          data.updateNodeData("node_input", data.node_input);
+          data.updateNodeData("handleLabels", data.handleLabels);
           console.log(`已將 ${handleId} 的標籤變更同步到後端`);
         } catch (err) {
           console.warn("更新節點數據時出錯:", err);
@@ -38656,6 +38722,18 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     },
     [data]
   );
+  useEffect$6(() => {
+    if (Object.keys(handleLabels).length > 0 && data) {
+      if (!data.handleLabels) {
+        data.handleLabels = {};
+      }
+      Object.entries(handleLabels).forEach(([handleId, label]) => {
+        if (label) {
+          data.handleLabels[handleId] = label;
+        }
+      });
+    }
+  }, [handleLabels, data]);
   const nodeStyle = {
     height: `${getNodeHeight()}px`,
     transition: "height 0.3s ease"
