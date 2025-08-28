@@ -24158,7 +24158,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "0eec74323f38ffaa29f151bbd3062a6486a1ec54", "VITE_APP_BUILD_TIME": "2025-08-22T02:04:16.732Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.13"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "95bcaeb9a3f601f2ab0558b156a432139e4ab134", "VITE_APP_BUILD_TIME": "2025-08-28T05:49:58.562Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.14"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -25111,6 +25111,16 @@ const AutoResizeTextarea = ({
   );
 };
 
+const getShortId = (id, length = 3) => {
+  if (!id) return '';
+  return id.slice(-length);
+};
+
+const formatNodeTitle = (baseTitle, id, length = 3) => {
+  const shortId = getShortId(id, length);
+  return shortId ? `${baseTitle} (${shortId})` : baseTitle;
+};
+
 const React$r = await importShared('react');
 const {memo: memo$i,useReducer,useCallback: useCallback$j,useState: useState$q,useEffect: useEffect$k,useRef: useRef$g} = React$r;
 const CustomInputNode = ({ data, isConnectable, id }) => {
@@ -25341,7 +25351,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-64 relative", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 rounded-t-lg p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "input" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Input" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Input", id) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-lg shadow-md rounded-lg w-64 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-bl-xl rounded-br-xl p-4", children: [
@@ -32355,7 +32365,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "AI" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("AI", id) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
@@ -32960,7 +32970,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "rounded-lg shadow-md overflow-visible w-64 bg-white",
+      className: "rounded-lg shadow-md overflow-visible w-70 bg-white",
       style: nodeStyle,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -32970,7 +32980,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             style: { backgroundColor: "#f3f4f6" },
             children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-base", children: "Browser Extension output" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-base", children: formatNodeTitle("Browser Extension output", id) })
             ] })
           }
         ),
@@ -33275,7 +33285,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     return item.id || `a${index + 1}`;
   }, []);
   const items = Array.isArray(localItems) && localItems.length > 0 ? localItems : Array.isArray(data?.items) ? data.items : [];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-64 relative", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shadow-md w-70 relative", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       "input",
       {
@@ -33289,7 +33299,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg overflow-hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Browser Extension input" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Browser Extension input", id) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-2", children: [
         items.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -33379,7 +33389,7 @@ const BrowserExtensionInputNode$1 = memo$f(BrowserExtensionInputNode);
 
 const React$m = await importShared('react');
 const {memo: memo$e} = React$m;
-const IfElseNode = ({ data, isConnectable }) => {
+const IfElseNode = ({ data, isConnectable, id }) => {
   const operators = [
     { value: "equals", label: "[Text] Equals" },
     { value: "contains", label: "[Text] Contains" },
@@ -33396,7 +33406,7 @@ const IfElseNode = ({ data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-purple-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-md bg-purple-500 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "If / Else" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("IF / ELSE", id) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
@@ -33654,7 +33664,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-white", children: "知識檢索" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-white", children: formatNodeTitle("Knowledge Retrieval", id) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded-b-lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
@@ -33891,7 +33901,7 @@ const EndNode$1 = memo$c(EndNode);
 
 const React$j = await importShared('react');
 const {memo: memo$b,useState: useState$k} = React$j;
-const WebhookNode = ({ data, isConnectable }) => {
+const WebhookNode = ({ data, isConnectable, id }) => {
   const [showInput, setShowInput] = useState$k(false);
   const [tempUrl, setTempUrl] = useState$k("");
   const [showCopyAlert, setShowCopyAlert] = useState$k(false);
@@ -33932,7 +33942,10 @@ const WebhookNode = ({ data, isConnectable }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-red-50 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-red-50 flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, {}) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Webhook" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
+          " ",
+          formatNodeTitle("Webhook", id)
+        ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-2 rounded-b-lg", children: [
         !data.webhookUrl && !showInput && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -34100,7 +34113,7 @@ const WebhookNode$1 = memo$b(WebhookNode);
 
 const React$i = await importShared('react');
 const {memo: memo$a,useState: useState$j,useEffect: useEffect$e,useCallback: useCallback$e,useRef: useRef$b} = React$i;
-const HttpRequestNode = ({ data, isConnectable }) => {
+const HttpRequestNode = ({ data, isConnectable, id }) => {
   const [localUrl, setLocalUrl] = useState$j(data?.url || "");
   const [localMethod, setLocalMethod] = useState$j(data?.method || "GET");
   const [headers, setHeaders] = useState$j(
@@ -34405,7 +34418,10 @@ const HttpRequestNode = ({ data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-98 max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-red-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "http" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "HTTP" })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
+        " ",
+        formatNodeTitle("HTTP", id)
+      ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
@@ -34831,7 +34847,7 @@ const LineNode = ({ data, isConnectable, id }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-80", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Line Webhook" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Line Webhook", id) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
@@ -35233,7 +35249,7 @@ const TimerNode$1 = memo$8(TimerNode);
 
 const React$f = await importShared('react');
 const {memo: memo$7,useState: useState$g,useEffect: useEffect$c,useCallback: useCallback$c,useRef: useRef$9} = React$f;
-const LineMessageNode = ({ data, isConnectable }) => {
+const LineMessageNode = ({ data, isConnectable, id }) => {
   const [selectedConfigId, setSelectedConfigId] = useState$g(
     data?.external_service_config_id || ""
   );
@@ -35462,7 +35478,7 @@ const LineMessageNode = ({ data, isConnectable }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Line Message" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Line Message", id) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
@@ -35574,7 +35590,7 @@ const LineMessageNode$1 = memo$7(LineMessageNode);
 
 const React$e = await importShared('react');
 const {memo: memo$6,useState: useState$f,useEffect: useEffect$b,useCallback: useCallback$b} = React$e;
-const ExtractDataNode = ({ data, isConnectable }) => {
+const ExtractDataNode = ({ data, isConnectable, id }) => {
   const [modelOptions, setModelOptions] = useState$f([
     {
       value: "0",
@@ -35707,7 +35723,7 @@ const ExtractDataNode = ({ data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-98 max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Data Extractor" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Data Extractor", id) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
@@ -35882,7 +35898,7 @@ const ExtractDataNode$1 = memo$6(ExtractDataNode);
 
 const React$d = await importShared('react');
 const {memo: memo$5,useState: useState$e,useEffect: useEffect$a,useCallback: useCallback$a,useRef: useRef$8} = React$d;
-const QOCAAimNode = ({ data, isConnectable }) => {
+const QOCAAimNode = ({ data, isConnectable, id }) => {
   const [selectedAim, setSelectedAim] = useState$e(data?.aim_ml_id?.data || "");
   const [trainingId, setTrainingId] = useState$e(data?.training_id?.data || 0);
   const [simulatorId, setSimulatorId] = useState$e(
@@ -36341,7 +36357,7 @@ const QOCAAimNode = ({ data, isConnectable }) => {
             className: "text-teal-600"
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "QOCA aim" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("QOCA aim", id) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -37415,7 +37431,7 @@ const magicIcon = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBo
 
 const React$a = await importShared('react');
 const {memo: memo$4,useState: useState$b,useEffect: useEffect$7,useCallback: useCallback$7,useRef: useRef$6} = React$a;
-const ScheduleTriggerNode = ({ data, isConnectable }) => {
+const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
   const [scheduleType, setScheduleType] = useState$b(
     data?.schedule_type || "cron"
   );
@@ -37777,7 +37793,7 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
           children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "schedule" }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-gray-800", children: "Schedule" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-gray-800", children: formatNodeTitle("Schedule", id) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38274,7 +38290,7 @@ const WebhookInputNode = ({ data, isConnectable, id }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-96", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[#fff8f8] p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "webhook_input" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Webhook" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Webhook", id) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white p-4 space-y-4", children: !hasWebhookData ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
@@ -38741,12 +38757,15 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "rounded-lg shadow-md overflow-visible w-64 bg-white",
+      className: "rounded-lg shadow-md overflow-visible w-75 bg-white",
       style: nodeStyle,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-3 rounded-t-lg bg-[#fff8f8]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "webhook_output" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-base", children: "Webhook Response" })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-base", children: [
+            " ",
+            formatNodeTitle("Webhook Response", id)
+          ] })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pl-2 pt-2", children: "Response" }),
         inputs.map((input, index) => {
@@ -39446,7 +39465,6 @@ CombineTextEditor.displayName = "CombineTextEditor";
 const React$6 = await importShared('react');
 const {memo: memo$1,useState: useState$7,useEffect: useEffect$4,useCallback: useCallback$3,useRef: useRef$3,useMemo: useMemo$1} = React$6;
 const {flushSync} = await importShared('react-dom');
-
 const CombineTextNode = ({ data, isConnectable, id }) => {
   const edges = useEdges();
   const nodes = useNodes();
@@ -39921,7 +39939,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[#dbeafe] p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "combine_text" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Combine Text" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Combine Text", id) })
         ] }),
         connectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full", children: "已連線" })
       ] }) }),
@@ -40671,7 +40689,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-[400px]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[#ecfdf5] p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "router_switch" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: "Router" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Router", id) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
