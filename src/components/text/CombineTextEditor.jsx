@@ -172,7 +172,7 @@ const CombineTextEditor = forwardRef(
         // 創建新標籤
         const newTag = {
           id: Date.now(),
-          name: tagInfo.name,
+          name: `${tagInfo.name} (${tagInfo.id.slice(-3)})`,
           data: tagInfo.data || tagInfo.code,
           color: tagInfo.color
         };

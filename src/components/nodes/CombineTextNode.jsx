@@ -880,7 +880,9 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                     onDragStart={(e) => handleTagDragStart(e, nodeInfo)}
                     draggable
                     title='點擊插入或拖拽到文字區域'>
-                    <span className='truncate'>{nodeInfo.name}</span>
+                    <span className='truncate'>
+                      {nodeInfo.name} ({nodeInfo.id.slice(-3)})
+                    </span>
                   </div>
                 ))}
                 {filteredNodes.length === 0 && (
