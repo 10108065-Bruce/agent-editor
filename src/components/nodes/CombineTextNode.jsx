@@ -11,6 +11,7 @@ import IconBase from '../icons/IconBase';
 import CombineTextEditor from '../text/CombineTextEditor';
 import CopytIncon from '../../assets/text-copy-off.png';
 import { flushSync } from 'react-dom';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const CombineTextNode = ({ data, isConnectable, id }) => {
   const edges = useEdges();
@@ -637,7 +638,9 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               <div className='w-6 h-6 flex items-center justify-center text-white mr-2'>
                 <IconBase type='combine_text' />
               </div>
-              <span className='font-medium'>Combine Text</span>
+              <span className='font-medium'>
+                {formatNodeTitle('Combine Text', id)}
+              </span>
             </div>
             {connectionCount > 0 && (
               <span className='text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full'>

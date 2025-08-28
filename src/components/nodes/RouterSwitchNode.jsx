@@ -6,6 +6,7 @@ import AddIcon from '../icons/AddIcon';
 import DeleteIcon from '../icons/DeleteIcon';
 import dragIcon from '../../assets/icon-drag-handle-line.svg';
 import AutoResizeTextarea from '../../components/text/AutoResizeText';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const RouterSwitchNode = ({ data, isConnectable, id }) => {
   const updateNodeInternals = useUpdateNodeInternals();
@@ -619,7 +620,7 @@ const RouterSwitchNode = ({ data, isConnectable, id }) => {
             <div className='w-6 h-6 flex items-center justify-center mr-2'>
               <IconBase type='router_switch' />
             </div>
-            <span className='font-medium'>Router</span>
+            <span className='font-medium'>{formatNodeTitle('Router', id)}</span>
           </div>
         </div>
 

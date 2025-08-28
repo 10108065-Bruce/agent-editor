@@ -3,8 +3,9 @@ import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 import AutoResizeTextarea from '../text/AutoResizeText';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
-const HttpRequestNode = ({ data, isConnectable }) => {
+const HttpRequestNode = ({ data, isConnectable, id }) => {
   // 管理各個狀態
   const [localUrl, setLocalUrl] = useState(data?.url || '');
   const [localMethod, setLocalMethod] = useState(data?.method || 'GET');
@@ -452,7 +453,7 @@ const HttpRequestNode = ({ data, isConnectable }) => {
           <div className='w-6 h-6 rounded-full bg-red-400 flex items-center justify-center text-white mr-2'>
             <IconBase type='http' />
           </div>
-          <span className='font-medium'>HTTP</span>
+          <span className='font-medium'> {formatNodeTitle('HTTP', id)}</span>
         </div>
       </div>
 

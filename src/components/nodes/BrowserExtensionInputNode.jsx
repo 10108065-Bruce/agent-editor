@@ -4,6 +4,7 @@ import { iconUploadService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 import uploadIcon from '../../assets/icon-flow-shortcut-default.svg';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
   // 本地狀態管理
   const [localItems, setLocalItems] = useState(data?.items || []);
@@ -313,7 +314,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       : [];
 
   return (
-    <div className='shadow-md w-64 relative'>
+    <div className='shadow-md w-70 relative'>
       {/* 隱藏的文件輸入元素 */}
       <input
         type='file'
@@ -331,7 +332,9 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
             <div className='w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white mr-2'>
               <IconBase type='browser' />
             </div>
-            <span className='font-medium'>Browser Extension input</span>
+            <span className='font-medium'>
+              {formatNodeTitle('Browser Extension input', id)}
+            </span>
           </div>
         </div>
 

@@ -6,8 +6,9 @@ import DateTimeSelector from '../common/DateTimeSelector';
 import { scheduleTriggerService } from '../../services/ScheduleTriggerService';
 import { llmService } from '../../services/index';
 import magicIcon from '../../assets/magic-refine-default.svg';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
-const ScheduleTriggerNode = ({ data, isConnectable }) => {
+const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
   // 狀態管理
   const [scheduleType, setScheduleType] = useState(
     data?.schedule_type || 'cron'
@@ -473,7 +474,9 @@ const ScheduleTriggerNode = ({ data, isConnectable }) => {
               <div className='w-6 h-6 rounded-full flex items-center justify-center mr-2'>
                 <IconBase type='schedule' />
               </div>
-              <span className='font-bold text-gray-800'>Schedule</span>
+              <span className='font-bold text-gray-800'>
+                {formatNodeTitle('Schedule', id)}
+              </span>
             </div>
 
             <div className='flex items-center space-x-2'>

@@ -2,8 +2,9 @@ import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import { externalService } from '../../services/index';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
-const LineMessageNode = ({ data, isConnectable }) => {
+const LineMessageNode = ({ data, isConnectable, id }) => {
   // 狀態管理 - Service Configs
   const [selectedConfigId, setSelectedConfigId] = useState(
     data?.external_service_config_id || ''
@@ -310,7 +311,9 @@ const LineMessageNode = ({ data, isConnectable }) => {
             <div className='w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2'>
               <IconBase type='line' />
             </div>
-            <span className='font-medium'>Line Message</span>
+            <span className='font-medium'>
+              {formatNodeTitle('Line Message', id)}
+            </span>
           </div>
         </div>
 

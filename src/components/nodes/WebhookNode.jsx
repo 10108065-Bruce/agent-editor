@@ -1,7 +1,8 @@
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
-const WebhookNode = ({ data, isConnectable }) => {
+import { formatNodeTitle } from '../../utils/nodeUtils';
+const WebhookNode = ({ data, isConnectable, id }) => {
   const [showInput, setShowInput] = useState(false);
   const [tempUrl, setTempUrl] = useState('');
   const [showCopyAlert, setShowCopyAlert] = useState(false);
@@ -61,7 +62,10 @@ const WebhookNode = ({ data, isConnectable }) => {
             <div className='w-6 h-6 bg-red-50 flex items-center justify-center mr-2'>
               <IconBase />
             </div>
-            <span className='font-medium'>Webhook</span>
+            <span className='font-medium'>
+              {' '}
+              {formatNodeTitle('Webhook', id)}
+            </span>
           </div>
         </div>
 

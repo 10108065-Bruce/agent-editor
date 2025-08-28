@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { Handle, Position, useEdges, useUpdateNodeInternals } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const WebhookOutputNode = ({ id, data, isConnectable }) => {
   // 用來追蹤輸入 handle 的狀態
@@ -548,7 +549,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
 
   return (
     <div
-      className='rounded-lg shadow-md overflow-visible w-64 bg-white'
+      className='rounded-lg shadow-md overflow-visible w-75 bg-white'
       style={nodeStyle}>
       {/* 標題部分，帶有圖标 - 使用固定的淺灰色背景 */}
       <div className='p-3 rounded-t-lg bg-[#fff8f8]'>
@@ -556,7 +557,10 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
           <div className='w-8 h-8 flex items-center justify-center text-white mr-2'>
             <IconBase type='webhook_output' />
           </div>
-          <span className='font-medium text-base'>Webhook Response</span>
+          <span className='font-medium text-base'>
+            {' '}
+            {formatNodeTitle('Webhook Response', id)}
+          </span>
         </div>
       </div>
       <div className='pl-2 pt-2'>Response</div>

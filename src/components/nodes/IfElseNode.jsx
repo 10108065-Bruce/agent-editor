@@ -1,8 +1,9 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
-const IfElseNode = ({ data, isConnectable }) => {
+const IfElseNode = ({ data, isConnectable, id }) => {
   // Condition operators
   const operators = [
     { value: 'equals', label: '[Text] Equals' },
@@ -27,7 +28,9 @@ const IfElseNode = ({ data, isConnectable }) => {
           <div className='w-6 h-6 rounded-md bg-purple-500 flex items-center justify-center text-white mr-2'>
             <IconBase />
           </div>
-          <span className='font-medium'>If / Else</span>
+          <span className='font-medium'>
+            {formatNodeTitle('IF / ELSE', id)}
+          </span>
         </div>
       </div>
 

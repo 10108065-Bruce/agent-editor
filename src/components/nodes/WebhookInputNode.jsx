@@ -3,6 +3,7 @@ import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import { WebhookService } from '../../services/WebhookService';
 import copyIcon from '../../assets/icn-webhook-input-copy.svg';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const WebhookInputNode = ({ data, isConnectable, id }) => {
   const {
@@ -174,7 +175,9 @@ const WebhookInputNode = ({ data, isConnectable, id }) => {
             <div className='w-6 h-6 flex items-center justify-center mr-2'>
               <IconBase type='webhook_input' />
             </div>
-            <span className='font-medium'>Webhook</span>
+            <span className='font-medium'>
+              {formatNodeTitle('Webhook', id)}
+            </span>
           </div>
         </div>
 

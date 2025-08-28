@@ -9,6 +9,7 @@ import React, {
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const CustomInputNode = ({ data, isConnectable, id }) => {
   // 當前節點狀態管理
@@ -354,7 +355,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
           <div className='w-6 h-6 flex items-center justify-center text-white mr-2'>
             <IconBase type='input' />
           </div>
-          <span className='font-medium'>Input</span>
+          <span className='font-medium'>{formatNodeTitle('Input', id)}</span>
         </div>
       </div>
 

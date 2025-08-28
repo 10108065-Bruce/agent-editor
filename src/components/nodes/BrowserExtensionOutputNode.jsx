@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import { Handle, Position, useEdges, useUpdateNodeInternals } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
   // 用來追蹤輸入 handle 的狀態
@@ -572,7 +573,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
 
   return (
     <div
-      className='rounded-lg shadow-md overflow-visible w-64 bg-white'
+      className='rounded-lg shadow-md overflow-visible w-70 bg-white'
       style={nodeStyle}>
       {/* 標題部分，帶有圖标 - 使用固定的淺灰色背景 */}
       <div
@@ -583,7 +584,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             <IconBase type='browser' />
           </div>
           <span className='font-medium text-base'>
-            Browser Extension output
+            {formatNodeTitle('Browser Extension output', id)}
           </span>
         </div>
       </div>

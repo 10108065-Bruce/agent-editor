@@ -8,6 +8,7 @@ import RefinePromptOverlay from '../common/RefinePromptOverlay';
 import { PromptGeneratorService } from '../../services/PromptGeneratorService';
 import promptIcon from '../../assets/prompt-generator.svg';
 import promptDisabledIcon from '../../assets/prompt-generator-disabled.svg';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 const AICustomInputNode = ({ data, isConnectable, id }) => {
   const [modelOptions, setModelOptions] = useState([
     { value: '1', label: 'O3-mini' },
@@ -280,7 +281,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           <div className='w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2'>
             <IconBase type='ai' />
           </div>
-          <span className='font-medium'>AI</span>
+          <span className='font-medium'>{formatNodeTitle('AI', id)}</span>
         </div>
       </div>
 

@@ -7,8 +7,9 @@ import RefinePromptOverlay from '../common/RefinePromptOverlay';
 import { PromptGeneratorService } from '../../services/PromptGeneratorService';
 import promptIcon from '../../assets/prompt-generator.svg';
 import promptDisabledIcon from '../../assets/prompt-generator-disabled.svg';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
-const QOCAAimNode = ({ data, isConnectable }) => {
+const QOCAAimNode = ({ data, isConnectable, id }) => {
   // 狀態管理 - 根據新的參數結構
   const [selectedAim, setSelectedAim] = useState(data?.aim_ml_id?.data || '');
   const [trainingId, setTrainingId] = useState(data?.training_id?.data || 0);
@@ -613,7 +614,9 @@ const QOCAAimNode = ({ data, isConnectable }) => {
                 className='text-teal-600'
               />
             </div>
-            <span className='font-medium'>QOCA aim</span>
+            <span className='font-medium'>
+              {formatNodeTitle('QOCA aim', id)}
+            </span>
           </div>
         </div>
 

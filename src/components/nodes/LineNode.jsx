@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import { externalService } from '../../services/index';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const LineNode = ({ data, isConnectable, id }) => {
   // 狀態管理
@@ -342,7 +343,9 @@ const LineNode = ({ data, isConnectable, id }) => {
             <div className='w-6 h-6 bg-[#06C755] rounded-full flex items-center justify-center mr-2'>
               <IconBase type='line' />
             </div>
-            <span className='font-medium'>Line Webhook</span>
+            <span className='font-medium'>
+              {formatNodeTitle('Line Webhook', id)}
+            </span>
           </div>
         </div>
 

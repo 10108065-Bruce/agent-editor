@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
 import { llmService } from '../../services/index';
 import IconBase from '../icons/IconBase';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [isLoadingKnowledgeBases, setIsLoadingKnowledgeBases] = useState(false);
@@ -237,7 +238,9 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
           <div className='w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2'>
             <IconBase type='knowledge' />
           </div>
-          <span className='font-medium text-white'>知識檢索</span>
+          <span className='font-medium text-white'>
+            {formatNodeTitle('Knowledge Retrieval', id)}
+          </span>
         </div>
       </div>
 

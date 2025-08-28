@@ -4,8 +4,9 @@ import { Handle, Position } from 'reactflow';
 import { llmService } from '../../services/index';
 import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
+import { formatNodeTitle } from '../../utils/nodeUtils';
 
-const ExtractDataNode = ({ data, isConnectable }) => {
+const ExtractDataNode = ({ data, isConnectable, id }) => {
   // 更改為使用結構化輸出模型選項
   const [modelOptions, setModelOptions] = useState([
     {
@@ -192,7 +193,9 @@ const ExtractDataNode = ({ data, isConnectable }) => {
           <div className='w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2'>
             <IconBase type='ai' />
           </div>
-          <span className='font-medium'>Data Extractor</span>
+          <span className='font-medium'>
+            {formatNodeTitle('Data Extractor', id)}
+          </span>
         </div>
       </div>
 
