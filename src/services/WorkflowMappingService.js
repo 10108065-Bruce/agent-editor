@@ -950,12 +950,24 @@ export class WorkflowMappingService {
           });
         } else {
           // 預設輸出類型
-          ['text', 'image'].forEach((handleType) => {
+          const defaultHandles = ['text', 'image', 'audio'];
+          defaultHandles.forEach((handleType) => {
             nodeOutput[handleType] = {
               node_id: node.id,
               type: 'string'
             };
           });
+        }
+        // 額外檢查：如果節點有 output_handles 但沒有包含 audio，則補充
+        if (
+          node.data.output_handles &&
+          Array.isArray(node.data.output_handles) &&
+          !node.data.output_handles.includes('audio')
+        ) {
+          nodeOutput.audio = {
+            node_id: node.id,
+            type: 'string'
+          };
         }
         break;
       case 'webhook_output':

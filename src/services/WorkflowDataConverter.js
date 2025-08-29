@@ -464,7 +464,7 @@ export class WorkflowDataConverter {
           // 從 node_output 推斷輸出 handles
           output_handles: node.node_output
             ? Object.keys(node.node_output).filter((key) => key !== 'node_id')
-            : ['text', 'image']
+            : ['text', 'image', 'audio']
         };
       case 'browser_extension_input':
         return {

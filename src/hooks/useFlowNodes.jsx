@@ -1047,7 +1047,7 @@ export default function useFlowNodes() {
         data: {
           external_service_config_id: '', // 初始為空，讓用戶選擇
           webhook_url: '', // 初始為空，需要創建後才有
-          output_handles: ['text', 'image'], // 固定的輸出類型
+          output_handles: ['text', 'image', 'audio'], // 固定的輸出類型
           ...nodeCallbacksObject
         },
         position: position || {

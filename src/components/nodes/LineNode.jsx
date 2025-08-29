@@ -22,7 +22,7 @@ const LineNode = ({ data, isConnectable, id }) => {
   const isUpdating = useRef(false); // 添加更新標記防止循環
 
   // 固定的輸出類型
-  const outputHandles = ['text', 'image'];
+  const outputHandles = ['text', 'image', 'audio'];
 
   // 統一更新父組件狀態的輔助函數
   const updateParentState = useCallback(
