@@ -89,19 +89,40 @@ class TokenService {
    * @param {Object} params - 額外的查詢參數
    * @returns {string} 完整的 URL
    */
-  createUrlWithWorkspace(baseUrl, params = {}) {
+  createUrlWithWorkspace(
+    baseUrl,
+    queryParams = {},
+    forceWorkspaceInQuery = false
+  ) {
     const workspaceId = this.getWorkspaceId();
 
-    // 創建 URL 對象
-    const url = new URL(baseUrl);
+    let finalUrl = baseUrl;
+    let hasPathWorkspaceId = false;
 
-    // 如果有 workspace_id，加入到查詢參數
-    if (workspaceId) {
+    // 如果 URL 包含 {workspace_id} 佔位符，則替換它（路徑參數）
+    if (finalUrl.includes('{workspace_id}')) {
+      if (!workspaceId) {
+        throw new Error('需要 workspace_id 但未設置');
+      }
+      finalUrl = finalUrl.replace('{workspace_id}', workspaceId);
+      hasPathWorkspaceId = true;
+    }
+
+    // 創建 URL 對象以處理查詢參數
+    const url = new URL(finalUrl);
+
+    // 決定是否需要在查詢參數中加入 workspace_id
+    const shouldAddWorkspaceQuery =
+      workspaceId &&
+      (!hasPathWorkspaceId || // 沒有路徑參數時
+        forceWorkspaceInQuery); // 或強制要求時
+
+    if (shouldAddWorkspaceQuery) {
       url.searchParams.append('workspace_id', workspaceId);
     }
 
-    // 加入其他參數
-    Object.entries(params).forEach(([key, value]) => {
+    // 加入其他查詢參數
+    Object.entries(queryParams).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         url.searchParams.append(key, value);
       }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import VersionDisplay from '../../components/VersionDisplay';
 import IconBase from '../icons/IconBase';
 import dragIcon from '../../assets/icon-drag-handle-line.svg';
@@ -7,7 +7,10 @@ const NodeSidebar = ({
   handleButtonClick,
   onDragStart: customDragStart,
   nodes = [],
-  isLocked = false // 新增 isLocked 參數
+  nodeList = [], // 從後端取得的節點清單
+  isLoading = false, // 載入狀態
+  onRetryLoad = null, // 重新載入的回調函數
+  isLocked = false
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -15,17 +18,23 @@ const NodeSidebar = ({
     setSearchTerm(e.target.value);
   };
 
-  // 如果實作搜尋，篩選節點
-  const filterNodes = (label) => {
+  // 根據搜尋條件篩選節點
+  const filterNodes = (displayName) => {
     if (!searchTerm) return true;
-    return label.toLowerCase().includes(searchTerm.toLowerCase());
+    return displayName.toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  // 檢查是否已存在 line_webhook_input 節點
-  const hasLineNode = nodes.some((node) => node.type === 'line_webhook_input');
+  // 檢查是否已存在特定類型的節點（針對只能有一個的節點類型）
+  const checkNodeTypeRestriction = (operator) => {
+    // 目前只有 line_webhook_input 有限制
+    if (operator === 'line_webhook_input') {
+      return nodes.some((node) => node.type === 'line_webhook_input');
+    }
+    return false;
+  };
 
-  // 處理節點點擊，包含 line_webhook_input 節點限制檢查
-  const handleNodeClick = (nodeType) => {
+  // 處理節點點擊，包含節點限制檢查
+  const handleNodeClick = (nodeInfo) => {
     if (isLocked) {
       // 鎖定狀態下顯示提示
       if (typeof window !== 'undefined' && window.notify) {
@@ -38,11 +47,13 @@ const NodeSidebar = ({
       return;
     }
 
-    if (nodeType === 'line_webhook_input' && hasLineNode) {
+    // 檢查節點類型限制
+    const hasRestriction = checkNodeTypeRestriction(nodeInfo.operator);
+    if (hasRestriction) {
       // 顯示警告提示
       if (typeof window !== 'undefined' && window.notify) {
         window.notify({
-          message: '每個 Flow 只能有一個 Line Webhook 節點',
+          message: `每個 Flow 只能有一個 ${nodeInfo.display_name} 節點`,
           type: 'warning',
           duration: 4000
         });
@@ -50,8 +61,114 @@ const NodeSidebar = ({
       return; // 阻止添加
     }
 
-    handleButtonClick(nodeType);
+    // 呼叫處理函數，使用 operator 作為節點類型
+    handleButtonClick(nodeInfo.operator);
   };
+
+  // 根據 operator 取得對應的圖示類型
+  const getIconType = (operator) => {
+    const iconMap = {
+      basic_input: 'input',
+      ask_ai: 'ai',
+      browser_extension_input: 'browser',
+      browser_extension_output: 'browser',
+      knowledge_retrieval: 'knowledge',
+      line_webhook_input: 'line',
+      line_send_message: 'line',
+      extract_data: 'ai',
+      aim_ml: 'aim',
+      http_request: 'http',
+      schedule_trigger: 'schedule',
+      webhook_input: 'webhook_input',
+      webhook_output: 'webhook_output',
+      combine_text: 'combine_text',
+      router_switch: 'router_switch',
+      speech_to_text: 'speech_to_text'
+    };
+    return iconMap[operator] || 'input'; // 預設使用 input 圖示
+  };
+
+  // 根據 category 取得節點顏色
+  const getNodeColor = (category, operator) => {
+    // LINE 節點特殊處理
+    if (operator === 'line_webhook_input') {
+      return 'green';
+    }
+
+    // 根據分類設定顏色
+    const colorMap = {
+      flow_starter: 'blue',
+      flow_end: 'red',
+      processor: 'gray',
+      emitter: 'yellow'
+    };
+    return colorMap[category] || 'gray';
+  };
+
+  // 載入中的骨架畫面
+  if (isLoading) {
+    return (
+      <div
+        className={`w-64 bg-white p-4 shadow-md h-full overflow-y-auto ${
+          isLocked ? 'bg-gray-50' : ''
+        }`}>
+        {/* 搜尋框骨架 */}
+        <div className='relative mb-3'>
+          <div className='w-full h-10 bg-gray-200 rounded-md animate-pulse'></div>
+        </div>
+
+        {/* 節點項目骨架 */}
+        <div className='space-y-3'>
+          {[...Array(8)].map((_, index) => (
+            <div
+              key={index}
+              className='border flex items-center justify-between p-2 rounded-lg bg-gray-100 animate-pulse'>
+              <div className='flex items-center'>
+                <div className='w-8 h-8 mr-3 bg-gray-300 rounded'></div>
+                <div className='w-20 h-4 bg-gray-300 rounded'></div>
+              </div>
+              <div className='w-4 h-4 bg-gray-300 rounded'></div>
+            </div>
+          ))}
+        </div>
+        <VersionDisplay />
+      </div>
+    );
+  }
+
+  // 錯誤狀態
+  if (!nodeList || nodeList.length === 0) {
+    return (
+      <div
+        className={`w-64 bg-white p-4 shadow-md h-full overflow-y-auto ${
+          isLocked ? 'bg-gray-50' : ''
+        }`}>
+        <div className='flex flex-col items-center justify-center h-64 text-gray-500'>
+          <svg
+            className='w-12 h-12 mb-4'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'>
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth='2'
+              d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z'
+            />
+          </svg>
+          <p className='text-sm text-center mb-4'>無法載入節點清單</p>
+          {onRetryLoad && (
+            <button
+              onClick={onRetryLoad}
+              className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm'>
+              重新載入
+            </button>
+          )}
+        </div>
+        <VersionDisplay />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -63,7 +180,7 @@ const NodeSidebar = ({
         <input
           type='text'
           placeholder='Search nodes...'
-          className={`w-full p-2 pl-3 pr-10 border rounded-md`}
+          className='w-full p-2 pl-3 pr-10 border rounded-md'
           onChange={handleSearch}
           value={searchTerm}
         />
@@ -91,277 +208,44 @@ const NodeSidebar = ({
         </div>
       </div>
 
-      {/* 節點選項 */}
+      {/* 動態節點選項 */}
       <div className='space-y-3'>
-        {filterNodes('Input') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='input' />
-              </div>
-            }
-            label='Input'
-            onClick={() => handleNodeClick('input')}
-            nodeType='input'
-            onDragStart={customDragStart}
-            disabled={isLocked} // 傳遞鎖定狀態
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
+        {nodeList
+          .filter((nodeInfo) => filterNodes(nodeInfo.display_name))
+          .map((nodeInfo) => {
+            const hasRestriction = checkNodeTypeRestriction(nodeInfo.operator);
+            const iconType = getIconType(nodeInfo.operator);
+            const nodeColor = getNodeColor(
+              nodeInfo.category,
+              nodeInfo.operator
+            );
 
-        {filterNodes('AI') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='ai' />
-              </div>
-            }
-            label='AI'
-            onClick={() => handleNodeClick('ai')}
-            nodeType='ai'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {filterNodes('Browser Extension input') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='browser' />
-              </div>
-            }
-            label='Browser Extension input'
-            onClick={() => handleNodeClick('browser extension input')}
-            nodeType='browser extension input'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {filterNodes('Browser Extension output') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='browser' />
-              </div>
-            }
-            label='Browser Extension output'
-            onClick={() => handleNodeClick('browser extension output')}
-            nodeType='browser extension output'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {filterNodes('Knowledge Retrieval') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='knowledge' />
-              </div>
-            }
-            label='Knowledge Retrieval'
-            onClick={() => handleNodeClick('knowledge retrieval')}
-            nodeType='knowledge retrieval'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {/* Line 節點 - 添加禁用狀態 */}
-        {filterNodes('line') && (
-          <NodeItem
-            color='green'
-            icon={
-              <div>
-                <IconBase type='line' />
-              </div>
-            }
-            label='LINE'
-            onClick={() => handleNodeClick('line_webhook_input')}
-            nodeType='line_webhook_input'
-            onDragStart={customDragStart}
-            disabled={hasLineNode || isLocked} // 更新禁用條件
-            disabledReason={
-              isLocked
-                ? '工作流已鎖定'
-                : hasLineNode
-                ? '每個 Flow 只能有一個 Line Webhook 節點'
-                : null
-            }
-          />
-        )}
-
-        {/* Line Message 節點 */}
-        {filterNodes('send message') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='line' />
-              </div>
-            }
-            label='Send Message'
-            onClick={() => handleNodeClick('line_send_message')}
-            nodeType='line_send_message'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {/* extract node */}
-        {filterNodes('Extract Data Node') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='ai' />
-              </div>
-            }
-            label='Extract Data'
-            onClick={() => handleNodeClick('extract_data')}
-            nodeType='extract_data'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {/* QOCA aim node */}
-        {filterNodes('QOCA aim Node') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='aim' />
-              </div>
-            }
-            label='QOCA aim'
-            onClick={() => handleNodeClick('aim_ml')}
-            nodeType='aim_ml'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {/* http node */}
-        {filterNodes('HTTP') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='http' />
-              </div>
-            }
-            label='HTTP'
-            onClick={() => handleNodeClick('http_request')}
-            nodeType='http_request'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-
-        {/* schedule node */}
-        {filterNodes('schedule trigger') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='schedule' />
-              </div>
-            }
-            label='Schedule'
-            onClick={() => handleNodeClick('schedule_trigger')}
-            nodeType='schedule_trigger'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-        {/* webhook input node */}
-        {filterNodes('webhook input') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='webhook_input' />
-              </div>
-            }
-            label='Webhook'
-            onClick={() => handleNodeClick('webhook_input')}
-            nodeType='webhook_input'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-        {/* webhook output node */}
-        {filterNodes('webhook output') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='webhook_output' />
-              </div>
-            }
-            label='Output'
-            onClick={() => handleNodeClick('webhook_output')}
-            nodeType='webhook_output'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-        {/* Combine Text node */}
-        {filterNodes('Combine Text') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='combine_text' />
-              </div>
-            }
-            label='Combine Text'
-            onClick={() => handleNodeClick('combine_text')}
-            nodeType='combine_text'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-        {/* Router Switch node */}
-        {filterNodes('Router Switch') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='router_switch' />
-              </div>
-            }
-            label='Router Switch'
-            onClick={() => handleNodeClick('router_switch')}
-            nodeType='router_switch'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
-        {/* Speech to Text node */}
-        {filterNodes('Speech to Text') && (
-          <NodeItem
-            icon={
-              <div>
-                <IconBase type='speech_to_text' />
-              </div>
-            }
-            label='Speech to Text'
-            onClick={() => handleNodeClick('speech_to_text')}
-            nodeType='speech_to_text'
-            onDragStart={customDragStart}
-            disabled={isLocked}
-            disabledReason={isLocked ? '工作流已鎖定' : null}
-          />
-        )}
+            return (
+              <NodeItem
+                key={nodeInfo.id}
+                color={nodeColor}
+                icon={
+                  <div>
+                    <IconBase type={iconType} />
+                  </div>
+                }
+                label={nodeInfo.display_name}
+                onClick={() => handleNodeClick(nodeInfo)}
+                nodeType={nodeInfo.operator}
+                onDragStart={customDragStart}
+                disabled={hasRestriction || isLocked}
+                disabledReason={
+                  isLocked
+                    ? '工作流已鎖定'
+                    : hasRestriction
+                    ? `每個 Flow 只能有一個 ${nodeInfo.display_name} 節點`
+                    : null
+                }
+              />
+            );
+          })}
       </div>
+
       <VersionDisplay />
     </div>
   );
@@ -432,7 +316,7 @@ const NodeItem = ({
         </div>
         <span
           className={`text-sm leading-none font-bold ${
-            disabled ? 'text-gray-400' : 'text-gray-700'
+            disabled ? 'text-gray-400' : ''
           }`}>
           {label}
         </span>
@@ -442,7 +326,7 @@ const NodeItem = ({
           disabled ? 'text-gray-300' : 'text-gray-400 hover:text-gray-600'
         }`}>
         <div
-          className={'flex items-center justify-center'}
+          className='flex items-center justify-center'
           style={{
             width: '16px',
             height: '16px',

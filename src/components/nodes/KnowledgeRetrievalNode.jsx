@@ -10,26 +10,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
 
   // 保存知識庫選項，使用默認值
   const [dataKnowledgeBases, setDataKnowledgeBases] = useState(
-    data?.availableKnowledgeBases || [
-      {
-        id: '1',
-        value: '1',
-        name: '產品文檔知識庫',
-        label: '產品文檔知識庫',
-        description: '存放所有產品相關文檔和規格',
-        fileCount: 3,
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: '2',
-        value: '2',
-        name: '技術手冊知識庫',
-        label: '技術手冊知識庫',
-        description: '技術相關文檔和手冊',
-        fileCount: 1,
-        updatedAt: new Date().toISOString()
-      }
-    ]
+    data?.availableKnowledgeBases || []
   );
 
   // 本地選擇的知識庫ID，從 data 中獲取初始值或為空
@@ -231,7 +212,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   }, []);
 
   return (
-    <div className='rounded-lg shadow-md overflow-visible w-64'>
+    <div className='rounded-lg shadow-md overflow-visible w-75'>
       {/* Header section with icon and title */}
       <div className='bg-cyan-400 p-4 rounded-t-lg'>
         <div className='flex items-center'>
@@ -269,7 +250,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
                 <option
                   value=''
                   disabled>
-                  Select file...
+                  請選擇...
                 </option>
                 {dataKnowledgeBases.map((kb) => (
                   <option

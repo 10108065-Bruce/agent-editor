@@ -123,4 +123,34 @@ export class WorkflowAPIService {
       throw error;
     }
   }
+  /**
+   * 取得可用的節點清單
+   * @returns {Promise<Array>} 節點清單
+   */
+  async getNodeList() {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          accept: 'application/json'
+        }
+      });
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workspaces/{workspace_id}/nodes`
+      );
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('取得節點清單失敗:', error);
+      throw error;
+    }
+  }
 }

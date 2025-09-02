@@ -156,6 +156,36 @@ const ReactFlowWithControls = forwardRef(
   }
 );
 
+// 添加節點類型轉換函數
+const getReactFlowNodeType =
+  ((sidebarNodeType) => {
+    const typeMapping = {
+      input: 'customInput',
+      ai: 'aiCustomInput',
+      'browser extension input': 'browserExtensionInput',
+      'browser extension output': 'browserExtensionOutput',
+      'knowledge retrieval': 'knowledgeRetrieval',
+      end: 'end',
+      webhook: 'webhook',
+      http_request: 'httpRequest',
+      event: 'event',
+      timer: 'timer',
+      line_webhook_input: 'line_webhook_input',
+      line_send_message: 'line_send_message',
+      extract_data: 'extract_data',
+      aim_ml: 'aim_ml',
+      schedule_trigger: 'schedule_trigger',
+      webhook_input: 'webhook_input',
+      webhook_output: 'webhook_output',
+      combine_text: 'combine_text',
+      router_switch: 'router_switch',
+      speech_to_text: 'speech_to_text'
+    };
+
+    return typeMapping[sidebarNodeType] || 'default';
+  },
+  []);
+
 // 使用 forwardRef 將 FlowEditor 包裝起來，使其可以接收 ref
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
@@ -172,6 +202,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
   // 使用 useMemo 記憶化 defaultViewport
   const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
+
+  // 新增節點清單相關的狀態
+  const [nodeList, setNodeList] = useState([]);
+  const [nodeListLoading, setNodeListLoading] = useState(true);
+  const [nodeListError, setNodeListError] = useState(null);
+  // 新增一個 ref 來追蹤是否已經載入過
+  const nodeListLoadedRef = useRef(false);
+
   const {
     nodes,
     edges,
@@ -231,6 +269,50 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return window.self !== window.top;
     } catch {
       return true;
+    }
+  }, []);
+
+  // 取得節點清單的方法
+  const loadNodeList = useCallback(async () => {
+    // 防止重複載入
+    if (nodeListLoadedRef.current) {
+      return;
+    }
+
+    try {
+      setNodeListLoading(true);
+      setNodeListError(null);
+      nodeListLoadedRef.current = true; // 標記為已載入
+
+      const nodeListData = await workflowAPIService.getNodeList();
+      setNodeList(nodeListData);
+    } catch (error) {
+      console.error('載入節點清單失敗:', error);
+      setNodeListError(error.message || '載入節點清單失敗');
+      nodeListLoadedRef.current = false; // 重置載入標記，允許重試
+
+      // 顯示錯誤通知
+      if (typeof window !== 'undefined' && window.notify) {
+        window.notify({
+          message: '載入節點清單失敗，將使用預設清單',
+          type: 'warning',
+          duration: 3000
+        });
+      }
+
+      // 設定預設節點清單作為備用
+      setNodeList([]);
+    } finally {
+      setNodeListLoading(false);
+    }
+  }, []);
+
+  // 在組件初始化時載入節點清單
+  useEffect(() => {
+    // 只在組件首次掛載時載入
+    if (!nodeListLoadedRef.current) {
+      console.log('FlowEditor 首次掛載，開始載入節點清單');
+      loadNodeList();
     }
   }, []);
 
@@ -528,37 +610,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     [reactFlowInstance]
   );
 
-  // 添加節點類型轉換函數
-  const getReactFlowNodeType = useCallback((sidebarNodeType) => {
-    const typeMapping = {
-      input: 'customInput',
-      ai: 'aiCustomInput',
-      'browser extension input': 'browserExtensionInput',
-      'browser extension output': 'browserExtensionOutput',
-      'knowledge retrieval': 'knowledgeRetrieval',
-      end: 'end',
-      webhook: 'webhook',
-      http_request: 'httpRequest',
-      event: 'event',
-      timer: 'timer',
-      line_webhook_input: 'line_webhook_input',
-      line_send_message: 'line_send_message',
-      extract_data: 'extract_data',
-      aim_ml: 'aim_ml',
-      schedule_trigger: 'schedule_trigger',
-      webhook_input: 'webhook_input',
-      webhook_output: 'webhook_output',
-      combine_text: 'combine_text',
-      router_switch: 'router_switch',
-      speech_to_text: 'speech_to_text'
-    };
-
-    return typeMapping[sidebarNodeType] || 'default';
-  }, []);
-
   // 處理從側邊欄選擇的節點類型，加入位置參數支持拖放
   const handleNodeTypeSelection = useCallback(
-    (nodeType, position = null) => {
+    (nodeTypeOrOperator, position = null) => {
       if (isLocked) return;
 
       // 使用提供的位置（拖拽）或視窗中心位置（點擊）
@@ -567,10 +621,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       // 如果沒有提供位置（點擊側邊欄），計算置中位置
       if (!position && reactFlowInstance) {
         try {
-          // 獲取視窗中心位置
+          // 取得視窗中心位置
           const reactFlowBounds =
             reactFlowWrapper.current?.getBoundingClientRect();
-
           if (reactFlowBounds) {
             const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
             const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
@@ -580,9 +633,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               y: centerY
             });
 
-            // 根據節點類型獲取對應的 ReactFlow 類型
-            const reactFlowNodeType =
-              WorkflowMappingService.getOperatorFromType(nodeType);
+            // 根據節點類型取得對應的 ReactFlow 類型
+            const reactFlowNodeType = getReactFlowNodeType(nodeTypeOrOperator);
 
             // 計算節點尺寸
             const nodeDimensions = calculateNodeDimensions({
@@ -602,30 +654,30 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         }
       }
 
-      // Default position for click-added nodes
-      const defaultPosition = {
-        x: Math.random() * 400,
-        y: Math.random() * 400
-      };
+      // 支援原有的節點類型名稱和新的 operator 名稱
+      const nodeType = nodeTypeOrOperator;
 
-      // Use provided position (from drag & drop) or default position
-      // const nodePosition = position || defaultPosition;
       switch (nodeType) {
+        case 'basic_input':
         case 'input':
           handleAddInputNode(nodePosition);
           break;
+        case 'ask_ai':
         case 'ai':
           handleAddAINode(nodePosition);
           break;
         case 'if/else':
           handleAddIfElseNode(nodePosition);
           break;
+        case 'browser_extension_input':
         case 'browser extension input':
           handleAddBrowserExtensionInput(nodePosition);
           break;
+        case 'browser_extension_output':
         case 'browser extension output':
           handleAddBrowserExtensionOutput(nodePosition);
           break;
+        case 'knowledge_retrieval':
         case 'knowledge retrieval':
           handleAddKnowledgeRetrievalNode(nodePosition);
           break;
@@ -1355,6 +1407,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           handleButtonClick={handleNodeTypeSelection}
           onDragStart={onDragStart}
           nodes={nodes}
+          nodeList={nodeList} // 傳遞節點清單
+          isLoading={nodeListLoading} // 傳遞載入狀態
+          onRetryLoad={loadNodeList} // 傳遞重新載入函數
           isLocked={isLocked}
         />
 

@@ -202,7 +202,9 @@ export class LLMService {
         require_parallel_tool_calls: requireParallelToolCalls.toString()
       });
 
-      const url = `${API_CONFIG.BASE_URL}/agent_designer/llm/function-calling?${params}`;
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/function-calling?${params}`
+      );
 
       this.pendingFunctionCallingRequest = fetch(url, options)
         .then((response) => {
@@ -566,15 +568,7 @@ export class LLMService {
             (error.message.includes('NetworkError') ||
               error.message.includes('Failed to fetch'))
           ) {
-            return [
-              {
-                id: 1,
-                name: '產品文檔知識庫',
-                description: '存放所有產品相關文檔和規格',
-                file_count: 3,
-                updated_at: new Date().toISOString()
-              }
-            ];
+            return [];
           }
 
           throw error;
@@ -864,17 +858,7 @@ export class LLMService {
     } catch (error) {
       console.error('獲取知識庫選項失敗:', error);
       // 返回一些默認選項，以防API失敗
-      return [
-        {
-          id: '1',
-          value: '1',
-          name: '產品文檔知識庫',
-          label: '產品文檔知識庫',
-          description: '存放所有產品相關文檔和規格',
-          fileCount: 3,
-          updatedAt: new Date().toISOString()
-        }
-      ];
+      return [];
     }
   }
 
