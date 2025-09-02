@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$B = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$2,memo: memo$p,useRef: useRef$n,useState: useState$x,useEffect: useEffect$r,forwardRef: forwardRef$2,useCallback: useCallback$o} = React$B;
+const {createContext,useContext,useMemo: useMemo$2,memo: memo$p,useRef: useRef$n,useState: useState$x,useEffect: useEffect$s,forwardRef: forwardRef$2,useCallback: useCallback$o} = React$B;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3920,7 +3920,7 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
   const edgeRef = useRef$n(null);
   const [edgeTextBbox, setEdgeTextBbox] = useState$x({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$p(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$r(() => {
+  useEffect$s(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$r(() => {
+  useEffect$s(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$r(() => {
+  useEffect$s(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$r(() => {
+  useEffect$s(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$r(() => {
+  useEffect$s(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5627,7 +5627,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
   const isPanScrolling = useRef$n(false);
   const panScrollTimeout = useRef$n();
   useResizeHandler(zoomPane);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -6279,7 +6279,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
   const dragStarted = useRef$n(false);
   const abortDrag = useRef$n(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$r(() => {
+    useEffect$s(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$r(() => {
+    useEffect$s(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$r(() => {
+    useEffect$s(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6640,7 +6640,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
   const nodeRef = useRef$n(null);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$r(() => {
+  useEffect$s(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -7205,7 +7205,7 @@ function Viewport({ children }) {
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
   const isInitialized = useRef$n(false);
-  useEffect$r(() => {
+  useEffect$s(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7698,7 +7698,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$A = await importShared('react');
-const {memo: memo$o,useRef: useRef$m,useEffect: useEffect$q} = React$A;
+const {memo: memo$o,useRef: useRef$m,useEffect: useEffect$r} = React$A;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7769,7 +7769,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
     const viewScaleRef = useRef$m(0);
     viewScaleRef.current = viewScale;
-    useEffect$q(() => {
+    useEffect$r(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7836,7 +7836,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$o(MiniMap);
 
 const React$z = await importShared('react');
-const {memo: memo$n,useState: useState$w,useEffect: useEffect$p} = React$z;
+const {memo: memo$n,useState: useState$w,useEffect: useEffect$q} = React$z;
 
 function PlusIcon() {
     return (React$z.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7876,7 +7876,7 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
     const [isVisible, setIsVisible] = useState$w(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$p(() => {
+    useEffect$q(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -22293,7 +22293,7 @@ const validateLayoutQuality = (nodes, direction) => {
   };
 };
 
-const {useRef: useRef$k,useCallback: useCallback$n,useEffect: useEffect$o} = await importShared('react');
+const {useRef: useRef$k,useCallback: useCallback$n,useEffect: useEffect$p} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -24028,7 +24028,7 @@ function useFlowNodes() {
     },
     [edges, safeSetEdges]
   );
-  useEffect$o(() => {
+  useEffect$p(() => {
     if (typeof window !== "undefined") {
       window.deleteEdgesByHandle = deleteEdgesByHandle;
       window.deleteEdgesBySourceHandle = deleteEdgesBySourceHandle;
@@ -24124,7 +24124,7 @@ function useFlowNodes() {
       });
     });
   }, [nodes, edges, setNodes]);
-  useEffect$o(() => {
+  useEffect$p(() => {
     if (isLoadingWorkflow.current) {
       return;
     }
@@ -24142,7 +24142,7 @@ function useFlowNodes() {
       isLoadingWorkflow.current = false;
     }, 2e3);
   }, []);
-  useEffect$o(() => {
+  useEffect$p(() => {
     if (typeof window !== "undefined") {
       window.startWorkflowLoading = startWorkflowLoading;
       window.finishWorkflowLoading = finishWorkflowLoading;
@@ -24154,7 +24154,7 @@ function useFlowNodes() {
       }
     };
   }, [startWorkflowLoading, finishWorkflowLoading]);
-  useEffect$o(() => {
+  useEffect$p(() => {
     if (typeof window !== "undefined") {
       window.cleanupInvalidEdges = cleanupInvalidEdges;
       window.cleanupNodeInputs = cleanupNodeInputs;
@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "446449282b36568dd590ea2b8bc14d6c9c4c26d8", "VITE_APP_BUILD_TIME": "2025-09-02T05:38:52.657Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.15"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c29d7a46f570977d3fc22480b07abbf6a433cdda", "VITE_APP_BUILD_TIME": "2025-09-02T06:48:50.989Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.16"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24397,24 +24397,34 @@ const IconBase = ({ type, className = "" }) => {
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
 const React$x = await importShared('react');
-const {useState: useState$v} = React$x;
+const {useState: useState$v,useEffect: useEffect$o} = React$x;
 const NodeSidebar = ({
   handleButtonClick,
   onDragStart: customDragStart,
   nodes = [],
+  nodeList = [],
+  // 從後端取得的節點清單
+  isLoading = false,
+  // 載入狀態
+  onRetryLoad = null,
+  // 重新載入的回調函數
   isLocked = false
-  // 新增 isLocked 參數
 }) => {
   const [searchTerm, setSearchTerm] = useState$v("");
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-  const filterNodes = (label) => {
+  const filterNodes = (displayName) => {
     if (!searchTerm) return true;
-    return label.toLowerCase().includes(searchTerm.toLowerCase());
+    return displayName.toLowerCase().includes(searchTerm.toLowerCase());
   };
-  const hasLineNode = nodes.some((node) => node.type === "line_webhook_input");
-  const handleNodeClick = (nodeType) => {
+  const checkNodeTypeRestriction = (operator) => {
+    if (operator === "line_webhook_input") {
+      return nodes.some((node) => node.type === "line_webhook_input");
+    }
+    return false;
+  };
+  const handleNodeClick = (nodeInfo) => {
     if (isLocked) {
       if (typeof window !== "undefined" && window.notify) {
         window.notify({
@@ -24425,18 +24435,118 @@ const NodeSidebar = ({
       }
       return;
     }
-    if (nodeType === "line_webhook_input" && hasLineNode) {
+    const hasRestriction = checkNodeTypeRestriction(nodeInfo.operator);
+    if (hasRestriction) {
       if (typeof window !== "undefined" && window.notify) {
         window.notify({
-          message: "每個 Flow 只能有一個 Line Webhook 節點",
+          message: `每個 Flow 只能有一個 ${nodeInfo.display_name} 節點`,
           type: "warning",
           duration: 4e3
         });
       }
       return;
     }
-    handleButtonClick(nodeType);
+    handleButtonClick(nodeInfo.operator);
   };
+  const getIconType = (operator) => {
+    const iconMap = {
+      basic_input: "input",
+      ask_ai: "ai",
+      browser_extension_input: "browser",
+      browser_extension_output: "browser",
+      knowledge_retrieval: "knowledge",
+      line_webhook_input: "line",
+      line_send_message: "line",
+      extract_data: "ai",
+      aim_ml: "aim",
+      http_request: "http",
+      schedule_trigger: "schedule",
+      webhook_input: "webhook_input",
+      webhook_output: "webhook_output",
+      combine_text: "combine_text",
+      router_switch: "router_switch",
+      speech_to_text: "speech_to_text"
+    };
+    return iconMap[operator] || "input";
+  };
+  const getNodeColor = (category, operator) => {
+    if (operator === "line_webhook_input") {
+      return "green";
+    }
+    const colorMap = {
+      flow_starter: "blue",
+      flow_end: "red",
+      processor: "gray",
+      emitter: "yellow"
+    };
+    return colorMap[category] || "gray";
+  };
+  if (isLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: `w-64 bg-white p-4 shadow-md h-full overflow-y-auto ${isLocked ? "bg-gray-50" : ""}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-10 bg-gray-200 rounded-md animate-pulse" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: [...Array(8)].map((_, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "border flex items-center justify-between p-2 rounded-lg bg-gray-100 animate-pulse",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 mr-3 bg-gray-300 rounded" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-20 h-4 bg-gray-300 rounded" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-4 h-4 bg-gray-300 rounded" })
+              ]
+            },
+            index
+          )) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
+        ]
+      }
+    );
+  }
+  if (!nodeList || nodeList.length === 0) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: `w-64 bg-white p-4 shadow-md h-full overflow-y-auto ${isLocked ? "bg-gray-50" : ""}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center justify-center h-64 text-gray-500", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "svg",
+              {
+                className: "w-12 h-12 mb-4",
+                fill: "none",
+                stroke: "currentColor",
+                viewBox: "0 0 24 24",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "path",
+                  {
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    strokeWidth: "2",
+                    d: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-center mb-4", children: "無法載入節點清單" }),
+            onRetryLoad && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: onRetryLoad,
+                className: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm",
+                children: "重新載入"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
+        ]
+      }
+    );
+  }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -24448,7 +24558,7 @@ const NodeSidebar = ({
             {
               type: "text",
               placeholder: "Search nodes...",
-              className: `w-full p-2 pl-3 pr-10 border rounded-md`,
+              className: "w-full p-2 pl-3 pr-10 border rounded-md",
               onChange: handleSearch,
               value: searchTerm
             }
@@ -24487,201 +24597,28 @@ const NodeSidebar = ({
             }
           ) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-          filterNodes("Input") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: nodeList.filter((nodeInfo) => filterNodes(nodeInfo.display_name)).map((nodeInfo) => {
+          const hasRestriction = checkNodeTypeRestriction(nodeInfo.operator);
+          const iconType = getIconType(nodeInfo.operator);
+          const nodeColor = getNodeColor(
+            nodeInfo.category,
+            nodeInfo.operator
+          );
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
             NodeItem,
             {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "input" }) }),
-              label: "Input",
-              onClick: () => handleNodeClick("input"),
-              nodeType: "input",
+              color: nodeColor,
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: iconType }) }),
+              label: nodeInfo.display_name,
+              onClick: () => handleNodeClick(nodeInfo),
+              nodeType: nodeInfo.operator,
               onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("AI") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
-              label: "AI",
-              onClick: () => handleNodeClick("ai"),
-              nodeType: "ai",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("Browser Extension input") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
-              label: "Browser Extension input",
-              onClick: () => handleNodeClick("browser extension input"),
-              nodeType: "browser extension input",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("Browser Extension output") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "browser" }) }),
-              label: "Browser Extension output",
-              onClick: () => handleNodeClick("browser extension output"),
-              nodeType: "browser extension output",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("Knowledge Retrieval") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
-              label: "Knowledge Retrieval",
-              onClick: () => handleNodeClick("knowledge retrieval"),
-              nodeType: "knowledge retrieval",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("line") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              color: "green",
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
-              label: "LINE",
-              onClick: () => handleNodeClick("line_webhook_input"),
-              nodeType: "line_webhook_input",
-              onDragStart: customDragStart,
-              disabled: hasLineNode || isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : hasLineNode ? "每個 Flow 只能有一個 Line Webhook 節點" : null
-            }
-          ),
-          filterNodes("send message") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "line" }) }),
-              label: "Send Message",
-              onClick: () => handleNodeClick("line_send_message"),
-              nodeType: "line_send_message",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("Extract Data Node") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
-              label: "Extract Data",
-              onClick: () => handleNodeClick("extract_data"),
-              nodeType: "extract_data",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("QOCA aim Node") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "aim" }) }),
-              label: "QOCA aim",
-              onClick: () => handleNodeClick("aim_ml"),
-              nodeType: "aim_ml",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("HTTP") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "http" }) }),
-              label: "HTTP",
-              onClick: () => handleNodeClick("http_request"),
-              nodeType: "http_request",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("schedule trigger") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "schedule" }) }),
-              label: "Schedule",
-              onClick: () => handleNodeClick("schedule_trigger"),
-              nodeType: "schedule_trigger",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("webhook input") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "webhook_input" }) }),
-              label: "Webhook",
-              onClick: () => handleNodeClick("webhook_input"),
-              nodeType: "webhook_input",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("webhook output") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "webhook_output" }) }),
-              label: "Output",
-              onClick: () => handleNodeClick("webhook_output"),
-              nodeType: "webhook_output",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("Combine Text") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "combine_text" }) }),
-              label: "Combine Text",
-              onClick: () => handleNodeClick("combine_text"),
-              nodeType: "combine_text",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("Router Switch") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "router_switch" }) }),
-              label: "Router Switch",
-              onClick: () => handleNodeClick("router_switch"),
-              nodeType: "router_switch",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          ),
-          filterNodes("Speech to Text") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeItem,
-            {
-              icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "speech_to_text" }) }),
-              label: "Speech to Text",
-              onClick: () => handleNodeClick("speech_to_text"),
-              nodeType: "speech_to_text",
-              onDragStart: customDragStart,
-              disabled: isLocked,
-              disabledReason: isLocked ? "工作流已鎖定" : null
-            }
-          )
-        ] }),
+              disabled: hasRestriction || isLocked,
+              disabledReason: isLocked ? "工作流已鎖定" : hasRestriction ? `每個 Flow 只能有一個 ${nodeInfo.display_name} 節點` : null
+            },
+            nodeInfo.id
+          );
+        }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(VersionDisplay, {})
       ]
     }
@@ -24739,7 +24676,7 @@ const NodeItem = ({
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
-              className: `text-sm leading-none font-bold ${disabled ? "text-gray-400" : "text-gray-700"}`,
+              className: `text-sm leading-none font-bold ${disabled ? "text-gray-400" : ""}`,
               children: label
             }
           )
@@ -26126,8 +26063,6 @@ class WorkflowMappingService {
 
     // 添加 Speech to Text 節點的處理：
     if (isSpeechToTextNode) {
-      console.log('處理 Speech to Text 節點的音頻輸入');
-
       relevantEdges.forEach((edge) => {
         if (edge.targetHandle === 'audio') {
           const inputKey = 'audio';
@@ -26138,10 +26073,6 @@ class WorkflowMappingService {
             output_name: edge.sourceHandle || 'output',
             type: 'string'
           };
-
-          console.log(
-            `Speech to Text 音頻輸入: ${edge.source} -> ${nodeId}:${inputKey}`
-          );
         }
       });
 
@@ -26697,19 +26628,40 @@ class TokenService {
    * @param {Object} params - 額外的查詢參數
    * @returns {string} 完整的 URL
    */
-  createUrlWithWorkspace(baseUrl, params = {}) {
+  createUrlWithWorkspace(
+    baseUrl,
+    queryParams = {},
+    forceWorkspaceInQuery = false
+  ) {
     const workspaceId = this.getWorkspaceId();
 
-    // 創建 URL 對象
-    const url = new URL(baseUrl);
+    let finalUrl = baseUrl;
+    let hasPathWorkspaceId = false;
 
-    // 如果有 workspace_id，加入到查詢參數
-    if (workspaceId) {
+    // 如果 URL 包含 {workspace_id} 佔位符，則替換它（路徑參數）
+    if (finalUrl.includes('{workspace_id}')) {
+      if (!workspaceId) {
+        throw new Error('需要 workspace_id 但未設置');
+      }
+      finalUrl = finalUrl.replace('{workspace_id}', workspaceId);
+      hasPathWorkspaceId = true;
+    }
+
+    // 創建 URL 對象以處理查詢參數
+    const url = new URL(finalUrl);
+
+    // 決定是否需要在查詢參數中加入 workspace_id
+    const shouldAddWorkspaceQuery =
+      workspaceId &&
+      (!hasPathWorkspaceId || // 沒有路徑參數時
+        forceWorkspaceInQuery); // 或強制要求時
+
+    if (shouldAddWorkspaceQuery) {
       url.searchParams.append('workspace_id', workspaceId);
     }
 
-    // 加入其他參數
-    Object.entries(params).forEach(([key, value]) => {
+    // 加入其他查詢參數
+    Object.entries(queryParams).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         url.searchParams.append(key, value);
       }
@@ -26840,6 +26792,36 @@ class WorkflowAPIService {
       return responseData;
     } catch (error) {
       console.error('保存工作流失敗:', error);
+      throw error;
+    }
+  }
+  /**
+   * 取得可用的節點清單
+   * @returns {Promise<Array>} 節點清單
+   */
+  async getNodeList() {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'GET',
+        headers: {
+          accept: 'application/json'
+        }
+      });
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workspaces/{workspace_id}/nodes`
+      );
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('取得節點清單失敗:', error);
       throw error;
     }
   }
@@ -27046,7 +27028,9 @@ class LLMService {
         require_parallel_tool_calls: requireParallelToolCalls.toString()
       });
 
-      const url = `${API_CONFIG.BASE_URL}/agent_designer/llm/function-calling?${params}`;
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/llm/function-calling?${params}`
+      );
 
       this.pendingFunctionCallingRequest = fetch(url, options)
         .then((response) => {
@@ -27410,15 +27394,7 @@ class LLMService {
             (error.message.includes('NetworkError') ||
               error.message.includes('Failed to fetch'))
           ) {
-            return [
-              {
-                id: 1,
-                name: '產品文檔知識庫',
-                description: '存放所有產品相關文檔和規格',
-                file_count: 3,
-                updated_at: new Date().toISOString()
-              }
-            ];
+            return [];
           }
 
           throw error;
@@ -27708,17 +27684,7 @@ class LLMService {
     } catch (error) {
       console.error('獲取知識庫選項失敗:', error);
       // 返回一些默認選項，以防API失敗
-      return [
-        {
-          id: '1',
-          value: '1',
-          name: '產品文檔知識庫',
-          label: '產品文檔知識庫',
-          description: '存放所有產品相關文檔和規格',
-          fileCount: 3,
-          updatedAt: new Date().toISOString()
-        }
-      ];
+      return [];
     }
   }
 
@@ -33908,26 +33874,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
   const [isLoadingKnowledgeBases, setIsLoadingKnowledgeBases] = useState$m(false);
   const [knowledgeBaseLoadError, setKnowledgeBaseLoadError] = useState$m(null);
   const [dataKnowledgeBases, setDataKnowledgeBases] = useState$m(
-    data?.availableKnowledgeBases || [
-      {
-        id: "1",
-        value: "1",
-        name: "產品文檔知識庫",
-        label: "產品文檔知識庫",
-        description: "存放所有產品相關文檔和規格",
-        fileCount: 3,
-        updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-      },
-      {
-        id: "2",
-        value: "2",
-        name: "技術手冊知識庫",
-        label: "技術手冊知識庫",
-        description: "技術相關文檔和手冊",
-        fileCount: 1,
-        updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-      }
-    ]
+    data?.availableKnowledgeBases || []
   );
   const [localSelectedKnowledgeBase, setLocalSelectedKnowledgeBase] = useState$m(
     data?.selectedKnowledgeBase || data?.selectedFile || ""
@@ -34060,7 +34007,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     const fileCount = kb.fileCount !== void 0 ? ` (${kb.fileCount} 個檔案)` : "";
     return `${baseLabel}${fileCount}`;
   }, []);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-64", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-visible w-75", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-cyan-400 p-4 rounded-t-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-white rounded-md flex items-center justify-center mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "knowledge" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-white", children: formatNodeTitle("Knowledge Retrieval", id) })
@@ -34088,7 +34035,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
                     {
                       value: "",
                       disabled: true,
-                      children: "Select file..."
+                      children: "請選擇..."
                     }
                   ),
                   dataKnowledgeBases.map((kb) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40169,13 +40116,11 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     }
   }, [getCurrentContent]);
   const closeInputPanel = useCallback$4(() => {
-    console.log("關閉 Input Panel");
     setShowInputPanel(false);
     setFilterText("");
   }, []);
   const handleShowPanel = useCallback$4(
     (show) => {
-      console.log("handleShowPanel 被調用:", show, "activeTab:", activeTab);
       if (activeTab === "editor") {
         setShowInputPanel(show);
         if (!show) {
@@ -43355,6 +43300,7 @@ const ReactFlowWithControls = forwardRef(
     ) });
   }
 );
+const getReactFlowNodeType = ([]);
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -43366,6 +43312,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const nodeTypes = useMemo(() => enhancedNodeTypes, []);
   const edgeTypes = useMemo(() => ({ "custom-edge": CustomEdge }), []);
   const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
+  const [nodeList, setNodeList] = useState([]);
+  const [nodeListLoading, setNodeListLoading] = useState(true);
+  const [nodeListError, setNodeListError] = useState(null);
+  const nodeListLoadedRef = useRef(false);
   const {
     nodes,
     edges,
@@ -43417,6 +43367,38 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return window.self !== window.top;
     } catch {
       return true;
+    }
+  }, []);
+  const loadNodeList = useCallback(async () => {
+    if (nodeListLoadedRef.current) {
+      return;
+    }
+    try {
+      setNodeListLoading(true);
+      setNodeListError(null);
+      nodeListLoadedRef.current = true;
+      const nodeListData = await workflowAPIService.getNodeList();
+      setNodeList(nodeListData);
+    } catch (error) {
+      console.error("載入節點清單失敗:", error);
+      setNodeListError(error.message || "載入節點清單失敗");
+      nodeListLoadedRef.current = false;
+      if (typeof window !== "undefined" && window.notify) {
+        window.notify({
+          message: "載入節點清單失敗，將使用預設清單",
+          type: "warning",
+          duration: 3e3
+        });
+      }
+      setNodeList([]);
+    } finally {
+      setNodeListLoading(false);
+    }
+  }, []);
+  useEffect(() => {
+    if (!nodeListLoadedRef.current) {
+      console.log("FlowEditor 首次掛載，開始載入節點清單");
+      loadNodeList();
     }
   }, []);
   const toggleSidebar = useCallback(() => {
@@ -43647,33 +43629,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     },
     [reactFlowInstance]
   );
-  useCallback((sidebarNodeType) => {
-    const typeMapping = {
-      input: "customInput",
-      ai: "aiCustomInput",
-      "browser extension input": "browserExtensionInput",
-      "browser extension output": "browserExtensionOutput",
-      "knowledge retrieval": "knowledgeRetrieval",
-      end: "end",
-      webhook: "webhook",
-      http_request: "httpRequest",
-      event: "event",
-      timer: "timer",
-      line_webhook_input: "line_webhook_input",
-      line_send_message: "line_send_message",
-      extract_data: "extract_data",
-      aim_ml: "aim_ml",
-      schedule_trigger: "schedule_trigger",
-      webhook_input: "webhook_input",
-      webhook_output: "webhook_output",
-      combine_text: "combine_text",
-      router_switch: "router_switch",
-      speech_to_text: "speech_to_text"
-    };
-    return typeMapping[sidebarNodeType] || "default";
-  }, []);
   const handleNodeTypeSelection = useCallback(
-    (nodeType, position = null) => {
+    (nodeTypeOrOperator, position = null) => {
       if (isLocked) return;
       let nodePosition = position;
       if (!position && reactFlowInstance) {
@@ -43686,7 +43643,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               x: centerX,
               y: centerY
             });
-            const reactFlowNodeType = WorkflowMappingService.getOperatorFromType(nodeType);
+            const reactFlowNodeType = getReactFlowNodeType(nodeTypeOrOperator);
             const nodeDimensions = calculateNodeDimensions({
               type: reactFlowNodeType,
               data: {}
@@ -43701,22 +43658,28 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           nodePosition = { x: 400, y: 300 };
         }
       }
+      const nodeType = nodeTypeOrOperator;
       switch (nodeType) {
+        case "basic_input":
         case "input":
           handleAddInputNode(nodePosition);
           break;
+        case "ask_ai":
         case "ai":
           handleAddAINode(nodePosition);
           break;
         case "if/else":
           handleAddIfElseNode(nodePosition);
           break;
+        case "browser_extension_input":
         case "browser extension input":
           handleAddBrowserExtensionInput(nodePosition);
           break;
+        case "browser_extension_output":
         case "browser extension output":
           handleAddBrowserExtensionOutput(nodePosition);
           break;
+        case "knowledge_retrieval":
         case "knowledge retrieval":
           handleAddKnowledgeRetrievalNode(nodePosition);
           break;
@@ -44315,6 +44278,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
               handleButtonClick: handleNodeTypeSelection,
               onDragStart,
               nodes,
+              nodeList,
+              isLoading: nodeListLoading,
+              onRetryLoad: loadNodeList,
               isLocked
             }
           ),
