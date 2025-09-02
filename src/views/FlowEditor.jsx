@@ -202,6 +202,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     handleAddCombineTextNode,
     handleNodeSelection,
     handleAddRouterSwitchNode,
+    handleAddSpeechToTextNode,
     undo,
     redo,
     setNodes: setFlowNodes,
@@ -548,7 +549,8 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       webhook_input: 'webhook_input',
       webhook_output: 'webhook_output',
       combine_text: 'combine_text',
-      router_switch: 'router_switch'
+      router_switch: 'router_switch',
+      speech_to_text: 'speech_to_text'
     };
 
     return typeMapping[sidebarNodeType] || 'default';
@@ -669,6 +671,9 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         case 'router_switch':
           handleAddRouterSwitchNode(nodePosition);
           break;
+        case 'speech_to_text':
+          handleAddSpeechToTextNode(nodePosition);
+          break;
         default:
           handleAddNode(nodePosition);
       }
@@ -695,6 +700,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddWebhookOutputNode,
       handleAddCombineTextNode,
       handleAddRouterSwitchNode,
+      handleAddSpeechToTextNode,
       reactFlowInstance,
       isLocked
     ]

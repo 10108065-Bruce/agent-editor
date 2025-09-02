@@ -12,6 +12,7 @@ import webhookInputNode from '../../assets/icn-webhook-input.svg';
 import webhookOutputNode from '../../assets/icn-webhook-input.svg';
 import CombineTextNode from '../../assets/icon-node-combine-text.svg';
 import RouterSwitchNode from '../../assets/icon-node-router.svg';
+import SpeechToTextNode from '../../assets/icn-audio-node.svg';
 // Map of icon types to their respective assets
 const iconMap = {
   input: {
@@ -64,6 +65,10 @@ const iconMap = {
   router_switch: {
     src: RouterSwitchNode,
     alt: 'Router Switch Icon'
+  },
+  speech_to_text: {
+    src: SpeechToTextNode,
+    alt: 'Speech to Text Icon'
   }
 };
 

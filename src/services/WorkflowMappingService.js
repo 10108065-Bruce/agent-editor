@@ -185,6 +185,7 @@ export class WorkflowMappingService {
       targetNode.type === 'aiCustomInput' || targetNode.type === 'ai';
     const isMessageNode = targetNode.type === 'line_send_message';
     const isExtractDataNode = targetNode.type === 'extract_data';
+    const isSpeechToTextNode = targetNode.type === 'speech_to_text';
 
     // Schedule Trigger 節點沒有輸入連接，直接返回空對象
     if (isScheduleTriggerNode) {
@@ -617,6 +618,24 @@ export class WorkflowMappingService {
       return nodeInput;
     }
 
+    // 添加 Speech to Text 節點的處理：
+    if (isSpeechToTextNode) {
+      relevantEdges.forEach((edge) => {
+        if (edge.targetHandle === 'audio') {
+          const inputKey = 'audio';
+
+          // 添加到 nodeInput
+          nodeInput[inputKey] = {
+            node_id: edge.source,
+            output_name: edge.sourceHandle || 'output',
+            type: 'string'
+          };
+        }
+      });
+
+      return nodeInput;
+    }
+
     // Combine Text 節點的特殊處理邏輯
     if (isCombineTextNode && targetNode.data) {
       // 獲取原始的 node_input 資訊（如果存在）
@@ -875,6 +894,14 @@ export class WorkflowMappingService {
     console.log(`提取節點 ${node.id} 的輸出`);
 
     switch (node.type) {
+      case 'speech_to_text': {
+        // Speech to Text 節點輸出
+        nodeOutput.text = {
+          node_id: node.id,
+          type: 'string'
+        };
+        break;
+      }
       case 'router_switch': {
         // Router Switch 節點根據 routers 數組動態生成輸出
         const routers = node.data?.routers || [];

@@ -396,6 +396,11 @@ export class WorkflowDataConverter {
 
     // 根據節點類型轉換參數
     switch (node.operator) {
+      case 'speech_to_text':
+        return {
+          ...baseData,
+          stt_model_id: node.parameters?.stt_model_id?.data?.toString() || '1'
+        };
       case 'router_switch': {
         // Router Switch 節點的數據轉換
         const routersData = node.parameters?.routers?.data || [];
@@ -923,6 +928,19 @@ export class WorkflowDataConverter {
     const parameters = {};
     console.log(`轉換節點 ${node.id} 數據為 API 參數`);
     switch (node.type) {
+      case 'speech_to_text': {
+        // 處理可能的無效model值
+        const modelValue = node.data.stt_model_id || '1';
+
+        // 確保值為字符串
+        const safeModelValue =
+          modelValue && typeof modelValue !== 'string'
+            ? modelValue.toString()
+            : modelValue || '1';
+
+        parameters.stt_model_id = { data: Number(safeModelValue) };
+        break;
+      }
       case 'router_switch': {
         // Router Switch 節點參數轉換
         if (node.data.llm_id) {

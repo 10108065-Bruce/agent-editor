@@ -345,6 +345,22 @@ const NodeSidebar = ({
             disabledReason={isLocked ? '工作流已鎖定' : null}
           />
         )}
+        {/* Speech to Text node */}
+        {filterNodes('Speech to Text') && (
+          <NodeItem
+            icon={
+              <div>
+                <IconBase type='speech_to_text' />
+              </div>
+            }
+            label='Speech to Text'
+            onClick={() => handleNodeClick('speech_to_text')}
+            nodeType='speech_to_text'
+            onDragStart={customDragStart}
+            disabled={isLocked}
+            disabledReason={isLocked ? '工作流已鎖定' : null}
+          />
+        )}
       </div>
       <VersionDisplay />
     </div>

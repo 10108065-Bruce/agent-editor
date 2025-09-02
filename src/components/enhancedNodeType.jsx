@@ -18,6 +18,7 @@ import WebhookInputNode from './nodes/WebhookInputNode';
 import WebhookOutputNode from './nodes/WebhookOutputNode';
 import CombineTextNode from './nodes/CombineTextNode';
 import RouterSwitchNode from './nodes/RouterSwitchNode';
+import SpeechToTextNode from './nodes/SpeechToTextNode';
 // Apply the withNodeSelection HOC to each node type
 const enhancedNodeTypes = {
   customInput: withNodeSelection(CustomInputNode),
@@ -38,7 +39,8 @@ const enhancedNodeTypes = {
   webhook_input: withNodeSelection(WebhookInputNode),
   webhook_output: withNodeSelection(WebhookOutputNode),
   combine_text: withNodeSelection(CombineTextNode),
-  router_switch: withNodeSelection(RouterSwitchNode)
+  router_switch: withNodeSelection(RouterSwitchNode),
+  speech_to_text: withNodeSelection(SpeechToTextNode)
 };
 
 export default enhancedNodeTypes;

@@ -236,6 +236,24 @@ export default function useFlowNodes() {
 
       // 根據節點類型的特定回調
       switch (nodeType) {
+        case 'speech_to_text':
+          callbacks.updateNodeData = (key, value) => {
+            safeSetNodes((nds) =>
+              nds.map((node) => {
+                if (node.id === nodeId) {
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      [key]: value
+                    }
+                  };
+                }
+                return node;
+              })
+            );
+          };
+          break;
         case 'router_switch':
           callbacks.updateNodeData = (key, value) => {
             console.log(
@@ -1113,6 +1131,30 @@ export default function useFlowNodes() {
     [safeSetNodes, getNodeCallbacks]
   );
 
+  // 建立 Speech to Text 節點
+  const handleAddSpeechToTextNode = useCallback(
+    (position) => {
+      const id = `speech_to_text_${Date.now()}`;
+      const nodeCallbacksObject = getNodeCallbacks(id, 'speech_to_text');
+
+      const newNode = {
+        id,
+        type: 'speech_to_text',
+        position: position || {
+          x: Math.random() * 400,
+          y: Math.random() * 400
+        },
+        data: {
+          model: '', // 預設模型
+          ...nodeCallbacksObject
+        }
+      };
+
+      safeSetNodes((nds) => [...nds, newNode]);
+    },
+    [safeSetNodes, getNodeCallbacks]
+  );
+
   // 建立 router switch 節點
   const handleAddRouterSwitchNode = useCallback(
     (position) => {
@@ -1711,6 +1753,32 @@ export default function useFlowNodes() {
       //     return; // 不創建新連線
       //   }
       // }
+
+      // 檢查目標節點是否為 Speech to Text 節點
+      if (targetNode && targetNode.type === 'speech_to_text') {
+        console.log('目標是 Speech to Text 節點，檢查連線限制');
+
+        // 檢查是否已有輸入連線
+        const existingEdges = edges.filter(
+          (edge) =>
+            edge.target === targetNodeId && edge.targetHandle === 'audio'
+        );
+
+        if (existingEdges.length > 0) {
+          console.log(`Speech to Text 節點已有輸入連線，拒絕新連線`);
+
+          // 使用通知系統提示用戶
+          if (typeof window !== 'undefined' && window.notify) {
+            window.notify({
+              message: `Speech to Text 節點只能有一個輸入連線，請先刪除現有連線`,
+              type: 'error',
+              duration: 3000
+            });
+          }
+
+          return; // 不創建新連線
+        }
+      }
 
       if (targetNode && targetNode.type === 'router_switch') {
         console.log('目標是 Router Switch 節點，檢查連線限制');
@@ -2527,6 +2595,7 @@ export default function useFlowNodes() {
     handleAddWebhookOutputNode,
     handleAddCombineTextNode,
     handleAddRouterSwitchNode,
+    handleAddSpeechToTextNode,
     undo,
     redo,
     getNodeCallbacks,

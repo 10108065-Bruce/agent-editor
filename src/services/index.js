@@ -13,6 +13,7 @@ export { IconUploadService } from './IconUploadService';
 export { AIMService } from './AIMService';
 export { ScheduleTriggerService } from './ScheduleTriggerService';
 export { WebhookService } from './WebhookService';
+export { sttService } from './STTService';
 
 // 創建服務實例並導出
 import { WorkflowAPIService } from './WorkflowAPIService';
