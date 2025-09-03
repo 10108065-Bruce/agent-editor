@@ -47,6 +47,160 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     [edges, id]
   );
 
+  // 邊緣變化監聽 - 新增清理功能
+  useEffect(() => {
+    const connectedEdges = edges.filter((edge) => edge.target === id);
+
+    if (data && typeof data.updateNodeData === 'function') {
+      const currentNodeInput = data.node_input || {};
+      const newNodeInput = {};
+
+      // 記錄連接狀態，用於檢測刪除的連接
+      const currentConnections = new Set();
+      const previousConnections = new Set();
+
+      // 收集當前連接
+      connectedEdges.forEach((edge) => {
+        const connectionKey = `${edge.source}:${edge.sourceHandle || 'output'}`;
+        currentConnections.add(connectionKey);
+      });
+
+      // 收集之前的連接
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith('text') && value.node_id) {
+          const connectionKey = `${value.node_id}:${
+            value.output_name || 'output'
+          }`;
+          previousConnections.add(connectionKey);
+        }
+      });
+
+      // 找出被刪除的連接
+      const deletedConnections = Array.from(previousConnections).filter(
+        (connectionKey) => !currentConnections.has(connectionKey)
+      );
+
+      // 清理被刪除連接對應的tags
+      if (
+        deletedConnections.length > 0 &&
+        textareaRef.current &&
+        typeof textareaRef.current.cleanupTagsByConnection === 'function'
+      ) {
+        let totalCleaned = 0;
+        deletedConnections.forEach((connectionKey) => {
+          const [nodeId, outputName] = connectionKey.split(':');
+          const cleaned = textareaRef.current.cleanupTagsByConnection(
+            nodeId,
+            outputName
+          );
+          totalCleaned += cleaned;
+        });
+
+        if (totalCleaned > 0) {
+          console.log(`成功清理了 ${totalCleaned} 個斷開連接的tag`);
+        }
+      }
+
+      // 繼續原有的邊緣同步邏輯
+      const existingConnections = new Map();
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith('text') && value.node_id) {
+          const connectionKey = `${value.node_id}:${
+            value.output_name || 'output'
+          }`;
+          existingConnections.set(connectionKey, {
+            key,
+            value,
+            index: parseInt(key.replace('text', '')) || 0
+          });
+        }
+      });
+
+      const sortedEdges = connectedEdges.sort((a, b) => {
+        const aConnectionKey = `${a.source}:${a.sourceHandle || 'output'}`;
+        const bConnectionKey = `${b.source}:${b.sourceHandle || 'output'}`;
+
+        const aExisting = existingConnections.get(aConnectionKey);
+        const bExisting = existingConnections.get(bConnectionKey);
+
+        if (aExisting && bExisting) {
+          return aExisting.index - bExisting.index;
+        } else if (aExisting) {
+          return -1;
+        } else if (bExisting) {
+          return 1;
+        } else {
+          return a.source.localeCompare(b.source);
+        }
+      });
+
+      const usedIndices = new Set();
+
+      sortedEdges.forEach((edge) => {
+        const connectionKey = `${edge.source}:${edge.sourceHandle || 'output'}`;
+        const existingConnection = existingConnections.get(connectionKey);
+        let inputKey;
+
+        if (existingConnection) {
+          inputKey = existingConnection.key;
+          usedIndices.add(existingConnection.index);
+        } else {
+          let newIndex = 0;
+          while (usedIndices.has(newIndex)) {
+            newIndex++;
+          }
+          inputKey = `text${newIndex}`;
+          usedIndices.add(newIndex);
+        }
+
+        const sourceNode = nodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || 'output';
+
+        // 根據源節點類型設置正確的return_name
+        if (sourceNode) {
+          if (
+            sourceNode.type === 'customInput' ||
+            sourceNode.type === 'input'
+          ) {
+            if (sourceNode.data?.fields?.[0]?.inputName) {
+              returnName = sourceNode.data.fields[0].inputName;
+            }
+          } else if (sourceNode.type === 'browserExtensionInput') {
+            const targetItem = sourceNode.data?.items?.find(
+              (item) => item.id === edge.sourceHandle
+            );
+            if (targetItem?.name) {
+              returnName = targetItem.name;
+            }
+          } else if (
+            sourceNode.type === 'aiCustomInput' ||
+            sourceNode.type === 'ai'
+          ) {
+            returnName = 'output';
+          } else if (sourceNode.type === 'knowledgeRetrieval') {
+            returnName = 'output';
+          } else if (sourceNode.type === 'schedule_trigger') {
+            returnName = 'trigger';
+          } else if (sourceNode.type === 'router_switch') {
+            returnName = edge.sourceHandle || 'output';
+          }
+        }
+
+        newNodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+      });
+
+      // 只在真的有變化時才更新
+      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
+        data.updateNodeData('node_input', newNodeInput);
+      }
+    }
+  }, [edges, id, data, nodes]);
+
   // 安全地獲取編輯器內容
   const getEditorContent = useCallback(() => {
     if (!textareaRef.current) return null;
@@ -433,6 +587,8 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             }
             return 'Router Switch Node';
           }
+          case 'speech_to_text':
+            return 'Speech to Text';
           default:
             return `${
               sourceNode.type.charAt(0).toUpperCase() + sourceNode.type.slice(1)
@@ -458,7 +614,8 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
           { keyword: 'knowledge retrieval', color: '#87CEEB' },
           { keyword: 'qoca aim node', color: '#098D7F' },
           { keyword: 'input', color: '#0075FF' },
-          { keyword: 'ai', color: '#FFAA1E' }
+          { keyword: 'ai', color: '#FFAA1E' },
+          { keyword: 'speech to text', color: '#dccafa' }
         ];
 
         // 遍歷顏色映射，找到第一個匹配的關鍵詞
@@ -546,120 +703,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       }
     }
   }, [inputHandles, data]);
-
-  // 優化的邊緣連線同步 - 使用唯一的連線識別
-  useEffect(() => {
-    const connectedEdges = edges.filter((edge) => edge.target === id);
-
-    if (
-      connectedEdges.length > 0 &&
-      data &&
-      typeof data.updateNodeData === 'function'
-    ) {
-      const currentNodeInput = data.node_input || {};
-      const newNodeInput = {};
-
-      // 使用 node_id + output_name 作為唯一連線識別
-      const existingConnections = new Map();
-      Object.entries(currentNodeInput).forEach(([key, value]) => {
-        if (key.startsWith('text') && value.node_id) {
-          const connectionKey = `${value.node_id}:${
-            value.output_name || 'output'
-          }`;
-          existingConnections.set(connectionKey, {
-            key,
-            value,
-            index: parseInt(key.replace('text', '')) || 0
-          });
-        }
-      });
-
-      const sortedEdges = connectedEdges.sort((a, b) => {
-        // 使用相同的 key 格式
-        const aConnectionKey = `${a.source}:${a.sourceHandle || 'output'}`;
-        const bConnectionKey = `${b.source}:${b.sourceHandle || 'output'}`;
-
-        const aExisting = existingConnections.get(aConnectionKey);
-        const bExisting = existingConnections.get(bConnectionKey);
-
-        if (aExisting && bExisting) {
-          return aExisting.index - bExisting.index;
-        } else if (aExisting) {
-          return -1;
-        } else if (bExisting) {
-          return 1;
-        } else {
-          return a.source.localeCompare(b.source);
-        }
-      });
-
-      const usedIndices = new Set();
-
-      sortedEdges.forEach((edge) => {
-        // 使用相同的 key 格式檢查現有連線
-        const connectionKey = `${edge.source}:${edge.sourceHandle || 'output'}`;
-        const existingConnection = existingConnections.get(connectionKey);
-        let inputKey;
-
-        if (existingConnection) {
-          inputKey = existingConnection.key;
-          usedIndices.add(existingConnection.index);
-        } else {
-          let newIndex = 0;
-          while (usedIndices.has(newIndex)) {
-            newIndex++;
-          }
-          inputKey = `text${newIndex}`;
-          usedIndices.add(newIndex);
-        }
-
-        const sourceNode = nodes.find((n) => n.id === edge.source);
-        let returnName = edge.label || 'output';
-
-        if (sourceNode) {
-          if (
-            sourceNode.type === 'customInput' ||
-            sourceNode.type === 'input'
-          ) {
-            if (sourceNode.data?.fields?.[0]?.inputName) {
-              returnName = sourceNode.data.fields[0].inputName;
-            }
-          } else if (sourceNode.type === 'browserExtensionInput') {
-            const targetItem = sourceNode.data?.items?.find(
-              (item) => item.id === edge.sourceHandle
-            );
-            if (targetItem?.name) {
-              returnName = targetItem.name;
-            }
-          } else if (
-            sourceNode.type === 'aiCustomInput' ||
-            sourceNode.type === 'ai'
-          ) {
-            returnName = 'output';
-          } else if (sourceNode.type === 'knowledgeRetrieval') {
-            returnName = 'output';
-          } else if (sourceNode.type === 'schedule_trigger') {
-            returnName = 'trigger';
-          } else if (sourceNode.type === 'router_switch') {
-            // 為 Router Switch Node 設置正確的 return_name
-            returnName = edge.sourceHandle || 'output';
-          }
-        }
-
-        newNodeInput[inputKey] = {
-          node_id: edge.source,
-          output_name: edge.sourceHandle || 'output',
-          type: 'string',
-          return_name: returnName
-        };
-      });
-
-      // 只在真的有變化時才更新
-      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
-        data.updateNodeData('node_input', newNodeInput);
-      }
-    }
-  }, [edges, id, data, nodes]);
 
   // 清理計時器
   useEffect(() => {

@@ -252,6 +252,60 @@ const CombineTextEditor = forwardRef(
       [onTagInsert, handleContentChange]
     );
 
+    // 根據連接信息清理tag的函數
+    const cleanupTagsByConnection = useCallback(
+      (nodeId, outputName) => {
+        if (!editorRef.current) return 0;
+
+        const expectedTagData = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
+        const tagElements = editorRef.current.querySelectorAll('.inline-tag');
+        let removedCount = 0;
+        tagElements.forEach((tagElement) => {
+          const tagData = tagElement.getAttribute('data-tag-data');
+
+          if (tagData === expectedTagData) {
+            const tagId = parseInt(tagElement.getAttribute('data-tag-id'));
+
+            // 從tags狀態中移除
+            setTags((prev) => prev.filter((tag) => tag.id !== tagId));
+
+            // 從DOM中移除
+            const selection = window.getSelection();
+            const range = document.createRange();
+
+            range.setStartBefore(tagElement);
+            range.collapse(true);
+
+            const nextNode = tagElement.nextSibling;
+            tagElement.remove();
+
+            // 清理後續空白字符
+            if (
+              nextNode &&
+              nextNode.nodeType === Node.TEXT_NODE &&
+              /^[\u00A0\s]*$/.test(nextNode.nodeValue)
+            ) {
+              nextNode.remove();
+            }
+
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            removedCount++;
+          }
+        });
+
+        // 如果有tag被移除，觸發內容變化
+        if (removedCount > 0) {
+          handleContentChange();
+          console.log(`成功清理 ${removedCount} 個tag`);
+        }
+
+        return removedCount;
+      },
+      [setTags, handleContentChange]
+    );
+
     // 刪除標籤
     const removeTag = useCallback(
       (tagId) => {
@@ -408,31 +462,37 @@ const CombineTextEditor = forwardRef(
     }, [setCursorPosition, insertTagAtCursor]);
 
     // 暴露給父組件的方法
-    useImperativeHandle(ref, () => ({
-      insertTagAtCursor: (tagData) => {
-        insertTagAtCursor(tagData);
-      },
-      focus: () => {
-        if (editorRef.current) {
-          editorRef.current.focus();
-        }
-      },
-      getValue: () => {
-        return getEditorTextContent();
-      },
-      get innerHTML() {
-        return editorRef.current ? editorRef.current.innerHTML : '';
-      },
-      set innerHTML(content) {
-        if (editorRef.current) {
-          isUpdatingFromExternal.current = true;
-          editorRef.current.innerHTML = content;
-          setTimeout(() => {
-            isUpdatingFromExternal.current = false;
-          }, 500);
-        }
-      }
-    }));
+    useImperativeHandle(
+      ref,
+      () => ({
+        insertTagAtCursor: (tagData) => {
+          insertTagAtCursor(tagData);
+        },
+        focus: () => {
+          if (editorRef.current) {
+            editorRef.current.focus();
+          }
+        },
+        getValue: () => {
+          return getEditorTextContent();
+        },
+        get innerHTML() {
+          return editorRef.current ? editorRef.current.innerHTML : '';
+        },
+        set innerHTML(content) {
+          if (editorRef.current) {
+            isUpdatingFromExternal.current = true;
+            editorRef.current.innerHTML = content;
+            setTimeout(() => {
+              isUpdatingFromExternal.current = false;
+            }, 500);
+          }
+        },
+        // 根據連接信息清理tag
+        cleanupTagsByConnection: cleanupTagsByConnection
+      }),
+      [cleanupTagsByConnection]
+    );
 
     // 處理編輯器點擊事件
     const handleEditorClick = useCallback(
