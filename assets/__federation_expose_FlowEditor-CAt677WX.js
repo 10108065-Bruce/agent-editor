@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f79e3f26290a6a7af5b5c01da7e3c6653394c8b5", "VITE_APP_BUILD_TIME": "2025-09-03T00:08:46.695Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.17"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "da2824333a580516cacc01ffc893527ded7d7407", "VITE_APP_BUILD_TIME": "2025-09-03T03:08:47.715Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.18"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26818,7 +26818,135 @@ class WorkflowAPIService {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = [
+        {
+          id: 1,
+          display_name: 'Input',
+          category: 'emitter',
+          operator: 'basic_input',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 2,
+          display_name: 'AI',
+          category: 'processor',
+          operator: 'ask_ai',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 3,
+          display_name: 'Knowledge Retrieval',
+          category: 'processor',
+          operator: 'knowledge_retrieval',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 4,
+          display_name: 'Browser Extension input',
+          category: 'flow_starter',
+          operator: 'browser_extension_input',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 5,
+          display_name: 'Browser Extension output',
+          category: 'flow_end',
+          operator: 'browser_extension_output',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 6,
+          display_name: 'LINE',
+          category: 'flow_starter',
+          operator: 'line_webhook_input',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 7,
+          display_name: 'Send Message',
+          category: 'flow_end',
+          operator: 'line_send_message',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 8,
+          display_name: 'Extract Data',
+          category: 'processor',
+          operator: 'extract_data',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 9,
+          display_name: 'QOCA aim',
+          category: 'processor',
+          operator: 'aim_ml',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 10,
+          display_name: 'HTTP',
+          category: 'dynamic',
+          operator: 'http_request',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 11,
+          display_name: 'Schedule',
+          category: 'flow_starter',
+          operator: 'schedule_trigger',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 12,
+          display_name: 'Webhook',
+          category: 'flow_starter',
+          operator: 'webhook_input',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 13,
+          display_name: 'Output',
+          category: 'flow_end',
+          operator: 'webhook_output',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 14,
+          display_name: 'Combine Text',
+          category: 'processor',
+          operator: 'combine_text',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 15,
+          display_name: 'Router Switch',
+          category: 'processor',
+          operator: 'router_switch',
+          created_at: '2025-09-01T02:08:18.124065+00:00',
+          updated_at: '2025-09-01T02:08:18.124065+00:00'
+        },
+        {
+          id: 16,
+          display_name: 'Speech to Text',
+          category: 'processor',
+          operator: 'speech_to_text',
+          created_at: '2025-09-01T02:08:18.124065+00:00'
+        }
+      ]; //await response.json();
       return data;
     } catch (error) {
       console.error('取得節點清單失敗:', error);
@@ -39428,11 +39556,9 @@ const CombineTextEditor = forwardRef$1(
     useEffect$6(() => {
       const editor = editorRef.current;
       if (!editor) return;
-      console.log("🎯 編輯器初始化拖放事件監聽");
       editor.style.position = "relative";
       editor.style.zIndex = "10001";
       const handleDragOverCapture = (e) => {
-        console.log("🔍 編輯器接收到 dragover");
         e.preventDefault();
         e.stopPropagation();
         e.dataTransfer.dropEffect = "copy";
@@ -39442,13 +39568,11 @@ const CombineTextEditor = forwardRef$1(
         setCursorPosition(x, y);
       };
       const handleDragEnterCapture = (e) => {
-        console.log("🔍 編輯器 dragenter");
         e.preventDefault();
         e.stopPropagation();
         setIsDragOver(true);
       };
       const handleDragLeaveCapture = (e) => {
-        console.log("🔍 編輯器 dragleave");
         if (!editor.contains(e.relatedTarget)) {
           setIsDragOver(false);
           editor.style.outline = "";
@@ -39457,7 +39581,6 @@ const CombineTextEditor = forwardRef$1(
         }
       };
       const handleDropCapture = (e) => {
-        console.log("🎯 編輯器接收到 drop 事件！");
         e.preventDefault();
         e.stopPropagation();
         setIsDragOver(false);
@@ -39468,11 +39591,9 @@ const CombineTextEditor = forwardRef$1(
         };
         cleanupVisualEffects();
         const dragData = e.dataTransfer.getData("text/plain");
-        console.log("📦 獲取到拖曳數據:", dragData);
         if (dragData) {
           try {
             const nodeInfo = JSON.parse(dragData);
-            console.log("✨ 解析節點信息:", nodeInfo);
             editor.focus();
             const x = e.clientX;
             const y = e.clientY;
@@ -39484,7 +39605,6 @@ const CombineTextEditor = forwardRef$1(
             setTimeout(() => {
               cleanupVisualEffects();
             }, 100);
-            console.log("✅ 標籤插入成功");
             if (typeof window !== "undefined" && window.notify) {
               window.notify({
                 message: `已插入 ${nodeInfo.name}`,
@@ -39505,7 +39625,6 @@ const CombineTextEditor = forwardRef$1(
       editor.addEventListener("dragleave", handleDragLeaveCapture, true);
       editor.addEventListener("drop", handleDropCapture, true);
       return () => {
-        console.log("🧹 清理編輯器拖拽事件監聽");
         editor.style.outline = "";
         editor.style.outlineOffset = "";
         editor.style.backgroundColor = "";
@@ -40132,7 +40251,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   );
   const handleTagClick = useCallback$4(
     (nodeInfo) => {
-      console.log("標籤被點擊:", nodeInfo);
       if (textareaRef.current && textareaRef.current.insertTagAtCursor) {
         textareaRef.current.insertTagAtCursor(nodeInfo);
         setTimeout(() => {
@@ -40147,14 +40265,11 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     [getEditorContent, updateContent, closeInputPanel]
   );
   const handleTagDragStart = useCallback$4((e, nodeInfo) => {
-    console.log("🔥 標籤開始拖曳:", nodeInfo);
     e.dataTransfer.setData("text/plain", JSON.stringify(nodeInfo));
     e.dataTransfer.effectAllowed = "copy";
     e.target.style.opacity = "0.5";
-    console.log("🎯 拖曳數據已設置，效果:", e.dataTransfer.effectAllowed);
   }, []);
   const handleTagDragEnd = useCallback$4((e) => {
-    console.log("🏁 標籤拖曳結束");
     e.target.style.opacity = "1";
   }, []);
   const handleWheel = useCallback$4((e) => {
@@ -40271,14 +40386,12 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   const previewContent = useMemo$1(() => {
     const displayContent = getCurrentContent();
     if (displayContent !== lastRenderContentRef.current) {
-      console.log("Preview 內容更新:", displayContent?.substring(0, 100));
       lastRenderContentRef.current = displayContent;
     }
     return displayContent || "點擊此處編輯內容...";
   }, [getCurrentContent]);
   useEffect$5(() => {
     if (!isInitialized && data) {
-      console.log("執行一次性初始化同步");
       const initialContent = data.textToCombine || "";
       stableContentRef.current = initialContent;
       lastRenderContentRef.current = initialContent;
