@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "c29d7a46f570977d3fc22480b07abbf6a433cdda", "VITE_APP_BUILD_TIME": "2025-09-02T06:48:50.989Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.16"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f79e3f26290a6a7af5b5c01da7e3c6653394c8b5", "VITE_APP_BUILD_TIME": "2025-09-03T00:08:46.695Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.17"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -41658,7 +41658,7 @@ const SpeechToTextNode = ({ data, isConnectable, id }) => {
       {
         type: "source",
         position: Position.Right,
-        id: "output",
+        id: "text",
         style: {
           background: "#e5e7eb",
           border: "1px solid #D3D3D3",
