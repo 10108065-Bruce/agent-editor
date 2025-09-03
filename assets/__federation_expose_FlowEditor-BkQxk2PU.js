@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "d6b6685237e5218fd056886a000fad256ef9105a", "VITE_APP_BUILD_TIME": "2025-09-03T07:02:14.448Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.20"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "30a748f52924dee131845b528e8fe894f876f800", "VITE_APP_BUILD_TIME": "2025-09-03T08:24:00.407Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.21"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -39528,6 +39528,39 @@ const CombineTextEditor = forwardRef$1(
       },
       [onTagInsert, handleContentChange]
     );
+    const cleanupTagsByConnection = useCallback$5(
+      (nodeId, outputName) => {
+        if (!editorRef.current) return 0;
+        const expectedTagData = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
+        const tagElements = editorRef.current.querySelectorAll(".inline-tag");
+        let removedCount = 0;
+        tagElements.forEach((tagElement) => {
+          const tagData = tagElement.getAttribute("data-tag-data");
+          if (tagData === expectedTagData) {
+            const tagId = parseInt(tagElement.getAttribute("data-tag-id"));
+            setTags((prev) => prev.filter((tag) => tag.id !== tagId));
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.setStartBefore(tagElement);
+            range.collapse(true);
+            const nextNode = tagElement.nextSibling;
+            tagElement.remove();
+            if (nextNode && nextNode.nodeType === Node.TEXT_NODE && /^[\u00A0\s]*$/.test(nextNode.nodeValue)) {
+              nextNode.remove();
+            }
+            selection.removeAllRanges();
+            selection.addRange(range);
+            removedCount++;
+          }
+        });
+        if (removedCount > 0) {
+          handleContentChange();
+          console.log(`成功清理 ${removedCount} 個tag`);
+        }
+        return removedCount;
+      },
+      [setTags, handleContentChange]
+    );
     const removeTag = useCallback$5(
       (tagId) => {
         const numericTagId = typeof tagId === "string" ? parseInt(tagId) : tagId;
@@ -39634,31 +39667,37 @@ const CombineTextEditor = forwardRef$1(
         editor.removeEventListener("drop", handleDropCapture, true);
       };
     }, [setCursorPosition, insertTagAtCursor]);
-    useImperativeHandle$1(ref, () => ({
-      insertTagAtCursor: (tagData) => {
-        insertTagAtCursor(tagData);
-      },
-      focus: () => {
-        if (editorRef.current) {
-          editorRef.current.focus();
-        }
-      },
-      getValue: () => {
-        return getEditorTextContent();
-      },
-      get innerHTML() {
-        return editorRef.current ? editorRef.current.innerHTML : "";
-      },
-      set innerHTML(content) {
-        if (editorRef.current) {
-          isUpdatingFromExternal.current = true;
-          editorRef.current.innerHTML = content;
-          setTimeout(() => {
-            isUpdatingFromExternal.current = false;
-          }, 500);
-        }
-      }
-    }));
+    useImperativeHandle$1(
+      ref,
+      () => ({
+        insertTagAtCursor: (tagData) => {
+          insertTagAtCursor(tagData);
+        },
+        focus: () => {
+          if (editorRef.current) {
+            editorRef.current.focus();
+          }
+        },
+        getValue: () => {
+          return getEditorTextContent();
+        },
+        get innerHTML() {
+          return editorRef.current ? editorRef.current.innerHTML : "";
+        },
+        set innerHTML(content) {
+          if (editorRef.current) {
+            isUpdatingFromExternal.current = true;
+            editorRef.current.innerHTML = content;
+            setTimeout(() => {
+              isUpdatingFromExternal.current = false;
+            }, 500);
+          }
+        },
+        // 根據連接信息清理tag
+        cleanupTagsByConnection
+      }),
+      [cleanupTagsByConnection]
+    );
     const handleEditorClick = useCallback$5(
       (e) => {
         const tagElement = e.target.closest(".inline-tag");
@@ -40060,6 +40099,118 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     () => edges.filter((edge) => edge.target === id).length,
     [edges, id]
   );
+  useEffect$5(() => {
+    const connectedEdges = edges.filter((edge) => edge.target === id);
+    if (data && typeof data.updateNodeData === "function") {
+      const currentNodeInput = data.node_input || {};
+      const newNodeInput = {};
+      const currentConnections = /* @__PURE__ */ new Set();
+      const previousConnections = /* @__PURE__ */ new Set();
+      connectedEdges.forEach((edge) => {
+        const connectionKey = `${edge.source}:${edge.sourceHandle || "output"}`;
+        currentConnections.add(connectionKey);
+      });
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith("text") && value.node_id) {
+          const connectionKey = `${value.node_id}:${value.output_name || "output"}`;
+          previousConnections.add(connectionKey);
+        }
+      });
+      const deletedConnections = Array.from(previousConnections).filter(
+        (connectionKey) => !currentConnections.has(connectionKey)
+      );
+      if (deletedConnections.length > 0 && textareaRef.current && typeof textareaRef.current.cleanupTagsByConnection === "function") {
+        let totalCleaned = 0;
+        deletedConnections.forEach((connectionKey) => {
+          const [nodeId, outputName] = connectionKey.split(":");
+          const cleaned = textareaRef.current.cleanupTagsByConnection(
+            nodeId,
+            outputName
+          );
+          totalCleaned += cleaned;
+        });
+        if (totalCleaned > 0) {
+          console.log(`成功清理了 ${totalCleaned} 個斷開連接的tag`);
+        }
+      }
+      const existingConnections = /* @__PURE__ */ new Map();
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith("text") && value.node_id) {
+          const connectionKey = `${value.node_id}:${value.output_name || "output"}`;
+          existingConnections.set(connectionKey, {
+            key,
+            value,
+            index: parseInt(key.replace("text", "")) || 0
+          });
+        }
+      });
+      const sortedEdges = connectedEdges.sort((a, b) => {
+        const aConnectionKey = `${a.source}:${a.sourceHandle || "output"}`;
+        const bConnectionKey = `${b.source}:${b.sourceHandle || "output"}`;
+        const aExisting = existingConnections.get(aConnectionKey);
+        const bExisting = existingConnections.get(bConnectionKey);
+        if (aExisting && bExisting) {
+          return aExisting.index - bExisting.index;
+        } else if (aExisting) {
+          return -1;
+        } else if (bExisting) {
+          return 1;
+        } else {
+          return a.source.localeCompare(b.source);
+        }
+      });
+      const usedIndices = /* @__PURE__ */ new Set();
+      sortedEdges.forEach((edge) => {
+        const connectionKey = `${edge.source}:${edge.sourceHandle || "output"}`;
+        const existingConnection = existingConnections.get(connectionKey);
+        let inputKey;
+        if (existingConnection) {
+          inputKey = existingConnection.key;
+          usedIndices.add(existingConnection.index);
+        } else {
+          let newIndex = 0;
+          while (usedIndices.has(newIndex)) {
+            newIndex++;
+          }
+          inputKey = `text${newIndex}`;
+          usedIndices.add(newIndex);
+        }
+        const sourceNode = nodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || "output";
+        if (sourceNode) {
+          if (sourceNode.type === "customInput" || sourceNode.type === "input") {
+            if (sourceNode.data?.fields?.[0]?.inputName) {
+              returnName = sourceNode.data.fields[0].inputName;
+            }
+          } else if (sourceNode.type === "browserExtensionInput") {
+            const targetItem = sourceNode.data?.items?.find(
+              (item) => item.id === edge.sourceHandle
+            );
+            if (targetItem?.name) {
+              returnName = targetItem.name;
+            }
+          } else if (sourceNode.type === "aiCustomInput" || sourceNode.type === "ai") {
+            returnName = "output";
+          } else if (sourceNode.type === "knowledgeRetrieval") {
+            returnName = "output";
+          } else if (sourceNode.type === "schedule_trigger") {
+            returnName = "trigger";
+          } else if (sourceNode.type === "router_switch") {
+            returnName = edge.sourceHandle || "output";
+          }
+        }
+        newNodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || "output",
+          type: "string",
+          return_name: returnName
+        };
+      });
+      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
+        data.updateNodeData("node_input", newNodeInput);
+      }
+    }
+  }, [edges, id, data, nodes]);
   const getEditorContent = useCallback$4(() => {
     if (!textareaRef.current) return null;
     try {
@@ -40355,13 +40506,15 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               const targetRouter = sourceNode2.data?.routers?.find(
                 (router) => router.router_id === edge.sourceHandle
               );
-              console.log(targetRouter);
-              if (targetRouter && targetRouter.router_id) {
+              if (targetRouter && targetRouter.router_name) {
                 return `Router Switch Node - ${targetRouter.router_name}`;
               }
+              return "Router Switch Node";
             }
             return "Router Switch Node";
           }
+          case "speech_to_text":
+            return "Speech to Text";
           default:
             return `${sourceNode2.type.charAt(0).toUpperCase() + sourceNode2.type.slice(1)}`;
         }
@@ -40380,7 +40533,8 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
           { keyword: "knowledge retrieval", color: "#87CEEB" },
           { keyword: "qoca aim node", color: "#098D7F" },
           { keyword: "input", color: "#0075FF" },
-          { keyword: "ai", color: "#FFAA1E" }
+          { keyword: "ai", color: "#FFAA1E" },
+          { keyword: "speech to text", color: "#dccafa" }
         ];
         for (const { keyword, color } of colorMap) {
           if (lowerNodeName.includes(keyword)) {
@@ -40441,89 +40595,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       }
     }
   }, [inputHandles, data]);
-  useEffect$5(() => {
-    const connectedEdges = edges.filter((edge) => edge.target === id);
-    if (connectedEdges.length > 0 && data && typeof data.updateNodeData === "function") {
-      const currentNodeInput = data.node_input || {};
-      const newNodeInput = {};
-      const existingConnections = /* @__PURE__ */ new Map();
-      Object.entries(currentNodeInput).forEach(([key, value]) => {
-        if (key.startsWith("text") && value.node_id) {
-          const connectionKey = `${value.node_id}:${value.output_name || "output"}`;
-          existingConnections.set(connectionKey, {
-            key,
-            value,
-            index: parseInt(key.replace("text", "")) || 0
-          });
-        }
-      });
-      const sortedEdges = connectedEdges.sort((a, b) => {
-        const aConnectionKey = `${a.source}:${a.sourceHandle || "output"}`;
-        const bConnectionKey = `${b.source}:${b.sourceHandle || "output"}`;
-        const aExisting = existingConnections.get(aConnectionKey);
-        const bExisting = existingConnections.get(bConnectionKey);
-        if (aExisting && bExisting) {
-          return aExisting.index - bExisting.index;
-        } else if (aExisting) {
-          return -1;
-        } else if (bExisting) {
-          return 1;
-        } else {
-          return a.source.localeCompare(b.source);
-        }
-      });
-      const usedIndices = /* @__PURE__ */ new Set();
-      sortedEdges.forEach((edge) => {
-        const connectionKey = `${edge.source}:${edge.sourceHandle || "output"}`;
-        const existingConnection = existingConnections.get(connectionKey);
-        let inputKey;
-        if (existingConnection) {
-          inputKey = existingConnection.key;
-          usedIndices.add(existingConnection.index);
-        } else {
-          let newIndex = 0;
-          while (usedIndices.has(newIndex)) {
-            newIndex++;
-          }
-          inputKey = `text${newIndex}`;
-          usedIndices.add(newIndex);
-        }
-        const sourceNode = nodes.find((n) => n.id === edge.source);
-        let returnName = edge.label || "output";
-        if (sourceNode) {
-          if (sourceNode.type === "customInput" || sourceNode.type === "input") {
-            if (sourceNode.data?.fields?.[0]?.inputName) {
-              returnName = sourceNode.data.fields[0].inputName;
-            }
-          } else if (sourceNode.type === "browserExtensionInput") {
-            const targetItem = sourceNode.data?.items?.find(
-              (item) => item.id === edge.sourceHandle
-            );
-            if (targetItem?.name) {
-              returnName = targetItem.name;
-            }
-          } else if (sourceNode.type === "aiCustomInput" || sourceNode.type === "ai") {
-            returnName = "output";
-          } else if (sourceNode.type === "knowledgeRetrieval") {
-            returnName = "output";
-          } else if (sourceNode.type === "schedule_trigger") {
-            returnName = "trigger";
-          } else if (sourceNode.type === "router_switch") {
-            returnName = edge.sourceHandle || "output";
-          }
-        }
-        newNodeInput[inputKey] = {
-          node_id: edge.source,
-          output_name: edge.sourceHandle || "output",
-          type: "string",
-          return_name: returnName
-        };
-      });
-      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
-        data.updateNodeData("node_input", newNodeInput);
-      }
-    }
-  }, [edges, id, data, nodes]);
   useEffect$5(() => {
     return () => {
       if (updateTimeoutRef.current) {
