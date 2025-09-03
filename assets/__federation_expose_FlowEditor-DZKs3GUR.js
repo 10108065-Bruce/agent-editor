@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "27bb371f0d89d31b15025541d79e76b70de93fcc", "VITE_APP_BUILD_TIME": "2025-09-03T06:53:46.298Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.19"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "d6b6685237e5218fd056886a000fad256ef9105a", "VITE_APP_BUILD_TIME": "2025-09-03T07:02:14.448Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.20"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -40355,8 +40355,9 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               const targetRouter = sourceNode2.data?.routers?.find(
                 (router) => router.router_id === edge.sourceHandle
               );
+              console.log(targetRouter);
               if (targetRouter && targetRouter.router_id) {
-                return `Router Switch Node - ${targetRouter.router_id}`;
+                return `Router Switch Node - ${targetRouter.router_name}`;
               }
             }
             return "Router Switch Node";
