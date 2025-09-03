@@ -295,6 +295,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   // 記憶化的標籤處理函數
   const handleTagClick = useCallback(
     (nodeInfo) => {
+      console.log('標籤被點擊:', nodeInfo);
       if (textareaRef.current && textareaRef.current.insertTagAtCursor) {
         textareaRef.current.insertTagAtCursor(nodeInfo);
 
@@ -312,8 +313,21 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   );
 
   const handleTagDragStart = useCallback((e, nodeInfo) => {
+    console.log('🔥 標籤開始拖曳:', nodeInfo);
+
+    // 設置拖曳數據
     e.dataTransfer.setData('text/plain', JSON.stringify(nodeInfo));
     e.dataTransfer.effectAllowed = 'copy';
+
+    // 添加視覺反饋 - 使用拖曳時的透明度
+    e.target.style.opacity = '0.5';
+
+    console.log('🎯 拖曳數據已設置，效果:', e.dataTransfer.effectAllowed);
+  }, []);
+
+  const handleTagDragEnd = useCallback((e) => {
+    console.log('🏁 標籤拖曳結束');
+    e.target.style.opacity = '1';
   }, []);
 
   // 記憶化的事件處理函數
@@ -790,16 +804,16 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         isConnectable={isConnectable}
       />
 
-      {/* Input Panel */}
+      {/* Input Panel - 修復拖曳功能 */}
       {showInputPanel && connectionCount > 0 && activeTab === 'editor' && (
-        <div className='fixed inset-0 z-[9999]'>
+        <div className='fixed inset-0 z-[9998]'>
           <div
             className='absolute inset-0 bg-transparent pointer-events-auto'
             onClick={closeInputPanel}
           />
           <div
             ref={inputPanelRef}
-            className='absolute bg-white rounded-lg shadow-xl w-80 flex flex-col pointer-events-auto border border-gray-200 z-10'
+            className='absolute bg-white rounded-lg shadow-xl w-80 flex flex-col pointer-events-auto border border-gray-200 z-[9999]'
             style={{
               left: `${(data?.position?.x || 0) - 320}px`,
               top: `${data?.position?.y || 0}px`,
@@ -874,13 +888,17 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                 {filteredNodes.map((nodeInfo, index) => (
                   <div
                     key={`${nodeInfo.id}-${index}`}
-                    className='flex items-center px-3 py-2 rounded cursor-pointer text-white text-sm font-medium hover:opacity-80 transition-opacity mr-2 mb-2 w-full'
-                    style={{ backgroundColor: nodeInfo.color }}
+                    className='flex items-center px-3 py-2 rounded cursor-pointer text-white text-sm font-medium hover:opacity-80 transition-all duration-200 mr-2 mb-2 w-full select-none'
+                    style={{
+                      backgroundColor: nodeInfo.color,
+                      userSelect: 'none'
+                    }}
                     onClick={() => handleTagClick(nodeInfo)}
                     onDragStart={(e) => handleTagDragStart(e, nodeInfo)}
+                    onDragEnd={handleTagDragEnd}
                     draggable
                     title='點擊插入或拖拽到文字區域'>
-                    <span className='truncate'>
+                    <span className='truncate pointer-events-none'>
                       {nodeInfo.name} ({nodeInfo.id.slice(-3)})
                     </span>
                   </div>

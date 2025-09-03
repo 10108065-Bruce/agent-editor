@@ -34,12 +34,13 @@ const CombineTextEditor = forwardRef(
     const [isComposing, setIsComposing] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
     const [isRestoring, setIsRestoring] = useState(false);
+    const [isDragOver, setIsDragOver] = useState(false);
 
     // 關鍵修改：不再通過 state 管理內容，而是直接操作 DOM
     const isUpdatingFromExternal = useRef(false);
     const lastReportedValue = useRef('');
 
-    // 預設內容生成
+    // 默認內容生成
     const generateDefaultContent = useCallback(() => {
       return JSON.stringify(
         {
@@ -52,7 +53,7 @@ const CombineTextEditor = forwardRef(
       );
     }, [flowId]);
 
-    // 獲取編輯器的純文字內容（替換標籤為其代碼，排除x按鈕）
+    // 獲取編輯器的純文字內容（替換標籤為其代碼，排除×按鈕）
     const getEditorTextContent = useCallback(() => {
       if (!editorRef.current) return '';
 
@@ -142,7 +143,7 @@ const CombineTextEditor = forwardRef(
       return false;
     }, []);
 
-    // 在游標位置插入標籤
+    // 在游標位置插入標籤 - 修改為包含強制清理
     const insertTagAtCursor = useCallback(
       (tagInfo) => {
         if (!editorRef.current) return;
@@ -227,6 +228,17 @@ const CombineTextEditor = forwardRef(
         selection.removeAllRanges();
         selection.addRange(range);
 
+        // 立即清理所有拖拽視覺效果
+        const editor = editorRef.current;
+        if (editor) {
+          editor.style.outline = '';
+          editor.style.outlineOffset = '';
+          editor.style.backgroundColor = '';
+        }
+
+        // 強制重置拖拽狀態
+        setIsDragOver(false);
+
         // 通知內容變更
         handleContentChange();
 
@@ -278,6 +290,133 @@ const CombineTextEditor = forwardRef(
       },
       [handleContentChange]
     );
+
+    // 設置拖放事件監聽器 - 完整修復版本
+    useEffect(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      console.log('🎯 編輯器初始化拖放事件監聽');
+
+      // 確保編輯器層級正確
+      editor.style.position = 'relative';
+      editor.style.zIndex = '10001';
+
+      const handleDragOverCapture = (e) => {
+        console.log('🔍 編輯器接收到 dragover');
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+        setIsDragOver(true);
+
+        // 設置游標位置並添加視覺提示
+        const x = e.clientX;
+        const y = e.clientY;
+        setCursorPosition(x, y);
+      };
+
+      const handleDragEnterCapture = (e) => {
+        console.log('🔍 編輯器 dragenter');
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+      };
+
+      const handleDragLeaveCapture = (e) => {
+        console.log('🔍 編輯器 dragleave');
+        if (!editor.contains(e.relatedTarget)) {
+          setIsDragOver(false);
+          // 移除視覺提示
+          editor.style.outline = '';
+          editor.style.outlineOffset = '';
+          editor.style.backgroundColor = '';
+        }
+      };
+
+      const handleDropCapture = (e) => {
+        console.log('🎯 編輯器接收到 drop 事件！');
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        // 立即清理視覺效果的函數
+        const cleanupVisualEffects = () => {
+          editor.style.outline = '';
+          editor.style.outlineOffset = '';
+          editor.style.backgroundColor = '';
+        };
+
+        // 立即執行第一次清理
+        cleanupVisualEffects();
+
+        const dragData = e.dataTransfer.getData('text/plain');
+        console.log('📦 獲取到拖曳數據:', dragData);
+
+        if (dragData) {
+          try {
+            const nodeInfo = JSON.parse(dragData);
+            console.log('✨ 解析節點信息:', nodeInfo);
+
+            // 聚焦編輯器
+            editor.focus();
+
+            // 設置插入位置
+            const x = e.clientX;
+            const y = e.clientY;
+            setCursorPosition(x, y);
+
+            // 插入標籤
+            insertTagAtCursor(nodeInfo);
+
+            // 插入後再次確保清理
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 0);
+
+            // 額外的安全清理
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 100);
+
+            console.log('✅ 標籤插入成功');
+
+            // 顯示成功提示
+            if (typeof window !== 'undefined' && window.notify) {
+              window.notify({
+                message: `已插入 ${nodeInfo.name}`,
+                type: 'success',
+                duration: 2000
+              });
+            }
+          } catch (error) {
+            console.error('❌ 標籤插入失敗:', error);
+            // 錯誤時也要清理
+            cleanupVisualEffects();
+          }
+        } else {
+          // 沒有數據時也要清理
+          cleanupVisualEffects();
+        }
+      };
+
+      // 使用 capture 模式確保事件能被捕獲，優先級更高
+      editor.addEventListener('dragover', handleDragOverCapture, true);
+      editor.addEventListener('dragenter', handleDragEnterCapture, true);
+      editor.addEventListener('dragleave', handleDragLeaveCapture, true);
+      editor.addEventListener('drop', handleDropCapture, true);
+
+      return () => {
+        console.log('🧹 清理編輯器拖拽事件監聽');
+        editor.style.outline = '';
+        editor.style.outlineOffset = '';
+        editor.style.backgroundColor = '';
+
+        editor.removeEventListener('dragover', handleDragOverCapture, true);
+        editor.removeEventListener('dragenter', handleDragEnterCapture, true);
+        editor.removeEventListener('dragleave', handleDragLeaveCapture, true);
+        editor.removeEventListener('drop', handleDropCapture, true);
+      };
+    }, [setCursorPosition, insertTagAtCursor]);
 
     // 暴露給父組件的方法
     useImperativeHandle(ref, () => ({
@@ -331,7 +470,6 @@ const CombineTextEditor = forwardRef(
                 .writeText(tagData)
                 .then(() => {
                   const originalBg = tagElement.style.backgroundColor;
-                  // tagElement.style.backgroundColor = '#10B981';
                   setTimeout(() => {
                     tagElement.style.backgroundColor = originalBg;
                   }, 200);
@@ -386,15 +524,11 @@ const CombineTextEditor = forwardRef(
         editorRef.current.focus();
         setCursorPosition(x, y);
 
-        // Panel邏輯處理
-        if (shouldShowPanel && onShowPanel) {
-          if (showInputPanel) {
-            onShowPanel(false);
-          } else {
-            setTimeout(() => {
-              onShowPanel(true);
-            }, 500);
-          }
+        // Panel邏輯處理 - 修復：不要自動關閉 panel
+        if (shouldShowPanel && onShowPanel && !showInputPanel) {
+          setTimeout(() => {
+            onShowPanel(true);
+          }, 500);
         }
       },
       [
@@ -582,7 +716,7 @@ const CombineTextEditor = forwardRef(
       }
     }, [initialHtmlContent, isInitialized, getEditorTextContent]);
 
-    // 初始化預設內容
+    // 初始化默認內容
     useEffect(() => {
       if (
         !initialHtmlContent &&
@@ -620,7 +754,6 @@ const CombineTextEditor = forwardRef(
         !isFocused
       ) {
         // 只在失去焦點時才從外部更新內容
-
         isUpdatingFromExternal.current = true;
         editorRef.current.textContent = value;
         lastReportedValue.current = value;
@@ -737,40 +870,53 @@ const CombineTextEditor = forwardRef(
     }, [isFocused]);
 
     return (
-      <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning={true}
-        onInput={handleInput}
-        onClick={handleEditorClick}
-        onKeyDown={handleKeyDown}
-        onCompositionStart={handleCompositionStart}
-        onCompositionEnd={handleCompositionEnd}
-        className={`
-          w-full 
-          border 
-          border-gray-300 
-          rounded 
-          p-3 
-          text-sm 
-          resize-none 
-          overflow-auto 
-          min-h-[60px] 
-          max-h-[400px]
-          font-mono
-          ${isFocused ? 'z-50 shadow-md border-blue-400' : ''} 
-          ${className}
-        `}
-        style={{
-          fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace',
-          lineHeight: '1.5',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          ...props.style
-        }}
-        data-placeholder={placeholder}
-        {...props}
-      />
+      <>
+        <style>
+          {`
+            @keyframes blink {
+              0%, 50% { opacity: 1; }
+              51%, 100% { opacity: 0.3; }
+            }
+          `}
+        </style>
+        <div
+          ref={editorRef}
+          contentEditable
+          suppressContentEditableWarning={true}
+          onInput={handleInput}
+          onClick={handleEditorClick}
+          onKeyDown={handleKeyDown}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
+          className={`
+            w-full 
+            border 
+            border-gray-300 
+            rounded 
+            p-3 
+            text-sm 
+            resize-none 
+            overflow-auto 
+            min-h-[60px] 
+            max-h-[400px]
+            font-mono
+            ${isFocused ? 'z-50 shadow-md border-blue-400' : ''} 
+            ${isDragOver ? 'border-blue-500 border-2 shadow-lg' : ''}
+            ${className}
+          `}
+          style={{
+            fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace',
+            lineHeight: '1.5',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            position: 'relative',
+            zIndex: isDragOver ? 10001 : isFocused ? 10000 : 'auto',
+            ...props.style
+          }}
+          data-placeholder={placeholder}
+          {...props}
+        />
+      </>
     );
   }
 );
