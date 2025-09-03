@@ -374,7 +374,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
     const connectedEdges = edges.filter((edge) => edge.target === id);
     return connectedEdges.map((edge) => {
       const sourceNode = nodes.find((n) => n.id === edge.source);
-
       // 獲取節點顯示名稱
       const getNodeDisplayName = (sourceNode) => {
         if (!sourceNode) return 'Unknown';
@@ -386,7 +385,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
           case 'ai':
             return 'AI';
           case 'aim_ml':
-            return 'ML Node';
+            return `QOCA aim Node - ${edge.sourceHandle}`;
           case 'browserExtensionInput':
             return 'Browser Extension Input';
           case 'webhook_input':
@@ -395,8 +394,19 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             return 'Knowledge Retrieval';
           case 'extract_data':
             return 'Extract Data Node';
-          case 'line_webhook_input':
+          case 'line_webhook_input': {
+            if (edge.sourceHandle) {
+              // for each sourcenode.data.routers's router_id , if equal to edge.sourceHandle, return its name
+              const target = sourceNode.data?.output_handles?.find(
+                (name) => name === edge.sourceHandle
+              );
+              // append "Line Webhook Input - " before the name
+              if (target) {
+                return `Line Webhook Input - ${target}`;
+              }
+            }
             return 'Line Webhook Input';
+          }
           case 'httpRequest':
             return 'HTTP Request Node';
           case 'schedule_trigger':
@@ -407,8 +417,21 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             return 'Webhook Output Node';
           case 'browserExtensionOutput':
             return 'Browser Extension Output';
-          case 'router_switch':
+          case 'router_switch': {
+            // router switch 有許多的 output handle
+            // 需要根據 edge 的 sourceHandle 來決定名稱
+            if (edge.sourceHandle) {
+              // for each sourcenode.data.routers's router_id , if equal to edge.sourceHandle, return its name
+              const targetRouter = sourceNode.data?.routers?.find(
+                (router) => router.router_id === edge.sourceHandle
+              );
+              // append "Router Switch Node - " before the name
+              if (targetRouter && targetRouter.router_id) {
+                return `Router Switch Node - ${targetRouter.router_id}`;
+              }
+            }
             return 'Router Switch Node';
+          }
           default:
             return `${
               sourceNode.type.charAt(0).toUpperCase() + sourceNode.type.slice(1)
@@ -418,21 +441,34 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
 
       // 獲取節點標籤顏色
       const getNodeTagColor = (nodeName) => {
-        const colorMap = {
-          Input: '#0075FF',
-          AI: '#FFAA1E',
-          'Knowledge Retrieval': '#87CEEB',
-          'Browser Extension Input': '#1FCD28',
-          'Line Webhook Input': '#06C755',
-          'Extract Data Node': '#D97706',
-          'ML Node': '#098D7F',
-          'HTTP Request Node': '#F8D7DA',
-          'Schedule node': '#DCCAFA',
-          'Webhook Input Node': '#FC6165',
-          'Combine Text Node': '#4E7ECF',
-          'Router Switch Node': '#00ced1'
-        };
-        return colorMap[nodeName] || '#6b7280';
+        // 轉換為小寫進行不區分大小寫的匹配
+        const lowerNodeName = nodeName.toLowerCase();
+
+        // 按優先級排序的顏色映射（更具體的關鍵詞放在前面避免衝突）
+        const colorMap = [
+          { keyword: 'browser extension input', color: '#1FCD28' },
+          { keyword: 'line webhook input', color: '#06C755' },
+          { keyword: 'webhook input node', color: '#FC6165' },
+          { keyword: 'extract data node', color: '#D97706' },
+          { keyword: 'http request node', color: '#F8D7DA' },
+          { keyword: 'combine text node', color: '#4E7ECF' },
+          { keyword: 'router switch node', color: '#00ced1' },
+          { keyword: 'schedule node', color: '#DCCAFA' },
+          { keyword: 'knowledge retrieval', color: '#87CEEB' },
+          { keyword: 'qoca aim node', color: '#098D7F' },
+          { keyword: 'input', color: '#0075FF' },
+          { keyword: 'ai', color: '#FFAA1E' }
+        ];
+
+        // 遍歷顏色映射，找到第一個匹配的關鍵詞
+        for (const { keyword, color } of colorMap) {
+          if (lowerNodeName.includes(keyword)) {
+            return color;
+          }
+        }
+
+        // 如果沒有找到匹配的關鍵詞，返回預設顏色
+        return '#6b7280';
       };
 
       const nodeName = getNodeDisplayName(sourceNode);
