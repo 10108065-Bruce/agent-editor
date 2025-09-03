@@ -295,7 +295,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   // 記憶化的標籤處理函數
   const handleTagClick = useCallback(
     (nodeInfo) => {
-      console.log('標籤被點擊:', nodeInfo);
       if (textareaRef.current && textareaRef.current.insertTagAtCursor) {
         textareaRef.current.insertTagAtCursor(nodeInfo);
 
@@ -313,20 +312,15 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   );
 
   const handleTagDragStart = useCallback((e, nodeInfo) => {
-    console.log('🔥 標籤開始拖曳:', nodeInfo);
-
     // 設置拖曳數據
     e.dataTransfer.setData('text/plain', JSON.stringify(nodeInfo));
     e.dataTransfer.effectAllowed = 'copy';
 
     // 添加視覺反饋 - 使用拖曳時的透明度
     e.target.style.opacity = '0.5';
-
-    console.log('🎯 拖曳數據已設置，效果:', e.dataTransfer.effectAllowed);
   }, []);
 
   const handleTagDragEnd = useCallback((e) => {
-    console.log('🏁 標籤拖曳結束');
     e.target.style.opacity = '1';
   }, []);
 
@@ -475,7 +469,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
 
     // 只在內容真的改變時才輸出 log
     if (displayContent !== lastRenderContentRef.current) {
-      console.log('Preview 內容更新:', displayContent?.substring(0, 100));
       lastRenderContentRef.current = displayContent;
     }
 
@@ -485,8 +478,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   // 初始化
   useEffect(() => {
     if (!isInitialized && data) {
-      console.log('執行一次性初始化同步');
-
       const initialContent = data.textToCombine || '';
       stableContentRef.current = initialContent;
       lastRenderContentRef.current = initialContent; // 初始化 lastRenderContentRef

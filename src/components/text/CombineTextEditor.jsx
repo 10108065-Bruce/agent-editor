@@ -296,14 +296,11 @@ const CombineTextEditor = forwardRef(
       const editor = editorRef.current;
       if (!editor) return;
 
-      console.log('🎯 編輯器初始化拖放事件監聽');
-
       // 確保編輯器層級正確
       editor.style.position = 'relative';
       editor.style.zIndex = '10001';
 
       const handleDragOverCapture = (e) => {
-        console.log('🔍 編輯器接收到 dragover');
         e.preventDefault();
         e.stopPropagation();
         e.dataTransfer.dropEffect = 'copy';
@@ -316,14 +313,12 @@ const CombineTextEditor = forwardRef(
       };
 
       const handleDragEnterCapture = (e) => {
-        console.log('🔍 編輯器 dragenter');
         e.preventDefault();
         e.stopPropagation();
         setIsDragOver(true);
       };
 
       const handleDragLeaveCapture = (e) => {
-        console.log('🔍 編輯器 dragleave');
         if (!editor.contains(e.relatedTarget)) {
           setIsDragOver(false);
           // 移除視覺提示
@@ -334,7 +329,6 @@ const CombineTextEditor = forwardRef(
       };
 
       const handleDropCapture = (e) => {
-        console.log('🎯 編輯器接收到 drop 事件！');
         e.preventDefault();
         e.stopPropagation();
         setIsDragOver(false);
@@ -350,12 +344,10 @@ const CombineTextEditor = forwardRef(
         cleanupVisualEffects();
 
         const dragData = e.dataTransfer.getData('text/plain');
-        console.log('📦 獲取到拖曳數據:', dragData);
 
         if (dragData) {
           try {
             const nodeInfo = JSON.parse(dragData);
-            console.log('✨ 解析節點信息:', nodeInfo);
 
             // 聚焦編輯器
             editor.focus();
@@ -377,8 +369,6 @@ const CombineTextEditor = forwardRef(
             setTimeout(() => {
               cleanupVisualEffects();
             }, 100);
-
-            console.log('✅ 標籤插入成功');
 
             // 顯示成功提示
             if (typeof window !== 'undefined' && window.notify) {
@@ -406,7 +396,6 @@ const CombineTextEditor = forwardRef(
       editor.addEventListener('drop', handleDropCapture, true);
 
       return () => {
-        console.log('🧹 清理編輯器拖拽事件監聽');
         editor.style.outline = '';
         editor.style.outlineOffset = '';
         editor.style.backgroundColor = '';
