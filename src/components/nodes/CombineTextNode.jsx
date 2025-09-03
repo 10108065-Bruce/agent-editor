@@ -425,11 +425,11 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               const targetRouter = sourceNode.data?.routers?.find(
                 (router) => router.router_id === edge.sourceHandle
               );
-              console.log(targetRouter);
               // append "Router Switch Node - " before the name
-              if (targetRouter && targetRouter.router_id) {
+              if (targetRouter && targetRouter.router_name) {
                 return `Router Switch Node - ${targetRouter.router_name}`;
               }
+              return 'Router Switch Node';
             }
             return 'Router Switch Node';
           }
