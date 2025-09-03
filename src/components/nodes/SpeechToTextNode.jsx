@@ -264,7 +264,7 @@ const SpeechToTextNode = ({ data, isConnectable, id }) => {
       <Handle
         type='source'
         position={Position.Right}
-        id='output'
+        id='text'
         style={{
           background: '#e5e7eb',
           border: '1px solid #D3D3D3',
