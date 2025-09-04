@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "30a748f52924dee131845b528e8fe894f876f800", "VITE_APP_BUILD_TIME": "2025-09-03T08:24:00.407Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.21"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T02:23:36.086Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.22"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26818,135 +26818,7 @@ class WorkflowAPIService {
         throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
       }
 
-      const data = [
-        {
-          id: 1,
-          display_name: 'Input',
-          category: 'emitter',
-          operator: 'basic_input',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 2,
-          display_name: 'AI',
-          category: 'processor',
-          operator: 'ask_ai',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 3,
-          display_name: 'Knowledge Retrieval',
-          category: 'processor',
-          operator: 'knowledge_retrieval',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 4,
-          display_name: 'Browser Extension input',
-          category: 'flow_starter',
-          operator: 'browser_extension_input',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 5,
-          display_name: 'Browser Extension output',
-          category: 'flow_end',
-          operator: 'browser_extension_output',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 6,
-          display_name: 'LINE',
-          category: 'flow_starter',
-          operator: 'line_webhook_input',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 7,
-          display_name: 'Send Message',
-          category: 'flow_end',
-          operator: 'line_send_message',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 8,
-          display_name: 'Extract Data',
-          category: 'processor',
-          operator: 'extract_data',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 9,
-          display_name: 'QOCA aim',
-          category: 'processor',
-          operator: 'aim_ml',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 10,
-          display_name: 'HTTP',
-          category: 'dynamic',
-          operator: 'http_request',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 11,
-          display_name: 'Schedule',
-          category: 'flow_starter',
-          operator: 'schedule_trigger',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 12,
-          display_name: 'Webhook',
-          category: 'flow_starter',
-          operator: 'webhook_input',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 13,
-          display_name: 'Output',
-          category: 'flow_end',
-          operator: 'webhook_output',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 14,
-          display_name: 'Combine Text',
-          category: 'processor',
-          operator: 'combine_text',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 15,
-          display_name: 'Router Switch',
-          category: 'processor',
-          operator: 'router_switch',
-          created_at: '2025-09-01T02:08:18.124065+00:00',
-          updated_at: '2025-09-01T02:08:18.124065+00:00'
-        },
-        {
-          id: 16,
-          display_name: 'Speech to Text',
-          category: 'processor',
-          operator: 'speech_to_text',
-          created_at: '2025-09-01T02:08:18.124065+00:00'
-        }
-      ]; //await response.json();
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error('取得節點清單失敗:', error);
@@ -42401,6 +42273,19 @@ class IFrameBridgeService {
    */
   isDuplicateMessage(message) {
     if (!message || !message.type) return false;
+
+    // 對於 READY 消息，使用更嚴格的檢查
+    if (message.type === 'READY') {
+      const now = Date.now();
+      const lastReadyTime = this.lastReadyMessageTime || 0;
+
+      if (now - lastReadyTime < 5000) {
+        // 5秒內不允許重複發送
+        return true;
+      }
+
+      this.lastReadyMessageTime = now;
+    }
 
     const messageKey = `${message.type}-${message.timestamp || Date.now()}`;
     const now = Date.now();
