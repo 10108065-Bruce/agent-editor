@@ -36,6 +36,10 @@ const CombineTextEditor = forwardRef(
     const [isRestoring, setIsRestoring] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
 
+    // 內部 tag 拖曳相關的 state 和 ref
+    const draggedElementRef = useRef(null);
+    const isInternalDrag = useRef(false);
+
     // 關鍵修改：不再通過 state 管理內容，而是直接操作 DOM
     const isUpdatingFromExternal = useRef(false);
     const lastReportedValue = useRef('');
@@ -88,7 +92,7 @@ const CombineTextEditor = forwardRef(
       return content;
     }, []);
 
-    // 處理內容變更 - 重新設計，避免重新設置 DOM 內容
+    // 處理內容變更
     const handleContentChange = useCallback(() => {
       if (isComposing || isRestoring || isUpdatingFromExternal.current) return;
 
@@ -143,7 +147,7 @@ const CombineTextEditor = forwardRef(
       return false;
     }, []);
 
-    // 在游標位置插入標籤 - 修改為包含強制清理
+    // 在游標位置插入標籤
     const insertTagAtCursor = useCallback(
       (tagInfo) => {
         if (!editorRef.current) return;
@@ -185,6 +189,9 @@ const CombineTextEditor = forwardRef(
         tagElement.className = 'inline-tag';
         tagElement.setAttribute('data-tag-id', newTag.id);
         tagElement.setAttribute('data-tag-data', newTag.data);
+        tagElement.setAttribute('data-tag-name', newTag.name);
+        tagElement.setAttribute('data-tag-color', newTag.color);
+        tagElement.draggable = true;
         tagElement.style.cssText = `
           display: inline-block;
           background-color: ${newTag.color};
@@ -194,7 +201,7 @@ const CombineTextEditor = forwardRef(
           border-radius: 6px;
           font-size: 12px;
           font-weight: 500;
-          cursor: pointer;
+          cursor: move;
           white-space: nowrap;
           user-select: none;
           box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -228,7 +235,7 @@ const CombineTextEditor = forwardRef(
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // 立即清理所有拖拽視覺效果
+        // 清理視覺效果
         const editor = editorRef.current;
         if (editor) {
           editor.style.outline = '';
@@ -236,13 +243,9 @@ const CombineTextEditor = forwardRef(
           editor.style.backgroundColor = '';
         }
 
-        // 強制重置拖拽狀態
         setIsDragOver(false);
-
-        // 通知內容變更
         handleContentChange();
 
-        // 通知父組件標籤已插入
         if (onTagInsert) {
           onTagInsert(newTag);
         }
@@ -260,6 +263,7 @@ const CombineTextEditor = forwardRef(
         const expectedTagData = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
         const tagElements = editorRef.current.querySelectorAll('.inline-tag');
         let removedCount = 0;
+
         tagElements.forEach((tagElement) => {
           const tagData = tagElement.getAttribute('data-tag-data');
 
@@ -295,7 +299,6 @@ const CombineTextEditor = forwardRef(
           }
         });
 
-        // 如果有tag被移除，觸發內容變化
         if (removedCount > 0) {
           handleContentChange();
           console.log(`成功清理 ${removedCount} 個tag`);
@@ -345,105 +348,226 @@ const CombineTextEditor = forwardRef(
       [handleContentChange]
     );
 
-    // 設置拖放事件監聽器 - 完整修復版本
-    useEffect(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
+    // 處理內部 tag 的拖曳開始
+    const handleInternalTagDragStart = useCallback((e) => {
+      const tagElement = e.target.closest('.inline-tag');
+      if (!tagElement || !editorRef.current?.contains(tagElement)) return;
 
-      // 確保編輯器層級正確
-      editor.style.position = 'relative';
-      editor.style.zIndex = '10001';
+      // 記錄被拖曳的元素
+      draggedElementRef.current = tagElement;
+      isInternalDrag.current = true;
 
-      const handleDragOverCapture = (e) => {
+      // 設置拖曳數據
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData(
+        'text/plain',
+        JSON.stringify({
+          type: 'internal-tag',
+          id: tagElement.getAttribute('data-tag-id'),
+          data: tagElement.getAttribute('data-tag-data'),
+          name: tagElement.getAttribute('data-tag-name'),
+          color: tagElement.getAttribute('data-tag-color')
+        })
+      );
+
+      // 視覺反饋
+      tagElement.style.opacity = '0.5';
+    }, []);
+
+    // 處理內部 tag 的拖曳結束
+    const handleInternalTagDragEnd = useCallback((e) => {
+      const tagElement = e.target.closest('.inline-tag');
+      if (tagElement) {
+        tagElement.style.opacity = '1';
+      }
+      draggedElementRef.current = null;
+      isInternalDrag.current = false;
+    }, []);
+
+    // 處理拖曳經過
+    const handleDragOverCapture = useCallback(
+      (e) => {
         e.preventDefault();
         e.stopPropagation();
-        e.dataTransfer.dropEffect = 'copy';
+        e.dataTransfer.dropEffect = 'move';
         setIsDragOver(true);
 
-        // 設置游標位置並添加視覺提示
+        // 設置游標位置
         const x = e.clientX;
         const y = e.clientY;
         setCursorPosition(x, y);
-      };
+      },
+      [setCursorPosition]
+    );
 
-      const handleDragEnterCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(true);
-      };
+    // 處理拖曳進入
+    const handleDragEnterCapture = useCallback((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(true);
+    }, []);
 
-      const handleDragLeaveCapture = (e) => {
-        if (!editor.contains(e.relatedTarget)) {
-          setIsDragOver(false);
-          // 移除視覺提示
-          editor.style.outline = '';
-          editor.style.outlineOffset = '';
-          editor.style.backgroundColor = '';
+    // 處理拖曳離開
+    const handleDragLeaveCapture = useCallback((e) => {
+      if (!editorRef.current?.contains(e.relatedTarget)) {
+        setIsDragOver(false);
+        if (editorRef.current) {
+          editorRef.current.style.outline = '';
+          editorRef.current.style.outlineOffset = '';
+          editorRef.current.style.backgroundColor = '';
         }
-      };
+      }
+    }, []);
 
-      const handleDropCapture = (e) => {
+    // 處理放下
+    const handleDropCapture = useCallback(
+      (e) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragOver(false);
 
-        // 立即清理視覺效果的函數
-        const cleanupVisualEffects = () => {
-          editor.style.outline = '';
-          editor.style.outlineOffset = '';
-          editor.style.backgroundColor = '';
-        };
+        const editor = editorRef.current;
+        if (!editor) return;
 
-        // 立即執行第一次清理
-        cleanupVisualEffects();
+        // 清理視覺效果
+        editor.style.outline = '';
+        editor.style.outlineOffset = '';
+        editor.style.backgroundColor = '';
 
         const dragData = e.dataTransfer.getData('text/plain');
+        if (!dragData) return;
 
-        if (dragData) {
-          try {
-            const nodeInfo = JSON.parse(dragData);
+        try {
+          const data = JSON.parse(dragData);
 
-            // 聚焦編輯器
+          // 設置游標位置
+          const x = e.clientX;
+          const y = e.clientY;
+          setCursorPosition(x, y);
+
+          if (
+            data.type === 'internal-tag' &&
+            isInternalDrag.current &&
+            draggedElementRef.current
+          ) {
+            // 內部拖曳：移動現有的 tag
+            const draggedElement = draggedElementRef.current;
+            const selection = window.getSelection();
+
+            if (selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+
+              // 檢查是否拖到了相同位置
+              if (
+                range.startContainer === draggedElement.parentNode &&
+                range.startOffset ===
+                  Array.from(draggedElement.parentNode.childNodes).indexOf(
+                    draggedElement
+                  )
+              ) {
+                draggedElement.style.opacity = '1';
+                draggedElementRef.current = null;
+                isInternalDrag.current = false;
+                return;
+              }
+
+              // 從原位置移除（保留元素）
+              const nextSibling = draggedElement.nextSibling;
+              const parent = draggedElement.parentNode;
+              draggedElement.remove();
+
+              // 清理原位置的空白
+              if (
+                nextSibling &&
+                nextSibling.nodeType === Node.TEXT_NODE &&
+                /^[\u00A0\s]*$/.test(nextSibling.nodeValue)
+              ) {
+                nextSibling.remove();
+              }
+
+              // 在新位置插入
+              try {
+                range.insertNode(draggedElement);
+
+                // 在後面加空格
+                const spaceNode = document.createTextNode('\u00A0');
+                draggedElement.after(spaceNode);
+
+                // 重置樣式
+                draggedElement.style.opacity = '1';
+
+                // 設置游標
+                range.setStartAfter(spaceNode);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                handleContentChange();
+              } catch (insertError) {
+                // 如果插入失敗，恢復到原位置
+                console.error('插入失敗，恢復原位置:', insertError);
+                if (parent && nextSibling) {
+                  parent.insertBefore(draggedElement, nextSibling);
+                } else if (parent) {
+                  parent.appendChild(draggedElement);
+                }
+                draggedElement.style.opacity = '1';
+              }
+            }
+
+            draggedElementRef.current = null;
+            isInternalDrag.current = false;
+          } else {
+            // 外部拖曳：插入新的 tag
             editor.focus();
+            insertTagAtCursor(data);
 
-            // 設置插入位置
-            const x = e.clientX;
-            const y = e.clientY;
-            setCursorPosition(x, y);
-
-            // 插入標籤
-            insertTagAtCursor(nodeInfo);
-
-            // 插入後再次確保清理
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 0);
-
-            // 額外的安全清理
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 100);
-
-            // 顯示成功提示
             if (typeof window !== 'undefined' && window.notify) {
               window.notify({
-                message: `已插入 ${nodeInfo.name}`,
+                message: `已插入 ${data.name}`,
                 type: 'success',
                 duration: 2000
               });
             }
-          } catch (error) {
-            console.error('❌ 標籤插入失敗:', error);
-            // 錯誤時也要清理
-            cleanupVisualEffects();
           }
-        } else {
-          // 沒有數據時也要清理
-          cleanupVisualEffects();
+        } catch (error) {
+          console.error('標籤操作失敗:', error);
+          if (draggedElementRef.current) {
+            draggedElementRef.current.style.opacity = '1';
+          }
+          draggedElementRef.current = null;
+          isInternalDrag.current = false;
+        }
+      },
+      [setCursorPosition, insertTagAtCursor, handleContentChange]
+    );
+
+    // 設置拖放事件監聽器
+    useEffect(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      editor.style.position = 'relative';
+      editor.style.zIndex = '10001';
+
+      // 使用事件委託處理內部 tag 的拖曳
+      const handleDragStartDelegate = (e) => {
+        const tagElement = e.target.closest('.inline-tag');
+        if (tagElement && editor.contains(tagElement)) {
+          handleInternalTagDragStart(e);
         }
       };
 
-      // 使用 capture 模式確保事件能被捕獲，優先級更高
+      const handleDragEndDelegate = (e) => {
+        const tagElement = e.target.closest('.inline-tag');
+        if (tagElement && editor.contains(tagElement)) {
+          handleInternalTagDragEnd(e);
+        }
+      };
+
+      // 綁定事件
+      editor.addEventListener('dragstart', handleDragStartDelegate, true);
+      editor.addEventListener('dragend', handleDragEndDelegate, true);
       editor.addEventListener('dragover', handleDragOverCapture, true);
       editor.addEventListener('dragenter', handleDragEnterCapture, true);
       editor.addEventListener('dragleave', handleDragLeaveCapture, true);
@@ -454,12 +578,21 @@ const CombineTextEditor = forwardRef(
         editor.style.outlineOffset = '';
         editor.style.backgroundColor = '';
 
+        editor.removeEventListener('dragstart', handleDragStartDelegate, true);
+        editor.removeEventListener('dragend', handleDragEndDelegate, true);
         editor.removeEventListener('dragover', handleDragOverCapture, true);
         editor.removeEventListener('dragenter', handleDragEnterCapture, true);
         editor.removeEventListener('dragleave', handleDragLeaveCapture, true);
         editor.removeEventListener('drop', handleDropCapture, true);
       };
-    }, [setCursorPosition, insertTagAtCursor]);
+    }, [
+      handleInternalTagDragStart,
+      handleInternalTagDragEnd,
+      handleDragOverCapture,
+      handleDragEnterCapture,
+      handleDragLeaveCapture,
+      handleDropCapture
+    ]);
 
     // 暴露給父組件的方法
     useImperativeHandle(
@@ -488,10 +621,9 @@ const CombineTextEditor = forwardRef(
             }, 500);
           }
         },
-        // 根據連接信息清理tag
         cleanupTagsByConnection: cleanupTagsByConnection
       }),
-      [cleanupTagsByConnection]
+      [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
     );
 
     // 處理編輯器點擊事件
@@ -500,7 +632,6 @@ const CombineTextEditor = forwardRef(
         const tagElement = e.target.closest('.inline-tag');
 
         if (tagElement) {
-          // 點擊標籤的邏輯
           const tagId = parseInt(tagElement.getAttribute('data-tag-id'));
           const tagData = tagElement.getAttribute('data-tag-data');
 
@@ -524,7 +655,6 @@ const CombineTextEditor = forwardRef(
                   }, 200);
                 })
                 .catch(() => {
-                  // 降級方案
                   const textArea = document.createElement('textarea');
                   textArea.value = tagData;
                   textArea.style.position = 'fixed';
@@ -560,20 +690,18 @@ const CombineTextEditor = forwardRef(
           }
         }
 
-        // 點擊空白區域的邏輯
+        // 點擊空白區域
         setSelectedTag(null);
         document.querySelectorAll('.inline-tag').forEach((tag) => {
           tag.style.boxShadow = '';
         });
 
-        // 設置游標位置
         const x = e.clientX;
         const y = e.clientY;
 
         editorRef.current.focus();
         setCursorPosition(x, y);
 
-        // Panel邏輯處理 - 修復：不要自動關閉 panel
         if (shouldShowPanel && onShowPanel && !showInputPanel) {
           setTimeout(() => {
             onShowPanel(true);
@@ -701,7 +829,6 @@ const CombineTextEditor = forwardRef(
     // 處理輸入
     const handleInput = useCallback(() => {
       if (!isComposing && !isRestoring && !isUpdatingFromExternal.current) {
-        // 使用 setTimeout 來延遲處理，避免阻塞輸入
         setTimeout(() => {
           handleContentChange();
         }, 0);
@@ -737,7 +864,12 @@ const CombineTextEditor = forwardRef(
 
         const tagElements = editorRef.current.querySelectorAll('.inline-tag');
         const restoredTags = [];
+
         tagElements.forEach((element) => {
+          // 確保恢復的 tag 可拖曳
+          element.draggable = true;
+          element.style.cursor = 'move';
+
           const tagId = parseInt(element.getAttribute('data-tag-id'));
           const tagData = element.getAttribute('data-tag-data');
           if (!isNaN(tagId) && tagData) {
@@ -793,7 +925,7 @@ const CombineTextEditor = forwardRef(
       isInitialized
     ]);
 
-    // 處理外部 value 變更 - 只在必要時更新 DOM
+    // 處理外部 value 變更
     useEffect(() => {
       if (
         isInitialized &&
@@ -802,7 +934,6 @@ const CombineTextEditor = forwardRef(
         !isUpdatingFromExternal.current &&
         !isFocused
       ) {
-        // 只在失去焦點時才從外部更新內容
         isUpdatingFromExternal.current = true;
         editorRef.current.textContent = value;
         lastReportedValue.current = value;
@@ -821,7 +952,6 @@ const CombineTextEditor = forwardRef(
       const handleFocus = () => setIsFocused(true);
       const handleBlur = () => {
         setIsFocused(false);
-        // 失焦時確保最後一次更新
         setTimeout(() => {
           if (!isUpdatingFromExternal.current) {
             handleContentChange();
