@@ -92,7 +92,7 @@ const CombineTextEditor = forwardRef(
       return content;
     }, []);
 
-    // 處理內容變更
+    // 處理內容變更 - 重新設計，避免重新設置 DOM 內容
     const handleContentChange = useCallback(() => {
       if (isComposing || isRestoring || isUpdatingFromExternal.current) return;
 
@@ -147,7 +147,7 @@ const CombineTextEditor = forwardRef(
       return false;
     }, []);
 
-    // 在游標位置插入標籤
+    // 在游標位置插入標籤 - 修改為包含強制清理
     const insertTagAtCursor = useCallback(
       (tagInfo) => {
         if (!editorRef.current) return;
@@ -235,7 +235,7 @@ const CombineTextEditor = forwardRef(
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // 清理視覺效果
+        // 立即清理所有拖拽視覺效果
         const editor = editorRef.current;
         if (editor) {
           editor.style.outline = '';
@@ -243,9 +243,13 @@ const CombineTextEditor = forwardRef(
           editor.style.backgroundColor = '';
         }
 
+        // 強制重置拖拽狀態
         setIsDragOver(false);
+
+        // 通知內容變更
         handleContentChange();
 
+        // 通知父組件標籤已插入
         if (onTagInsert) {
           onTagInsert(newTag);
         }
@@ -621,6 +625,7 @@ const CombineTextEditor = forwardRef(
             }, 500);
           }
         },
+        // 根據連接信息清理tag
         cleanupTagsByConnection: cleanupTagsByConnection
       }),
       [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
@@ -632,6 +637,7 @@ const CombineTextEditor = forwardRef(
         const tagElement = e.target.closest('.inline-tag');
 
         if (tagElement) {
+          // 點擊標籤的邏輯
           const tagId = parseInt(tagElement.getAttribute('data-tag-id'));
           const tagData = tagElement.getAttribute('data-tag-data');
 
@@ -655,6 +661,7 @@ const CombineTextEditor = forwardRef(
                   }, 200);
                 })
                 .catch(() => {
+                  // 降級方案
                   const textArea = document.createElement('textarea');
                   textArea.value = tagData;
                   textArea.style.position = 'fixed';
@@ -690,18 +697,20 @@ const CombineTextEditor = forwardRef(
           }
         }
 
-        // 點擊空白區域
+        // 點擊空白區域的邏輯
         setSelectedTag(null);
         document.querySelectorAll('.inline-tag').forEach((tag) => {
           tag.style.boxShadow = '';
         });
 
+        // 設置游標位置
         const x = e.clientX;
         const y = e.clientY;
 
         editorRef.current.focus();
         setCursorPosition(x, y);
 
+        // Panel邏輯處理 - 修復：不要自動關閉 panel
         if (shouldShowPanel && onShowPanel && !showInputPanel) {
           setTimeout(() => {
             onShowPanel(true);
@@ -829,6 +838,7 @@ const CombineTextEditor = forwardRef(
     // 處理輸入
     const handleInput = useCallback(() => {
       if (!isComposing && !isRestoring && !isUpdatingFromExternal.current) {
+        // 使用 setTimeout 來延遲處理，避免阻塞輸入
         setTimeout(() => {
           handleContentChange();
         }, 0);
@@ -925,7 +935,7 @@ const CombineTextEditor = forwardRef(
       isInitialized
     ]);
 
-    // 處理外部 value 變更
+    // 處理外部 value 變更 - 只在必要時更新 DOM
     useEffect(() => {
       if (
         isInitialized &&
@@ -934,6 +944,7 @@ const CombineTextEditor = forwardRef(
         !isUpdatingFromExternal.current &&
         !isFocused
       ) {
+        // 只在失去焦點時才從外部更新內容
         isUpdatingFromExternal.current = true;
         editorRef.current.textContent = value;
         lastReportedValue.current = value;
@@ -952,6 +963,7 @@ const CombineTextEditor = forwardRef(
       const handleFocus = () => setIsFocused(true);
       const handleBlur = () => {
         setIsFocused(false);
+        // 失焦時確保最後一次更新
         setTimeout(() => {
           if (!isUpdatingFromExternal.current) {
             handleContentChange();
