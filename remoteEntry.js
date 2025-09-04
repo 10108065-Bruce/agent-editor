@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-D1_MUiQ8.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-BmztMkqY.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16001,14 +16001,18 @@ const IFrameFlowEditor = () => {
   }, []);
   useEffect$1(() => {
     console.log("IFrameFlowEditor: 註冊事件處理器");
-    iframeBridge.off("loadWorkflow", handleLoadWorkflow);
-    iframeBridge.off("downloadRequest", handleDownloadRequest);
-    iframeBridge.off("tokenReceived", handleTokenReceived);
-    iframeBridge.off("saveWorkflow", handleSaveWorkflow);
     iframeBridge.on("loadWorkflow", handleLoadWorkflow);
     iframeBridge.on("saveWorkflow", handleSaveWorkflow);
     iframeBridge.on("downloadRequest", handleDownloadRequest);
     iframeBridge.on("tokenReceived", handleTokenReceived);
+    return () => {
+      iframeBridge.off("loadWorkflow", handleLoadWorkflow);
+      iframeBridge.off("saveWorkflow", handleSaveWorkflow);
+      iframeBridge.off("downloadRequest", handleDownloadRequest);
+      iframeBridge.off("tokenReceived", handleTokenReceived);
+    };
+  }, []);
+  useEffect$1(() => {
     eventsRegistered.current = true;
     const pendingToken = localStorage.getItem("pending_token");
     if (pendingToken && flowEditorRef.current) {
@@ -16029,20 +16033,21 @@ const IFrameFlowEditor = () => {
     handleTokenReceived,
     handleSaveWorkflow
   ]);
+  const [readyMessageSent, setReadyMessageSent] = useState$1(false);
   useEffect$1(() => {
-    let readyTimer;
-    readyTimer = setTimeout(() => {
-      console.log("IFrameFlowEditor: 重新發送 READY 消息");
-      iframeBridge.sendToParent({
-        type: "READY",
-        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-        status: "initialized"
-      });
-    }, 1e3);
-    return () => {
-      if (readyTimer) clearTimeout(readyTimer);
-    };
-  }, [validateRequiredData]);
+    if (!readyMessageSent) {
+      const readyTimer = setTimeout(() => {
+        console.log("IFrameFlowEditor: 發送 READY 消息");
+        iframeBridge.sendToParent({
+          type: "READY",
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          status: "initialized"
+        });
+        setReadyMessageSent(true);
+      }, 1e3);
+      return () => clearTimeout(readyTimer);
+    }
+  }, []);
   useEffect$1(() => {
     const checkFlowEditorRef = () => {
       if (flowEditorRef.current) {
