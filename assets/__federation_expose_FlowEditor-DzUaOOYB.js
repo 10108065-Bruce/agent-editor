@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T05:29:22.012Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.27"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T05:44:15.943Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.28"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -43470,7 +43470,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     }
     const cacheKey = "nodeListCache";
     const cacheTimeKey = "nodeListCacheTime";
-    const cacheExpiry = 3 * 60 * 1e3;
+    const cacheExpiry = 1 * 60 * 1e3;
     try {
       const cached = localStorage.getItem(cacheKey);
       const cacheTime = localStorage.getItem(cacheTimeKey);
@@ -43537,7 +43537,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       });
     } else {
       globalNodeListPromise.then((data) => {
-        console.log(`[${effectId}] 等待中的載入請求完成`);
         if (data) {
           setNodeList(data);
           setNodeListLoading(false);
