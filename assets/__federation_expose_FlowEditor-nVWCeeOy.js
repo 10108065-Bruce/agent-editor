@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T02:27:05.413Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.23"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T02:47:37.367Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.24"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -42274,19 +42274,6 @@ class IFrameBridgeService {
   isDuplicateMessage(message) {
     if (!message || !message.type) return false;
 
-    // 對於 READY 消息，使用更嚴格的檢查
-    if (message.type === 'READY') {
-      const now = Date.now();
-      const lastReadyTime = this.lastReadyMessageTime || 0;
-
-      if (now - lastReadyTime < 5000) {
-        // 5秒內不允許重複發送
-        return true;
-      }
-
-      this.lastReadyMessageTime = now;
-    }
-
     const messageKey = `${message.type}-${message.timestamp || Date.now()}`;
     const now = Date.now();
 
@@ -43464,6 +43451,23 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     }
   }, []);
   const loadNodeList = useCallback(async () => {
+    const cacheKey = "nodeListCache";
+    const cacheTimeKey = "nodeListCacheTime";
+    const cacheExpiry = 5 * 60 * 1e3;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      const cacheTime = localStorage.getItem(cacheTimeKey);
+      if (cached && cacheTime) {
+        const isExpired = Date.now() - parseInt(cacheTime) > cacheExpiry;
+        if (!isExpired) {
+          console.log("使用緩存的節點清單");
+          setNodeList(JSON.parse(cached));
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn("讀取緩存失敗:", error);
+    }
     if (nodeListLoadedRef.current) {
       return;
     }
@@ -43471,19 +43475,19 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       setNodeListLoading(true);
       setNodeListError(null);
       nodeListLoadedRef.current = true;
+      console.log("從 API 載入節點清單...");
       const nodeListData = await workflowAPIService.getNodeList();
       setNodeList(nodeListData);
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
+        localStorage.setItem(cacheTimeKey, Date.now().toString());
+      } catch (error) {
+        console.warn("緩存節點清單失敗:", error);
+      }
     } catch (error) {
       console.error("載入節點清單失敗:", error);
-      setNodeListError(error.message || "載入節點清單失敗");
       nodeListLoadedRef.current = false;
-      if (typeof window !== "undefined" && window.notify) {
-        window.notify({
-          message: "載入節點清單失敗，將使用預設清單",
-          type: "warning",
-          duration: 3e3
-        });
-      }
+      setNodeListError(error.message || "載入節點清單失敗");
       setNodeList([]);
     } finally {
       setNodeListLoading(false);
