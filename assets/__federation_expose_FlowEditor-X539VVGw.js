@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T05:44:15.943Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.28"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "84d10146e4c243ebc6b6464dac98a59b10422002", "VITE_APP_BUILD_TIME": "2025-09-04T06:55:15.226Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.29"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -39243,6 +39243,8 @@ const CombineTextEditor = forwardRef$1(
     const [isInitialized, setIsInitialized] = useState$9(false);
     const [isRestoring, setIsRestoring] = useState$9(false);
     const [isDragOver, setIsDragOver] = useState$9(false);
+    const draggedElementRef = useRef$5(null);
+    const isInternalDrag = useRef$5(false);
     const isUpdatingFromExternal = useRef$5(false);
     const lastReportedValue = useRef$5("");
     const generateDefaultContent = useCallback$5(() => {
@@ -39353,6 +39355,9 @@ const CombineTextEditor = forwardRef$1(
         tagElement.className = "inline-tag";
         tagElement.setAttribute("data-tag-id", newTag.id);
         tagElement.setAttribute("data-tag-data", newTag.data);
+        tagElement.setAttribute("data-tag-name", newTag.name);
+        tagElement.setAttribute("data-tag-color", newTag.color);
+        tagElement.draggable = true;
         tagElement.style.cssText = `
           display: inline-block;
           background-color: ${newTag.color};
@@ -39362,7 +39367,7 @@ const CombineTextEditor = forwardRef$1(
           border-radius: 6px;
           font-size: 12px;
           font-weight: 500;
-          cursor: pointer;
+          cursor: move;
           white-space: nowrap;
           user-select: none;
           box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -39458,73 +39463,158 @@ const CombineTextEditor = forwardRef$1(
       },
       [handleContentChange]
     );
+    const handleInternalTagDragStart = useCallback$5((e) => {
+      const tagElement = e.target.closest(".inline-tag");
+      if (!tagElement || !editorRef.current?.contains(tagElement)) return;
+      draggedElementRef.current = tagElement;
+      isInternalDrag.current = true;
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData(
+        "text/plain",
+        JSON.stringify({
+          type: "internal-tag",
+          id: tagElement.getAttribute("data-tag-id"),
+          data: tagElement.getAttribute("data-tag-data"),
+          name: tagElement.getAttribute("data-tag-name"),
+          color: tagElement.getAttribute("data-tag-color")
+        })
+      );
+      tagElement.style.opacity = "0.5";
+    }, []);
+    const handleInternalTagDragEnd = useCallback$5((e) => {
+      const tagElement = e.target.closest(".inline-tag");
+      if (tagElement) {
+        tagElement.style.opacity = "1";
+      }
+      draggedElementRef.current = null;
+      isInternalDrag.current = false;
+    }, []);
+    const handleDragOverCapture = useCallback$5(
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = "move";
+        setIsDragOver(true);
+        const x = e.clientX;
+        const y = e.clientY;
+        setCursorPosition(x, y);
+      },
+      [setCursorPosition]
+    );
+    const handleDragEnterCapture = useCallback$5((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(true);
+    }, []);
+    const handleDragLeaveCapture = useCallback$5((e) => {
+      if (!editorRef.current?.contains(e.relatedTarget)) {
+        setIsDragOver(false);
+        if (editorRef.current) {
+          editorRef.current.style.outline = "";
+          editorRef.current.style.outlineOffset = "";
+          editorRef.current.style.backgroundColor = "";
+        }
+      }
+    }, []);
+    const handleDropCapture = useCallback$5(
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+        const editor = editorRef.current;
+        if (!editor) return;
+        editor.style.outline = "";
+        editor.style.outlineOffset = "";
+        editor.style.backgroundColor = "";
+        const dragData = e.dataTransfer.getData("text/plain");
+        if (!dragData) return;
+        try {
+          const data = JSON.parse(dragData);
+          const x = e.clientX;
+          const y = e.clientY;
+          setCursorPosition(x, y);
+          if (data.type === "internal-tag" && isInternalDrag.current && draggedElementRef.current) {
+            const draggedElement = draggedElementRef.current;
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              if (range.startContainer === draggedElement.parentNode && range.startOffset === Array.from(draggedElement.parentNode.childNodes).indexOf(
+                draggedElement
+              )) {
+                draggedElement.style.opacity = "1";
+                draggedElementRef.current = null;
+                isInternalDrag.current = false;
+                return;
+              }
+              const nextSibling = draggedElement.nextSibling;
+              const parent = draggedElement.parentNode;
+              draggedElement.remove();
+              if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE && /^[\u00A0\s]*$/.test(nextSibling.nodeValue)) {
+                nextSibling.remove();
+              }
+              try {
+                range.insertNode(draggedElement);
+                const spaceNode = document.createTextNode(" ");
+                draggedElement.after(spaceNode);
+                draggedElement.style.opacity = "1";
+                range.setStartAfter(spaceNode);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                handleContentChange();
+              } catch (insertError) {
+                console.error("插入失敗，恢復原位置:", insertError);
+                if (parent && nextSibling) {
+                  parent.insertBefore(draggedElement, nextSibling);
+                } else if (parent) {
+                  parent.appendChild(draggedElement);
+                }
+                draggedElement.style.opacity = "1";
+              }
+            }
+            draggedElementRef.current = null;
+            isInternalDrag.current = false;
+          } else {
+            editor.focus();
+            insertTagAtCursor(data);
+            if (typeof window !== "undefined" && window.notify) {
+              window.notify({
+                message: `已插入 ${data.name}`,
+                type: "success",
+                duration: 2e3
+              });
+            }
+          }
+        } catch (error) {
+          console.error("標籤操作失敗:", error);
+          if (draggedElementRef.current) {
+            draggedElementRef.current.style.opacity = "1";
+          }
+          draggedElementRef.current = null;
+          isInternalDrag.current = false;
+        }
+      },
+      [setCursorPosition, insertTagAtCursor, handleContentChange]
+    );
     useEffect$6(() => {
       const editor = editorRef.current;
       if (!editor) return;
       editor.style.position = "relative";
       editor.style.zIndex = "10001";
-      const handleDragOverCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.dataTransfer.dropEffect = "copy";
-        setIsDragOver(true);
-        const x = e.clientX;
-        const y = e.clientY;
-        setCursorPosition(x, y);
-      };
-      const handleDragEnterCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(true);
-      };
-      const handleDragLeaveCapture = (e) => {
-        if (!editor.contains(e.relatedTarget)) {
-          setIsDragOver(false);
-          editor.style.outline = "";
-          editor.style.outlineOffset = "";
-          editor.style.backgroundColor = "";
+      const handleDragStartDelegate = (e) => {
+        const tagElement = e.target.closest(".inline-tag");
+        if (tagElement && editor.contains(tagElement)) {
+          handleInternalTagDragStart(e);
         }
       };
-      const handleDropCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(false);
-        const cleanupVisualEffects = () => {
-          editor.style.outline = "";
-          editor.style.outlineOffset = "";
-          editor.style.backgroundColor = "";
-        };
-        cleanupVisualEffects();
-        const dragData = e.dataTransfer.getData("text/plain");
-        if (dragData) {
-          try {
-            const nodeInfo = JSON.parse(dragData);
-            editor.focus();
-            const x = e.clientX;
-            const y = e.clientY;
-            setCursorPosition(x, y);
-            insertTagAtCursor(nodeInfo);
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 0);
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 100);
-            if (typeof window !== "undefined" && window.notify) {
-              window.notify({
-                message: `已插入 ${nodeInfo.name}`,
-                type: "success",
-                duration: 2e3
-              });
-            }
-          } catch (error) {
-            console.error("❌ 標籤插入失敗:", error);
-            cleanupVisualEffects();
-          }
-        } else {
-          cleanupVisualEffects();
+      const handleDragEndDelegate = (e) => {
+        const tagElement = e.target.closest(".inline-tag");
+        if (tagElement && editor.contains(tagElement)) {
+          handleInternalTagDragEnd(e);
         }
       };
+      editor.addEventListener("dragstart", handleDragStartDelegate, true);
+      editor.addEventListener("dragend", handleDragEndDelegate, true);
       editor.addEventListener("dragover", handleDragOverCapture, true);
       editor.addEventListener("dragenter", handleDragEnterCapture, true);
       editor.addEventListener("dragleave", handleDragLeaveCapture, true);
@@ -39533,12 +39623,21 @@ const CombineTextEditor = forwardRef$1(
         editor.style.outline = "";
         editor.style.outlineOffset = "";
         editor.style.backgroundColor = "";
+        editor.removeEventListener("dragstart", handleDragStartDelegate, true);
+        editor.removeEventListener("dragend", handleDragEndDelegate, true);
         editor.removeEventListener("dragover", handleDragOverCapture, true);
         editor.removeEventListener("dragenter", handleDragEnterCapture, true);
         editor.removeEventListener("dragleave", handleDragLeaveCapture, true);
         editor.removeEventListener("drop", handleDropCapture, true);
       };
-    }, [setCursorPosition, insertTagAtCursor]);
+    }, [
+      handleInternalTagDragStart,
+      handleInternalTagDragEnd,
+      handleDragOverCapture,
+      handleDragEnterCapture,
+      handleDragLeaveCapture,
+      handleDropCapture
+    ]);
     useImperativeHandle$1(
       ref,
       () => ({
@@ -39565,10 +39664,9 @@ const CombineTextEditor = forwardRef$1(
             }, 500);
           }
         },
-        // 根據連接信息清理tag
         cleanupTagsByConnection
       }),
-      [cleanupTagsByConnection]
+      [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
     );
     const handleEditorClick = useCallback$5(
       (e) => {
@@ -39759,6 +39857,8 @@ const CombineTextEditor = forwardRef$1(
         const tagElements = editorRef.current.querySelectorAll(".inline-tag");
         const restoredTags = [];
         tagElements.forEach((element) => {
+          element.draggable = true;
+          element.style.cursor = "move";
           const tagId = parseInt(element.getAttribute("data-tag-id"));
           const tagData = element.getAttribute("data-tag-data");
           if (!isNaN(tagId) && tagData) {
