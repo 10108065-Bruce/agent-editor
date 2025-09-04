@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T02:47:37.367Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.24"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T02:57:17.993Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.25"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -43291,7 +43291,7 @@ const ReactFlowWithControls = forwardRef(
         try {
           reactFlowInstance.fitView({
             padding,
-            // 邊緣留白，值越大顯示的節點佔比越小
+            // 邊緣留白，值越大顯示的節點体比越小
             maxZoom,
             // 限制最大縮放，防止縮放過大
             duration,
@@ -43382,6 +43382,15 @@ const ReactFlowWithControls = forwardRef(
   }
 );
 const getReactFlowNodeType = ([]);
+let globalNodeListLoaded = false;
+let globalNodeListPromise = null;
+let globalNodeListData = null;
+const resetGlobalNodeListState = () => {
+  console.log("重置全局節點清單狀態");
+  globalNodeListLoaded = false;
+  globalNodeListPromise = null;
+  globalNodeListData = null;
+};
 const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -43396,7 +43405,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   const [nodeList, setNodeList] = useState([]);
   const [nodeListLoading, setNodeListLoading] = useState(true);
   const [nodeListError, setNodeListError] = useState(null);
-  const nodeListLoadedRef = useRef(false);
   const {
     nodes,
     edges,
@@ -43451,53 +43459,136 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     }
   }, []);
   const loadNodeList = useCallback(async () => {
-    const cacheKey = "nodeListCache";
-    const cacheTimeKey = "nodeListCacheTime";
-    const cacheExpiry = 5 * 60 * 1e3;
+    const loadId = Date.now();
+    console.log(`[${loadId}] loadNodeList 被調用`, {
+      globalLoaded: globalNodeListLoaded,
+      hasPromise: !!globalNodeListPromise,
+      isIframe: window.self !== window.top,
+      pathname: window.location.pathname
+    });
+    if (globalNodeListPromise) {
+      console.log(`[${loadId}] 節點清單正在載入中，等待完成...`);
+      return globalNodeListPromise;
+    }
+    if (globalNodeListLoaded && globalNodeListData) {
+      console.log(`[${loadId}] 使用已載入的節點清單數據`);
+      setNodeList(globalNodeListData);
+      setNodeListLoading(false);
+      setNodeListError(null);
+      return globalNodeListData;
+    }
+    const cacheKey = "nodeListCache_v2";
+    const cacheTimeKey = "nodeListCacheTime_v2";
+    const cacheExpiry = 10 * 60 * 1e3;
     try {
       const cached = localStorage.getItem(cacheKey);
       const cacheTime = localStorage.getItem(cacheTimeKey);
       if (cached && cacheTime) {
         const isExpired = Date.now() - parseInt(cacheTime) > cacheExpiry;
         if (!isExpired) {
-          console.log("使用緩存的節點清單");
-          setNodeList(JSON.parse(cached));
-          return;
+          console.log(`[${loadId}] 使用緩存的節點清單`);
+          const cachedData = JSON.parse(cached);
+          setNodeList(cachedData);
+          setNodeListLoading(false);
+          setNodeListError(null);
+          globalNodeListLoaded = true;
+          globalNodeListData = cachedData;
+          return cachedData;
+        } else {
+          console.log(`[${loadId}] 緩存已過期，重新載入`);
         }
       }
     } catch (error) {
-      console.warn("讀取緩存失敗:", error);
+      console.warn(`[${loadId}] 讀取緩存失敗:`, error);
     }
-    if (nodeListLoadedRef.current) {
+    console.log(`[${loadId}] 開始從 API 載入節點清單...`);
+    globalNodeListPromise = (async () => {
+      try {
+        setNodeListLoading(true);
+        setNodeListError(null);
+        console.log(
+          `[${loadId}] 發送 API 請求到 workflowAPIService.getNodeList()`
+        );
+        const nodeListData = await workflowAPIService.getNodeList();
+        console.log(`[${loadId}] 節點清單載入成功:`, {
+          count: nodeListData?.length || 0,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        });
+        setNodeList(nodeListData);
+        globalNodeListLoaded = true;
+        globalNodeListData = nodeListData;
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
+          localStorage.setItem(cacheTimeKey, Date.now().toString());
+          console.log(`[${loadId}] 節點清單已緩存`);
+        } catch (error) {
+          console.warn(`[${loadId}] 緩存節點清單失敗:`, error);
+        }
+        return nodeListData;
+      } catch (error) {
+        console.error(`[${loadId}] 載入節點清單失敗:`, error);
+        setNodeListError(error.message || "載入節點清單失敗");
+        if (typeof window !== "undefined" && window.notify) {
+          window.notify({
+            message: "載入節點清單失敗，將使用預設清單",
+            type: "warning",
+            duration: 3e3
+          });
+        }
+        const defaultNodeList = [];
+        setNodeList(defaultNodeList);
+        globalNodeListData = defaultNodeList;
+        throw error;
+      } finally {
+        setNodeListLoading(false);
+        globalNodeListPromise = null;
+        console.log(
+          `[${loadId}] loadNodeList 完成，重置 globalNodeListPromise`
+        );
+      }
+    })();
+    return globalNodeListPromise;
+  }, []);
+  useEffect(() => {
+    const effectId = Date.now();
+    console.log(`[${effectId}] FlowEditor useEffect 執行`, {
+      globalLoaded: globalNodeListLoaded,
+      hasPromise: !!globalNodeListPromise,
+      hasGlobalData: !!globalNodeListData,
+      timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+      isIframe: window.self !== window.top,
+      pathname: window.location.pathname
+    });
+    if (globalNodeListLoaded && globalNodeListData) {
+      console.log(`[${effectId}] 使用全局已載入的數據`);
+      setNodeList(globalNodeListData);
+      setNodeListLoading(false);
+      setNodeListError(null);
       return;
     }
-    try {
-      setNodeListLoading(true);
-      setNodeListError(null);
-      nodeListLoadedRef.current = true;
-      console.log("從 API 載入節點清單...");
-      const nodeListData = await workflowAPIService.getNodeList();
-      setNodeList(nodeListData);
-      try {
-        localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
-        localStorage.setItem(cacheTimeKey, Date.now().toString());
-      } catch (error) {
-        console.warn("緩存節點清單失敗:", error);
-      }
-    } catch (error) {
-      console.error("載入節點清單失敗:", error);
-      nodeListLoadedRef.current = false;
-      setNodeListError(error.message || "載入節點清單失敗");
-      setNodeList([]);
-    } finally {
-      setNodeListLoading(false);
+    if (!globalNodeListPromise) {
+      console.log(`[${effectId}] 開始載入節點清單`);
+      loadNodeList().catch((error) => {
+        console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
+      });
+    } else {
+      console.log(`[${effectId}] 已有載入請求進行中，等待完成`);
+      globalNodeListPromise.then((data) => {
+        console.log(`[${effectId}] 等待中的載入請求完成`);
+        if (data) {
+          setNodeList(data);
+          setNodeListLoading(false);
+          setNodeListError(null);
+        }
+      }).catch((error) => {
+        console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
+      });
     }
   }, []);
   useEffect(() => {
-    if (!nodeListLoadedRef.current) {
-      console.log("FlowEditor 首次掛載，開始載入節點清單");
-      loadNodeList();
-    }
+    return () => {
+      console.log("FlowEditor 組件卸載");
+    };
   }, []);
   const toggleSidebar = useCallback(() => {
     setSidebarVisible((prev) => !prev);
@@ -43636,27 +43727,13 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
         reactFlowControlsRef.current.fitViewToNodes();
       }
+    },
+    // 暴露重新載入節點清單的方法
+    reloadNodeList: () => {
+      console.log("手動重新載入節點清單");
+      resetGlobalNodeListState();
+      return loadNodeList();
     }
-    // 新增 setToken 方法
-    // setToken: (token) => {
-    //   if (token && typeof token === 'string') {
-    //     // 如果 TokenService 已導入，則直接使用
-    //     if (typeof tokenService !== 'undefined') {
-    //       tokenService.setToken(token);
-    //       return true;
-    //     }
-    //     // 或者存儲到 localStorage
-    //     try {
-    //       localStorage.setItem('api_token', token);
-    //       console.log('Token 已設置到 FlowEditor');
-    //       return true;
-    //     } catch (error) {
-    //       console.error('保存 token 失敗:', error);
-    //       return false;
-    //     }
-    //   }
-    //   return false;
-    // }
   }));
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -44599,6 +44676,7 @@ const debugAINodeAPIData = (apiData) => {
 if (typeof window !== "undefined") {
   window.debugAINodeConnections = debugAINodeConnections;
   window.debugAINodeAPIData = debugAINodeAPIData;
+  window.resetGlobalNodeListState = resetGlobalNodeListState;
 }
 const debugNodeInputsBeforeSave = (flowPipeline) => {
   console.group("保存前節點輸入調試");
