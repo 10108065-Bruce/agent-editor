@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T02:57:17.993Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.25"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "1e11a92d1d597ef93c94b45b43abdff3edd14a5a", "VITE_APP_BUILD_TIME": "2025-09-04T05:27:38.709Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.26"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -43291,7 +43291,7 @@ const ReactFlowWithControls = forwardRef(
         try {
           reactFlowInstance.fitView({
             padding,
-            // 邊緣留白，值越大顯示的節點体比越小
+            // 邊緣留白，值越大顯示的節點佔比越小
             maxZoom,
             // 限制最大縮放，防止縮放過大
             duration,
@@ -43386,7 +43386,6 @@ let globalNodeListLoaded = false;
 let globalNodeListPromise = null;
 let globalNodeListData = null;
 const resetGlobalNodeListState = () => {
-  console.log("重置全局節點清單狀態");
   globalNodeListLoaded = false;
   globalNodeListPromise = null;
   globalNodeListData = null;
@@ -43460,33 +43459,24 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, []);
   const loadNodeList = useCallback(async () => {
     const loadId = Date.now();
-    console.log(`[${loadId}] loadNodeList 被調用`, {
-      globalLoaded: globalNodeListLoaded,
-      hasPromise: !!globalNodeListPromise,
-      isIframe: window.self !== window.top,
-      pathname: window.location.pathname
-    });
     if (globalNodeListPromise) {
-      console.log(`[${loadId}] 節點清單正在載入中，等待完成...`);
       return globalNodeListPromise;
     }
     if (globalNodeListLoaded && globalNodeListData) {
-      console.log(`[${loadId}] 使用已載入的節點清單數據`);
       setNodeList(globalNodeListData);
       setNodeListLoading(false);
       setNodeListError(null);
       return globalNodeListData;
     }
-    const cacheKey = "nodeListCache_v2";
-    const cacheTimeKey = "nodeListCacheTime_v2";
-    const cacheExpiry = 10 * 60 * 1e3;
+    const cacheKey = "nodeListCache";
+    const cacheTimeKey = "nodeListCacheTime";
+    const cacheExpiry = 3 * 60 * 1e3;
     try {
       const cached = localStorage.getItem(cacheKey);
       const cacheTime = localStorage.getItem(cacheTimeKey);
       if (cached && cacheTime) {
         const isExpired = Date.now() - parseInt(cacheTime) > cacheExpiry;
         if (!isExpired) {
-          console.log(`[${loadId}] 使用緩存的節點清單`);
           const cachedData = JSON.parse(cached);
           setNodeList(cachedData);
           setNodeListLoading(false);
@@ -43495,32 +43485,23 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
           globalNodeListData = cachedData;
           return cachedData;
         } else {
-          console.log(`[${loadId}] 緩存已過期，重新載入`);
+          console.warn(`[${loadId}] 緩存已過期，重新載入`);
         }
       }
     } catch (error) {
       console.warn(`[${loadId}] 讀取緩存失敗:`, error);
     }
-    console.log(`[${loadId}] 開始從 API 載入節點清單...`);
     globalNodeListPromise = (async () => {
       try {
         setNodeListLoading(true);
         setNodeListError(null);
-        console.log(
-          `[${loadId}] 發送 API 請求到 workflowAPIService.getNodeList()`
-        );
         const nodeListData = await workflowAPIService.getNodeList();
-        console.log(`[${loadId}] 節點清單載入成功:`, {
-          count: nodeListData?.length || 0,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString()
-        });
         setNodeList(nodeListData);
         globalNodeListLoaded = true;
         globalNodeListData = nodeListData;
         try {
           localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
           localStorage.setItem(cacheTimeKey, Date.now().toString());
-          console.log(`[${loadId}] 節點清單已緩存`);
         } catch (error) {
           console.warn(`[${loadId}] 緩存節點清單失敗:`, error);
         }
@@ -43528,13 +43509,6 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       } catch (error) {
         console.error(`[${loadId}] 載入節點清單失敗:`, error);
         setNodeListError(error.message || "載入節點清單失敗");
-        if (typeof window !== "undefined" && window.notify) {
-          window.notify({
-            message: "載入節點清單失敗，將使用預設清單",
-            type: "warning",
-            duration: 3e3
-          });
-        }
         const defaultNodeList = [];
         setNodeList(defaultNodeList);
         globalNodeListData = defaultNodeList;
@@ -43551,28 +43525,17 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, []);
   useEffect(() => {
     const effectId = Date.now();
-    console.log(`[${effectId}] FlowEditor useEffect 執行`, {
-      globalLoaded: globalNodeListLoaded,
-      hasPromise: !!globalNodeListPromise,
-      hasGlobalData: !!globalNodeListData,
-      timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-      isIframe: window.self !== window.top,
-      pathname: window.location.pathname
-    });
     if (globalNodeListLoaded && globalNodeListData) {
-      console.log(`[${effectId}] 使用全局已載入的數據`);
       setNodeList(globalNodeListData);
       setNodeListLoading(false);
       setNodeListError(null);
       return;
     }
     if (!globalNodeListPromise) {
-      console.log(`[${effectId}] 開始載入節點清單`);
       loadNodeList().catch((error) => {
         console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
       });
     } else {
-      console.log(`[${effectId}] 已有載入請求進行中，等待完成`);
       globalNodeListPromise.then((data) => {
         console.log(`[${effectId}] 等待中的載入請求完成`);
         if (data) {
@@ -43588,6 +43551,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   useEffect(() => {
     return () => {
       console.log("FlowEditor 組件卸載");
+      resetGlobalNodeListState();
     };
   }, []);
   const toggleSidebar = useCallback(() => {
