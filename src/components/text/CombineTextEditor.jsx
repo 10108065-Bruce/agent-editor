@@ -35,6 +35,7 @@ const CombineTextEditor = forwardRef(
     const [isInitialized, setIsInitialized] = useState(false);
     const [isRestoring, setIsRestoring] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
+    const [draggedTag, setDraggedTag] = useState(null); // 新增：追蹤正在拖曳的 tag
 
     // 關鍵修改：不再通過 state 管理內容，而是直接操作 DOM
     const isUpdatingFromExternal = useRef(false);
@@ -143,6 +144,45 @@ const CombineTextEditor = forwardRef(
       return false;
     }, []);
 
+    // 創建標籤元素的函數
+    const createTagElement = useCallback((tagInfo) => {
+      const tagElement = document.createElement('span');
+      tagElement.className = 'inline-tag';
+      tagElement.setAttribute('data-tag-id', tagInfo.id);
+      tagElement.setAttribute('data-tag-data', tagInfo.data);
+      tagElement.style.cssText = `
+        display: inline-block;
+        background-color: ${tagInfo.color};
+        color: white;
+        padding: 4px 8px;
+        margin: 2px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: move;
+        white-space: nowrap;
+        user-select: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      `;
+      tagElement.contentEditable = false;
+      tagElement.draggable = true; // 讓標籤可拖曳
+
+      // 創建標籤內容
+      const tagContent = document.createElement('span');
+      tagContent.className = 'tag-display-name';
+      tagContent.textContent = tagInfo.name;
+      tagElement.appendChild(tagContent);
+
+      const deleteBtn = document.createElement('span');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = '×';
+      deleteBtn.style.cssText =
+        'margin-left: 6px; cursor: pointer; font-weight: bold;';
+      tagElement.appendChild(deleteBtn);
+
+      return tagElement;
+    }, []);
+
     // 在游標位置插入標籤 - 修改為包含強制清理
     const insertTagAtCursor = useCallback(
       (tagInfo) => {
@@ -181,38 +221,7 @@ const CombineTextEditor = forwardRef(
         setTags((prev) => [...prev, newTag]);
 
         // 創建標籤元素
-        const tagElement = document.createElement('span');
-        tagElement.className = 'inline-tag';
-        tagElement.setAttribute('data-tag-id', newTag.id);
-        tagElement.setAttribute('data-tag-data', newTag.data);
-        tagElement.style.cssText = `
-          display: inline-block;
-          background-color: ${newTag.color};
-          color: white;
-          padding: 4px 8px;
-          margin: 2px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 500;
-          cursor: pointer;
-          white-space: nowrap;
-          user-select: none;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        `;
-        tagElement.contentEditable = false;
-
-        // 創建標籤內容
-        const tagContent = document.createElement('span');
-        tagContent.className = 'tag-display-name';
-        tagContent.textContent = newTag.name;
-        tagElement.appendChild(tagContent);
-
-        const deleteBtn = document.createElement('span');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.textContent = '×';
-        deleteBtn.style.cssText =
-          'margin-left: 6px; cursor: pointer; font-weight: bold;';
-        tagElement.appendChild(deleteBtn);
+        const tagElement = createTagElement(newTag);
 
         // 插入標籤
         range.deleteContents();
@@ -249,8 +258,51 @@ const CombineTextEditor = forwardRef(
 
         editorRef.current.focus();
       },
-      [onTagInsert, handleContentChange]
+      [onTagInsert, handleContentChange, createTagElement]
     );
+
+    // 新增：處理標籤在編輯器內的拖曳開始
+    const handleTagDragStart = useCallback((e) => {
+      const tagElement = e.target.closest('.inline-tag');
+      if (tagElement) {
+        const tagId = tagElement.getAttribute('data-tag-id');
+        const tagData = tagElement.getAttribute('data-tag-data');
+        const tagName =
+          tagElement.querySelector('.tag-display-name')?.textContent || '';
+
+        // 設置拖曳數據為 internal-tag 類型，區分內部和外部拖曳
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData(
+          'text/internal-tag',
+          JSON.stringify({
+            id: tagId,
+            data: tagData,
+            name: tagName,
+            isInternal: true
+          })
+        );
+
+        // 設置視覺效果
+        tagElement.style.opacity = '0.5';
+        setDraggedTag(tagElement);
+      }
+    }, []);
+
+    // 新增：處理標籤拖曳結束
+    const handleTagDragEnd = useCallback((e) => {
+      const tagElement = e.target.closest('.inline-tag');
+      if (tagElement) {
+        tagElement.style.opacity = '1';
+      }
+      setDraggedTag(null);
+
+      // 清理任何拖曳視覺效果
+      const editor = editorRef.current;
+      if (editor) {
+        editor.style.outline = '';
+        editor.style.backgroundColor = '';
+      }
+    }, []);
 
     // 根據連接信息清理tag的函數
     const cleanupTagsByConnection = useCallback(
@@ -344,7 +396,7 @@ const CombineTextEditor = forwardRef(
       [handleContentChange]
     );
 
-    // 設置拖放事件監聽器 - 完整修復版本
+    // 修改拖放事件監聽器 - 處理內部和外部拖曳
     useEffect(() => {
       const editor = editorRef.current;
       if (!editor) return;
@@ -353,10 +405,32 @@ const CombineTextEditor = forwardRef(
       editor.style.position = 'relative';
       editor.style.zIndex = '10001';
 
+      // 為編輯器內的標籤添加拖曳事件
+      const setupTagDragEvents = () => {
+        const tagElements = editor.querySelectorAll('.inline-tag');
+        tagElements.forEach((tag) => {
+          tag.draggable = true;
+          tag.style.cursor = 'move';
+        });
+      };
+
+      // 初始設置
+      setupTagDragEvents();
+
+      // 使用 MutationObserver 監聽 DOM 變化
+      const observer = new MutationObserver(() => {
+        setupTagDragEvents();
+      });
+
+      observer.observe(editor, {
+        childList: true,
+        subtree: true
+      });
+
       const handleDragOverCapture = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        e.dataTransfer.dropEffect = 'copy';
+        e.dataTransfer.dropEffect = draggedTag ? 'move' : 'copy';
         setIsDragOver(true);
 
         // 設置游標位置並添加視覺提示
@@ -396,11 +470,66 @@ const CombineTextEditor = forwardRef(
         // 立即執行第一次清理
         cleanupVisualEffects();
 
-        const dragData = e.dataTransfer.getData('text/plain');
+        // 檢查是內部拖曳還是外部拖曳
+        const internalTagData = e.dataTransfer.getData('text/internal-tag');
+        const externalData = e.dataTransfer.getData('text/plain');
 
-        if (dragData) {
+        if (internalTagData) {
+          // 處理內部標籤拖曳
           try {
-            const nodeInfo = JSON.parse(dragData);
+            const tagInfo = JSON.parse(internalTagData);
+
+            // 找到原始標籤元素
+            const originalTag = editor.querySelector(
+              `[data-tag-id="${tagInfo.id}"]`
+            );
+            if (originalTag) {
+              // 移除原始標籤
+              originalTag.remove();
+
+              // 在新位置插入標籤
+              const x = e.clientX;
+              const y = e.clientY;
+
+              // 設置插入位置
+              editor.focus();
+              setCursorPosition(x, y);
+
+              // 獲取當前游標位置
+              const selection = window.getSelection();
+              const range = selection.getRangeAt(0);
+
+              // 創建新的標籤元素
+              const newTagElement = createTagElement({
+                id: tagInfo.id,
+                name: tagInfo.name,
+                data: tagInfo.data,
+                color: originalTag.style.backgroundColor
+              });
+
+              // 插入標籤
+              range.insertNode(newTagElement);
+
+              // 插入空格
+              const spaceNode = document.createTextNode('\u00A0');
+              newTagElement.after(spaceNode);
+
+              // 設置游標位置
+              range.setStartAfter(spaceNode);
+              range.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(range);
+
+              // 通知內容變更
+              handleContentChange();
+            }
+          } catch (error) {
+            console.error('內部標籤移動失敗:', error);
+          }
+        } else if (externalData) {
+          // 處理外部拖曳（從 input panel）
+          try {
+            const nodeInfo = JSON.parse(externalData);
 
             // 聚焦編輯器
             editor.focus();
@@ -431,7 +560,14 @@ const CombineTextEditor = forwardRef(
           // 沒有數據時也要清理
           cleanupVisualEffects();
         }
+
+        // 重置拖曳標籤
+        setDraggedTag(null);
       };
+
+      // 添加標籤拖曳事件監聽
+      editor.addEventListener('dragstart', handleTagDragStart);
+      editor.addEventListener('dragend', handleTagDragEnd);
 
       // 使用 capture 模式確保事件能被捕獲，優先級更高
       editor.addEventListener('dragover', handleDragOverCapture, true);
@@ -440,16 +576,27 @@ const CombineTextEditor = forwardRef(
       editor.addEventListener('drop', handleDropCapture, true);
 
       return () => {
+        observer.disconnect();
         editor.style.outline = '';
         editor.style.outlineOffset = '';
         editor.style.backgroundColor = '';
 
+        editor.removeEventListener('dragstart', handleTagDragStart);
+        editor.removeEventListener('dragend', handleTagDragEnd);
         editor.removeEventListener('dragover', handleDragOverCapture, true);
         editor.removeEventListener('dragenter', handleDragEnterCapture, true);
         editor.removeEventListener('dragleave', handleDragLeaveCapture, true);
         editor.removeEventListener('drop', handleDropCapture, true);
       };
-    }, [setCursorPosition, insertTagAtCursor]);
+    }, [
+      setCursorPosition,
+      insertTagAtCursor,
+      handleTagDragStart,
+      handleTagDragEnd,
+      draggedTag,
+      createTagElement,
+      handleContentChange
+    ]);
 
     // 暴露給父組件的方法
     useImperativeHandle(
@@ -481,7 +628,7 @@ const CombineTextEditor = forwardRef(
         // 根據連接信息清理tag
         cleanupTagsByConnection: cleanupTagsByConnection
       }),
-      [cleanupTagsByConnection]
+      [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
     );
 
     // 處理編輯器點擊事件
@@ -743,6 +890,10 @@ const CombineTextEditor = forwardRef(
               data: tagData,
               name: tagName
             });
+
+            // 確保恢復的標籤也是可拖曳的
+            element.draggable = true;
+            element.style.cursor = 'move';
           }
         });
         setTags(restoredTags);
@@ -915,6 +1066,15 @@ const CombineTextEditor = forwardRef(
             @keyframes blink {
               0%, 50% { opacity: 1; }
               51%, 100% { opacity: 0.3; }
+            }
+            .inline-tag {
+              transition: transform 0.2s;
+            }
+            .inline-tag:hover {
+              transform: scale(1.05);
+            }
+            .inline-tag.dragging {
+              opacity: 0.5;
             }
           `}
         </style>
