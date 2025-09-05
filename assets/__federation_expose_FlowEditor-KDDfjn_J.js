@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "84d10146e4c243ebc6b6464dac98a59b10422002", "VITE_APP_BUILD_TIME": "2025-09-04T06:55:15.226Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.29"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "8afbff893a3b41e8eceaba35a2923dd521eb427b", "VITE_APP_BUILD_TIME": "2025-09-05T02:07:38.363Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.30"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -39243,8 +39243,7 @@ const CombineTextEditor = forwardRef$1(
     const [isInitialized, setIsInitialized] = useState$9(false);
     const [isRestoring, setIsRestoring] = useState$9(false);
     const [isDragOver, setIsDragOver] = useState$9(false);
-    const draggedElementRef = useRef$5(null);
-    const isInternalDrag = useRef$5(false);
+    const [draggedTag, setDraggedTag] = useState$9(null);
     const isUpdatingFromExternal = useRef$5(false);
     const lastReportedValue = useRef$5("");
     const generateDefaultContent = useCallback$5(() => {
@@ -39324,6 +39323,38 @@ const CombineTextEditor = forwardRef$1(
       selection.addRange(range);
       return false;
     }, []);
+    const createTagElement = useCallback$5((tagInfo) => {
+      const tagElement = document.createElement("span");
+      tagElement.className = "inline-tag";
+      tagElement.setAttribute("data-tag-id", tagInfo.id);
+      tagElement.setAttribute("data-tag-data", tagInfo.data);
+      tagElement.style.cssText = `
+        display: inline-block;
+        background-color: ${tagInfo.color};
+        color: white;
+        padding: 4px 8px;
+        margin: 2px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: move;
+        white-space: nowrap;
+        user-select: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      `;
+      tagElement.contentEditable = false;
+      tagElement.draggable = true;
+      const tagContent = document.createElement("span");
+      tagContent.className = "tag-display-name";
+      tagContent.textContent = tagInfo.name;
+      tagElement.appendChild(tagContent);
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "×";
+      deleteBtn.style.cssText = "margin-left: 6px; cursor: pointer; font-weight: bold;";
+      tagElement.appendChild(deleteBtn);
+      return tagElement;
+    }, []);
     const insertTagAtCursor = useCallback$5(
       (tagInfo) => {
         if (!editorRef.current) return;
@@ -39351,37 +39382,7 @@ const CombineTextEditor = forwardRef$1(
           color: tagInfo.color
         };
         setTags((prev) => [...prev, newTag]);
-        const tagElement = document.createElement("span");
-        tagElement.className = "inline-tag";
-        tagElement.setAttribute("data-tag-id", newTag.id);
-        tagElement.setAttribute("data-tag-data", newTag.data);
-        tagElement.setAttribute("data-tag-name", newTag.name);
-        tagElement.setAttribute("data-tag-color", newTag.color);
-        tagElement.draggable = true;
-        tagElement.style.cssText = `
-          display: inline-block;
-          background-color: ${newTag.color};
-          color: white;
-          padding: 4px 8px;
-          margin: 2px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 500;
-          cursor: move;
-          white-space: nowrap;
-          user-select: none;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        `;
-        tagElement.contentEditable = false;
-        const tagContent = document.createElement("span");
-        tagContent.className = "tag-display-name";
-        tagContent.textContent = newTag.name;
-        tagElement.appendChild(tagContent);
-        const deleteBtn = document.createElement("span");
-        deleteBtn.className = "delete-btn";
-        deleteBtn.textContent = "×";
-        deleteBtn.style.cssText = "margin-left: 6px; cursor: pointer; font-weight: bold;";
-        tagElement.appendChild(deleteBtn);
+        const tagElement = createTagElement(newTag);
         range.deleteContents();
         range.insertNode(tagElement);
         const spaceNode = document.createTextNode(" ");
@@ -39403,8 +39404,40 @@ const CombineTextEditor = forwardRef$1(
         }
         editorRef.current.focus();
       },
-      [onTagInsert, handleContentChange]
+      [onTagInsert, handleContentChange, createTagElement]
     );
+    const handleTagDragStart = useCallback$5((e) => {
+      const tagElement = e.target.closest(".inline-tag");
+      if (tagElement) {
+        const tagId = tagElement.getAttribute("data-tag-id");
+        const tagData = tagElement.getAttribute("data-tag-data");
+        const tagName = tagElement.querySelector(".tag-display-name")?.textContent || "";
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData(
+          "text/internal-tag",
+          JSON.stringify({
+            id: tagId,
+            data: tagData,
+            name: tagName,
+            isInternal: true
+          })
+        );
+        tagElement.style.opacity = "0.5";
+        setDraggedTag(tagElement);
+      }
+    }, []);
+    const handleTagDragEnd = useCallback$5((e) => {
+      const tagElement = e.target.closest(".inline-tag");
+      if (tagElement) {
+        tagElement.style.opacity = "1";
+      }
+      setDraggedTag(null);
+      const editor = editorRef.current;
+      if (editor) {
+        editor.style.outline = "";
+        editor.style.backgroundColor = "";
+      }
+    }, []);
     const cleanupTagsByConnection = useCallback$5(
       (nodeId, outputName) => {
         if (!editorRef.current) return 0;
@@ -39432,7 +39465,6 @@ const CombineTextEditor = forwardRef$1(
         });
         if (removedCount > 0) {
           handleContentChange();
-          console.log(`成功清理 ${removedCount} 個tag`);
         }
         return removedCount;
       },
@@ -39463,180 +39495,141 @@ const CombineTextEditor = forwardRef$1(
       },
       [handleContentChange]
     );
-    const handleInternalTagDragStart = useCallback$5((e) => {
-      const tagElement = e.target.closest(".inline-tag");
-      if (!tagElement || !editorRef.current?.contains(tagElement)) return;
-      draggedElementRef.current = tagElement;
-      isInternalDrag.current = true;
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData(
-        "text/plain",
-        JSON.stringify({
-          type: "internal-tag",
-          id: tagElement.getAttribute("data-tag-id"),
-          data: tagElement.getAttribute("data-tag-data"),
-          name: tagElement.getAttribute("data-tag-name"),
-          color: tagElement.getAttribute("data-tag-color")
-        })
-      );
-      tagElement.style.opacity = "0.5";
-    }, []);
-    const handleInternalTagDragEnd = useCallback$5((e) => {
-      const tagElement = e.target.closest(".inline-tag");
-      if (tagElement) {
-        tagElement.style.opacity = "1";
-      }
-      draggedElementRef.current = null;
-      isInternalDrag.current = false;
-    }, []);
-    const handleDragOverCapture = useCallback$5(
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.dataTransfer.dropEffect = "move";
-        setIsDragOver(true);
-        const x = e.clientX;
-        const y = e.clientY;
-        setCursorPosition(x, y);
-      },
-      [setCursorPosition]
-    );
-    const handleDragEnterCapture = useCallback$5((e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragOver(true);
-    }, []);
-    const handleDragLeaveCapture = useCallback$5((e) => {
-      if (!editorRef.current?.contains(e.relatedTarget)) {
-        setIsDragOver(false);
-        if (editorRef.current) {
-          editorRef.current.style.outline = "";
-          editorRef.current.style.outlineOffset = "";
-          editorRef.current.style.backgroundColor = "";
-        }
-      }
-    }, []);
-    const handleDropCapture = useCallback$5(
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(false);
-        const editor = editorRef.current;
-        if (!editor) return;
-        editor.style.outline = "";
-        editor.style.outlineOffset = "";
-        editor.style.backgroundColor = "";
-        const dragData = e.dataTransfer.getData("text/plain");
-        if (!dragData) return;
-        try {
-          const data = JSON.parse(dragData);
-          const x = e.clientX;
-          const y = e.clientY;
-          setCursorPosition(x, y);
-          if (data.type === "internal-tag" && isInternalDrag.current && draggedElementRef.current) {
-            const draggedElement = draggedElementRef.current;
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-              const range = selection.getRangeAt(0);
-              if (range.startContainer === draggedElement.parentNode && range.startOffset === Array.from(draggedElement.parentNode.childNodes).indexOf(
-                draggedElement
-              )) {
-                draggedElement.style.opacity = "1";
-                draggedElementRef.current = null;
-                isInternalDrag.current = false;
-                return;
-              }
-              const nextSibling = draggedElement.nextSibling;
-              const parent = draggedElement.parentNode;
-              draggedElement.remove();
-              if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE && /^[\u00A0\s]*$/.test(nextSibling.nodeValue)) {
-                nextSibling.remove();
-              }
-              try {
-                range.insertNode(draggedElement);
-                const spaceNode = document.createTextNode(" ");
-                draggedElement.after(spaceNode);
-                draggedElement.style.opacity = "1";
-                range.setStartAfter(spaceNode);
-                range.collapse(true);
-                selection.removeAllRanges();
-                selection.addRange(range);
-                handleContentChange();
-              } catch (insertError) {
-                console.error("插入失敗，恢復原位置:", insertError);
-                if (parent && nextSibling) {
-                  parent.insertBefore(draggedElement, nextSibling);
-                } else if (parent) {
-                  parent.appendChild(draggedElement);
-                }
-                draggedElement.style.opacity = "1";
-              }
-            }
-            draggedElementRef.current = null;
-            isInternalDrag.current = false;
-          } else {
-            editor.focus();
-            insertTagAtCursor(data);
-            if (typeof window !== "undefined" && window.notify) {
-              window.notify({
-                message: `已插入 ${data.name}`,
-                type: "success",
-                duration: 2e3
-              });
-            }
-          }
-        } catch (error) {
-          console.error("標籤操作失敗:", error);
-          if (draggedElementRef.current) {
-            draggedElementRef.current.style.opacity = "1";
-          }
-          draggedElementRef.current = null;
-          isInternalDrag.current = false;
-        }
-      },
-      [setCursorPosition, insertTagAtCursor, handleContentChange]
-    );
     useEffect$6(() => {
       const editor = editorRef.current;
       if (!editor) return;
       editor.style.position = "relative";
       editor.style.zIndex = "10001";
-      const handleDragStartDelegate = (e) => {
-        const tagElement = e.target.closest(".inline-tag");
-        if (tagElement && editor.contains(tagElement)) {
-          handleInternalTagDragStart(e);
+      const setupTagDragEvents = () => {
+        const tagElements = editor.querySelectorAll(".inline-tag");
+        tagElements.forEach((tag) => {
+          tag.draggable = true;
+          tag.style.cursor = "move";
+        });
+      };
+      setupTagDragEvents();
+      const observer = new MutationObserver(() => {
+        setupTagDragEvents();
+      });
+      observer.observe(editor, {
+        childList: true,
+        subtree: true
+      });
+      const handleDragOverCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = draggedTag ? "move" : "copy";
+        setIsDragOver(true);
+        const x = e.clientX;
+        const y = e.clientY;
+        setCursorPosition(x, y);
+      };
+      const handleDragEnterCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+      };
+      const handleDragLeaveCapture = (e) => {
+        if (!editor.contains(e.relatedTarget)) {
+          setIsDragOver(false);
+          editor.style.outline = "";
+          editor.style.outlineOffset = "";
+          editor.style.backgroundColor = "";
         }
       };
-      const handleDragEndDelegate = (e) => {
-        const tagElement = e.target.closest(".inline-tag");
-        if (tagElement && editor.contains(tagElement)) {
-          handleInternalTagDragEnd(e);
+      const handleDropCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+        const cleanupVisualEffects = () => {
+          editor.style.outline = "";
+          editor.style.outlineOffset = "";
+          editor.style.backgroundColor = "";
+        };
+        cleanupVisualEffects();
+        const internalTagData = e.dataTransfer.getData("text/internal-tag");
+        const externalData = e.dataTransfer.getData("text/plain");
+        if (internalTagData) {
+          try {
+            const tagInfo = JSON.parse(internalTagData);
+            const originalTag = editor.querySelector(
+              `[data-tag-id="${tagInfo.id}"]`
+            );
+            if (originalTag) {
+              originalTag.remove();
+              const x = e.clientX;
+              const y = e.clientY;
+              editor.focus();
+              setCursorPosition(x, y);
+              const selection = window.getSelection();
+              const range = selection.getRangeAt(0);
+              const newTagElement = createTagElement({
+                id: tagInfo.id,
+                name: tagInfo.name,
+                data: tagInfo.data,
+                color: originalTag.style.backgroundColor
+              });
+              range.insertNode(newTagElement);
+              const spaceNode = document.createTextNode(" ");
+              newTagElement.after(spaceNode);
+              range.setStartAfter(spaceNode);
+              range.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(range);
+              handleContentChange();
+            }
+          } catch (error) {
+            console.error("內部標籤移動失敗:", error);
+          }
+        } else if (externalData) {
+          try {
+            const nodeInfo = JSON.parse(externalData);
+            editor.focus();
+            const x = e.clientX;
+            const y = e.clientY;
+            setCursorPosition(x, y);
+            insertTagAtCursor(nodeInfo);
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 0);
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 100);
+          } catch (error) {
+            console.error("❌ 標籤插入失敗:", error);
+            cleanupVisualEffects();
+          }
+        } else {
+          cleanupVisualEffects();
         }
+        setDraggedTag(null);
       };
-      editor.addEventListener("dragstart", handleDragStartDelegate, true);
-      editor.addEventListener("dragend", handleDragEndDelegate, true);
+      editor.addEventListener("dragstart", handleTagDragStart);
+      editor.addEventListener("dragend", handleTagDragEnd);
       editor.addEventListener("dragover", handleDragOverCapture, true);
       editor.addEventListener("dragenter", handleDragEnterCapture, true);
       editor.addEventListener("dragleave", handleDragLeaveCapture, true);
       editor.addEventListener("drop", handleDropCapture, true);
       return () => {
+        observer.disconnect();
         editor.style.outline = "";
         editor.style.outlineOffset = "";
         editor.style.backgroundColor = "";
-        editor.removeEventListener("dragstart", handleDragStartDelegate, true);
-        editor.removeEventListener("dragend", handleDragEndDelegate, true);
+        editor.removeEventListener("dragstart", handleTagDragStart);
+        editor.removeEventListener("dragend", handleTagDragEnd);
         editor.removeEventListener("dragover", handleDragOverCapture, true);
         editor.removeEventListener("dragenter", handleDragEnterCapture, true);
         editor.removeEventListener("dragleave", handleDragLeaveCapture, true);
         editor.removeEventListener("drop", handleDropCapture, true);
       };
     }, [
-      handleInternalTagDragStart,
-      handleInternalTagDragEnd,
-      handleDragOverCapture,
-      handleDragEnterCapture,
-      handleDragLeaveCapture,
-      handleDropCapture
+      setCursorPosition,
+      insertTagAtCursor,
+      handleTagDragStart,
+      handleTagDragEnd,
+      draggedTag,
+      createTagElement,
+      handleContentChange
     ]);
     useImperativeHandle$1(
       ref,
@@ -39664,6 +39657,7 @@ const CombineTextEditor = forwardRef$1(
             }, 500);
           }
         },
+        // 根據連接信息清理tag
         cleanupTagsByConnection
       }),
       [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
@@ -39857,8 +39851,6 @@ const CombineTextEditor = forwardRef$1(
         const tagElements = editorRef.current.querySelectorAll(".inline-tag");
         const restoredTags = [];
         tagElements.forEach((element) => {
-          element.draggable = true;
-          element.style.cursor = "move";
           const tagId = parseInt(element.getAttribute("data-tag-id"));
           const tagData = element.getAttribute("data-tag-data");
           if (!isNaN(tagId) && tagData) {
@@ -39871,6 +39863,8 @@ const CombineTextEditor = forwardRef$1(
               data: tagData,
               name: tagName
             });
+            element.draggable = true;
+            element.style.cursor = "move";
           }
         });
         setTags(restoredTags);
@@ -39996,6 +39990,15 @@ const CombineTextEditor = forwardRef$1(
             @keyframes blink {
               0%, 50% { opacity: 1; }
               51%, 100% { opacity: 0.3; }
+            }
+            .inline-tag {
+              transition: transform 0.2s;
+            }
+            .inline-tag:hover {
+              transform: scale(1.05);
+            }
+            .inline-tag.dragging {
+              opacity: 0.5;
             }
           ` }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
