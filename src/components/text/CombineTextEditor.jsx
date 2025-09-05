@@ -483,21 +483,42 @@ const CombineTextEditor = forwardRef(
             const originalTag = editor.querySelector(
               `[data-tag-id="${tagInfo.id}"]`
             );
+
             if (originalTag) {
               // 移除原始標籤
               originalTag.remove();
 
-              // 在新位置插入標籤
-              const x = e.clientX;
-              const y = e.clientY;
+              // 檢查放開位置是否在其他標籤上
+              const targetElement = document.elementFromPoint(
+                e.clientX,
+                e.clientY
+              );
+              const targetTag = targetElement?.closest('.inline-tag');
 
-              // 設置插入位置
-              editor.focus();
-              setCursorPosition(x, y);
+              let insertPosition;
 
-              // 獲取當前游標位置
-              const selection = window.getSelection();
-              const range = selection.getRangeAt(0);
+              if (targetTag && targetTag !== originalTag) {
+                // 如果在其他標籤上，決定要插入在標籤前還是後
+                const tagRect = targetTag.getBoundingClientRect();
+                const isLeftHalf = e.clientX < tagRect.left + tagRect.width / 2;
+
+                const range = document.createRange();
+                if (isLeftHalf) {
+                  // 插入在標籤前
+                  range.setStartBefore(targetTag);
+                } else {
+                  // 插入在標籤後
+                  range.setStartAfter(targetTag);
+                }
+                range.collapse(true);
+                insertPosition = range;
+              } else {
+                // 不在標籤上，使用原本的座標定位
+                editor.focus();
+                setCursorPosition(e.clientX, e.clientY);
+                const selection = window.getSelection();
+                insertPosition = selection.getRangeAt(0);
+              }
 
               // 創建新的標籤元素
               const newTagElement = createTagElement({
@@ -508,17 +529,19 @@ const CombineTextEditor = forwardRef(
               });
 
               // 插入標籤
-              range.insertNode(newTagElement);
+              insertPosition.insertNode(newTagElement);
 
               // 插入空格
               const spaceNode = document.createTextNode('\u00A0');
               newTagElement.after(spaceNode);
 
               // 設置游標位置
-              range.setStartAfter(spaceNode);
-              range.collapse(true);
+              const newRange = document.createRange();
+              newRange.setStartAfter(spaceNode);
+              newRange.collapse(true);
+              const selection = window.getSelection();
               selection.removeAllRanges();
-              selection.addRange(range);
+              selection.addRange(newRange);
 
               // 通知內容變更
               handleContentChange();
