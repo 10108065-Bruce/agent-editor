@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "8afbff893a3b41e8eceaba35a2923dd521eb427b", "VITE_APP_BUILD_TIME": "2025-09-05T02:07:38.363Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.51.30"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "3b67ec4ab5a705b515ce99bc82083580d2d4959b", "VITE_APP_BUILD_TIME": "2025-09-08T06:12:46.562Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.2.0.1"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -39246,6 +39246,11 @@ const CombineTextEditor = forwardRef$1(
     const [draggedTag, setDraggedTag] = useState$9(null);
     const isUpdatingFromExternal = useRef$5(false);
     const lastReportedValue = useRef$5("");
+    const clickCountRef = useRef$5(0);
+    const lastClickTimeRef = useRef$5(0);
+    const clickTimerRef = useRef$5(null);
+    const isSelectingRef = useRef$5(false);
+    const selectionStartRef = useRef$5(null);
     const generateDefaultContent = useCallback$5(() => {
       return JSON.stringify(
         {
@@ -39495,173 +39500,60 @@ const CombineTextEditor = forwardRef$1(
       },
       [handleContentChange]
     );
-    useEffect$6(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      editor.style.position = "relative";
-      editor.style.zIndex = "10001";
-      const setupTagDragEvents = () => {
-        const tagElements = editor.querySelectorAll(".inline-tag");
-        tagElements.forEach((tag) => {
-          tag.draggable = true;
-          tag.style.cursor = "move";
-        });
+    const handleMouseDown = useCallback$5((e) => {
+      if (e.target.closest(".inline-tag")) {
+        return;
+      }
+      isSelectingRef.current = true;
+      selectionStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        shiftKey: e.shiftKey
       };
-      setupTagDragEvents();
-      const observer = new MutationObserver(() => {
-        setupTagDragEvents();
-      });
-      observer.observe(editor, {
-        childList: true,
-        subtree: true
-      });
-      const handleDragOverCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.dataTransfer.dropEffect = draggedTag ? "move" : "copy";
-        setIsDragOver(true);
-        const x = e.clientX;
-        const y = e.clientY;
-        setCursorPosition(x, y);
-      };
-      const handleDragEnterCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(true);
-      };
-      const handleDragLeaveCapture = (e) => {
-        if (!editor.contains(e.relatedTarget)) {
-          setIsDragOver(false);
-          editor.style.outline = "";
-          editor.style.outlineOffset = "";
-          editor.style.backgroundColor = "";
-        }
-      };
-      const handleDropCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(false);
-        const cleanupVisualEffects = () => {
-          editor.style.outline = "";
-          editor.style.outlineOffset = "";
-          editor.style.backgroundColor = "";
-        };
-        cleanupVisualEffects();
-        const internalTagData = e.dataTransfer.getData("text/internal-tag");
-        const externalData = e.dataTransfer.getData("text/plain");
-        if (internalTagData) {
-          try {
-            const tagInfo = JSON.parse(internalTagData);
-            const originalTag = editor.querySelector(
-              `[data-tag-id="${tagInfo.id}"]`
-            );
-            if (originalTag) {
-              originalTag.remove();
-              const x = e.clientX;
-              const y = e.clientY;
-              editor.focus();
-              setCursorPosition(x, y);
-              const selection = window.getSelection();
-              const range = selection.getRangeAt(0);
-              const newTagElement = createTagElement({
-                id: tagInfo.id,
-                name: tagInfo.name,
-                data: tagInfo.data,
-                color: originalTag.style.backgroundColor
-              });
-              range.insertNode(newTagElement);
-              const spaceNode = document.createTextNode(" ");
-              newTagElement.after(spaceNode);
-              range.setStartAfter(spaceNode);
-              range.collapse(true);
-              selection.removeAllRanges();
-              selection.addRange(range);
-              handleContentChange();
-            }
-          } catch (error) {
-            console.error("內部標籤移動失敗:", error);
+    }, []);
+    const handleMouseMove = useCallback$5((e) => {
+      if (!isSelectingRef.current || !selectionStartRef.current) {
+        return;
+      }
+      const deltaX = Math.abs(e.clientX - selectionStartRef.current.x);
+      const deltaY = Math.abs(e.clientY - selectionStartRef.current.y);
+      if (deltaX < 3 && deltaY < 3) {
+        return;
+      }
+      const selection = window.getSelection();
+      const startRange = document.caretRangeFromPoint(
+        selectionStartRef.current.x,
+        selectionStartRef.current.y
+      );
+      const endRange = document.caretRangeFromPoint(e.clientX, e.clientY);
+      if (startRange && endRange && editorRef.current.contains(startRange.startContainer) && editorRef.current.contains(endRange.startContainer)) {
+        const range = document.createRange();
+        const startPos = startRange.startContainer.compareDocumentPosition(
+          endRange.startContainer
+        );
+        if (startPos === 0) {
+          if (startRange.startOffset <= endRange.startOffset) {
+            range.setStart(startRange.startContainer, startRange.startOffset);
+            range.setEnd(endRange.startContainer, endRange.startOffset);
+          } else {
+            range.setStart(endRange.startContainer, endRange.startOffset);
+            range.setEnd(startRange.startContainer, startRange.startOffset);
           }
-        } else if (externalData) {
-          try {
-            const nodeInfo = JSON.parse(externalData);
-            editor.focus();
-            const x = e.clientX;
-            const y = e.clientY;
-            setCursorPosition(x, y);
-            insertTagAtCursor(nodeInfo);
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 0);
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 100);
-          } catch (error) {
-            console.error("❌ 標籤插入失敗:", error);
-            cleanupVisualEffects();
-          }
+        } else if (startPos & Node.DOCUMENT_POSITION_FOLLOWING) {
+          range.setStart(startRange.startContainer, startRange.startOffset);
+          range.setEnd(endRange.startContainer, endRange.startOffset);
         } else {
-          cleanupVisualEffects();
+          range.setStart(endRange.startContainer, endRange.startOffset);
+          range.setEnd(startRange.startContainer, startRange.startOffset);
         }
-        setDraggedTag(null);
-      };
-      editor.addEventListener("dragstart", handleTagDragStart);
-      editor.addEventListener("dragend", handleTagDragEnd);
-      editor.addEventListener("dragover", handleDragOverCapture, true);
-      editor.addEventListener("dragenter", handleDragEnterCapture, true);
-      editor.addEventListener("dragleave", handleDragLeaveCapture, true);
-      editor.addEventListener("drop", handleDropCapture, true);
-      return () => {
-        observer.disconnect();
-        editor.style.outline = "";
-        editor.style.outlineOffset = "";
-        editor.style.backgroundColor = "";
-        editor.removeEventListener("dragstart", handleTagDragStart);
-        editor.removeEventListener("dragend", handleTagDragEnd);
-        editor.removeEventListener("dragover", handleDragOverCapture, true);
-        editor.removeEventListener("dragenter", handleDragEnterCapture, true);
-        editor.removeEventListener("dragleave", handleDragLeaveCapture, true);
-        editor.removeEventListener("drop", handleDropCapture, true);
-      };
-    }, [
-      setCursorPosition,
-      insertTagAtCursor,
-      handleTagDragStart,
-      handleTagDragEnd,
-      draggedTag,
-      createTagElement,
-      handleContentChange
-    ]);
-    useImperativeHandle$1(
-      ref,
-      () => ({
-        insertTagAtCursor: (tagData) => {
-          insertTagAtCursor(tagData);
-        },
-        focus: () => {
-          if (editorRef.current) {
-            editorRef.current.focus();
-          }
-        },
-        getValue: () => {
-          return getEditorTextContent();
-        },
-        get innerHTML() {
-          return editorRef.current ? editorRef.current.innerHTML : "";
-        },
-        set innerHTML(content) {
-          if (editorRef.current) {
-            isUpdatingFromExternal.current = true;
-            editorRef.current.innerHTML = content;
-            setTimeout(() => {
-              isUpdatingFromExternal.current = false;
-            }, 500);
-          }
-        },
-        // 根據連接信息清理tag
-        cleanupTagsByConnection
-      }),
-      [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
-    );
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }, []);
+    const handleMouseUp = useCallback$5(() => {
+      isSelectingRef.current = false;
+      selectionStartRef.current = null;
+    }, []);
     const handleEditorClick = useCallback$5(
       (e) => {
         const tagElement = e.target.closest(".inline-tag");
@@ -39713,15 +39605,77 @@ const CombineTextEditor = forwardRef$1(
             return;
           }
         }
-        setSelectedTag(null);
-        document.querySelectorAll(".inline-tag").forEach((tag) => {
-          tag.style.boxShadow = "";
-        });
-        const x = e.clientX;
-        const y = e.clientY;
-        editorRef.current.focus();
-        setCursorPosition(x, y);
-        if (shouldShowPanel && onShowPanel && !showInputPanel) {
+        const currentTime = Date.now();
+        const timeDiff = currentTime - lastClickTimeRef.current;
+        if (timeDiff < 300) {
+          clickCountRef.current++;
+        } else {
+          clickCountRef.current = 1;
+        }
+        lastClickTimeRef.current = currentTime;
+        if (clickTimerRef.current) {
+          clearTimeout(clickTimerRef.current);
+        }
+        if (clickCountRef.current === 2) {
+          e.preventDefault();
+          const selection = window.getSelection();
+          const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+          if (range) {
+            const textNode = range.startContainer;
+            if (textNode.nodeType === Node.TEXT_NODE) {
+              const text = textNode.textContent;
+              let start = range.startOffset;
+              let end = range.startOffset;
+              while (start > 0 && !/\s/.test(text[start - 1])) {
+                start--;
+              }
+              while (end < text.length && !/\s/.test(text[end])) {
+                end++;
+              }
+              range.setStart(textNode, start);
+              range.setEnd(textNode, end);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        } else if (clickCountRef.current === 3) {
+          e.preventDefault();
+          const selection = window.getSelection();
+          const range = document.createRange();
+          const clickTarget = e.target;
+          if (clickTarget === editorRef.current || editorRef.current.contains(clickTarget)) {
+            const caretRange = document.caretRangeFromPoint(
+              e.clientX,
+              e.clientY
+            );
+            if (caretRange) {
+              let container = caretRange.startContainer;
+              if (container.nodeType === Node.TEXT_NODE) {
+                container = container.parentNode;
+              }
+              range.selectNodeContents(
+                container === editorRef.current ? container : editorRef.current
+              );
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        } else if (clickCountRef.current === 1) {
+          const selection = window.getSelection();
+          if (selection.toString().length === 0) {
+            setSelectedTag(null);
+            document.querySelectorAll(".inline-tag").forEach((tag) => {
+              tag.style.boxShadow = "";
+            });
+            if (!editorRef.current.contains(document.activeElement)) {
+              editorRef.current.focus();
+            }
+          }
+        }
+        clickTimerRef.current = setTimeout(() => {
+          clickCountRef.current = 0;
+        }, 400);
+        if (shouldShowPanel && onShowPanel && !showInputPanel && clickCountRef.current === 1) {
           setTimeout(() => {
             onShowPanel(true);
           }, 500);
@@ -39733,8 +39687,7 @@ const CombineTextEditor = forwardRef$1(
         removeTag,
         shouldShowPanel,
         showInputPanel,
-        onShowPanel,
-        setCursorPosition
+        onShowPanel
       ]
     );
     const handleKeyDown = useCallback$5(
@@ -39829,6 +39782,58 @@ const CombineTextEditor = forwardRef$1(
         }, 0);
       }
     }, [isComposing, isRestoring, handleContentChange]);
+    useImperativeHandle$1(
+      ref,
+      () => ({
+        insertTagAtCursor: (tagData) => {
+          insertTagAtCursor(tagData);
+        },
+        focus: () => {
+          if (editorRef.current) {
+            editorRef.current.focus();
+          }
+        },
+        getValue: () => {
+          return getEditorTextContent();
+        },
+        get innerHTML() {
+          return editorRef.current ? editorRef.current.innerHTML : "";
+        },
+        set innerHTML(content) {
+          if (editorRef.current) {
+            isUpdatingFromExternal.current = true;
+            editorRef.current.innerHTML = content;
+            setTimeout(() => {
+              isUpdatingFromExternal.current = false;
+            }, 500);
+          }
+        },
+        // 根據連接信息清理tag
+        cleanupTagsByConnection
+      }),
+      [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
+    );
+    useEffect$6(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      editor.addEventListener("mousedown", handleMouseDown);
+      editor.addEventListener("mousemove", handleMouseMove);
+      editor.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        editor.removeEventListener("mousedown", handleMouseDown);
+        editor.removeEventListener("mousemove", handleMouseMove);
+        editor.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+    }, [handleMouseDown, handleMouseMove, handleMouseUp]);
+    useEffect$6(() => {
+      return () => {
+        if (clickTimerRef.current) {
+          clearTimeout(clickTimerRef.current);
+        }
+      };
+    }, []);
     useEffect$6(() => {
       const editor = editorRef.current;
       if (!editor) return;
@@ -39842,6 +39847,161 @@ const CombineTextEditor = forwardRef$1(
         resizeObserver.disconnect();
       };
     }, []);
+    useEffect$6(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      editor.style.position = "relative";
+      editor.style.zIndex = "10001";
+      const setupTagDragEvents = () => {
+        const tagElements = editor.querySelectorAll(".inline-tag");
+        tagElements.forEach((tag) => {
+          tag.draggable = true;
+          tag.style.cursor = "move";
+        });
+      };
+      setupTagDragEvents();
+      const observer = new MutationObserver(() => {
+        setupTagDragEvents();
+      });
+      observer.observe(editor, {
+        childList: true,
+        subtree: true
+      });
+      const handleDragOverCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = draggedTag ? "move" : "copy";
+        setIsDragOver(true);
+        const x = e.clientX;
+        const y = e.clientY;
+        setCursorPosition(x, y);
+      };
+      const handleDragEnterCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+      };
+      const handleDragLeaveCapture = (e) => {
+        if (!editor.contains(e.relatedTarget)) {
+          setIsDragOver(false);
+          editor.style.outline = "";
+          editor.style.outlineOffset = "";
+          editor.style.backgroundColor = "";
+        }
+      };
+      const handleDropCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+        const cleanupVisualEffects = () => {
+          editor.style.outline = "";
+          editor.style.outlineOffset = "";
+          editor.style.backgroundColor = "";
+        };
+        cleanupVisualEffects();
+        const internalTagData = e.dataTransfer.getData("text/internal-tag");
+        const externalData = e.dataTransfer.getData("text/plain");
+        if (internalTagData) {
+          try {
+            const tagInfo = JSON.parse(internalTagData);
+            const originalTag = editor.querySelector(
+              `[data-tag-id="${tagInfo.id}"]`
+            );
+            if (originalTag) {
+              originalTag.remove();
+              const targetElement = document.elementFromPoint(
+                e.clientX,
+                e.clientY
+              );
+              const targetTag = targetElement?.closest(".inline-tag");
+              let insertPosition;
+              if (targetTag && targetTag !== originalTag) {
+                const tagRect = targetTag.getBoundingClientRect();
+                const isLeftHalf = e.clientX < tagRect.left + tagRect.width / 2;
+                const range = document.createRange();
+                if (isLeftHalf) {
+                  range.setStartBefore(targetTag);
+                } else {
+                  range.setStartAfter(targetTag);
+                }
+                range.collapse(true);
+                insertPosition = range;
+              } else {
+                editor.focus();
+                setCursorPosition(e.clientX, e.clientY);
+                const selection2 = window.getSelection();
+                insertPosition = selection2.getRangeAt(0);
+              }
+              const newTagElement = createTagElement({
+                id: tagInfo.id,
+                name: tagInfo.name,
+                data: tagInfo.data,
+                color: originalTag.style.backgroundColor
+              });
+              insertPosition.insertNode(newTagElement);
+              const spaceNode = document.createTextNode(" ");
+              newTagElement.after(spaceNode);
+              const newRange = document.createRange();
+              newRange.setStartAfter(spaceNode);
+              newRange.collapse(true);
+              const selection = window.getSelection();
+              selection.removeAllRanges();
+              selection.addRange(newRange);
+              handleContentChange();
+            }
+          } catch (error) {
+            console.error("內部標籤移動失敗:", error);
+          }
+        } else if (externalData) {
+          try {
+            const nodeInfo = JSON.parse(externalData);
+            editor.focus();
+            const x = e.clientX;
+            const y = e.clientY;
+            setCursorPosition(x, y);
+            insertTagAtCursor(nodeInfo);
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 0);
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 100);
+          } catch (error) {
+            console.error("⌠標籤插入失敗:", error);
+            cleanupVisualEffects();
+          }
+        } else {
+          cleanupVisualEffects();
+        }
+        setDraggedTag(null);
+      };
+      editor.addEventListener("dragstart", handleTagDragStart);
+      editor.addEventListener("dragend", handleTagDragEnd);
+      editor.addEventListener("dragover", handleDragOverCapture, true);
+      editor.addEventListener("dragenter", handleDragEnterCapture, true);
+      editor.addEventListener("dragleave", handleDragLeaveCapture, true);
+      editor.addEventListener("drop", handleDropCapture, true);
+      return () => {
+        observer.disconnect();
+        editor.style.outline = "";
+        editor.style.outlineOffset = "";
+        editor.style.backgroundColor = "";
+        editor.removeEventListener("dragstart", handleTagDragStart);
+        editor.removeEventListener("dragend", handleTagDragEnd);
+        editor.removeEventListener("dragover", handleDragOverCapture, true);
+        editor.removeEventListener("dragenter", handleDragEnterCapture, true);
+        editor.removeEventListener("dragleave", handleDragLeaveCapture, true);
+        editor.removeEventListener("drop", handleDropCapture, true);
+      };
+    }, [
+      setCursorPosition,
+      insertTagAtCursor,
+      handleTagDragStart,
+      handleTagDragEnd,
+      draggedTag,
+      createTagElement,
+      handleContentChange
+    ]);
     useEffect$6(() => {
       if (initialHtmlContent && editorRef.current && !isInitialized) {
         setIsRestoring(true);
