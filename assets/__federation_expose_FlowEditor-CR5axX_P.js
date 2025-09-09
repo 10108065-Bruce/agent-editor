@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4b02aeee974f98562a174e95ba4b58e6ccf4d978", "VITE_APP_BUILD_TIME": "2025-09-09T06:17:15.036Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.1"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4b02aeee974f98562a174e95ba4b58e6ccf4d978", "VITE_APP_BUILD_TIME": "2025-09-09T07:22:25.341Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.2"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44629,6 +44629,18 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       window.removeEventListener("requestSaveFlow", handleSaveRequest);
     };
   }, [flowMetadata.id, showSaveFlowDialog, isLocked]);
+  useEffect(() => {
+    if (isInIframe) {
+      const handleMessage = (event) => {
+        if (event.data?.type === "INIT") {
+          console.log("子頁面收到 INIT，回 ACK");
+          event.source?.postMessage({ type: "ACK" }, event.origin);
+        }
+      };
+      window.addEventListener("message", handleMessage);
+      return () => window.removeEventListener("message", handleMessage);
+    }
+  }, [isInIframe]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       APAAssistant,
