@@ -455,7 +455,7 @@ export class WorkflowDataConverter {
 
         return {
           ...baseData,
-          model: node.parameters?.llm_id?.data?.toString() || '1',
+          model: node.parameters?.llm_id?.data?.toString() || '',
           columns: columns
         };
       }
@@ -569,13 +569,13 @@ export class WorkflowDataConverter {
             ? node.parameters.llm_id.data
             : node.parameters?.model?.data !== undefined
             ? node.parameters.model.data
-            : '1';
+            : '';
 
         // 確保模型ID是字符串類型
         const modelId =
           rawModelId !== null && rawModelId !== undefined
             ? rawModelId.toString()
-            : '1';
+            : '';
 
         // 提取 prompt 文本
         const promptText = node.parameters?.prompt?.data || '';
@@ -727,7 +727,7 @@ export class WorkflowDataConverter {
           trainingId: node.parameters?.training_id?.data || 0,
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
-          llmId: node.parameters?.llm_id?.data || 0,
+          llmId: node.parameters?.llm_id?.data || '',
           promptText: node.parameters?.prompt?.data || '',
           modelFieldsInfo: node.parameters?.model_fields_info?.data || ''
         };
@@ -1081,16 +1081,24 @@ export class WorkflowDataConverter {
       case 'aiCustomInput':
       case 'ai': {
         // 處理可能的無效model值
-        const modelValue = node.data.model || '1';
+        const modelValue = node.data.model || '';
 
         // 確保值為字符串
         const safeModelValue =
           modelValue && typeof modelValue !== 'string'
             ? modelValue.toString()
-            : modelValue || '1';
+            : modelValue || null;
 
         // 使用model作為llm_id - 現在存的是ID值而非名稱
-        parameters.llm_id = { data: Number(safeModelValue) };
+        // 不要再有預設值，讓後端驗證
+        console.log(safeModelValue);
+        if (!safeModelValue) {
+          console.warn(
+            `節點 ${node.id} 沒有設置模型，請確保選擇一個有效的模型`
+          );
+        } else {
+          parameters.llm_id = { data: Number(safeModelValue) };
+        }
 
         // 新增處理 promptText - 當有直接輸入的提示文本時
         // 兼容舊版：不覆蓋已有的 prompt 參數
@@ -1319,7 +1327,7 @@ export class WorkflowDataConverter {
       case 'extractData':
         // Extract Data 節點參數
         if (node.data.model) {
-          const modelValue = node.data.model || '1';
+          const modelValue = node.data.model || '';
           const safeModelValue =
             typeof modelValue !== 'string'
               ? modelValue.toString()
@@ -1406,7 +1414,7 @@ export class WorkflowDataConverter {
         if (enableExplainValue) {
           // llm_id 參數 - 現在支援 LLM Vision 模型 ID
           if (node.data.llmId !== undefined || node.data.llm_id) {
-            const llmValue = node.data.llmId ?? node.data.llm_id?.data ?? 1;
+            const llmValue = node.data.llmId ?? node.data.llm_id?.data ?? '';
             // 確保 llmValue 是數字類型，適用於 LLM Vision API 的 id 欄位
             const numericLlmValue =
               typeof llmValue === 'string' ? parseInt(llmValue) : llmValue;

@@ -8,18 +8,11 @@ import { formatNodeTitle } from '../../utils/nodeUtils';
 
 const ExtractDataNode = ({ data, isConnectable, id }) => {
   // 更改為使用結構化輸出模型選項
-  const [modelOptions, setModelOptions] = useState([
-    {
-      value: '0',
-      label: 'GPT-4o',
-      description: 'OpenAI GPT-4o 支援結構化輸出',
-      provider: 'AZURE_OPENAI'
-    }
-  ]);
+  const [modelOptions, setModelOptions] = useState([]);
 
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelLoadError, setModelLoadError] = useState(null);
-  const [localModel, setLocalModel] = useState(data?.model || '0');
+  const [localModel, setLocalModel] = useState(data?.model || '');
 
   // 管理 columns 狀態 - 一開始沒有任何資料
   const [columns, setColumns] = useState(data?.columns || []);
@@ -49,9 +42,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     setModelLoadError(null);
 
     try {
-      console.log('開始加載結構化輸出模型...');
       const options = await llmService.getStructuredOutputModelOptions();
-      console.log('獲取到的結構化輸出模型選項:', options);
 
       if (options && options.length > 0) {
         setModelOptions(options);
@@ -59,13 +50,15 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
           (opt) => opt.value === localModel
         );
 
-        if (!isCurrentModelValid) {
-          // 使用第一個可用的結構化輸出模型作為預設
-          const defaultModel = options[0].value;
-          setLocalModel(defaultModel);
-          updateParentState('model', defaultModel);
-          console.log('選擇預設結構化輸出模型:', defaultModel);
+        if (!isCurrentModelValid && localModel) {
+          setLocalModel('');
+          updateParentState('model', '');
         }
+      } else {
+        // API 返回空列表時，清空選項和當前選擇
+        setModelOptions([]);
+        setLocalModel('');
+        updateParentState('model', '');
       }
     } catch (error) {
       console.error('加載結構化輸出模型失敗:', error);
@@ -177,13 +170,39 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     { value: 'boolean', label: 'boolean' }
   ];
 
-  // 根據選中的模型獲取提供者信息
-  const getSelectedModelInfo = () => {
-    const selectedModel = modelOptions.find(
-      (option) => option.value === localModel
-    );
-    return selectedModel || modelOptions[0];
-  };
+  const getGroupedModelOptions = useCallback(() => {
+    if (!modelOptions || modelOptions.length === 0) {
+      return {};
+    }
+
+    return modelOptions.reduce((groups, option) => {
+      const provider = option.provider || '';
+      if (!groups[provider]) {
+        groups[provider] = [];
+      }
+      groups[provider].push(option);
+      return groups;
+    }, {});
+  }, [modelOptions]);
+
+  const renderGroupedOptions = useCallback(() => {
+    const groupedOptions = getGroupedModelOptions();
+    const providers = Object.keys(groupedOptions).sort();
+
+    return providers.map((provider) => (
+      <optgroup
+        key={provider}
+        label={provider}>
+        {groupedOptions[provider].map((option) => (
+          <option
+            key={option.value}
+            value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </optgroup>
+    ));
+  }, [getGroupedModelOptions]);
 
   return (
     <div className='rounded-lg shadow-md overflow-hidden w-98 max-w-lg'>
@@ -216,14 +235,14 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
               value={localModel}
               onChange={handleModelChange}
               disabled={isLoadingModels}>
-              {modelOptions.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}
-                  title={option.description}>
-                  {option.label} {option.provider ? `(${option.provider})` : ''}
-                </option>
-              ))}
+              {/* 添加預設的空選項 */}
+              <option
+                value=''
+                disabled>
+                {modelOptions.length === 0 ? '無可用模型' : '請選擇模型'}
+              </option>
+              {/* 使用 optgroup 分組渲染選項 */}
+              {renderGroupedOptions()}
             </select>
             {isLoadingModels ? (
               <div className='absolute right-2 top-1/2 transform -translate-y-1/2'>
@@ -249,14 +268,6 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
           {modelLoadError && (
             <p className='text-xs text-red-500 mt-1'>{modelLoadError}</p>
           )}
-          {/* 顯示選中模型的描述 */}
-          {/* {!isLoadingModels &&
-            !modelLoadError &&
-            getSelectedModelInfo().description && (
-              <p className='text-xs text-gray-600 mt-1'>
-                {getSelectedModelInfo().description}
-              </p>
-            )} */}
         </div>
 
         {/* Context section */}

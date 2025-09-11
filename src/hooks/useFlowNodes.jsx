@@ -1367,7 +1367,7 @@ export default function useFlowNodes() {
         id,
         type: 'extract_data',
         data: {
-          model: '1', // 預設模型 ID
+          model: '', // 預設模型 ID
           columns: [
             {
               name: '',
