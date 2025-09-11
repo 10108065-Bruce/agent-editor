@@ -779,8 +779,8 @@ export default function useFlowNodes() {
         id,
         type: 'aiCustomInput',
         data: {
-          model: 'O3-mini',
-          selectedOption: 'prompt',
+          model: '',
+          selectedOption: '',
           ...nodeCallbacksObject
         },
         position: position || {

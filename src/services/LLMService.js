@@ -50,7 +50,6 @@ export class LLMService {
       }
 
       // 創建新請求
-
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -81,19 +80,9 @@ export class LLMService {
             ) {
               data = data.models;
             } else {
-              // 如果無法提取合理的數據，則返回預設模型
-              console.warn('無法從API回應中提取合理的模型數據，使用預設模型');
-              data = [
-                {
-                  id: 1,
-                  name: 'O3-mini',
-                  display_name: 'O3-mini',
-                  is_default: true
-                },
-                { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-                { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-                { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-              ];
+              // 如果無法提取合理的數據，則返回空數組
+              console.warn('無法從API回應中提取合理的模型數據，返回空數組');
+              data = [];
             }
           }
 
@@ -105,7 +94,7 @@ export class LLMService {
                 id: index + 1,
                 name: `Model ${index + 1}`,
                 display_name: `Model ${index + 1}`,
-                is_default: index === 0
+                is_default: false
               };
             }
 
@@ -135,18 +124,8 @@ export class LLMService {
           console.error('獲取LLM模型失敗:', error);
           this.pendingRequest = null; // 清除進行中的請求，即使出錯
 
-          // 返回預設模型，而不是拋出錯誤
-          return [
-            {
-              id: 1,
-              name: 'O3-mini',
-              display_name: 'O3-mini',
-              is_default: true
-            },
-            { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-            { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-            { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-          ];
+          // 返回空數組，而不是拋出錯誤
+          return [];
         });
 
       return this.pendingRequest;
@@ -154,19 +133,14 @@ export class LLMService {
       console.error('獲取LLM模型過程中出錯:', error);
       this.pendingRequest = null;
 
-      // 返回預設模型，而不是拋出錯誤
-      return [
-        { id: 1, name: 'O3-mini', display_name: 'O3-mini', is_default: true },
-        { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-        { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-        { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-      ];
+      // 返回空數組，而不是拋出錯誤
+      return [];
     }
   }
 
   /**
-   * 獲取支援 Function Calling 的LLM模型
-   * @param {boolean} requireParallelToolCalls - 是否要求支援 parallel tool calls 功能
+   * 獲取支持 Function Calling 的LLM模型
+   * @param {boolean} requireParallelToolCalls - 是否要求支持 parallel tool calls 功能
    * @returns {Promise<Array>} Function Calling 模型列表
    */
   async getFunctionCallingModels(requireParallelToolCalls = true) {
@@ -219,16 +193,8 @@ export class LLMService {
           // 檢查數據是否為數組
           if (!Array.isArray(data)) {
             console.warn('API返回的 Function Calling 模型數據不是陣列');
-            // 返回預設模型
-            data = [
-              {
-                id: 15,
-                display_name: 'GPT-5',
-                description:
-                  'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-                provider: 'AZURE_OPENAI'
-              }
-            ];
+            // 返回空數組
+            data = [];
           }
 
           // 檢查每個模型對象，確保結構正確
@@ -276,23 +242,8 @@ export class LLMService {
           console.error('獲取 Function Calling 模型失敗:', error);
           this.pendingFunctionCallingRequest = null; // 清除進行中的請求，即使出錯
 
-          // 返回預設模型，而不是拋出錯誤
-          return [
-            {
-              id: 15,
-              display_name: 'GPT-5',
-              description:
-                'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-              provider: 'AZURE_OPENAI'
-            },
-            {
-              id: 17,
-              display_name: 'GPT-5 mini',
-              description:
-                'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
-              provider: 'AZURE_OPENAI'
-            }
-          ];
+          // 返回空數組，而不是拋出錯誤
+          return [];
         });
 
       return this.pendingFunctionCallingRequest;
@@ -300,28 +251,13 @@ export class LLMService {
       console.error('獲取 Function Calling 模型過程中出錯:', error);
       this.pendingFunctionCallingRequest = null;
 
-      // 返回預設模型，而不是拋出錯誤
-      return [
-        {
-          id: 15,
-          display_name: 'GPT-5',
-          description:
-            'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-          provider: 'AZURE_OPENAI'
-        },
-        {
-          id: 17,
-          display_name: 'GPT-5 mini',
-          description:
-            'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空數組，而不是拋出錯誤
+      return [];
     }
   }
 
   /**
-   * 獲取支援結構化輸出的LLM模型
+   * 獲取支持結構化輸出的LLM模型
    * @returns {Promise<Array>} 結構化輸出模型列表
    */
   async getStructuredOutputModels() {
@@ -365,15 +301,8 @@ export class LLMService {
           // 檢查數據是否為數組
           if (!Array.isArray(data)) {
             console.warn('API返回的結構化輸出模型數據不是陣列');
-            // 返回預設模型
-            data = [
-              {
-                id: 0,
-                display_name: 'GPT-4o',
-                description: 'OpenAI GPT-4o 支援結構化輸出',
-                provider: 'AZURE_OPENAI'
-              }
-            ];
+            // 返回空數組
+            data = [];
           }
 
           // 檢查每個模型對象，確保結構正確
@@ -416,15 +345,8 @@ export class LLMService {
           console.error('獲取結構化輸出模型失敗:', error);
           this.pendingStructuredOutputRequest = null; // 清除進行中的請求，即使出錯
 
-          // 返回預設模型，而不是拋出錯誤
-          return [
-            {
-              id: 0,
-              display_name: 'GPT-4o',
-              description: 'OpenAI GPT-4o 支援結構化輸出',
-              provider: 'AZURE_OPENAI'
-            }
-          ];
+          // 返回空數組，而不是拋出錯誤
+          return [];
         });
 
       return this.pendingStructuredOutputRequest;
@@ -432,15 +354,8 @@ export class LLMService {
       console.error('獲取結構化輸出模型過程中出錯:', error);
       this.pendingStructuredOutputRequest = null;
 
-      // 返回預設模型，而不是拋出錯誤
-      return [
-        {
-          id: 0,
-          display_name: 'GPT-4o',
-          description: 'OpenAI GPT-4o 支援結構化輸出',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空數組，而不是拋出錯誤
+      return [];
     }
   }
 
@@ -502,9 +417,9 @@ export class LLMService {
             }
           }
 
-          // 如果沒有找到有效數據，返回預設知識庫
-          if (!Array.isArray(knowledgeBases) || knowledgeBases.length === 0) {
-            console.warn('無法從API回應中提取合理的知識庫數據，使用預設知識庫');
+          // 如果沒有找到有效數據，返回空數組
+          if (!Array.isArray(knowledgeBases)) {
+            console.warn('無法從API回應中提取合理的知識庫數據，返回空數組');
             knowledgeBases = [];
           }
 
@@ -600,23 +515,13 @@ export class LLMService {
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
-        console.warn('模型數據無效或不是陣列，使用默認選項');
-        return [
-          { value: '1', label: 'O3-mini' },
-          { value: '2', label: 'O3-plus' },
-          { value: '3', label: 'O3-mega' },
-          { value: '4', label: 'O3-ultra' }
-        ];
+        console.warn('模型數據無效或不是陣列，返回空選項');
+        return [];
       }
 
       if (models.length === 0) {
-        console.warn('API返回的模型陣列為空，使用默認選項');
-        return [
-          { value: '1', label: 'O3-mini' },
-          { value: '2', label: 'O3-plus' },
-          { value: '3', label: 'O3-mega' },
-          { value: '4', label: 'O3-ultra' }
-        ];
+        console.warn('API返回的模型陣列為空，返回空選項');
+        return [];
       }
 
       // 將API返回的模型數據轉換為select選項格式
@@ -640,31 +545,27 @@ export class LLMService {
 
         // 如果連名稱也沒有，則使用模型ID作為顯示名稱
         const displayLabel = modelLabel || `Model ${modelId}`;
-
+        const provider = model.provider || '';
         return {
           value: modelId,
-          label: displayLabel,
+          label: `${displayLabel}`,
           description: model.description || '',
-          isDefault: !!model.is_default
+          isDefault: !!model.is_default,
+          provider: provider
         };
       });
 
       return options;
     } catch (error) {
       console.error('獲取模型選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
-      return [
-        { value: '1', label: 'O3-mini' },
-        { value: '2', label: 'O3-plus' },
-        { value: '3', label: 'O3-mega' },
-        { value: '4', label: 'O3-ultra' }
-      ];
+      // 返回空陣列，而不是預設選項
+      return [];
     }
   }
 
   /**
    * 獲取格式化後的 Function Calling 模型選項，適用於下拉選單
-   * @param {boolean} requireParallelToolCalls - 是否要求支援 parallel tool calls 功能
+   * @param {boolean} requireParallelToolCalls - 是否要求支持 parallel tool calls 功能
    * @returns {Promise<Array>} 格式化的 Function Calling 模型選項
    */
   async getFunctionCallingModelOptions(requireParallelToolCalls = true) {
@@ -675,29 +576,13 @@ export class LLMService {
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
-        console.warn('Function Calling 模型數據無效或不是陣列，使用默認選項');
-        return [
-          {
-            value: '15',
-            label: 'GPT-5',
-            description:
-              'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('Function Calling 模型數據無效或不是陣列，返回空選項');
+        return [];
       }
 
       if (models.length === 0) {
-        console.warn('API返回的 Function Calling 模型陣列為空，使用默認選項');
-        return [
-          {
-            value: '15',
-            label: 'GPT-5',
-            description:
-              'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('API返回的 Function Calling 模型陣列為空，返回空選項');
+        return [];
       }
 
       // 將API返回的 Function Calling 模型數據轉換為select選項格式
@@ -736,23 +621,8 @@ export class LLMService {
       return options;
     } catch (error) {
       console.error('獲取 Function Calling 模型選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
-      return [
-        {
-          value: '15',
-          label: 'GPT-5',
-          description:
-            'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-          provider: 'AZURE_OPENAI'
-        },
-        {
-          value: '17',
-          label: 'GPT-5 mini',
-          description:
-            'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空陣列，而不是預設選項
+      return [];
     }
   }
 
@@ -766,27 +636,13 @@ export class LLMService {
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
-        console.warn('結構化輸出模型數據無效或不是陣列，使用默認選項');
-        return [
-          {
-            value: '0',
-            label: 'GPT-4o',
-            description: 'OpenAI GPT-4o 支援結構化輸出',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('結構化輸出模型數據無效或不是陣列，返回空選項');
+        return [];
       }
 
       if (models.length === 0) {
-        console.warn('API返回的結構化輸出模型陣列為空，使用默認選項');
-        return [
-          {
-            value: '0',
-            label: 'GPT-4o',
-            description: 'OpenAI GPT-4o 支援結構化輸出',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('API返回的結構化輸出模型陣列為空，返回空選項');
+        return [];
       }
 
       // 將API返回的結構化輸出模型數據轉換為select選項格式
@@ -825,15 +681,8 @@ export class LLMService {
       return options;
     } catch (error) {
       console.error('獲取結構化輸出模型選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
-      return [
-        {
-          value: '0',
-          label: 'GPT-4o',
-          description: 'OpenAI GPT-4o 支援結構化輸出',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空陣列，而不是預設選項
+      return [];
     }
   }
 
@@ -857,7 +706,7 @@ export class LLMService {
       }));
     } catch (error) {
       console.error('獲取知識庫選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
+      // 返回空陣列，而不是預設選項
       return [];
     }
   }

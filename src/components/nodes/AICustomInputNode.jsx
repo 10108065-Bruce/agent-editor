@@ -9,13 +9,10 @@ import { PromptGeneratorService } from '../../services/PromptGeneratorService';
 import promptIcon from '../../assets/prompt-generator.svg';
 import promptDisabledIcon from '../../assets/prompt-generator-disabled.svg';
 import { formatNodeTitle } from '../../utils/nodeUtils';
+
 const AICustomInputNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState([
-    { value: '1', label: 'O3-mini' },
-    { value: '2', label: 'O3-plus' },
-    { value: '3', label: 'O3-mega' },
-    { value: '4', label: 'O3-ultra' }
-  ]);
+  // 移除預設模型選項，改為空陣列
+  const [modelOptions, setModelOptions] = useState([]);
 
   // Refine Prompt 相關狀態
   const [showRefinePrompt, setShowRefinePrompt] = useState(false);
@@ -31,7 +28,8 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
 
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelLoadError, setModelLoadError] = useState(null);
-  const [localModel, setLocalModel] = useState(data?.model || '1');
+  // 不預選任何模型，設為空字串
+  const [localModel, setLocalModel] = useState(data?.model || '');
 
   // 關鍵修正：使用 ref 來存儲實際的文本值，避免狀態更新干擾
   const [promptText, setPromptText] = useState(data?.promptText || '');
@@ -77,19 +75,22 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       const options = await llmService.getModelOptions();
       if (options && options.length > 0) {
         setModelOptions(options);
+
+        // 只有在現有模型有效時才保留，否則不自動設置任何模型
         const isCurrentModelValid = options.some(
           (opt) => opt.value === localModel
         );
 
-        if (!isCurrentModelValid) {
-          let defaultModel = options[0].value;
-          const defaultOption = options.find((opt) => opt.isDefault);
-          if (defaultOption) {
-            defaultModel = defaultOption.value;
-          }
-          setLocalModel(defaultModel);
-          updateParentState('model', defaultModel);
+        if (!isCurrentModelValid && localModel) {
+          // 如果當前模型無效，清空模型選擇
+          setLocalModel('');
+          updateParentState('model', '');
         }
+      } else {
+        // API 返回空列表時，清空選項和當前選擇
+        setModelOptions([]);
+        setLocalModel('');
+        updateParentState('model', '');
       }
     } catch (error) {
       console.error('加載模型失敗:', error);
@@ -246,7 +247,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   // 處理優化 Prompt 應用（僅限應用按鈕）
   const handleOptimizedPromptApply = useCallback(
     (optimizedPrompt) => {
-      // 將優化後的 prompt 填入文字區域
+      // 將優化後的 prompt 填入文字域
       setPromptText(optimizedPrompt);
       lastExternalValueRef.current = optimizedPrompt;
       updateParentState('promptText', optimizedPrompt);
@@ -272,6 +273,40 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const closeRefinePrompt = useCallback(() => {
     setShowRefinePrompt(false);
   }, []);
+
+  const getGroupedModelOptions = useCallback(() => {
+    if (!modelOptions || modelOptions.length === 0) {
+      return {};
+    }
+
+    return modelOptions.reduce((groups, option) => {
+      const provider = option.provider || '';
+      if (!groups[provider]) {
+        groups[provider] = [];
+      }
+      groups[provider].push(option);
+      return groups;
+    }, {});
+  }, [modelOptions]);
+
+  const renderGroupedOptions = useCallback(() => {
+    const groupedOptions = getGroupedModelOptions();
+    const providers = Object.keys(groupedOptions).sort();
+
+    return providers.map((provider) => (
+      <optgroup
+        key={provider}
+        label={provider}>
+        {groupedOptions[provider].map((option) => (
+          <option
+            key={option.value}
+            value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </optgroup>
+    ));
+  }, [getGroupedModelOptions]);
 
   return (
     <div className='rounded-lg shadow-md overflow-hidden w-64'>
@@ -305,13 +340,14 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               disabled={isLoadingModels || showRefinePrompt}>
               {' '}
               {/* 當 refine prompt 打開時禁用 */}
-              {modelOptions.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              {/* 添加預設的空選項 */}
+              <option
+                value=''
+                disabled>
+                {modelOptions.length === 0 ? '無可用模型' : '請選擇模型'}
+              </option>
+              {/* 使用 optgroup 分組渲染選項 */}
+              {renderGroupedOptions()}
             </select>
             {isLoadingModels ? (
               <div className='absolute right-2 top-1/2 transform -translate-y-1/2'>
@@ -345,11 +381,6 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
             <label className='block text-sm text-gray-700 font-bold'>
               Prompt
             </label>
-            {/* {hasPromptConnection && (
-              <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full'>
-                已連線
-              </span>
-            )} */}
             {/* Refine Prompt 按鈕 */}
             <button
               onClick={handleRefinePromptClick}
