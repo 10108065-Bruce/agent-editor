@@ -23390,7 +23390,7 @@ function useFlowNodes() {
         id,
         type: "extract_data",
         data: {
-          model: "1",
+          model: "",
           // 預設模型 ID
           columns: [
             {
@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "7ea69a212b35dfaa970f92eae3166b8f7c4481a8", "VITE_APP_BUILD_TIME": "2025-09-11T07:18:47.422Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.4"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4b681ce2b66c1f342267edb01f67d20e91fcaa92", "VITE_APP_BUILD_TIME": "2025-09-11T07:56:17.361Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.5"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -28596,7 +28596,7 @@ class WorkflowDataConverter {
 
         return {
           ...baseData,
-          model: node.parameters?.llm_id?.data?.toString() || '1',
+          model: node.parameters?.llm_id?.data?.toString() || '',
           columns: columns
         };
       }
@@ -28710,13 +28710,13 @@ class WorkflowDataConverter {
             ? node.parameters.llm_id.data
             : node.parameters?.model?.data !== undefined
             ? node.parameters.model.data
-            : '1';
+            : '';
 
         // 確保模型ID是字符串類型
         const modelId =
           rawModelId !== null && rawModelId !== undefined
             ? rawModelId.toString()
-            : '1';
+            : '';
 
         // 提取 prompt 文本
         const promptText = node.parameters?.prompt?.data || '';
@@ -28868,7 +28868,7 @@ class WorkflowDataConverter {
           trainingId: node.parameters?.training_id?.data || 0,
           simulatorId: node.parameters?.simulator_id?.data || '',
           enableExplain: node.parameters?.enable_explain?.data ?? true,
-          llmId: node.parameters?.llm_id?.data || 0,
+          llmId: node.parameters?.llm_id?.data || '',
           promptText: node.parameters?.prompt?.data || '',
           modelFieldsInfo: node.parameters?.model_fields_info?.data || ''
         };
@@ -29222,16 +29222,24 @@ class WorkflowDataConverter {
       case 'aiCustomInput':
       case 'ai': {
         // 處理可能的無效model值
-        const modelValue = node.data.model || '1';
+        const modelValue = node.data.model || '';
 
         // 確保值為字符串
         const safeModelValue =
-          typeof modelValue !== 'string'
+          modelValue && typeof modelValue !== 'string'
             ? modelValue.toString()
-            : modelValue;
+            : modelValue || null;
 
         // 使用model作為llm_id - 現在存的是ID值而非名稱
-        parameters.llm_id = { data: Number(safeModelValue) };
+        // 不要再有預設值，讓後端驗證
+        console.log(safeModelValue);
+        if (!safeModelValue) {
+          console.warn(
+            `節點 ${node.id} 沒有設置模型，請確保選擇一個有效的模型`
+          );
+        } else {
+          parameters.llm_id = { data: Number(safeModelValue) };
+        }
 
         // 新增處理 promptText - 當有直接輸入的提示文本時
         // 兼容舊版：不覆蓋已有的 prompt 參數
@@ -29460,11 +29468,11 @@ class WorkflowDataConverter {
       case 'extractData':
         // Extract Data 節點參數
         if (node.data.model) {
-          const modelValue = node.data.model || '1';
+          const modelValue = node.data.model || '';
           const safeModelValue =
             typeof modelValue !== 'string'
               ? modelValue.toString()
-              : modelValue;
+              : modelValue || '1';
           parameters.llm_id = { data: Number(safeModelValue) };
         }
 
@@ -29547,7 +29555,7 @@ class WorkflowDataConverter {
         if (enableExplainValue) {
           // llm_id 參數 - 現在支援 LLM Vision 模型 ID
           if (node.data.llmId !== undefined || node.data.llm_id) {
-            const llmValue = node.data.llmId ?? node.data.llm_id?.data ?? 1;
+            const llmValue = node.data.llmId ?? node.data.llm_id?.data ?? '';
             // 確保 llmValue 是數字類型，適用於 LLM Vision API 的 id 欄位
             const numericLlmValue =
               typeof llmValue === 'string' ? parseInt(llmValue) : llmValue;
@@ -35813,17 +35821,10 @@ const LineMessageNode$1 = memo$8(LineMessageNode);
 const React$f = await importShared('react');
 const {memo: memo$7,useState: useState$g,useEffect: useEffect$c,useCallback: useCallback$c} = React$f;
 const ExtractDataNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState$g([
-    {
-      value: "0",
-      label: "GPT-4o",
-      description: "OpenAI GPT-4o 支援結構化輸出",
-      provider: "AZURE_OPENAI"
-    }
-  ]);
+  const [modelOptions, setModelOptions] = useState$g([]);
   const [isLoadingModels, setIsLoadingModels] = useState$g(false);
   const [modelLoadError, setModelLoadError] = useState$g(null);
-  const [localModel, setLocalModel] = useState$g(data?.model || "0");
+  const [localModel, setLocalModel] = useState$g(data?.model || "");
   const [columns, setColumns] = useState$g(data?.columns || []);
   useEffect$c(() => {
     if (data?.model && data.model !== localModel) {
@@ -35840,20 +35841,20 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     setIsLoadingModels(true);
     setModelLoadError(null);
     try {
-      console.log("開始加載結構化輸出模型...");
       const options = await llmService.getStructuredOutputModelOptions();
-      console.log("獲取到的結構化輸出模型選項:", options);
       if (options && options.length > 0) {
         setModelOptions(options);
         const isCurrentModelValid = options.some(
           (opt) => opt.value === localModel
         );
-        if (!isCurrentModelValid) {
-          const defaultModel = options[0].value;
-          setLocalModel(defaultModel);
-          updateParentState("model", defaultModel);
-          console.log("選擇預設結構化輸出模型:", defaultModel);
+        if (!isCurrentModelValid && localModel) {
+          setLocalModel("");
+          updateParentState("model", "");
         }
+      } else {
+        setModelOptions([]);
+        setLocalModel("");
+        updateParentState("model", "");
       }
     } catch (error) {
       console.error("加載結構化輸出模型失敗:", error);
@@ -35942,6 +35943,38 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     { value: "number", label: "number" },
     { value: "boolean", label: "boolean" }
   ];
+  const getGroupedModelOptions = useCallback$c(() => {
+    if (!modelOptions || modelOptions.length === 0) {
+      return {};
+    }
+    return modelOptions.reduce((groups, option) => {
+      const provider = option.provider || "";
+      if (!groups[provider]) {
+        groups[provider] = [];
+      }
+      groups[provider].push(option);
+      return groups;
+    }, {});
+  }, [modelOptions]);
+  const renderGroupedOptions = useCallback$c(() => {
+    const groupedOptions = getGroupedModelOptions();
+    const providers = Object.keys(groupedOptions).sort();
+    return providers.map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "optgroup",
+      {
+        label: provider,
+        children: groupedOptions[provider].map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "option",
+          {
+            value: option.value,
+            children: option.label
+          },
+          option.value
+        ))
+      },
+      provider
+    ));
+  }, [getGroupedModelOptions]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-98 max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
@@ -35952,7 +35985,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Model" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
               className: `w-full border border-gray-300 rounded p-2 text-sm bg-white appearance-none
@@ -35961,19 +35994,17 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
               value: localModel,
               onChange: handleModelChange,
               disabled: isLoadingModels,
-              children: modelOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "option",
-                {
-                  value: option.value,
-                  title: option.description,
-                  children: [
-                    option.label,
-                    " ",
-                    option.provider ? `(${option.provider})` : ""
-                  ]
-                },
-                option.value
-              ))
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "option",
+                  {
+                    value: "",
+                    disabled: true,
+                    children: modelOptions.length === 0 ? "無可用模型" : "請選擇模型"
+                  }
+                ),
+                renderGroupedOptions()
+              ]
             }
           ),
           isLoadingModels ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
