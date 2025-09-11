@@ -22884,8 +22884,8 @@ function useFlowNodes() {
         id,
         type: "aiCustomInput",
         data: {
-          model: "O3-mini",
-          selectedOption: "prompt",
+          model: "",
+          selectedOption: "",
           ...nodeCallbacksObject
         },
         position: position || {
@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4b02aeee974f98562a174e95ba4b58e6ccf4d978", "VITE_APP_BUILD_TIME": "2025-09-09T07:28:35.517Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.3"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "7ea69a212b35dfaa970f92eae3166b8f7c4481a8", "VITE_APP_BUILD_TIME": "2025-09-11T07:18:47.422Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.4"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26876,7 +26876,6 @@ class LLMService {
       }
 
       // 創建新請求
-
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -26907,19 +26906,9 @@ class LLMService {
             ) {
               data = data.models;
             } else {
-              // 如果無法提取合理的數據，則返回預設模型
-              console.warn('無法從API回應中提取合理的模型數據，使用預設模型');
-              data = [
-                {
-                  id: 1,
-                  name: 'O3-mini',
-                  display_name: 'O3-mini',
-                  is_default: true
-                },
-                { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-                { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-                { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-              ];
+              // 如果無法提取合理的數據，則返回空數組
+              console.warn('無法從API回應中提取合理的模型數據，返回空數組');
+              data = [];
             }
           }
 
@@ -26931,7 +26920,7 @@ class LLMService {
                 id: index + 1,
                 name: `Model ${index + 1}`,
                 display_name: `Model ${index + 1}`,
-                is_default: index === 0
+                is_default: false
               };
             }
 
@@ -26961,18 +26950,8 @@ class LLMService {
           console.error('獲取LLM模型失敗:', error);
           this.pendingRequest = null; // 清除進行中的請求，即使出錯
 
-          // 返回預設模型，而不是拋出錯誤
-          return [
-            {
-              id: 1,
-              name: 'O3-mini',
-              display_name: 'O3-mini',
-              is_default: true
-            },
-            { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-            { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-            { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-          ];
+          // 返回空數組，而不是拋出錯誤
+          return [];
         });
 
       return this.pendingRequest;
@@ -26980,19 +26959,14 @@ class LLMService {
       console.error('獲取LLM模型過程中出錯:', error);
       this.pendingRequest = null;
 
-      // 返回預設模型，而不是拋出錯誤
-      return [
-        { id: 1, name: 'O3-mini', display_name: 'O3-mini', is_default: true },
-        { id: 2, name: 'O3-plus', display_name: 'O3-plus' },
-        { id: 3, name: 'O3-mega', display_name: 'O3-mega' },
-        { id: 4, name: 'O3-ultra', display_name: 'O3-ultra' }
-      ];
+      // 返回空數組，而不是拋出錯誤
+      return [];
     }
   }
 
   /**
-   * 獲取支援 Function Calling 的LLM模型
-   * @param {boolean} requireParallelToolCalls - 是否要求支援 parallel tool calls 功能
+   * 獲取支持 Function Calling 的LLM模型
+   * @param {boolean} requireParallelToolCalls - 是否要求支持 parallel tool calls 功能
    * @returns {Promise<Array>} Function Calling 模型列表
    */
   async getFunctionCallingModels(requireParallelToolCalls = true) {
@@ -27045,16 +27019,8 @@ class LLMService {
           // 檢查數據是否為數組
           if (!Array.isArray(data)) {
             console.warn('API返回的 Function Calling 模型數據不是陣列');
-            // 返回預設模型
-            data = [
-              {
-                id: 15,
-                display_name: 'GPT-5',
-                description:
-                  'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-                provider: 'AZURE_OPENAI'
-              }
-            ];
+            // 返回空數組
+            data = [];
           }
 
           // 檢查每個模型對象，確保結構正確
@@ -27102,23 +27068,8 @@ class LLMService {
           console.error('獲取 Function Calling 模型失敗:', error);
           this.pendingFunctionCallingRequest = null; // 清除進行中的請求，即使出錯
 
-          // 返回預設模型，而不是拋出錯誤
-          return [
-            {
-              id: 15,
-              display_name: 'GPT-5',
-              description:
-                'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-              provider: 'AZURE_OPENAI'
-            },
-            {
-              id: 17,
-              display_name: 'GPT-5 mini',
-              description:
-                'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
-              provider: 'AZURE_OPENAI'
-            }
-          ];
+          // 返回空數組，而不是拋出錯誤
+          return [];
         });
 
       return this.pendingFunctionCallingRequest;
@@ -27126,28 +27077,13 @@ class LLMService {
       console.error('獲取 Function Calling 模型過程中出錯:', error);
       this.pendingFunctionCallingRequest = null;
 
-      // 返回預設模型，而不是拋出錯誤
-      return [
-        {
-          id: 15,
-          display_name: 'GPT-5',
-          description:
-            'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-          provider: 'AZURE_OPENAI'
-        },
-        {
-          id: 17,
-          display_name: 'GPT-5 mini',
-          description:
-            'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空數組，而不是拋出錯誤
+      return [];
     }
   }
 
   /**
-   * 獲取支援結構化輸出的LLM模型
+   * 獲取支持結構化輸出的LLM模型
    * @returns {Promise<Array>} 結構化輸出模型列表
    */
   async getStructuredOutputModels() {
@@ -27191,15 +27127,8 @@ class LLMService {
           // 檢查數據是否為數組
           if (!Array.isArray(data)) {
             console.warn('API返回的結構化輸出模型數據不是陣列');
-            // 返回預設模型
-            data = [
-              {
-                id: 0,
-                display_name: 'GPT-4o',
-                description: 'OpenAI GPT-4o 支援結構化輸出',
-                provider: 'AZURE_OPENAI'
-              }
-            ];
+            // 返回空數組
+            data = [];
           }
 
           // 檢查每個模型對象，確保結構正確
@@ -27242,15 +27171,8 @@ class LLMService {
           console.error('獲取結構化輸出模型失敗:', error);
           this.pendingStructuredOutputRequest = null; // 清除進行中的請求，即使出錯
 
-          // 返回預設模型，而不是拋出錯誤
-          return [
-            {
-              id: 0,
-              display_name: 'GPT-4o',
-              description: 'OpenAI GPT-4o 支援結構化輸出',
-              provider: 'AZURE_OPENAI'
-            }
-          ];
+          // 返回空數組，而不是拋出錯誤
+          return [];
         });
 
       return this.pendingStructuredOutputRequest;
@@ -27258,15 +27180,8 @@ class LLMService {
       console.error('獲取結構化輸出模型過程中出錯:', error);
       this.pendingStructuredOutputRequest = null;
 
-      // 返回預設模型，而不是拋出錯誤
-      return [
-        {
-          id: 0,
-          display_name: 'GPT-4o',
-          description: 'OpenAI GPT-4o 支援結構化輸出',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空數組，而不是拋出錯誤
+      return [];
     }
   }
 
@@ -27328,9 +27243,9 @@ class LLMService {
             }
           }
 
-          // 如果沒有找到有效數據，返回預設知識庫
-          if (!Array.isArray(knowledgeBases) || knowledgeBases.length === 0) {
-            console.warn('無法從API回應中提取合理的知識庫數據，使用預設知識庫');
+          // 如果沒有找到有效數據，返回空數組
+          if (!Array.isArray(knowledgeBases)) {
+            console.warn('無法從API回應中提取合理的知識庫數據，返回空數組');
             knowledgeBases = [];
           }
 
@@ -27426,23 +27341,13 @@ class LLMService {
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
-        console.warn('模型數據無效或不是陣列，使用默認選項');
-        return [
-          { value: '1', label: 'O3-mini' },
-          { value: '2', label: 'O3-plus' },
-          { value: '3', label: 'O3-mega' },
-          { value: '4', label: 'O3-ultra' }
-        ];
+        console.warn('模型數據無效或不是陣列，返回空選項');
+        return [];
       }
 
       if (models.length === 0) {
-        console.warn('API返回的模型陣列為空，使用默認選項');
-        return [
-          { value: '1', label: 'O3-mini' },
-          { value: '2', label: 'O3-plus' },
-          { value: '3', label: 'O3-mega' },
-          { value: '4', label: 'O3-ultra' }
-        ];
+        console.warn('API返回的模型陣列為空，返回空選項');
+        return [];
       }
 
       // 將API返回的模型數據轉換為select選項格式
@@ -27466,31 +27371,27 @@ class LLMService {
 
         // 如果連名稱也沒有，則使用模型ID作為顯示名稱
         const displayLabel = modelLabel || `Model ${modelId}`;
-
+        const provider = model.provider || '';
         return {
           value: modelId,
-          label: displayLabel,
+          label: `${displayLabel}`,
           description: model.description || '',
-          isDefault: !!model.is_default
+          isDefault: !!model.is_default,
+          provider: provider
         };
       });
 
       return options;
     } catch (error) {
       console.error('獲取模型選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
-      return [
-        { value: '1', label: 'O3-mini' },
-        { value: '2', label: 'O3-plus' },
-        { value: '3', label: 'O3-mega' },
-        { value: '4', label: 'O3-ultra' }
-      ];
+      // 返回空陣列，而不是預設選項
+      return [];
     }
   }
 
   /**
    * 獲取格式化後的 Function Calling 模型選項，適用於下拉選單
-   * @param {boolean} requireParallelToolCalls - 是否要求支援 parallel tool calls 功能
+   * @param {boolean} requireParallelToolCalls - 是否要求支持 parallel tool calls 功能
    * @returns {Promise<Array>} 格式化的 Function Calling 模型選項
    */
   async getFunctionCallingModelOptions(requireParallelToolCalls = true) {
@@ -27501,29 +27402,13 @@ class LLMService {
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
-        console.warn('Function Calling 模型數據無效或不是陣列，使用默認選項');
-        return [
-          {
-            value: '15',
-            label: 'GPT-5',
-            description:
-              'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('Function Calling 模型數據無效或不是陣列，返回空選項');
+        return [];
       }
 
       if (models.length === 0) {
-        console.warn('API返回的 Function Calling 模型陣列為空，使用默認選項');
-        return [
-          {
-            value: '15',
-            label: 'GPT-5',
-            description:
-              'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('API返回的 Function Calling 模型陣列為空，返回空選項');
+        return [];
       }
 
       // 將API返回的 Function Calling 模型數據轉換為select選項格式
@@ -27562,23 +27447,8 @@ class LLMService {
       return options;
     } catch (error) {
       console.error('獲取 Function Calling 模型選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
-      return [
-        {
-          value: '15',
-          label: 'GPT-5',
-          description:
-            'GPT-5 is our flagship model for coding, reasoning, and agentic tasks across domains.',
-          provider: 'AZURE_OPENAI'
-        },
-        {
-          value: '17',
-          label: 'GPT-5 mini',
-          description:
-            'GPT-5 mini is a faster, more cost-efficient version of GPT-5.',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空陣列，而不是預設選項
+      return [];
     }
   }
 
@@ -27592,27 +27462,13 @@ class LLMService {
 
       // 檢查模型數據是否有效
       if (!models || !Array.isArray(models)) {
-        console.warn('結構化輸出模型數據無效或不是陣列，使用默認選項');
-        return [
-          {
-            value: '0',
-            label: 'GPT-4o',
-            description: 'OpenAI GPT-4o 支援結構化輸出',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('結構化輸出模型數據無效或不是陣列，返回空選項');
+        return [];
       }
 
       if (models.length === 0) {
-        console.warn('API返回的結構化輸出模型陣列為空，使用默認選項');
-        return [
-          {
-            value: '0',
-            label: 'GPT-4o',
-            description: 'OpenAI GPT-4o 支援結構化輸出',
-            provider: 'AZURE_OPENAI'
-          }
-        ];
+        console.warn('API返回的結構化輸出模型陣列為空，返回空選項');
+        return [];
       }
 
       // 將API返回的結構化輸出模型數據轉換為select選項格式
@@ -27651,15 +27507,8 @@ class LLMService {
       return options;
     } catch (error) {
       console.error('獲取結構化輸出模型選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
-      return [
-        {
-          value: '0',
-          label: 'GPT-4o',
-          description: 'OpenAI GPT-4o 支援結構化輸出',
-          provider: 'AZURE_OPENAI'
-        }
-      ];
+      // 返回空陣列，而不是預設選項
+      return [];
     }
   }
 
@@ -27683,7 +27532,7 @@ class LLMService {
       }));
     } catch (error) {
       console.error('獲取知識庫選項失敗:', error);
-      // 返回一些默認選項，以防API失敗
+      // 返回空陣列，而不是預設選項
       return [];
     }
   }
@@ -32540,12 +32389,7 @@ const promptDisabledIcon = "data:image/svg+xml,%3csvg%20width='60'%20height='61'
 const React$q = await importShared('react');
 const {memo: memo$i,useState: useState$p,useEffect: useEffect$j,useCallback: useCallback$j,useRef: useRef$f} = React$q;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState$p([
-    { value: "1", label: "O3-mini" },
-    { value: "2", label: "O3-plus" },
-    { value: "3", label: "O3-mega" },
-    { value: "4", label: "O3-ultra" }
-  ]);
+  const [modelOptions, setModelOptions] = useState$p([]);
   const [showRefinePrompt, setShowRefinePrompt] = useState$p(false);
   const edges = useEdges();
   const contextConnectionCount = edges.filter(
@@ -32556,7 +32400,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   );
   const [isLoadingModels, setIsLoadingModels] = useState$p(false);
   const [modelLoadError, setModelLoadError] = useState$p(null);
-  const [localModel, setLocalModel] = useState$p(data?.model || "1");
+  const [localModel, setLocalModel] = useState$p(data?.model || "");
   const [promptText, setPromptText] = useState$p(data?.promptText || "");
   const isComposingRef = useRef$f(false);
   const updateTimeoutRef = useRef$f(null);
@@ -32589,15 +32433,14 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         const isCurrentModelValid = options.some(
           (opt) => opt.value === localModel
         );
-        if (!isCurrentModelValid) {
-          let defaultModel = options[0].value;
-          const defaultOption = options.find((opt) => opt.isDefault);
-          if (defaultOption) {
-            defaultModel = defaultOption.value;
-          }
-          setLocalModel(defaultModel);
-          updateParentState("model", defaultModel);
+        if (!isCurrentModelValid && localModel) {
+          setLocalModel("");
+          updateParentState("model", "");
         }
+      } else {
+        setModelOptions([]);
+        setLocalModel("");
+        updateParentState("model", "");
       }
     } catch (error) {
       console.error("加載模型失敗:", error);
@@ -32727,6 +32570,38 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
   const closeRefinePrompt = useCallback$j(() => {
     setShowRefinePrompt(false);
   }, []);
+  const getGroupedModelOptions = useCallback$j(() => {
+    if (!modelOptions || modelOptions.length === 0) {
+      return {};
+    }
+    return modelOptions.reduce((groups, option) => {
+      const provider = option.provider || "";
+      if (!groups[provider]) {
+        groups[provider] = [];
+      }
+      groups[provider].push(option);
+      return groups;
+    }, {});
+  }, [modelOptions]);
+  const renderGroupedOptions = useCallback$j(() => {
+    const groupedOptions = getGroupedModelOptions();
+    const providers = Object.keys(groupedOptions).sort();
+    return providers.map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "optgroup",
+      {
+        label: provider,
+        children: groupedOptions[provider].map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "option",
+          {
+            value: option.value,
+            children: option.label
+          },
+          option.value
+        ))
+      },
+      provider
+    ));
+  }, [getGroupedModelOptions]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
@@ -32749,14 +32624,15 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               disabled: isLoadingModels || showRefinePrompt,
               children: [
                 " ",
-                modelOptions.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "option",
                   {
-                    value: option.value,
-                    children: option.label
-                  },
-                  option.value
-                ))
+                    value: "",
+                    disabled: true,
+                    children: modelOptions.length === 0 ? "無可用模型" : "請選擇模型"
+                  }
+                ),
+                renderGroupedOptions()
               ]
             }
           ),
