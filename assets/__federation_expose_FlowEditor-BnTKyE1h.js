@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4b681ce2b66c1f342267edb01f67d20e91fcaa92", "VITE_APP_BUILD_TIME": "2025-09-11T07:56:17.361Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.5"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "43ee8e1775ee421a718e733a7343f214b4c758aa", "VITE_APP_BUILD_TIME": "2025-09-15T08:38:33.048Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.6"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -40090,7 +40090,7 @@ const CombineTextEditor = forwardRef$1(
             overflow-auto 
             min-h-[60px] 
             max-h-[400px]
-            font-mono
+            font-[SpaceMono-Regular]
             ${isFocused ? "z-50 shadow-md border-blue-400" : ""} 
             ${isDragOver ? "border-blue-500 border-2 shadow-lg" : ""}
             ${className}
@@ -40342,7 +40342,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
       }
     }, 200);
   }, [getEditorContent, updateContent, data]);
-  const handleTabChange = useCallback$4(
+  useCallback$4(
     (newTab) => {
       if (activeTab === "editor" && newTab === "preview") {
         const currentContent = getEditorContent();
@@ -40646,15 +40646,16 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
   }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-96", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[#dbeafe] p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "combine_text" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Combine Text", id) })
-        ] }),
-        connectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full", children: "已連線" })
-      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[#dbeafe] p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "combine_text" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("Combine Text", id) })
+      ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-sm text-gray-700 font-bold", children: "Context" }) }),
+          connectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs bg-[#e5e7eb] text-[#4b5563] px-2 py-1 rounded-full", children: "已連線" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Compose" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "group relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40680,24 +40681,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex mb-4 bg-gray-100 rounded-lg p-1 mt-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => handleTabChange("editor"),
-              className: `flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${activeTab === "editor" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"}`,
-              children: "Editor"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => handleTabChange("preview"),
-              className: `flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${activeTab === "preview" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"}`,
-              children: "Preview"
-            }
-          )
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: activeTab === "editor" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           CombineTextEditor,
           {
@@ -40706,7 +40689,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             onChange: handleTextChange,
             onTagInsert: handleTagInsert,
             placeholder: "點擊此處編輯內容...",
-            className: "bg-gray-900 text-white border-gray-300",
+            className: "bg-[#e5e7eb] text-[#09090b] border-gray-300",
             flowId: getFlowId(),
             initialHtmlContent: editorHtmlContent,
             shouldShowPanel: connectionCount > 0,
@@ -40715,7 +40698,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             style: {
               minHeight: "220px",
               maxHeight: "400px",
-              color: "rgba(255, 255, 255, 0.9)"
+              color: "#09090b"
             },
             onWheel: handleWheel,
             onMouseDown: handleMouseDown,
