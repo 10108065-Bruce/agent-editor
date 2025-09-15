@@ -727,18 +727,25 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                 {formatNodeTitle('Combine Text', id)}
               </span>
             </div>
-            {connectionCount > 0 && (
-              <span className='text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full'>
-                已連線
-              </span>
-            )}
           </div>
         </div>
 
         {/* Content area */}
         <div className='bg-white p-4'>
           <div className='mb-2'>
-            <div className='flex items-center justify-between'>
+            <div className='flex items-center justify-between mb-3'>
+              <div className='flex items-center'>
+                <span className='block text-sm text-gray-700 font-bold'>
+                  Context
+                </span>
+              </div>
+              {connectionCount > 0 && (
+                <span className='text-xs bg-[#e5e7eb] text-[#4b5563] px-2 py-1 rounded-full'>
+                  已連線
+                </span>
+              )}
+            </div>
+            <div className='flex items-center justify-between mb-2'>
               <label className='block text-sm text-gray-700 font-bold'>
                 Compose
               </label>
@@ -762,7 +769,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             </div>
 
             {/* Tab 切換器 */}
-            <div className='flex mb-4 bg-gray-100 rounded-lg p-1 mt-2'>
+            {/* <div className='flex mb-4 bg-gray-100 rounded-lg p-1 mt-2'>
               <button
                 onClick={() => handleTabChange('editor')}
                 className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
@@ -781,7 +788,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                 }`}>
                 Preview
               </button>
-            </div>
+            </div> */}
 
             {/* 內容區域 */}
             <div className='relative'>
@@ -793,7 +800,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                   onChange={handleTextChange}
                   onTagInsert={handleTagInsert}
                   placeholder='點擊此處編輯內容...'
-                  className='bg-gray-900 text-white border-gray-300'
+                  className='bg-[#e5e7eb] text-[#09090b] border-gray-300'
                   flowId={getFlowId()}
                   initialHtmlContent={editorHtmlContent}
                   shouldShowPanel={connectionCount > 0}
@@ -802,7 +809,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                   style={{
                     minHeight: '220px',
                     maxHeight: '400px',
-                    color: 'rgba(255, 255, 255, 0.9)'
+                    color: '#09090b'
                   }}
                   onWheel={handleWheel}
                   onMouseDown={handleMouseDown}

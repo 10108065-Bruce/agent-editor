@@ -1341,7 +1341,7 @@ const CombineTextEditor = forwardRef(
             overflow-auto 
             min-h-[60px] 
             max-h-[400px]
-            font-mono
+            font-[SpaceMono-Regular]
             ${isFocused ? 'z-50 shadow-md border-blue-400' : ''} 
             ${isDragOver ? 'border-blue-500 border-2 shadow-lg' : ''}
             ${className}
