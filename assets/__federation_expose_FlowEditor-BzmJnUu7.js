@@ -24215,7 +24215,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "43ee8e1775ee421a718e733a7343f214b4c758aa", "VITE_APP_BUILD_TIME": "2025-09-15T08:38:33.048Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.6"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2fdf2a8eccc63f5f981cd39202699cb82f1316b3", "VITE_APP_BUILD_TIME": "2025-09-16T03:32:49.453Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.7"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -39353,12 +39353,13 @@ const CombineTextEditor = forwardRef$1(
     const cleanupTagsByConnection = useCallback$5(
       (nodeId, outputName) => {
         if (!editorRef.current) return 0;
-        const expectedTagData = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
+        const expectedTagDataOld = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
+        const expectedTagDataNew = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}__ENDMARKER__`;
         const tagElements = editorRef.current.querySelectorAll(".inline-tag");
         let removedCount = 0;
         tagElements.forEach((tagElement) => {
           const tagData = tagElement.getAttribute("data-tag-data");
-          if (tagData === expectedTagData) {
+          if (tagData === expectedTagDataOld || tagData === expectedTagDataNew) {
             const tagId = parseInt(tagElement.getAttribute("data-tag-id"));
             setTags((prev) => prev.filter((tag) => tag.id !== tagId));
             const selection = window.getSelection();
@@ -40592,8 +40593,8 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         outputName: edge.sourceHandle || "output",
         handleId: edge.targetHandle,
         nodeType: sourceNode?.type || "unknown",
-        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
-        code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}`,
+        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}__ENDMARKER__`,
+        code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}__ENDMARKER__`,
         color: getNodeTagColor(nodeName)
       };
     });
