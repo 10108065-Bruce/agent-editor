@@ -639,10 +639,10 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         nodeType: sourceNode?.type || 'unknown',
         data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${
           edge.sourceHandle || 'output'
-        }`,
+        }__ENDMARKER__`,
         code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${
           edge.sourceHandle || 'output'
-        }`,
+        }__ENDMARKER__`,
         color: getNodeTagColor(nodeName)
       };
     });

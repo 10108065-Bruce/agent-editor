@@ -318,13 +318,17 @@ const CombineTextEditor = forwardRef(
       (nodeId, outputName) => {
         if (!editorRef.current) return 0;
 
-        const expectedTagData = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
+        const expectedTagDataOld = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
+        const expectedTagDataNew = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}__ENDMARKER__`;
         const tagElements = editorRef.current.querySelectorAll('.inline-tag');
         let removedCount = 0;
         tagElements.forEach((tagElement) => {
           const tagData = tagElement.getAttribute('data-tag-data');
 
-          if (tagData === expectedTagData) {
+          if (
+            tagData === expectedTagDataOld ||
+            tagData === expectedTagDataNew
+          ) {
             const tagId = parseInt(tagElement.getAttribute('data-tag-id'));
 
             // 從tags狀態中移除
