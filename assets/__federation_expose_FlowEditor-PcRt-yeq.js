@@ -23535,7 +23535,7 @@ function useFlowNodes() {
       const targetNode = nodes.find((node) => node.id === targetNodeId);
       const isBrowserExtensionOutput = targetNode && targetNode.type === "browserExtensionOutput";
       const isWebhookOutput = targetNode && targetNode.type === "webhook_output";
-      const isAINode = targetNode && (targetNode.type === "aiCustomInput" || targetNode.type === "ai");
+      targetNode && (targetNode.type === "aiCustomInput" || targetNode.type === "ai");
       const isExtractDataNode = targetNode && targetNode.type === "extract_data";
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput = sourceNode && sourceNode.type === "browserExtensionInput";
@@ -23567,23 +23567,6 @@ function useFlowNodes() {
           if (typeof window !== "undefined" && window.notify) {
             window.notify({
               message: `QOCA AIM 節點只能有一個輸入連線，請先刪除現有連線`,
-              type: "error",
-              duration: 3e3
-            });
-          }
-          return;
-        }
-      }
-      if (targetNode && targetNode.type === "httpRequest") {
-        console.log("目標是 HTTP Request 節點，檢查連線限制");
-        const existingEdges = edges.filter(
-          (edge) => edge.target === targetNodeId && edge.targetHandle === "input"
-        );
-        if (existingEdges.length > 0) {
-          console.log(`HTTP Request 節點已有輸入連線，拒絕新連線`);
-          if (typeof window !== "undefined" && window.notify) {
-            window.notify({
-              message: `HTTP Request 節點只能有一個輸入連線，請先刪除現有連線`,
               type: "error",
               duration: 3e3
             });
@@ -23660,25 +23643,6 @@ function useFlowNodes() {
             });
           }
           return;
-        }
-      }
-      if (isAINode) {
-        console.log("目標是AI節點，檢查連線限制");
-        if (targetHandle === "prompt-input") {
-          const existingEdges = edges.filter(
-            (edge) => edge.target === targetNodeId && edge.targetHandle === "prompt-input"
-          );
-          if (existingEdges.length > 0) {
-            console.log(`AI節點的 Prompt 已有連線，拒絕新連線`);
-            if (typeof window !== "undefined" && window.notify) {
-              window.notify({
-                message: `AI節點的 Prompt 已有連線，請先刪除現有連線`,
-                type: "error",
-                duration: 3e3
-              });
-            }
-            return;
-          }
         }
       }
       if (isExtractDataNode) {
@@ -24215,7 +24179,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2fdf2a8eccc63f5f981cd39202699cb82f1316b3", "VITE_APP_BUILD_TIME": "2025-09-16T03:32:49.453Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.7"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "e676f9bb13c1660da79c7bcf809c763c62b956d1", "VITE_APP_BUILD_TIME": "2025-09-17T05:54:21.714Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.8"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -25629,9 +25593,61 @@ class WorkflowMappingService {
     const isMessageNode = targetNode.type === 'line_send_message';
     const isExtractDataNode = targetNode.type === 'extract_data';
     const isSpeechToTextNode = targetNode.type === 'speech_to_text';
+    const isHttpRequestNode = targetNode && targetNode.type === 'httpRequest';
 
     // Schedule Trigger 節點沒有輸入連接，直接返回空對象
     if (isScheduleTriggerNode) {
+      return nodeInput;
+    }
+
+    // 查找所有連線到此節點的邊
+    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
+
+    if (isHttpRequestNode) {
+      // 收集所有 body 連線
+      const bodyEdges = [];
+
+      relevantEdges.forEach((edge) => {
+        const targetHandle = edge.targetHandle || 'input';
+
+        // 檢查是否為 body 相關的 handle
+        if (
+          targetHandle === 'body' ||
+          false ||
+          targetHandle === 'input'
+        ) {
+          bodyEdges.push(edge);
+        }
+      });
+
+      // 處理 body 連線 - 使用 body0, body1, body2 格式
+      bodyEdges.forEach((edge, index) => {
+        const inputKey = `body${index}`;
+
+        // 查找源節點以獲取 return_name
+        const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
+          edge,
+          allNodes
+        );
+
+        // 添加到 nodeInput
+        nodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+      });
+
+      // 檢查是否有直接輸入的 body（當沒有連線時）
+      if (targetNode.data?.body && bodyEdges.length === 0) {
+        nodeInput.body0 = {
+          type: 'string',
+          data: targetNode.data.body,
+          node_id: '' // 空 node_id 表示使用直接輸入的文本
+        };
+      }
+
       return nodeInput;
     }
 
@@ -25672,9 +25688,6 @@ class WorkflowMappingService {
           `特殊處理: 將 input.return_name (${originalNodeInput.input.return_name}) 映射到 output0`
         );
       }
-
-      // 查找所有連線到此節點的邊
-      const relevantEdges = edges.filter((edge) => edge.target === nodeId);
 
       // 按基本 handle 分組
       const handleGroups = {};
@@ -25967,10 +25980,6 @@ class WorkflowMappingService {
 
       return nodeInput;
     }
-
-    // 獲取所有以該節點為目標的邊緣
-    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
-
     // 如果沒有連接，處理特殊情況
     if (relevantEdges.length === 0) {
       // 對於 AI 節點，仍需檢查是否有直接輸入的 promptText
@@ -25986,34 +25995,26 @@ class WorkflowMappingService {
 
     // AI 節點的特殊處理邏輯 ===
     if (isAINode) {
-      // 分別收集 context 和 prompt 連線
-      const contextEdges = [];
+      // 收集所有 prompt 連線
       const promptEdges = [];
 
       relevantEdges.forEach((edge) => {
         const targetHandle = edge.targetHandle || 'input';
 
-        // 檢查是否為 context 相關的 handle
-        if (
-          targetHandle === 'context-input' ||
-          targetHandle.startsWith('context-input_') ||
-          targetHandle.startsWith('context')
-        ) {
-          contextEdges.push(edge);
-        }
         // 檢查是否為 prompt 相關的 handle
-        else if (
-          targetHandle === 'prompt-input' ||
-          targetHandle.startsWith('prompt-input_') ||
-          targetHandle.startsWith('prompt')
+        // 現在所有連到 AI 節點的連線都視為 prompt
+        if (
+          targetHandle === 'prompt' ||
+          false ||
+          targetHandle === 'input'
         ) {
           promptEdges.push(edge);
         }
       });
 
-      // 處理 context 連線 - 統一使用 context0, context1, context2 格式
-      contextEdges.forEach((edge, index) => {
-        const inputKey = `context${index}`;
+      // 處理 prompt 連線 - 使用 prompt0, prompt1, prompt2 格式
+      promptEdges.forEach((edge, index) => {
+        const inputKey = `prompt${index}`;
 
         // 查找源節點以獲取 return_name
         const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
@@ -26030,28 +26031,9 @@ class WorkflowMappingService {
         };
       });
 
-      // 處理 prompt 連線 - 只使用 "prompt" 作為 key
-      if (promptEdges.length > 0) {
-        const edge = promptEdges[0]; // 只取第一個連接，因為 prompt 只能有一個
-        const inputKey = 'prompt';
-
-        // 查找源節點以獲取 return_name
-        const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
-          edge,
-          allNodes
-        );
-
-        nodeInput[inputKey] = {
-          node_id: edge.source,
-          output_name: edge.sourceHandle || 'output',
-          type: 'string',
-          return_name: returnName
-        };
-      }
-
-      // 檢查是否有直接輸入的 promptText（當沒有 prompt 連線時）
+      // 檢查是否有直接輸入的 promptText（當沒有連線時）
       if (targetNode.data?.promptText && promptEdges.length === 0) {
-        nodeInput.prompt = {
+        nodeInput.prompt0 = {
           type: 'string',
           data: targetNode.data.promptText,
           node_id: '' // 空 node_id 表示使用直接輸入的文本
@@ -28376,25 +28358,58 @@ class WorkflowDataConverter {
       const isMessageNode = node.operator === 'line_send_message';
       const isExtractDataNode = node.operator === 'extract_data';
       const isQOCAAimNode = node.operator === 'aim_ml';
+      const isHttpRequestNode = node.operator === 'http_request';
+
+      if (isHttpRequestNode) {
+        // 檢查是否有直接輸入的 body（body0 且 node_id 為空）
+        const body0 = node.node_input?.body0;
+        if (body0 && body0.node_id === '') {
+          const reactFlowNode = nodes.find((n) => n.id === node.id);
+          if (reactFlowNode) {
+            // 設置直接輸入的 body 文本
+            reactFlowNode.data.body = body0.data || '';
+            console.log(`設置HTTP Request節點直接輸入的body: "${body0.data}"`);
+          }
+        }
+
+        // 另外檢查參數中的 body 和 editor_html_content
+        if (node.parameters?.body?.data) {
+          const reactFlowNode = nodes.find((n) => n.id === node.id);
+          if (reactFlowNode && !reactFlowNode.data.body) {
+            reactFlowNode.data.body = node.parameters.body.data;
+          }
+        }
+
+        if (node.parameters?.editor_html_content?.data) {
+          const reactFlowNode = nodes.find((n) => n.id === node.id);
+          if (reactFlowNode) {
+            reactFlowNode.data.editorHtmlContent =
+              node.parameters.editor_html_content.data;
+            console.log(`恢復HTTP Request節點的編輯器HTML內容`);
+          }
+        }
+      }
 
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
 
         if (isAINode) {
-          const promptInput = node.node_input.prompt;
-          if (promptInput && promptInput.node_id === '') {
+          // 處理 promptText 直接輸入
+          const prompt0 = node.node_input.prompt0;
+          if (prompt0 && prompt0.node_id === '') {
             const reactFlowNode = nodes.find((n) => n.id === node.id);
             if (reactFlowNode) {
-              reactFlowNode.data.promptText = promptInput.data || '';
-              console.log(
-                `設置AI節點直接輸入的提示文本: "${promptInput.data}"`
-              );
+              reactFlowNode.data.promptText = prompt0.data || '';
+              reactFlowNode.data.editorHtmlContent = prompt0.html_content || '';
             }
           }
         }
 
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          if (inputKey === 'prompt' && inputValue.node_id === '') {
+          if (
+            (inputKey.startsWith('prompt') && inputValue.node_id === '') ||
+            inputValue.is_empty === true
+          ) {
             return;
           }
 
@@ -28425,10 +28440,8 @@ class WorkflowDataConverter {
           }
 
           if (isAINode) {
-            if (inputKey.startsWith('context')) {
-              targetHandle = 'context-input';
-            } else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
-              targetHandle = 'prompt-input';
+            if (inputKey.startsWith('prompt')) {
+              targetHandle = 'prompt';
             }
           } else if (isKnowledgeNode) {
             if (inputKey === 'passage' || inputKey === 'input') {
@@ -28448,6 +28461,11 @@ class WorkflowDataConverter {
           } else if (isQOCAAimNode) {
             if (inputKey === 'context' || inputKey === 'input') {
               targetHandle = 'input';
+            }
+          } else if (isHttpRequestNode) {
+            // 所有 body 連接都指向 'body' handle
+            if (inputKey.startsWith('body')) {
+              targetHandle = 'body';
             }
           }
 
@@ -28580,15 +28598,21 @@ class WorkflowDataConverter {
             ''
         };
       }
-      case 'http_request':
+      case 'http_request': {
         // HTTP Request 節點的數據轉換
+        const bodyText = node.parameters?.body?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data || '';
+
         return {
           ...baseData,
           url: node.parameters?.url?.data || '',
           method: node.parameters?.method?.data || 'GET',
           headers: node.parameters?.headers?.data || [{ key: '', value: '' }],
-          body: node.parameters?.body?.data || ''
+          body: bodyText,
+          editorHtmlContent: editorHtmlContent // 新增：恢復編輯器 HTML 內容
         };
+      }
       case 'extract_data': {
         // Extract Data 節點的數據轉換
         const columnsData = node.parameters?.columns?.data || [];
@@ -28720,11 +28744,14 @@ class WorkflowDataConverter {
 
         // 提取 prompt 文本
         const promptText = node.parameters?.prompt?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data || '';
 
         return {
           ...baseData,
           model: modelId,
-          promptText: promptText
+          promptText: promptText,
+          editorHtmlContent: editorHtmlContent // 新增：恢復編輯器 HTML 內容
         };
       }
 
@@ -29163,12 +29190,17 @@ class WorkflowDataConverter {
           }
         }
 
-        // Body 處理 - 只有在支援 body 的方法且有內容時才加入
-        if (
-          ['POST', 'PUT', 'PATCH'].includes(node.data.method) &&
-          node.data.body
-        ) {
-          parameters.body = { data: node.data.body };
+        // Body 處理 - 只有在支持 body 的方法且有內容時才加入
+        if (['POST', 'PUT', 'PATCH'].includes(node.data.method)) {
+          if (node.data.body) {
+            parameters.body = { data: node.data.body };
+          }
+
+          if (node.data.editorHtmlContent) {
+            parameters.editor_html_content = {
+              data: node.data.editorHtmlContent
+            };
+          }
         }
         break;
       case 'line_webhook_input':
@@ -29221,30 +29253,26 @@ class WorkflowDataConverter {
 
       case 'aiCustomInput':
       case 'ai': {
-        // 處理可能的無效model值
         const modelValue = node.data.model || '';
-
-        // 確保值為字符串
         const safeModelValue =
           modelValue && typeof modelValue !== 'string'
             ? modelValue.toString()
             : modelValue || null;
 
-        // 使用model作為llm_id - 現在存的是ID值而非名稱
-        // 不要再有預設值，讓後端驗證
-        console.log(safeModelValue);
-        if (!safeModelValue) {
-          console.warn(
-            `節點 ${node.id} 沒有設置模型，請確保選擇一個有效的模型`
-          );
-        } else {
+        if (safeModelValue) {
           parameters.llm_id = { data: Number(safeModelValue) };
         }
 
-        // 新增處理 promptText - 當有直接輸入的提示文本時
-        // 兼容舊版：不覆蓋已有的 prompt 參數
-        if (node.data.promptText && !parameters.prompt) {
+        // 無論是否有連線，都要處理 promptText
+        // 確保 promptText 存在且不是空字串
+        if (node.data.promptText !== undefined && node.data.promptText !== '') {
           parameters.prompt = { data: node.data.promptText };
+        }
+
+        if (node.data.editorHtmlContent) {
+          parameters.editor_html_content = {
+            data: node.data.editorHtmlContent
+          };
         }
 
         break;
@@ -31797,6 +31825,994 @@ const externalService = new ExternalService();
 const iconUploadService = new IconUploadService();
 const aimService = new AIMService();
 
+const React$r = await importShared('react');
+const {useRef: useRef$g,useEffect: useEffect$k,useState: useState$q,useCallback: useCallback$j,forwardRef: forwardRef$1,useImperativeHandle: useImperativeHandle$1} = React$r;
+
+const CombineTextEditor = forwardRef$1(
+  ({
+    value,
+    onChange,
+    onCompositionStart,
+    onCompositionEnd,
+    onKeyDown,
+    placeholder,
+    className,
+    flowId,
+    onTagInsert,
+    initialHtmlContent,
+    shouldShowPanel,
+    showInputPanel,
+    onShowPanel,
+    ...props
+  }, ref) => {
+    const editorRef = useRef$g(null);
+    const [isFocused, setIsFocused] = useState$q(false);
+    const [tags, setTags] = useState$q([]);
+    const [selectedTag, setSelectedTag] = useState$q(null);
+    const [isComposing, setIsComposing] = useState$q(false);
+    const [isInitialized, setIsInitialized] = useState$q(false);
+    const [isRestoring, setIsRestoring] = useState$q(false);
+    const [isDragOver, setIsDragOver] = useState$q(false);
+    const [draggedTag, setDraggedTag] = useState$q(null);
+    const isUpdatingFromExternal = useRef$g(false);
+    const lastReportedValue = useRef$g("");
+    const clickCountRef = useRef$g(0);
+    const lastClickTimeRef = useRef$g(0);
+    const clickTimerRef = useRef$g(null);
+    const isSelectingRef = useRef$g(false);
+    const selectionStartRef = useRef$g(null);
+    const generateDefaultContent = useCallback$j(() => {
+      return JSON.stringify(
+        {
+          flow_id: flowId || "default-flow-id",
+          func_id: "",
+          data: ""
+        },
+        null,
+        2
+      );
+    }, [flowId]);
+    const getEditorTextContent = useCallback$j(() => {
+      if (!editorRef.current) return "";
+      let content = "";
+      const walker = document.createTreeWalker(
+        editorRef.current,
+        NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+        null,
+        false
+      );
+      let node;
+      while (node = walker.nextNode()) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (node.parentElement?.classList?.contains("delete-btn") || node.parentElement?.classList?.contains("tag-display-name")) {
+            continue;
+          }
+          content += node.textContent;
+        } else if (node.classList && node.classList.contains("inline-tag")) {
+          const tagData = node.getAttribute("data-tag-data");
+          if (tagData) {
+            content += tagData;
+          }
+        }
+      }
+      return content;
+    }, []);
+    const handleContentChange = useCallback$j(() => {
+      if (isComposing || isRestoring || isUpdatingFromExternal.current) return;
+      const textContent = getEditorTextContent();
+      if (textContent !== lastReportedValue.current) {
+        lastReportedValue.current = textContent;
+        if (onChange) {
+          onChange({
+            target: {
+              value: textContent
+            }
+          });
+        }
+      }
+    }, [onChange, getEditorTextContent, isComposing, isRestoring]);
+    const setCursorPosition = useCallback$j((x, y) => {
+      if (!editorRef.current) return;
+      let range;
+      if (document.caretRangeFromPoint) {
+        range = document.caretRangeFromPoint(x, y);
+      } else if (document.caretPositionFromPoint) {
+        const caretPos = document.caretPositionFromPoint(x, y);
+        if (caretPos) {
+          range = document.createRange();
+          range.setStart(caretPos.offsetNode, caretPos.offset);
+          range.collapse(true);
+        }
+      }
+      if (range && editorRef.current.contains(range.startContainer)) {
+        const selection2 = window.getSelection();
+        selection2.removeAllRanges();
+        selection2.addRange(range);
+        return true;
+      }
+      range = document.createRange();
+      range.selectNodeContents(editorRef.current);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return false;
+    }, []);
+    const createTagElement = useCallback$j((tagInfo) => {
+      const tagElement = document.createElement("span");
+      tagElement.className = "inline-tag";
+      tagElement.setAttribute("data-tag-id", tagInfo.id);
+      tagElement.setAttribute("data-tag-data", tagInfo.data);
+      tagElement.style.cssText = `
+        display: inline-block;
+        background-color: ${tagInfo.color};
+        color: white;
+        padding: 4px 8px;
+        margin: 2px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: move;
+        white-space: nowrap;
+        user-select: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      `;
+      tagElement.contentEditable = false;
+      tagElement.draggable = true;
+      const tagContent = document.createElement("span");
+      tagContent.className = "tag-display-name";
+      tagContent.textContent = tagInfo.name;
+      tagElement.appendChild(tagContent);
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "×";
+      deleteBtn.style.cssText = "margin-left: 6px; cursor: pointer; font-weight: bold;";
+      tagElement.appendChild(deleteBtn);
+      return tagElement;
+    }, []);
+    const insertTagAtCursor = useCallback$j(
+      (tagInfo) => {
+        if (!editorRef.current) return;
+        const selection = window.getSelection();
+        let range;
+        if (!editorRef.current.contains(document.activeElement)) {
+          editorRef.current.focus();
+        }
+        if (selection.rangeCount === 0) {
+          range = document.createRange();
+          range.selectNodeContents(editorRef.current);
+          range.collapse(false);
+        } else {
+          range = selection.getRangeAt(0);
+          if (!editorRef.current.contains(range.startContainer)) {
+            range = document.createRange();
+            range.selectNodeContents(editorRef.current);
+            range.collapse(false);
+          }
+        }
+        const newTag = {
+          id: Date.now(),
+          name: `${tagInfo.name} (${tagInfo.id.slice(-3)})`,
+          data: tagInfo.data || tagInfo.code,
+          color: tagInfo.color
+        };
+        setTags((prev) => [...prev, newTag]);
+        const tagElement = createTagElement(newTag);
+        range.deleteContents();
+        range.insertNode(tagElement);
+        range.setStartAfter(tagElement);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const editor = editorRef.current;
+        if (editor) {
+          editor.style.outline = "";
+          editor.style.outlineOffset = "";
+          editor.style.backgroundColor = "";
+        }
+        setIsDragOver(false);
+        handleContentChange();
+        if (onTagInsert) {
+          onTagInsert(newTag);
+        }
+        editorRef.current.focus();
+      },
+      [onTagInsert, handleContentChange, createTagElement]
+    );
+    const handleTagDragStart = useCallback$j((e) => {
+      const tagElement = e.target.closest(".inline-tag");
+      if (tagElement) {
+        const tagId = tagElement.getAttribute("data-tag-id");
+        const tagData = tagElement.getAttribute("data-tag-data");
+        const tagName = tagElement.querySelector(".tag-display-name")?.textContent || "";
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData(
+          "text/internal-tag",
+          JSON.stringify({
+            id: tagId,
+            data: tagData,
+            name: tagName,
+            isInternal: true
+          })
+        );
+        tagElement.style.opacity = "0.5";
+        setDraggedTag(tagElement);
+      }
+    }, []);
+    const handleTagDragEnd = useCallback$j((e) => {
+      const tagElement = e.target.closest(".inline-tag");
+      if (tagElement) {
+        tagElement.style.opacity = "1";
+      }
+      setDraggedTag(null);
+      const editor = editorRef.current;
+      if (editor) {
+        editor.style.outline = "";
+        editor.style.backgroundColor = "";
+      }
+    }, []);
+    const cleanupTagsByConnection = useCallback$j(
+      (nodeId, outputName) => {
+        if (!editorRef.current) return 0;
+        const expectedTagDataOld = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
+        const expectedTagDataNew = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}__ENDMARKER__`;
+        const tagElements = editorRef.current.querySelectorAll(".inline-tag");
+        let removedCount = 0;
+        tagElements.forEach((tagElement) => {
+          const tagData = tagElement.getAttribute("data-tag-data");
+          if (tagData === expectedTagDataOld || tagData === expectedTagDataNew) {
+            const tagId = parseInt(tagElement.getAttribute("data-tag-id"));
+            setTags((prev) => prev.filter((tag) => tag.id !== tagId));
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.setStartBefore(tagElement);
+            range.collapse(true);
+            const nextNode = tagElement.nextSibling;
+            tagElement.remove();
+            if (nextNode && nextNode.nodeType === Node.TEXT_NODE && /^\s*$/.test(nextNode.nodeValue)) {
+              nextNode.remove();
+            }
+            selection.removeAllRanges();
+            selection.addRange(range);
+            removedCount++;
+          }
+        });
+        if (removedCount > 0) {
+          handleContentChange();
+        }
+        return removedCount;
+      },
+      [setTags, handleContentChange]
+    );
+    const removeTag = useCallback$j(
+      (tagId) => {
+        const numericTagId = typeof tagId === "string" ? parseInt(tagId) : tagId;
+        setTags((prev) => prev.filter((tag) => tag.id !== numericTagId));
+        setSelectedTag((prev) => prev?.id === numericTagId ? null : prev);
+        const tagElement = document.querySelector(
+          `[data-tag-id="${numericTagId}"]`
+        );
+        if (tagElement) {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.setStartBefore(tagElement);
+          range.collapse(true);
+          const nextNode = tagElement.nextSibling;
+          tagElement.remove();
+          if (nextNode && nextNode.nodeType === Node.TEXT_NODE && /^\s*$/.test(nextNode.nodeValue)) {
+            nextNode.remove();
+          }
+          selection.removeAllRanges();
+          selection.addRange(range);
+          handleContentChange();
+        }
+      },
+      [handleContentChange]
+    );
+    const handleMouseDown = useCallback$j((e) => {
+      if (e.target.closest(".inline-tag")) {
+        return;
+      }
+      isSelectingRef.current = true;
+      selectionStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        shiftKey: e.shiftKey
+      };
+    }, []);
+    const handleMouseMove = useCallback$j((e) => {
+      if (!isSelectingRef.current || !selectionStartRef.current) {
+        return;
+      }
+      const deltaX = Math.abs(e.clientX - selectionStartRef.current.x);
+      const deltaY = Math.abs(e.clientY - selectionStartRef.current.y);
+      if (deltaX < 3 && deltaY < 3) {
+        return;
+      }
+      const selection = window.getSelection();
+      const startRange = document.caretRangeFromPoint(
+        selectionStartRef.current.x,
+        selectionStartRef.current.y
+      );
+      const endRange = document.caretRangeFromPoint(e.clientX, e.clientY);
+      if (startRange && endRange && editorRef.current.contains(startRange.startContainer) && editorRef.current.contains(endRange.startContainer)) {
+        const range = document.createRange();
+        const startPos = startRange.startContainer.compareDocumentPosition(
+          endRange.startContainer
+        );
+        if (startPos === 0) {
+          if (startRange.startOffset <= endRange.startOffset) {
+            range.setStart(startRange.startContainer, startRange.startOffset);
+            range.setEnd(endRange.startContainer, endRange.startOffset);
+          } else {
+            range.setStart(endRange.startContainer, endRange.startOffset);
+            range.setEnd(startRange.startContainer, startRange.startOffset);
+          }
+        } else if (startPos & Node.DOCUMENT_POSITION_FOLLOWING) {
+          range.setStart(startRange.startContainer, startRange.startOffset);
+          range.setEnd(endRange.startContainer, endRange.startOffset);
+        } else {
+          range.setStart(endRange.startContainer, endRange.startOffset);
+          range.setEnd(startRange.startContainer, startRange.startOffset);
+        }
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }, []);
+    const handleMouseUp = useCallback$j(() => {
+      isSelectingRef.current = false;
+      selectionStartRef.current = null;
+    }, []);
+    const handleEditorClick = useCallback$j(
+      (e) => {
+        const tagElement = e.target.closest(".inline-tag");
+        if (tagElement) {
+          const tagId = parseInt(tagElement.getAttribute("data-tag-id"));
+          const tagData = tagElement.getAttribute("data-tag-data");
+          if (e.target.classList.contains("delete-btn")) {
+            e.preventDefault();
+            e.stopPropagation();
+            removeTag(tagId);
+            return;
+          } else {
+            e.preventDefault();
+            e.stopPropagation();
+            if (tagData) {
+              navigator.clipboard.writeText(tagData).then(() => {
+                const originalBg = tagElement.style.backgroundColor;
+                setTimeout(() => {
+                  tagElement.style.backgroundColor = originalBg;
+                }, 200);
+              }).catch(() => {
+                const textArea = document.createElement("textarea");
+                textArea.value = tagData;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                  document.execCommand("copy");
+                } catch (err) {
+                  console.error("複製失敗:", err);
+                }
+                document.body.removeChild(textArea);
+                editorRef.current?.focus();
+              });
+            }
+            const currentTag = tags.find((tag) => tag.id === tagId);
+            const isCurrentlySelected = selectedTag?.id === tagId;
+            document.querySelectorAll(".inline-tag").forEach((tag) => {
+              tag.style.boxShadow = "";
+            });
+            if (isCurrentlySelected) {
+              setSelectedTag(null);
+            } else if (currentTag) {
+              setSelectedTag(currentTag);
+              tagElement.style.boxShadow = "0 0 0 2px #FFFFFF";
+            }
+            return;
+          }
+        }
+        const currentTime = Date.now();
+        const timeDiff = currentTime - lastClickTimeRef.current;
+        if (timeDiff < 300) {
+          clickCountRef.current++;
+        } else {
+          clickCountRef.current = 1;
+        }
+        lastClickTimeRef.current = currentTime;
+        if (clickTimerRef.current) {
+          clearTimeout(clickTimerRef.current);
+        }
+        if (clickCountRef.current === 2) {
+          e.preventDefault();
+          const selection = window.getSelection();
+          const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+          if (range) {
+            const textNode = range.startContainer;
+            if (textNode.nodeType === Node.TEXT_NODE) {
+              const text = textNode.textContent;
+              let start = range.startOffset;
+              let end = range.startOffset;
+              while (start > 0 && !/\s/.test(text[start - 1])) {
+                start--;
+              }
+              while (end < text.length && !/\s/.test(text[end])) {
+                end++;
+              }
+              range.setStart(textNode, start);
+              range.setEnd(textNode, end);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        } else if (clickCountRef.current === 3) {
+          e.preventDefault();
+          const selection = window.getSelection();
+          const range = document.createRange();
+          const clickTarget = e.target;
+          if (clickTarget === editorRef.current || editorRef.current.contains(clickTarget)) {
+            const caretRange = document.caretRangeFromPoint(
+              e.clientX,
+              e.clientY
+            );
+            if (caretRange) {
+              let container = caretRange.startContainer;
+              if (container.nodeType === Node.TEXT_NODE) {
+                container = container.parentNode;
+              }
+              range.selectNodeContents(
+                container === editorRef.current ? container : editorRef.current
+              );
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        } else if (clickCountRef.current === 1) {
+          const selection = window.getSelection();
+          if (selection.toString().length === 0) {
+            setSelectedTag(null);
+            document.querySelectorAll(".inline-tag").forEach((tag) => {
+              tag.style.boxShadow = "";
+            });
+            if (!editorRef.current.contains(document.activeElement)) {
+              editorRef.current.focus();
+            }
+          }
+        }
+        clickTimerRef.current = setTimeout(() => {
+          clickCountRef.current = 0;
+        }, 400);
+        if (shouldShowPanel && onShowPanel && !showInputPanel && clickCountRef.current === 1) {
+          setTimeout(() => {
+            onShowPanel(true);
+          }, 500);
+        }
+      },
+      [
+        tags,
+        selectedTag,
+        removeTag,
+        shouldShowPanel,
+        showInputPanel,
+        onShowPanel
+      ]
+    );
+    const handleKeyDown = useCallback$j(
+      (e) => {
+        if (onKeyDown) {
+          onKeyDown(e);
+          if (e.defaultPrevented) {
+            return;
+          }
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "c" && selectedTag) {
+          e.preventDefault();
+          navigator.clipboard.writeText(selectedTag.data);
+          return;
+        }
+        if (e.key === "Backspace" || e.key === "Delete") {
+          if (selectedTag) {
+            e.preventDefault();
+            removeTag(selectedTag.id);
+            return;
+          }
+          const selection = window.getSelection();
+          if (!selection.rangeCount) return;
+          const range = selection.getRangeAt(0);
+          if (!range.collapsed) return;
+          let tagToDelete = null;
+          if (e.key === "Backspace") {
+            const container = range.startContainer;
+            const offset = range.startOffset;
+            if (container.nodeType === Node.TEXT_NODE) {
+              if (offset === 0 && container.previousSibling?.classList?.contains("inline-tag")) {
+                tagToDelete = container.previousSibling;
+              }
+            } else {
+              if (offset > 0) {
+                const prevNode = container.childNodes[offset - 1];
+                if (prevNode?.classList?.contains("inline-tag")) {
+                  tagToDelete = prevNode;
+                }
+              }
+            }
+          } else if (e.key === "Delete") {
+            const container = range.endContainer;
+            const offset = range.endOffset;
+            if (container.nodeType === Node.TEXT_NODE) {
+              if (offset === container.textContent.length && container.nextSibling?.classList?.contains("inline-tag")) {
+                tagToDelete = container.nextSibling;
+              }
+            } else {
+              if (offset < container.childNodes.length) {
+                const nextNode = container.childNodes[offset];
+                if (nextNode?.classList?.contains("inline-tag")) {
+                  tagToDelete = nextNode;
+                }
+              }
+            }
+          }
+          if (tagToDelete) {
+            e.preventDefault();
+            const tagId = parseInt(tagToDelete.getAttribute("data-tag-id"));
+            removeTag(tagId);
+          }
+        }
+      },
+      [selectedTag, removeTag, onKeyDown]
+    );
+    const handleCompositionStart = useCallback$j(
+      (e) => {
+        setIsComposing(true);
+        if (onCompositionStart) {
+          onCompositionStart(e);
+        }
+      },
+      [onCompositionStart]
+    );
+    const handleCompositionEnd = useCallback$j(
+      (e) => {
+        setIsComposing(false);
+        setTimeout(() => {
+          handleContentChange();
+        }, 0);
+        if (onCompositionEnd) {
+          onCompositionEnd(e);
+        }
+      },
+      [onCompositionEnd, handleContentChange]
+    );
+    const handleInput = useCallback$j(() => {
+      if (!isComposing && !isRestoring && !isUpdatingFromExternal.current) {
+        setTimeout(() => {
+          handleContentChange();
+        }, 0);
+      }
+    }, [isComposing, isRestoring, handleContentChange]);
+    useImperativeHandle$1(
+      ref,
+      () => ({
+        insertTagAtCursor: (tagData) => {
+          insertTagAtCursor(tagData);
+        },
+        focus: () => {
+          if (editorRef.current) {
+            editorRef.current.focus();
+          }
+        },
+        getValue: () => {
+          return getEditorTextContent();
+        },
+        get innerHTML() {
+          return editorRef.current ? editorRef.current.innerHTML : "";
+        },
+        set innerHTML(content) {
+          if (editorRef.current) {
+            isUpdatingFromExternal.current = true;
+            editorRef.current.innerHTML = content;
+            setTimeout(() => {
+              isUpdatingFromExternal.current = false;
+            }, 500);
+          }
+        },
+        // 根據連接信息清理tag
+        cleanupTagsByConnection
+      }),
+      [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
+    );
+    useEffect$k(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      editor.addEventListener("mousedown", handleMouseDown);
+      editor.addEventListener("mousemove", handleMouseMove);
+      editor.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        editor.removeEventListener("mousedown", handleMouseDown);
+        editor.removeEventListener("mousemove", handleMouseMove);
+        editor.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+    }, [handleMouseDown, handleMouseMove, handleMouseUp]);
+    useEffect$k(() => {
+      return () => {
+        if (clickTimerRef.current) {
+          clearTimeout(clickTimerRef.current);
+        }
+      };
+    }, []);
+    useEffect$k(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const resizeObserver = new ResizeObserver(() => {
+        editor.style.height = "auto";
+        const scrollHeight = Math.max(editor.scrollHeight, 60);
+        editor.style.height = `${Math.min(scrollHeight, 400)}px`;
+      });
+      resizeObserver.observe(editor);
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }, []);
+    useEffect$k(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      editor.style.position = "relative";
+      editor.style.zIndex = "10001";
+      const setupTagDragEvents = () => {
+        const tagElements = editor.querySelectorAll(".inline-tag");
+        tagElements.forEach((tag) => {
+          tag.draggable = true;
+          tag.style.cursor = "move";
+        });
+      };
+      setupTagDragEvents();
+      const observer = new MutationObserver(() => {
+        setupTagDragEvents();
+      });
+      observer.observe(editor, {
+        childList: true,
+        subtree: true
+      });
+      const handleDragOverCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = draggedTag ? "move" : "copy";
+        setIsDragOver(true);
+        const x = e.clientX;
+        const y = e.clientY;
+        setCursorPosition(x, y);
+      };
+      const handleDragEnterCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+      };
+      const handleDragLeaveCapture = (e) => {
+        if (!editor.contains(e.relatedTarget)) {
+          setIsDragOver(false);
+          editor.style.outline = "";
+          editor.style.outlineOffset = "";
+          editor.style.backgroundColor = "";
+        }
+      };
+      const handleDropCapture = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+        const cleanupVisualEffects = () => {
+          editor.style.outline = "";
+          editor.style.outlineOffset = "";
+          editor.style.backgroundColor = "";
+        };
+        cleanupVisualEffects();
+        const internalTagData = e.dataTransfer.getData("text/internal-tag");
+        const externalData = e.dataTransfer.getData("text/plain");
+        if (internalTagData) {
+          try {
+            const tagInfo = JSON.parse(internalTagData);
+            const originalTag = editor.querySelector(
+              `[data-tag-id="${tagInfo.id}"]`
+            );
+            if (originalTag) {
+              originalTag.remove();
+              const targetElement = document.elementFromPoint(
+                e.clientX,
+                e.clientY
+              );
+              const targetTag = targetElement?.closest(".inline-tag");
+              let insertPosition;
+              if (targetTag && targetTag !== originalTag) {
+                const tagRect = targetTag.getBoundingClientRect();
+                const isLeftHalf = e.clientX < tagRect.left + tagRect.width / 2;
+                const range = document.createRange();
+                if (isLeftHalf) {
+                  range.setStartBefore(targetTag);
+                } else {
+                  range.setStartAfter(targetTag);
+                }
+                range.collapse(true);
+                insertPosition = range;
+              } else {
+                editor.focus();
+                setCursorPosition(e.clientX, e.clientY);
+                const selection2 = window.getSelection();
+                insertPosition = selection2.getRangeAt(0);
+              }
+              const newTagElement = createTagElement({
+                id: tagInfo.id,
+                name: tagInfo.name,
+                data: tagInfo.data,
+                color: originalTag.style.backgroundColor
+              });
+              insertPosition.insertNode(newTagElement);
+              const newRange = document.createRange();
+              newRange.setStartAfter(newTagElement);
+              newRange.collapse(true);
+              const selection = window.getSelection();
+              selection.removeAllRanges();
+              selection.addRange(newRange);
+              handleContentChange();
+            }
+          } catch (error) {
+            console.error("內部標籤移動失敗:", error);
+          }
+        } else if (externalData) {
+          try {
+            const nodeInfo = JSON.parse(externalData);
+            editor.focus();
+            const x = e.clientX;
+            const y = e.clientY;
+            setCursorPosition(x, y);
+            insertTagAtCursor(nodeInfo);
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 0);
+            setTimeout(() => {
+              cleanupVisualEffects();
+            }, 100);
+          } catch (error) {
+            console.error("⌠標籤插入失敗:", error);
+            cleanupVisualEffects();
+          }
+        } else {
+          cleanupVisualEffects();
+        }
+        setDraggedTag(null);
+      };
+      editor.addEventListener("dragstart", handleTagDragStart);
+      editor.addEventListener("dragend", handleTagDragEnd);
+      editor.addEventListener("dragover", handleDragOverCapture, true);
+      editor.addEventListener("dragenter", handleDragEnterCapture, true);
+      editor.addEventListener("dragleave", handleDragLeaveCapture, true);
+      editor.addEventListener("drop", handleDropCapture, true);
+      return () => {
+        observer.disconnect();
+        editor.style.outline = "";
+        editor.style.outlineOffset = "";
+        editor.style.backgroundColor = "";
+        editor.removeEventListener("dragstart", handleTagDragStart);
+        editor.removeEventListener("dragend", handleTagDragEnd);
+        editor.removeEventListener("dragover", handleDragOverCapture, true);
+        editor.removeEventListener("dragenter", handleDragEnterCapture, true);
+        editor.removeEventListener("dragleave", handleDragLeaveCapture, true);
+        editor.removeEventListener("drop", handleDropCapture, true);
+      };
+    }, [
+      setCursorPosition,
+      insertTagAtCursor,
+      handleTagDragStart,
+      handleTagDragEnd,
+      draggedTag,
+      createTagElement,
+      handleContentChange
+    ]);
+    useEffect$k(() => {
+      if (initialHtmlContent && editorRef.current && !isInitialized) {
+        setIsRestoring(true);
+        isUpdatingFromExternal.current = true;
+        editorRef.current.innerHTML = initialHtmlContent;
+        lastReportedValue.current = getEditorTextContent();
+        const tagElements = editorRef.current.querySelectorAll(".inline-tag");
+        const restoredTags = [];
+        tagElements.forEach((element) => {
+          const tagId = parseInt(element.getAttribute("data-tag-id"));
+          const tagData = element.getAttribute("data-tag-data");
+          if (!isNaN(tagId) && tagData) {
+            const tagNameElement = element.querySelector(
+              "span:not(.delete-btn)"
+            );
+            const tagName = tagNameElement ? tagNameElement.textContent.trim() : "Tag";
+            restoredTags.push({
+              id: tagId,
+              data: tagData,
+              name: tagName
+            });
+            element.draggable = true;
+            element.style.cursor = "move";
+          }
+        });
+        setTags(restoredTags);
+        setIsInitialized(true);
+        setTimeout(() => {
+          setIsRestoring(false);
+          isUpdatingFromExternal.current = false;
+        }, 500);
+      }
+    }, [initialHtmlContent, isInitialized, getEditorTextContent]);
+    useEffect$k(() => {
+      if (!initialHtmlContent && editorRef.current && (!value || value === "") && editorRef.current.textContent === "" && !isInitialized) {
+        const defaultContent = generateDefaultContent();
+        isUpdatingFromExternal.current = true;
+        editorRef.current.textContent = defaultContent;
+        lastReportedValue.current = defaultContent;
+        setIsInitialized(true);
+        setTimeout(() => {
+          isUpdatingFromExternal.current = false;
+          handleContentChange();
+        }, 500);
+      }
+    }, [
+      value,
+      generateDefaultContent,
+      handleContentChange,
+      initialHtmlContent,
+      isInitialized
+    ]);
+    useEffect$k(() => {
+      if (isInitialized && value !== void 0 && value !== lastReportedValue.current && !isUpdatingFromExternal.current && !isFocused) {
+        isUpdatingFromExternal.current = true;
+        editorRef.current.textContent = value;
+        lastReportedValue.current = value;
+        setTimeout(() => {
+          isUpdatingFromExternal.current = false;
+        }, 500);
+      }
+    }, [value, isInitialized, isFocused]);
+    useEffect$k(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const handleFocus = () => setIsFocused(true);
+      const handleBlur = () => {
+        setIsFocused(false);
+        setTimeout(() => {
+          if (!isUpdatingFromExternal.current) {
+            handleContentChange();
+          }
+        }, 0);
+      };
+      editor.addEventListener("focus", handleFocus);
+      editor.addEventListener("blur", handleBlur);
+      return () => {
+        editor.removeEventListener("focus", handleFocus);
+        editor.removeEventListener("blur", handleBlur);
+      };
+    }, [handleContentChange]);
+    useEffect$k(() => {
+      if (isFocused) {
+        const findReactFlowNode = (element) => {
+          let current = element;
+          while (current && !current.classList?.contains("react-flow__node")) {
+            current = current.parentElement;
+          }
+          return current;
+        };
+        const reactFlowNode = findReactFlowNode(editorRef.current);
+        if (reactFlowNode) {
+          reactFlowNode._originalClassName = reactFlowNode.className;
+          reactFlowNode.classList.add("nodrag");
+        }
+        return () => {
+          if (reactFlowNode && reactFlowNode._originalClassName) {
+            reactFlowNode.className = reactFlowNode._originalClassName;
+            delete reactFlowNode._originalClassName;
+          }
+        };
+      }
+    }, [isFocused]);
+    useEffect$k(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const handleWheelCapture = (e) => {
+        if (isFocused && (e.target === editor || editor.contains(e.target))) {
+          e.stopPropagation();
+          const isAtTop = editor.scrollTop <= 0;
+          const isAtBottom = Math.abs(
+            editor.scrollTop + editor.clientHeight - editor.scrollHeight
+          ) <= 1;
+          if (isAtTop && e.deltaY < 0 || isAtBottom && e.deltaY > 0) {
+            e.preventDefault();
+          }
+        }
+      };
+      const preventZoom = (e) => {
+        if (isFocused && (e.ctrlKey || e.metaKey) && (e.target === editor || editor.contains(e.target))) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+      document.addEventListener("wheel", handleWheelCapture, {
+        passive: false,
+        capture: true
+      });
+      document.addEventListener("wheel", preventZoom, {
+        passive: false,
+        capture: true
+      });
+      return () => {
+        document.removeEventListener("wheel", handleWheelCapture, {
+          passive: false,
+          capture: true
+        });
+        document.removeEventListener("wheel", preventZoom, {
+          passive: false,
+          capture: true
+        });
+      };
+    }, [isFocused]);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
+            @keyframes blink {
+              0%, 50% { opacity: 1; }
+              51%, 100% { opacity: 0.3; }
+            }
+            .inline-tag {
+              transition: transform 0.2s;
+            }
+            .inline-tag:hover {
+              transform: scale(1.05);
+            }
+            .inline-tag.dragging {
+              opacity: 0.5;
+            }
+          ` }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          ref: editorRef,
+          contentEditable: true,
+          suppressContentEditableWarning: true,
+          onInput: handleInput,
+          onClick: handleEditorClick,
+          onKeyDown: handleKeyDown,
+          onCompositionStart: handleCompositionStart,
+          onCompositionEnd: handleCompositionEnd,
+          className: `
+            w-full 
+            border 
+            border-gray-300 
+            rounded 
+            p-3 
+            text-sm 
+            resize-none 
+            overflow-auto 
+            min-h-[60px] 
+            max-h-[400px]
+            font-[SpaceMono-Regular]
+            ${isFocused ? "z-50 shadow-md border-blue-400" : ""} 
+            ${isDragOver ? "border-blue-500 border-2 shadow-lg" : ""}
+            ${className}
+          `,
+          style: {
+            fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace',
+            lineHeight: "1.5",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            position: "relative",
+            zIndex: isDragOver ? 10001 : isFocused ? 1e4 : "auto",
+            ...props.style
+          },
+          "data-placeholder": placeholder,
+          ...props
+        }
+      )
+    ] });
+  }
+);
+CombineTextEditor.displayName = "CombineTextEditor";
+
 /**
  * Prompt 生成器 API 服務
  */
@@ -31878,12 +32894,12 @@ const InsertIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAA
 
 const CopytIncon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAACEUExURUdwTHfO6EHP3jLP2ljP40nP32jO5RrP1yjP2jXP3CvO2RTO1UbP4AnP03/O6TLO20vP4FrP4nvO6n3N6X3O6nzO6H/N6X7O6X/N6knO4E/O4TbO3ETO31XO4jDP2yHO2D/O3hjO1inO2TvO3V/O5FrO4w/P1GTO5W3O5nLO6GjO5XnO6Z7gXIcAAAAZdFJOUwCA22B/IYB//n/ds5nl33DvRe9ov7+v35/+eYC1AAABqUlEQVRIx83W2ZqCIBQA4EZzwk+darZvUkPFNJf3f79hOUCyaJdxzd9ZOEK73auuKA3y/Hq9dt3tdr/fp2kYhnEc5/nz+8u1P75c8twt5vkjsveX5YUTEDchRp+I6tIlJiV+DZC2dc3FKd2L9Q7rDZYBAgqoOIXPtqhoW0qC6OmeFlTI/efj3pnWOVoAKng+4UlV3sleye7+aYKpCER7Xd21zwPjok3Y79flutAA45h1y30eAydMyCkhApxp6eVqjB8JEAdH3l1byDGhkygBIQzE/Dw8UyKEBoQDdh5GjGV3AVQIASjsrGDchZCgIuRAAS5cMR4rV6ASYFNoUAmAIStfdwE0ABBejzEp0HBwIGRDaNAAeBDOrDRoOEBbwgAVIRtZAeglQHStxpCgB1AtYjgmUYFeglXRSZBRwUBjCqsOAIkEmwLAUQEQyCd2OicAXCDvCarbOFOgWa1c398JA71H6BjLG/PQa4HclVvgMYar8iUI+x4IxDC/jzwwHiK531t5alz7iQrhEdZbl/kFyyq2X2tTiC8KCxG7HqMwyYwYUHmQRi/7r+QfNo2tdAXm1y8AAAAASUVORK5CYII=";
 
-const React$r = await importShared('react');
-const {useState: useState$q,useEffect: useEffect$k,useRef: useRef$g} = React$r;
+const React$q = await importShared('react');
+const {useState: useState$p,useEffect: useEffect$j,useRef: useRef$f} = React$q;
 const ScrollableTextArea = ({ children, className }) => {
-  const scrollRef = useRef$g(null);
-  const [isFocused, setIsFocused] = useState$q(false);
-  useEffect$k(() => {
+  const scrollRef = useRef$f(null);
+  const [isFocused, setIsFocused] = useState$p(false);
+  useEffect$j(() => {
     const scrollArea = scrollRef.current;
     if (!scrollArea) return;
     const handleFocus = () => setIsFocused(true);
@@ -31895,7 +32911,7 @@ const ScrollableTextArea = ({ children, className }) => {
       scrollArea.removeEventListener("blur", handleBlur, true);
     };
   }, []);
-  useEffect$k(() => {
+  useEffect$j(() => {
     const scrollArea = scrollRef.current;
     if (!scrollArea) return;
     const handleWheelCapture = (e) => {
@@ -31946,8 +32962,8 @@ const ScrollableTextArea = ({ children, className }) => {
   );
 };
 const SelectableTextArea = ({ children, className }) => {
-  const scrollRef = useRef$g(null);
-  useEffect$k(() => {
+  const scrollRef = useRef$f(null);
+  useEffect$j(() => {
     const scrollArea = scrollRef.current;
     if (!scrollArea) return;
     const handleWheelCapture = (e) => {
@@ -32030,14 +33046,14 @@ const RefinePromptOverlay = ({
   offsetY = -200
   // 也讓 Y 軸偏移量可配置，默認 -200
 }) => {
-  const [isLoading, setIsLoading] = useState$q(false);
-  const [optimizedPrompt, setOptimizedPrompt] = useState$q("");
-  const [promptExpanded, setPromptExpanded] = useState$q(false);
-  const [error, setError] = useState$q(null);
-  const [apiResponse, setApiResponse] = useState$q(null);
-  const overlayRef = useRef$g(null);
-  const lastParamsRef = useRef$g({ prompt: "", llmId: null });
-  useEffect$k(() => {
+  const [isLoading, setIsLoading] = useState$p(false);
+  const [optimizedPrompt, setOptimizedPrompt] = useState$p("");
+  const [promptExpanded, setPromptExpanded] = useState$p(false);
+  const [error, setError] = useState$p(null);
+  const [apiResponse, setApiResponse] = useState$p(null);
+  const overlayRef = useRef$f(null);
+  const lastParamsRef = useRef$f({ prompt: "", llmId: null });
+  useEffect$j(() => {
     if (isOpen) {
       const currentParams = { prompt: originalPrompt, llmId };
       const lastParams = lastParamsRef.current;
@@ -32394,34 +33410,32 @@ const RefinePromptOverlay = ({
 
 const promptDisabledIcon = "data:image/svg+xml,%3csvg%20width='60'%20height='61'%20viewBox='0%200%2060%2061'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='60'%20height='61'%20rx='12'%20fill='%23F5F5F5'/%3e%3cpath%20d='M27.647%2030.324a1.576%201.576%200%200%201%202.248%200l.547.553c.62.63.62%201.649%200%202.277L15.919%2047.861a1.576%201.576%200%200%201-2.248%200l-.547-.553a1.625%201.625%200%200%201%200-2.277l14.523-14.707zM36.141%2017.204c0%20.663-.53%201.201-1.186%201.201a1.194%201.194%200%200%201-1.186-1.2V13.2c0-.663.531-1.201%201.186-1.201.655%200%201.186.538%201.186%201.201v4.003zM30.384%2018.785c.463.47.463%201.23%200%201.699a1.175%201.175%200%200%201-1.677%200l-2.796-2.831a1.212%201.212%200%200%201%200-1.698%201.175%201.175%200%200%201%201.677%200l2.796%202.83zM27.05%2024.81c.654%200%201.185.538%201.185%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM46.814%2024.81c.655%200%201.186.538%201.186%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM42.841%2015.955a1.175%201.175%200%200%201%201.677%200c.463.469.463%201.229%200%201.698l-2.795%202.83a1.175%201.175%200%200%201-1.677%200%201.212%201.212%200%200%201%200-1.698l2.795-2.83zM43.824%2033.197c.463.469.463%201.23%200%201.698a1.175%201.175%200%200%201-1.677%200l-2.795-2.83a1.212%201.212%200%200%201%200-1.699%201.175%201.175%200%200%201%201.677%200l2.795%202.83zM36.141%2038.02c0%20.664-.53%201.202-1.186%201.202a1.194%201.194%200%200%201-1.186-1.201v-4.004c0-.663.531-1.2%201.186-1.2.655%200%201.186.537%201.186%201.2v4.004zM34.745%2021.223a.236.236%200%200%201%20.421%200l1.499%202.953c.022.045.058.081.102.104l2.917%201.517a.242.242%200%200%201%200%20.428l-2.917%201.517a.238.238%200%200%200-.102.104l-1.499%202.953a.236.236%200%200%201-.421%200l-1.499-2.953a.24.24%200%200%200-.102-.104l-2.917-1.517a.242.242%200%200%201%200-.428l2.917-1.517a.24.24%200%200%200%20.102-.104l1.498-2.953z'%20fill='%23D9D9D9'/%3e%3c/svg%3e";
 
-const React$q = await importShared('react');
-const {memo: memo$i,useState: useState$p,useEffect: useEffect$j,useCallback: useCallback$j,useRef: useRef$f} = React$q;
+const React$p = await importShared('react');
+const {memo: memo$i,useState: useState$o,useEffect: useEffect$i,useCallback: useCallback$i,useRef: useRef$e} = React$p;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState$p([]);
-  const [showRefinePrompt, setShowRefinePrompt] = useState$p(false);
+  const [modelOptions, setModelOptions] = useState$o([]);
+  const [showRefinePrompt, setShowRefinePrompt] = useState$o(false);
   const edges = useEdges();
-  const contextConnectionCount = edges.filter(
-    (edge) => edge.target === id && edge.targetHandle === "context-input"
+  const nodes = useNodes();
+  const promptConnectionCount = edges.filter(
+    (edge) => edge.target === id && edge.targetHandle === "prompt"
   ).length;
-  edges.some(
-    (edge) => edge.target === id && edge.targetHandle === "prompt-input"
+  const [isLoadingModels, setIsLoadingModels] = useState$o(false);
+  const [modelLoadError, setModelLoadError] = useState$o(null);
+  const [localModel, setLocalModel] = useState$o(data?.model || "");
+  const [promptText, setPromptText] = useState$o(data?.promptText || "");
+  const editorRef = useRef$e(null);
+  const isComposingRef = useRef$e(false);
+  const updateTimeoutRef = useRef$e(null);
+  const lastExternalValueRef = useRef$e(data?.promptText || "");
+  const isUserInputRef = useRef$e(false);
+  const [showInputPanel, setShowInputPanel] = useState$o(false);
+  const [filterText, setFilterText] = useState$o("");
+  const [editorHtmlContent, setEditorHtmlContent] = useState$o(
+    data?.editorHtmlContent || ""
   );
-  const [isLoadingModels, setIsLoadingModels] = useState$p(false);
-  const [modelLoadError, setModelLoadError] = useState$p(null);
-  const [localModel, setLocalModel] = useState$p(data?.model || "");
-  const [promptText, setPromptText] = useState$p(data?.promptText || "");
-  const isComposingRef = useRef$f(false);
-  const updateTimeoutRef = useRef$f(null);
-  const lastExternalValueRef = useRef$f(data?.promptText || "");
-  const isUserInputRef = useRef$f(false);
-  useEffect$j(() => {
-    console.log("AICustomInputNode 數據同步更新:", {
-      "data.model": data?.model,
-      "data.promptText": data?.promptText,
-      "current promptText": promptText,
-      isUserInput: isUserInputRef.current,
-      isComposing: isComposingRef.current
-    });
+  const [isInitialized, setIsInitialized] = useState$o(false);
+  useEffect$i(() => {
     if (data?.model && data.model !== localModel) {
       setLocalModel(data.model);
     }
@@ -32429,7 +33443,31 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       setPromptText(data.promptText);
       lastExternalValueRef.current = data.promptText;
     }
-  }, [data?.model, data?.promptText, localModel, promptText]);
+    if (data?.editorHtmlContent !== void 0 && data.editorHtmlContent !== editorHtmlContent) {
+      setEditorHtmlContent(data.editorHtmlContent);
+    }
+  }, [
+    data?.model,
+    data?.promptText,
+    data?.editorHtmlContent,
+    localModel,
+    promptText,
+    editorHtmlContent
+  ]);
+  useEffect$i(() => {
+    if (!isInitialized && data) {
+      const initialContent = data.promptText || "";
+      const initialHtmlContent = data.editorHtmlContent || "";
+      if (initialContent) {
+        setPromptText(initialContent);
+        lastExternalValueRef.current = initialContent;
+      }
+      if (initialHtmlContent) {
+        setEditorHtmlContent(initialHtmlContent);
+      }
+      setIsInitialized(true);
+    }
+  }, [data, isInitialized]);
   const loadModels = async () => {
     if (isLoadingModels) return;
     setIsLoadingModels(true);
@@ -32451,7 +33489,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         updateParentState("model", "");
       }
     } catch (error) {
-      console.error("加載模型失敗:", error);
+      console.error("載入模型失敗:", error);
       if (!(error.message && (error.message.includes("已有進行中的LLM模型請求") || error.message.includes("進行中的請求") || error.message.includes("使用相同請求")))) {
         setModelLoadError("無法載入模型列表，請稍後再試");
       }
@@ -32459,10 +33497,10 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       setIsLoadingModels(false);
     }
   };
-  useEffect$j(() => {
+  useEffect$i(() => {
     loadModels();
   }, []);
-  const updateParentState = useCallback$j(
+  const updateParentState = useCallback$i(
     (key, value) => {
       if (data && typeof data.updateNodeData === "function") {
         data.updateNodeData(key, value);
@@ -32476,7 +33514,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleModelChange = useCallback$j(
+  const handleModelChange = useCallback$i(
     (e) => {
       const newModelValue = e.target.value;
       setLocalModel(newModelValue);
@@ -32484,7 +33522,18 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handlePromptTextChange = useCallback$j(
+  const getEditorContent = useCallback$i(() => {
+    if (!editorRef.current) return null;
+    try {
+      if (typeof editorRef.current.getValue === "function") {
+        return editorRef.current.getValue();
+      }
+    } catch (error) {
+      console.warn("獲取編輯器內容失敗:", error);
+    }
+    return null;
+  }, []);
+  const handlePromptTextChange = useCallback$i(
     (e) => {
       const newText = e.target.value;
       isUserInputRef.current = true;
@@ -32493,18 +33542,47 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-      if (!isComposingRef.current) {
-        updateTimeoutRef.current = setTimeout(() => {
-          updateParentState("promptText", newText);
-          setTimeout(() => {
-            isUserInputRef.current = false;
-          }, 100);
-        }, 150);
-      }
+      updateTimeoutRef.current = setTimeout(() => {
+        updateParentState("promptText", newText);
+        if (editorRef.current) {
+          try {
+            const htmlContent = editorRef.current.innerHTML || "";
+            if (htmlContent !== editorHtmlContent) {
+              setEditorHtmlContent(htmlContent);
+              if (data && typeof data.updateNodeData === "function") {
+                data.updateNodeData("editorHtmlContent", htmlContent);
+              }
+            }
+          } catch (error) {
+            console.warn("更新 HTML 內容失敗:", error);
+          }
+        }
+        isUserInputRef.current = false;
+      }, 10);
     },
-    [updateParentState]
+    [updateParentState, editorHtmlContent, data]
   );
-  const handleCompositionStart = useCallback$j(() => {
+  const handleTagInsert = useCallback$i(() => {
+    setTimeout(() => {
+      const editorContent = getEditorContent();
+      if (editorContent) {
+        setPromptText(editorContent);
+        updateParentState("promptText", editorContent);
+        if (editorRef.current) {
+          try {
+            const htmlContent = editorRef.current.innerHTML || "";
+            setEditorHtmlContent(htmlContent);
+            if (data && typeof data.updateNodeData === "function") {
+              data.updateNodeData("editorHtmlContent", htmlContent);
+            }
+          } catch (error) {
+            console.warn("更新 HTML 內容失敗:", error);
+          }
+        }
+      }
+    }, 200);
+  }, [getEditorContent, updateParentState, data]);
+  const handleCompositionStart = useCallback$i(() => {
     isComposingRef.current = true;
     isUserInputRef.current = true;
     if (updateTimeoutRef.current) {
@@ -32512,20 +33590,33 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current = null;
     }
   }, []);
-  const handleCompositionEnd = useCallback$j(
+  const handleCompositionEnd = useCallback$i(
     (e) => {
       isComposingRef.current = false;
       const finalText = e.target.value;
       setPromptText(finalText);
       lastExternalValueRef.current = finalText;
       updateParentState("promptText", finalText);
+      if (editorRef.current) {
+        try {
+          const htmlContent = editorRef.current.innerHTML || "";
+          if (htmlContent !== editorHtmlContent) {
+            setEditorHtmlContent(htmlContent);
+            if (data && typeof data.updateNodeData === "function") {
+              data.updateNodeData("editorHtmlContent", htmlContent);
+            }
+          }
+        } catch (error) {
+          console.warn("更新 HTML 內容失敗:", error);
+        }
+      }
       setTimeout(() => {
         isUserInputRef.current = false;
-      }, 200);
+      }, 10);
     },
-    [updateParentState]
+    [updateParentState, editorHtmlContent, data]
   );
-  const handleKeyDown = useCallback$j((e) => {
+  const handleKeyDown = useCallback$i((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputRef.current = true;
       setTimeout(() => {
@@ -32533,14 +33624,117 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  useEffect$j(() => {
+  const handleBlur = useCallback$i(() => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
+    }
+    const currentContent = getEditorContent();
+    if (currentContent && currentContent !== lastExternalValueRef.current) {
+      setPromptText(currentContent);
+      lastExternalValueRef.current = currentContent;
+      updateParentState("promptText", currentContent);
+    }
+    if (editorRef.current) {
+      try {
+        const htmlContent = editorRef.current.innerHTML || "";
+        if (htmlContent !== editorHtmlContent) {
+          setEditorHtmlContent(htmlContent);
+          if (data && typeof data.updateNodeData === "function") {
+            data.updateNodeData("editorHtmlContent", htmlContent);
+          }
+        }
+      } catch (error) {
+        console.warn("更新 HTML 內容失敗:", error);
+      }
+    }
+    isUserInputRef.current = false;
+  }, [getEditorContent, updateParentState, editorHtmlContent, data]);
+  useEffect$i(() => {
+    const connectedEdges = edges.filter(
+      (edge) => edge.target === id && edge.targetHandle === "prompt"
+    );
+    if (data && typeof data.updateNodeData === "function") {
+      const currentNodeInput = data.node_input || {};
+      const newNodeInput = {};
+      const currentConnections = /* @__PURE__ */ new Set();
+      const previousConnections = /* @__PURE__ */ new Set();
+      connectedEdges.forEach((edge) => {
+        const connectionKey = `${edge.source}:${edge.sourceHandle || "output"}`;
+        currentConnections.add(connectionKey);
+      });
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith("prompt") && value.node_id) {
+          const connectionKey = `${value.node_id}:${value.output_name || "output"}`;
+          previousConnections.add(connectionKey);
+        }
+      });
+      const deletedConnections = Array.from(previousConnections).filter(
+        (connectionKey) => !currentConnections.has(connectionKey)
+      );
+      if (deletedConnections.length > 0 && editorRef.current && typeof editorRef.current.cleanupTagsByConnection === "function") {
+        let totalCleaned = 0;
+        deletedConnections.forEach((connectionKey) => {
+          const [nodeId, outputName] = connectionKey.split(":");
+          const cleaned = editorRef.current.cleanupTagsByConnection(
+            nodeId,
+            outputName
+          );
+          totalCleaned += cleaned;
+        });
+        if (totalCleaned > 0) {
+          console.log(`成功清理了 ${totalCleaned} 個斷開連接的tag`);
+        }
+      }
+      const sortedEdges = connectedEdges.sort((a, b) => {
+        return a.source.localeCompare(b.source);
+      });
+      sortedEdges.forEach((edge, index) => {
+        const inputKey = `prompt${index}`;
+        const sourceNode = nodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || "";
+        if (sourceNode) {
+          if (sourceNode.type === "customInput" || sourceNode.type === "input") {
+            if (sourceNode.data?.fields?.[0]?.inputName) {
+              returnName = sourceNode.data.fields[0].inputName || returnName;
+            }
+          } else if (sourceNode.type === "browserExtensionInput") {
+            const targetItem = sourceNode.data?.items?.find(
+              (item) => item.id === edge.sourceHandle
+            );
+            if (targetItem?.name) {
+              returnName = targetItem.name;
+            }
+          } else if (sourceNode.type === "combine_text") {
+            returnName = "output";
+          } else if (sourceNode.type === "knowledgeRetrieval") {
+            returnName = "output";
+          } else if (sourceNode.type === "aim_ml") {
+            returnName = edge.sourceHandle || "output";
+          } else {
+            returnName = edge.sourceHandle || "output";
+          }
+        }
+        newNodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || "output",
+          type: "string",
+          return_name: returnName
+        };
+      });
+      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
+        data.updateNodeData("node_input", newNodeInput);
+      }
+    }
+  }, [edges, id, data, nodes]);
+  useEffect$i(() => {
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
     };
   }, []);
-  const handleRefinePromptClick = useCallback$j(() => {
+  const handleRefinePromptClick = useCallback$i(() => {
     const validation = PromptGeneratorService.validateParameters(
       parseInt(localModel),
       promptText
@@ -32557,7 +33751,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     }
     setShowRefinePrompt(true);
   }, [localModel, promptText]);
-  const handleOptimizedPromptApply = useCallback$j(
+  const handleOptimizedPromptApply = useCallback$i(
     (optimizedPrompt) => {
       setPromptText(optimizedPrompt);
       lastExternalValueRef.current = optimizedPrompt;
@@ -32572,13 +33766,13 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleOptimizedPromptCopy = useCallback$j(() => {
+  const handleOptimizedPromptCopy = useCallback$i(() => {
     console.log("優化後的 Prompt 已複製到剪貼板");
   }, []);
-  const closeRefinePrompt = useCallback$j(() => {
+  const closeRefinePrompt = useCallback$i(() => {
     setShowRefinePrompt(false);
   }, []);
-  const getGroupedModelOptions = useCallback$j(() => {
+  const getGroupedModelOptions = useCallback$i(() => {
     if (!modelOptions || modelOptions.length === 0) {
       return {};
     }
@@ -32591,7 +33785,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       return groups;
     }, {});
   }, [modelOptions]);
-  const renderGroupedOptions = useCallback$j(() => {
+  const renderGroupedOptions = useCallback$i(() => {
     const groupedOptions = getGroupedModelOptions();
     const providers = Object.keys(groupedOptions).sort();
     return providers.map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -32610,7 +33804,110 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       provider
     ));
   }, [getGroupedModelOptions]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-64", children: [
+  const getFlowId = useCallback$i(() => {
+    if (data?.flowId) return data.flowId;
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlFlowId = urlParams.get("flowId") || urlParams.get("flow_id");
+    if (urlFlowId) return urlFlowId;
+    const pathMatch = window.location.pathname.match(/\/flow\/([^\/]+)/);
+    if (pathMatch) return pathMatch[1];
+    if (typeof window !== "undefined" && window.currentFlowId) {
+      return window.currentFlowId;
+    }
+    return "";
+  }, [data?.flowId]);
+  const connectedNodesInfo = React$p.useMemo(() => {
+    const connectedEdges = edges.filter(
+      (edge) => edge.target === id && edge.targetHandle === "prompt"
+    );
+    return connectedEdges.map((edge) => {
+      const sourceNode = nodes.find((n) => n.id === edge.source);
+      const getNodeDisplayName = (sourceNode2) => {
+        if (!sourceNode2) return "Unknown";
+        switch (sourceNode2.type) {
+          case "customInput":
+          case "input":
+            return "Input";
+          case "combine_text":
+            return "Combine Text Node";
+          case "knowledgeRetrieval":
+            return "Knowledge Retrieval";
+          case "aim_ml":
+            return `QOCA aim Node - ${edge.sourceHandle}`;
+          default:
+            return sourceNode2.type.charAt(0).toUpperCase() + sourceNode2.type.slice(1);
+        }
+      };
+      const getNodeTagColor = (nodeName2) => {
+        const lowerNodeName = nodeName2.toLowerCase();
+        const colorMap = [
+          { keyword: "combine text node", color: "#4E7ECF" },
+          { keyword: "knowledge retrieval", color: "#87CEEB" },
+          { keyword: "qoca aim node", color: "#098D7F" },
+          { keyword: "input", color: "#0075FF" }
+        ];
+        for (const { keyword, color } of colorMap) {
+          if (lowerNodeName.includes(keyword)) {
+            return color;
+          }
+        }
+        return "#6b7280";
+      };
+      const nodeName = getNodeDisplayName(sourceNode);
+      return {
+        id: edge.source,
+        name: nodeName,
+        outputName: edge.sourceHandle || "output",
+        handleId: edge.targetHandle,
+        nodeType: sourceNode?.type || "unknown",
+        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}__ENDMARKER__`,
+        code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}__ENDMARKER__`,
+        color: getNodeTagColor(nodeName)
+      };
+    });
+  }, [edges, nodes, id]);
+  const filteredNodes = React$p.useMemo(
+    () => connectedNodesInfo.filter(
+      (node) => node.name.toLowerCase().includes(filterText.toLowerCase())
+    ),
+    [connectedNodesInfo, filterText]
+  );
+  const handleTagClick = useCallback$i(
+    (nodeInfo) => {
+      if (editorRef.current && editorRef.current.insertTagAtCursor) {
+        editorRef.current.insertTagAtCursor(nodeInfo);
+        setTimeout(() => {
+          const newContent = getEditorContent();
+          if (newContent) {
+            setPromptText(newContent);
+            updateParentState("promptText", newContent);
+          }
+        }, 100);
+      }
+      setShowInputPanel(false);
+      setFilterText("");
+    },
+    [getEditorContent, updateParentState]
+  );
+  const handleTagDragStart = useCallback$i((e, nodeInfo) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify(nodeInfo));
+    e.dataTransfer.effectAllowed = "copy";
+    e.target.style.opacity = "0.5";
+  }, []);
+  const handleTagDragEnd = useCallback$i((e) => {
+    e.target.style.opacity = "1";
+  }, []);
+  const closeInputPanel = useCallback$i(() => {
+    setShowInputPanel(false);
+    setFilterText("");
+  }, []);
+  const handleShowPanel = useCallback$i((show) => {
+    setShowInputPanel(show);
+    if (!show) {
+      setFilterText("");
+    }
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-96", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-orange-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "ai" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("AI", id) })
@@ -32631,7 +33928,6 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               onChange: handleModelChange,
               disabled: isLoadingModels || showRefinePrompt,
               children: [
-                " ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "option",
                   {
@@ -32664,7 +33960,13 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Prompt" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Prompt" }),
+            promptConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full ml-2", children: [
+              promptConnectionCount,
+              " 個連線"
+            ] })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
@@ -32706,58 +34008,46 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          AutoResizeTextarea,
+          CombineTextEditor,
           {
-            value: promptText,
+            ref: editorRef,
+            value: isInitialized ? void 0 : promptText,
             onChange: handlePromptTextChange,
             onCompositionStart: handleCompositionStart,
             onCompositionEnd: handleCompositionEnd,
             onKeyDown: handleKeyDown,
+            onTagInsert: handleTagInsert,
+            onBlur: handleBlur,
             placeholder: "輸入您的提示",
-            className: "w-full border border-gray-300 rounded p-2 text-sm pr-10",
-            disabled: showRefinePrompt
+            className: "bg-[#e5e7eb] text-[#09090b] border-gray-300",
+            flowId: getFlowId(),
+            initialHtmlContent: editorHtmlContent,
+            shouldShowPanel: promptConnectionCount > 0,
+            showInputPanel,
+            onShowPanel: handleShowPanel,
+            disabled: showRefinePrompt,
+            style: {
+              minHeight: "220px",
+              maxHeight: "400px",
+              color: "#09090b"
+            }
           }
         ) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-gray-700 mr-2 font-bold", children: "Context" }),
-        contextConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full", children: [
-          contextConnectionCount,
-          " 個連線"
-        ] })
-      ] }) })
+      ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Handle$1,
       {
         type: "target",
         position: Position.Left,
-        id: "prompt-input",
+        id: "prompt",
         style: {
           background: "#e5e7eb",
           border: "1px solid #D3D3D3",
           width: "12px",
           height: "12px",
           left: "-6px",
-          top: "70%",
-          transform: "translateY(-50%)"
-        },
-        isConnectable
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Handle$1,
-      {
-        type: "target",
-        position: Position.Left,
-        id: "context-input",
-        style: {
-          background: "#e5e7eb",
-          border: "1px solid #D3D3D3",
-          width: "12px",
-          height: "12px",
-          left: "-6px",
-          top: "92%",
+          top: "50%",
           transform: "translateY(-50%)"
         },
         isConnectable
@@ -32779,6 +34069,152 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         isConnectable
       }
     ),
+    showInputPanel && promptConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 z-[9998]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "absolute inset-0 bg-transparent pointer-events-auto",
+          onClick: closeInputPanel
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "absolute bg-white rounded-lg shadow-xl w-80 flex flex-col pointer-events-auto border border-gray-200 z-[9999]",
+          style: {
+            left: `${(data?.position?.x || 0) - 320}px`,
+            top: `${data?.position?.y || 0}px`,
+            maxHeight: "400px"
+          },
+          onClick: (e) => e.stopPropagation(),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between border-b p-2 flex-shrink-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1 mr-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "svg",
+                  {
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "16",
+                    height: "16",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "circle",
+                        {
+                          cx: "11",
+                          cy: "11",
+                          r: "8"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "line",
+                        {
+                          x1: "21",
+                          y1: "21",
+                          x2: "16.65",
+                          y2: "16.65"
+                        }
+                      )
+                    ]
+                  }
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: filterText,
+                    onChange: (e) => setFilterText(e.target.value),
+                    placeholder: "Search...",
+                    className: "w-full pl-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: closeInputPanel,
+                  className: "text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "svg",
+                    {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "20",
+                      height: "20",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "line",
+                          {
+                            x1: "18",
+                            y1: "6",
+                            x2: "6",
+                            y2: "18"
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "line",
+                          {
+                            x1: "6",
+                            y1: "6",
+                            x2: "18",
+                            y2: "18"
+                          }
+                        )
+                      ]
+                    }
+                  )
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "flex-1 overflow-y-auto p-4 min-h-0",
+                style: { maxHeight: "calc(400px - 60px)" },
+                onWheelCapture: (e) => e.stopPropagation(),
+                onMouseDownCapture: (e) => e.stopPropagation(),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mb-3 block text-sm font-medium text-gray-700", children: "Input" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-start", children: [
+                    filteredNodes.map((nodeInfo, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        className: "flex items-center px-3 py-2 rounded cursor-pointer text-white text-sm font-medium hover:opacity-80 transition-all duration-200 mr-2 mb-2 w-full select-none",
+                        style: {
+                          backgroundColor: nodeInfo.color,
+                          userSelect: "none"
+                        },
+                        onClick: () => handleTagClick(nodeInfo),
+                        onDragStart: (e) => handleTagDragStart(e, nodeInfo),
+                        onDragEnd: handleTagDragEnd,
+                        draggable: true,
+                        title: "點擊插入或拖拽到文字區域",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "truncate pointer-events-none", children: [
+                          nodeInfo.name,
+                          " (",
+                          nodeInfo.id.slice(-3),
+                          ")"
+                        ] })
+                      },
+                      `${nodeInfo.id}-${index}`
+                    )),
+                    filteredNodes.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-500 text-sm text-center py-8 w-full", children: filterText ? "沒有找到符合的節點" : "沒有連線的節點" })
+                  ] })
+                ]
+              }
+            )
+          ]
+        }
+      )
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       RefinePromptOverlay,
       {
@@ -32789,7 +34225,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
         onOptimizedPromptApply: handleOptimizedPromptApply,
         onOptimizedPromptCopy: handleOptimizedPromptCopy,
         nodePosition: { x: data?.position?.x || 0, y: data?.position?.y || 0 },
-        offsetX: 265,
+        offsetX: 388,
         offsetY: -150
       }
     )
@@ -32830,18 +34266,18 @@ const Add = () => {
   );
 };
 
-const React$p = await importShared('react');
-const {memo: memo$h,useEffect: useEffect$i,useState: useState$o,useRef: useRef$e,useCallback: useCallback$i} = React$p;
+const React$o = await importShared('react');
+const {memo: memo$h,useEffect: useEffect$h,useState: useState$n,useRef: useRef$d,useCallback: useCallback$h} = React$o;
 const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
-  const [inputs, setInputs] = useState$o([]);
-  const [handleLabels, setHandleLabels] = useState$o({});
+  const [inputs, setInputs] = useState$n([]);
+  const [handleLabels, setHandleLabels] = useState$n({});
   const updateNodeInternals = useUpdateNodeInternals();
-  const initAttempts = useRef$e(0);
+  const initAttempts = useRef$d(0);
   const nodeId = id || "unknown";
-  const isUpdating = useRef$e(false);
-  const isInitialized = useRef$e(false);
+  const isUpdating = useRef$d(false);
+  const isInitialized = useRef$d(false);
   const handleHeight = 40;
-  const getNodeHeight = useCallback$i(() => {
+  const getNodeHeight = useCallback$h(() => {
     const headerHeight = 50;
     const buttonAreaHeight = 48;
     const textAreaHeight = 40;
@@ -32860,7 +34296,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     }
     return handleId;
   };
-  const loadLabelsFromNodeInput = useCallback$i(() => {
+  const loadLabelsFromNodeInput = useCallback$h(() => {
     if (!data.node_input) return {};
     const labels = {};
     Object.entries(data.node_input).forEach(([key, value]) => {
@@ -32871,7 +34307,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     });
     return labels;
   }, [data.node_input]);
-  useEffect$i(() => {
+  useEffect$h(() => {
     if (isUpdating.current || isInitialized.current) return;
     isUpdating.current = true;
     initAttempts.current += 1;
@@ -32985,7 +34421,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       isUpdating.current = false;
     }, 200);
   }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
-  useEffect$i(() => {
+  useEffect$h(() => {
     if (inputs.length > 0) {
       console.log(`inputs 更新為 ${inputs.length} 個 handle，更新內部結構`);
       setTimeout(() => {
@@ -32997,7 +34433,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }, 50);
     }
   }, [inputs, nodeId, updateNodeInternals]);
-  const handleAddOutput = useCallback$i(() => {
+  const handleAddOutput = useCallback$h(() => {
     let maxIndex = -1;
     inputs.forEach((input) => {
       if (input.id && input.id.startsWith("output")) {
@@ -33057,7 +34493,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
     }
   }, [inputs, data, nodeId, handleLabels]);
-  const handleDeleteInput = useCallback$i(
+  const handleDeleteInput = useCallback$h(
     (handleId) => {
       const newInputs = inputs.filter((input) => input.id !== handleId);
       const currentLabels = { ...handleLabels };
@@ -33099,7 +34535,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     },
     [inputs, data, nodeId, handleLabels]
   );
-  const handleLabelChange = useCallback$i(
+  const handleLabelChange = useCallback$h(
     (handleId, newLabel) => {
       setHandleLabels((prev) => {
         if (prev[handleId] === newLabel) return prev;
@@ -33166,7 +34602,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     height: `${getNodeHeight()}px`,
     transition: "height 0.3s ease"
   };
-  const cleanupOrphanNodeInputs = useCallback$i(() => {
+  const cleanupOrphanNodeInputs = useCallback$h(() => {
     if (!data.node_input) return;
     const currentEdges = window.currentEdges || [];
     const nodeInputKeys = Object.keys(data.node_input);
@@ -33195,7 +34631,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }
     }
   }, [data, nodeId]);
-  useEffect$i(() => {
+  useEffect$h(() => {
     const handleRouterDeleted = () => {
       setTimeout(() => {
         cleanupOrphanNodeInputs();
@@ -33210,7 +34646,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
       }
     };
   }, [cleanupOrphanNodeInputs]);
-  useEffect$i(() => {
+  useEffect$h(() => {
     const timeoutId = setTimeout(() => {
       cleanupOrphanNodeInputs();
     }, 200);
@@ -33245,7 +34681,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
             top: `${topPosition + 14}px`,
             border: "1px solid #D3D3D3"
           };
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$p.Fragment, { children: [
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$o.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Handle$1,
               {
@@ -33327,15 +34763,15 @@ const BrowserExtensionOutputNode$1 = memo$h(BrowserExtensionOutputNode);
 
 const uploadIcon = "data:image/svg+xml,%3csvg%20width='52'%20height='52'%20viewBox='0%200%2052%2052'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%235gywebmwoa)'%3e%3cpath%20d='M18.428%2018.428H7V7h11.428v11.428zm-8.57-2.857h5.715V9.858H9.858v5.713z'%20fill='url(%23jptftkcuhb)'/%3e%3cpath%20d='M47%2047H35.572V35.572H47V47zm-8.57-2.858h5.715v-5.715h-5.716v5.715z'%20fill='url(%23w0z875nvvc)'/%3e%3cpath%20d='M32.714%2042.715H15.571a8.572%208.572%200%201%201%200-17.144v2.858a5.716%205.716%200%201%200%200%2011.428h17.143v2.858z'%20fill='url(%23h5lpzhsc6d)'/%3e%3cpath%20d='M38.43%2028.429V25.57a5.716%205.716%200%200%200%200-11.428H21.285v-2.858h17.143a8.572%208.572%200%200%201%200%2017.144z'%20fill='url(%23w6mtwnzzve)'/%3e%3cpath%20d='M31.28%2019.858h-8.567l-4.285%205.716%208.57%208.57%208.571-8.57-4.29-5.716z'%20fill='url(%23xyoyqawnmf)'/%3e%3c/g%3e%3cdefs%3e%3clinearGradient%20id='jptftkcuhb'%20x1='7'%20y1='18.428'%20x2='18.428'%20y2='7'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3clinearGradient%20id='w0z875nvvc'%20x1='35.572'%20y1='47'%20x2='47'%20y2='35.572'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3clinearGradient%20id='h5lpzhsc6d'%20x1='6.999'%20y1='42.715'%20x2='22.824'%20y2='18.977'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3clinearGradient%20id='w6mtwnzzve'%20x1='21.286'%20y1='28.429'%20x2='37.11'%20y2='4.692'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3clinearGradient%20id='xyoyqawnmf'%20x1='18.428'%20y1='34.144'%20x2='32.48'%20y2='17.284'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3cclipPath%20id='5gywebmwoa'%3e%3cpath%20fill='%23fff'%20transform='translate(7%207)'%20d='M0%200h40v40H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
 
-const React$o = await importShared('react');
-const {memo: memo$g,useState: useState$n,useEffect: useEffect$h,useCallback: useCallback$h,useRef: useRef$d} = React$o;
+const React$n = await importShared('react');
+const {memo: memo$g,useState: useState$m,useEffect: useEffect$g,useCallback: useCallback$g,useRef: useRef$c} = React$n;
 const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
-  const [localItems, setLocalItems] = useState$n(data?.items || []);
-  const [isUploading, setIsUploading] = useState$n(false);
-  const [uploadError, setUploadError] = useState$n(null);
-  const fileInputRef = useRef$d(null);
-  const activeItemRef = useRef$d(null);
-  useEffect$h(() => {
+  const [localItems, setLocalItems] = useState$m(data?.items || []);
+  const [isUploading, setIsUploading] = useState$m(false);
+  const [uploadError, setUploadError] = useState$m(null);
+  const fileInputRef = useRef$c(null);
+  const activeItemRef = useRef$c(null);
+  useEffect$g(() => {
     console.log("BrowserExtensionInputNode 數據同步檢查:", {
       "data.items": data?.items,
       localItems,
@@ -33346,7 +34782,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
       setLocalItems([...data.items]);
     }
   }, [data?.items]);
-  const updateParentState = useCallback$h(
+  const updateParentState = useCallback$g(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=`, value);
       if (key === "items" && data && typeof data.updateItems === "function") {
@@ -33366,14 +34802,14 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleIconClick = useCallback$h((index) => {
+  const handleIconClick = useCallback$g((index) => {
     console.log(`點擊項目 ${index} 的圖標，準備上傳新圖標`);
     activeItemRef.current = index;
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   }, []);
-  const handleFileSelect = useCallback$h(
+  const handleFileSelect = useCallback$g(
     async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -33402,7 +34838,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems]
   );
-  const getIconComponent = useCallback$h(
+  const getIconComponent = useCallback$g(
     (iconValue, index) => {
       if (iconUploadService.isIconUrl(iconValue)) {
         return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -33439,7 +34875,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [handleIconClick]
   );
-  const handleIconChange = useCallback$h(
+  const handleIconChange = useCallback$g(
     (index, iconValue) => {
       console.log(`更新項目 ${index} 的圖標為`, iconValue);
       if (index < 0 || index >= localItems.length) {
@@ -33454,7 +34890,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems, updateParentState]
   );
-  const handleNameChange = useCallback$h(
+  const handleNameChange = useCallback$g(
     (index, value) => {
       console.log(`修改項目 ${index} 的名稱為 "${value}"`);
       console.log("當前 items:", localItems);
@@ -33476,7 +34912,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [data, localItems, updateParentState]
   );
-  const handleDeleteItem = useCallback$h(
+  const handleDeleteItem = useCallback$g(
     (index) => {
       console.log(`準備刪除項目 ${index}`);
       if (index < 0 || index >= localItems.length) {
@@ -33511,7 +34947,7 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     },
     [localItems, updateParentState, data, id]
   );
-  const handleAddItem = useCallback$h(() => {
+  const handleAddItem = useCallback$g(() => {
     console.log("添加新項目");
     if (typeof data?.addItem === "function") {
       console.log("使用 addItem 回調函數");
@@ -33524,13 +34960,13 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
     setLocalItems(updatedItems);
     updateParentState("items", updatedItems);
   }, [data, localItems, updateParentState]);
-  const calculateHandlePosition = useCallback$h((index) => {
+  const calculateHandlePosition = useCallback$g((index) => {
     const headerHeight = 46;
     const contentPadding = 16;
     const itemHeight = 140;
     return headerHeight + contentPadding + index * itemHeight + itemHeight / 2;
   }, []);
-  const getOutputKey = useCallback$h((item, index) => {
+  const getOutputKey = useCallback$g((item, index) => {
     return item.id || `a${index + 1}`;
   }, []);
   const items = Array.isArray(localItems) && localItems.length > 0 ? localItems : Array.isArray(data?.items) ? data.items : [];
@@ -33636,8 +35072,8 @@ const BrowserExtensionInputNode = ({ data, isConnectable, id }) => {
 };
 const BrowserExtensionInputNode$1 = memo$g(BrowserExtensionInputNode);
 
-const React$n = await importShared('react');
-const {memo: memo$f} = React$n;
+const React$m = await importShared('react');
+const {memo: memo$f} = React$m;
 const IfElseNode = ({ data, isConnectable, id }) => {
   const operators = [
     { value: "equals", label: "[Text] Equals" },
@@ -33752,20 +35188,20 @@ const IfElseNode = ({ data, isConnectable, id }) => {
 };
 const IfElseNode$1 = memo$f(IfElseNode);
 
-const React$m = await importShared('react');
-const {memo: memo$e,useState: useState$m,useEffect: useEffect$g,useCallback: useCallback$g} = React$m;
+const React$l = await importShared('react');
+const {memo: memo$e,useState: useState$l,useEffect: useEffect$f,useCallback: useCallback$f} = React$l;
 const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
-  const [isLoadingKnowledgeBases, setIsLoadingKnowledgeBases] = useState$m(false);
-  const [knowledgeBaseLoadError, setKnowledgeBaseLoadError] = useState$m(null);
-  const [dataKnowledgeBases, setDataKnowledgeBases] = useState$m(
+  const [isLoadingKnowledgeBases, setIsLoadingKnowledgeBases] = useState$l(false);
+  const [knowledgeBaseLoadError, setKnowledgeBaseLoadError] = useState$l(null);
+  const [dataKnowledgeBases, setDataKnowledgeBases] = useState$l(
     data?.availableKnowledgeBases || []
   );
-  const [localSelectedKnowledgeBase, setLocalSelectedKnowledgeBase] = useState$m(
+  const [localSelectedKnowledgeBase, setLocalSelectedKnowledgeBase] = useState$l(
     data?.selectedKnowledgeBase || data?.selectedFile || ""
   );
-  const [topK, setTopK] = useState$m(data?.topK || 5);
-  const [threshold, setThreshold] = useState$m(data?.threshold || 0.7);
-  const updateParentState = useCallback$g(
+  const [topK, setTopK] = useState$l(data?.topK || 5);
+  const [threshold, setThreshold] = useState$l(data?.threshold || 0.7);
+  const updateParentState = useCallback$f(
     (key, value) => {
       console.log(`嘗試更新父組件狀態 ${key}=${value}`);
       if (data && typeof data.updateNodeData === "function") {
@@ -33783,7 +35219,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleKnowledgeBaseSelect = useCallback$g(
+  const handleKnowledgeBaseSelect = useCallback$f(
     (event) => {
       const knowledgeBaseId = event.target.value;
       console.log(`選擇知識庫: ${knowledgeBaseId}`);
@@ -33795,7 +35231,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [localSelectedKnowledgeBase, updateParentState]
   );
-  const handleTopKSelect = useCallback$g(
+  const handleTopKSelect = useCallback$f(
     (event) => {
       const newTopK = parseInt(event.target.value, 10);
       if (newTopK !== topK) {
@@ -33805,7 +35241,7 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [topK, updateParentState]
   );
-  const handleThresholdChange = useCallback$g(
+  const handleThresholdChange = useCallback$f(
     (event) => {
       const newThreshold = parseFloat(event.target.value);
       if (newThreshold >= 0 && newThreshold <= 1 && !isNaN(newThreshold)) {
@@ -33816,14 +35252,14 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const getCurrentSelectedKnowledgeBase = useCallback$g(() => {
+  const getCurrentSelectedKnowledgeBase = useCallback$f(() => {
     return data?.selectedKnowledgeBase || data?.selectedFile || localSelectedKnowledgeBase;
   }, [
     data?.selectedKnowledgeBase,
     data?.selectedFile,
     localSelectedKnowledgeBase
   ]);
-  const loadKnowledgeBases = useCallback$g(async () => {
+  const loadKnowledgeBases = useCallback$f(async () => {
     if (isLoadingKnowledgeBases) return;
     console.log("開始加載知識庫列表...");
     setIsLoadingKnowledgeBases(true);
@@ -33860,33 +35296,33 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
     getCurrentSelectedKnowledgeBase,
     updateParentState
   ]);
-  useEffect$g(() => {
+  useEffect$f(() => {
     const parentSelected = data?.selectedKnowledgeBase || data?.selectedFile;
     if (parentSelected && parentSelected !== localSelectedKnowledgeBase) {
       setLocalSelectedKnowledgeBase(parentSelected);
     }
   }, [data?.selectedKnowledgeBase, data?.selectedFile, id]);
-  useEffect$g(() => {
+  useEffect$f(() => {
     if (data?.topK && data.topK !== topK) {
       console.log(`同步 topK 值從 ${topK} 到 ${data.topK}`);
       setTopK(data.topK);
     }
   }, [data?.topK]);
-  useEffect$g(() => {
+  useEffect$f(() => {
     if (data?.threshold !== void 0 && data.threshold !== threshold) {
       console.log(`同步 threshold 值從 ${threshold} 到 ${data.threshold}`);
       setThreshold(data.threshold);
     }
   }, [data?.threshold]);
-  useEffect$g(() => {
+  useEffect$f(() => {
     loadKnowledgeBases();
   }, []);
-  const handleSelectFocus = useCallback$g(() => {
+  const handleSelectFocus = useCallback$f(() => {
     if (dataKnowledgeBases.length === 0 && !isLoadingKnowledgeBases) {
       loadKnowledgeBases();
     }
   }, [dataKnowledgeBases.length, isLoadingKnowledgeBases, loadKnowledgeBases]);
-  const formatKnowledgeBaseLabel = useCallback$g((kb) => {
+  const formatKnowledgeBaseLabel = useCallback$f((kb) => {
     const baseLabel = kb.name || kb.label;
     const fileCount = kb.fileCount !== void 0 ? ` (${kb.fileCount} 個檔案)` : "";
     return `${baseLabel}${fileCount}`;
@@ -34049,8 +35485,8 @@ const KnowledgeRetrievalNode = ({ data, isConnectable, id }) => {
 };
 const KnowledgeRetrievalNode$1 = memo$e(KnowledgeRetrievalNode);
 
-const React$l = await importShared('react');
-const {memo: memo$d} = React$l;
+const React$k = await importShared('react');
+const {memo: memo$d} = React$k;
 const EndNode = ({ data, isConnectable }) => {
   const handleFieldChange = (field, value) => {
     if (data.updateNodeData) {
@@ -34129,13 +35565,13 @@ const EndNode = ({ data, isConnectable }) => {
 };
 const EndNode$1 = memo$d(EndNode);
 
-const React$k = await importShared('react');
-const {memo: memo$c,useState: useState$l} = React$k;
+const React$j = await importShared('react');
+const {memo: memo$c,useState: useState$k} = React$j;
 const WebhookNode = ({ data, isConnectable, id }) => {
-  const [showInput, setShowInput] = useState$l(false);
-  const [tempUrl, setTempUrl] = useState$l("");
-  const [showCopyAlert, setShowCopyAlert] = useState$l(false);
-  const [isEditing, setIsEditing] = useState$l(false);
+  const [showInput, setShowInput] = useState$k(false);
+  const [tempUrl, setTempUrl] = useState$k("");
+  const [showCopyAlert, setShowCopyAlert] = useState$k(false);
+  const [isEditing, setIsEditing] = useState$k(false);
   const handleCreateWebhook = () => {
     setShowInput(true);
   };
@@ -34341,51 +35777,151 @@ const WebhookNode = ({ data, isConnectable, id }) => {
 };
 const WebhookNode$1 = memo$c(WebhookNode);
 
-const React$j = await importShared('react');
-const {memo: memo$b,useState: useState$k,useEffect: useEffect$f,useCallback: useCallback$f,useRef: useRef$c} = React$j;
+const React$i = await importShared('react');
+const {memo: memo$b,useState: useState$j,useEffect: useEffect$e,useCallback: useCallback$e,useRef: useRef$b} = React$i;
 const HttpRequestNode = ({ data, isConnectable, id }) => {
-  const [localUrl, setLocalUrl] = useState$k(data?.url || "");
-  const [localMethod, setLocalMethod] = useState$k(data?.method || "GET");
-  const [headers, setHeaders] = useState$k(
+  const [localUrl, setLocalUrl] = useState$j(data?.url || "");
+  const [localMethod, setLocalMethod] = useState$j(data?.method || "GET");
+  const [headers, setHeaders] = useState$j(
     data?.headers || [{ key: "", value: "" }]
   );
-  const [localBody, setLocalBody] = useState$k(data?.body || "");
-  const isComposingUrlRef = useRef$c(false);
-  const updateUrlTimeoutRef = useRef$c(null);
-  const lastExternalUrlRef = useRef$c(data?.url || "");
-  const isUserInputUrlRef = useRef$c(false);
-  const isComposingBodyRef = useRef$c(false);
-  const updateBodyTimeoutRef = useRef$c(null);
-  const lastExternalBodyRef = useRef$c(data?.body || "");
-  const isUserInputBodyRef = useRef$c(false);
-  const isComposingHeaderKeyRef = useRef$c({});
-  const isComposingHeaderValueRef = useRef$c({});
-  const updateHeaderTimeoutRef = useRef$c({});
-  const isUserInputHeaderRef = useRef$c({});
-  const lastExternalHeaderRef = useRef$c({});
-  useEffect$f(() => {
+  const [localBody, setLocalBody] = useState$j(data?.body || "");
+  const [editorHtmlContent, setEditorHtmlContent] = useState$j(
+    data?.editorHtmlContent || ""
+  );
+  const [isInitialized, setIsInitialized] = useState$j(false);
+  const edges = useEdges();
+  const nodes = useNodes();
+  const bodyConnectionCount = edges.filter(
+    (edge) => edge.target === id && edge.targetHandle === "body"
+  ).length;
+  const bodyEditorRef = useRef$b(null);
+  const [showInputPanel, setShowInputPanel] = useState$j(false);
+  const [filterText, setFilterText] = useState$j("");
+  const isComposingUrlRef = useRef$b(false);
+  const updateUrlTimeoutRef = useRef$b(null);
+  const lastExternalUrlRef = useRef$b(data?.url || "");
+  const isUserInputUrlRef = useRef$b(false);
+  const isComposingBodyRef = useRef$b(false);
+  const updateBodyTimeoutRef = useRef$b(null);
+  const lastExternalBodyRef = useRef$b(data?.body || "");
+  const isUserInputBodyRef = useRef$b(false);
+  const isComposingHeaderKeyRef = useRef$b({});
+  const isComposingHeaderValueRef = useRef$b({});
+  const updateHeaderTimeoutRef = useRef$b({});
+  const isUserInputHeaderRef = useRef$b({});
+  const lastExternalHeaderRef = useRef$b({});
+  useEffect$e(() => {
+    if (!isInitialized && data) {
+      const initialContent = data.body || "";
+      const initialHtmlContent = data.editorHtmlContent || "";
+      if (initialContent) {
+        setLocalBody(initialContent);
+        lastExternalBodyRef.current = initialContent;
+      }
+      if (initialHtmlContent) {
+        setEditorHtmlContent(initialHtmlContent);
+      }
+      setIsInitialized(true);
+    }
+  }, [data, isInitialized]);
+  useEffect$e(() => {
+    const connectedEdges = edges.filter(
+      (edge) => edge.target === id && edge.targetHandle === "body"
+    );
+    if (data && typeof data.updateNodeData === "function") {
+      const currentNodeInput = data.node_input || {};
+      const newNodeInput = {};
+      const currentConnections = /* @__PURE__ */ new Set();
+      const previousConnections = /* @__PURE__ */ new Set();
+      connectedEdges.forEach((edge) => {
+        const connectionKey = `${edge.source}:${edge.sourceHandle || "output"}`;
+        currentConnections.add(connectionKey);
+      });
+      Object.entries(currentNodeInput).forEach(([key, value]) => {
+        if (key.startsWith("body") && value.node_id) {
+          const connectionKey = `${value.node_id}:${value.output_name || "output"}`;
+          previousConnections.add(connectionKey);
+        }
+      });
+      const deletedConnections = Array.from(previousConnections).filter(
+        (connectionKey) => !currentConnections.has(connectionKey)
+      );
+      if (deletedConnections.length > 0 && bodyEditorRef.current && typeof bodyEditorRef.current.cleanupTagsByConnection === "function") {
+        let totalCleaned = 0;
+        deletedConnections.forEach((connectionKey) => {
+          const [nodeId, outputName] = connectionKey.split(":");
+          const cleaned = bodyEditorRef.current.cleanupTagsByConnection(
+            nodeId,
+            outputName
+          );
+          totalCleaned += cleaned;
+        });
+        if (totalCleaned > 0) {
+          console.log(`成功清理了 ${totalCleaned} 個斷開連接的tag`);
+        }
+      }
+      const sortedEdges = connectedEdges.sort((a, b) => {
+        return a.source.localeCompare(b.source);
+      });
+      sortedEdges.forEach((edge, index) => {
+        const inputKey = `body${index}`;
+        const sourceNode = nodes.find((n) => n.id === edge.source);
+        let returnName = edge.label || "";
+        if (sourceNode) {
+          if (sourceNode.type === "customInput" || sourceNode.type === "input") {
+            if (sourceNode.data?.fields?.[0]?.inputName) {
+              returnName = sourceNode.data.fields[0].inputName || returnName;
+            }
+          } else if (sourceNode.type === "browserExtensionInput") {
+            const targetItem = sourceNode.data?.items?.find(
+              (item) => item.id === edge.sourceHandle
+            );
+            if (targetItem?.name) {
+              returnName = targetItem.name;
+            }
+          } else {
+            returnName = edge.sourceHandle || "output";
+          }
+        }
+        newNodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || "output",
+          type: "string",
+          return_name: returnName
+        };
+      });
+      if (JSON.stringify(currentNodeInput) !== JSON.stringify(newNodeInput)) {
+        data.updateNodeData("node_input", newNodeInput);
+      }
+    }
+  }, [edges, id, data, nodes]);
+  useEffect$e(() => {
     if (data?.url !== void 0 && data.url !== lastExternalUrlRef.current && !isComposingUrlRef.current && !isUserInputUrlRef.current) {
       setLocalUrl(data.url);
       lastExternalUrlRef.current = data.url;
     }
   }, [data?.url]);
-  useEffect$f(() => {
+  useEffect$e(() => {
     if (data?.method && data.method !== localMethod) {
       setLocalMethod(data.method);
     }
   }, [data?.method, localMethod]);
-  useEffect$f(() => {
+  useEffect$e(() => {
     if (data?.headers && JSON.stringify(data.headers) !== JSON.stringify(headers)) {
       setHeaders(data.headers);
     }
   }, [data?.headers, headers]);
-  useEffect$f(() => {
+  useEffect$e(() => {
     if (data?.body !== void 0 && data.body !== lastExternalBodyRef.current && !isComposingBodyRef.current && !isUserInputBodyRef.current) {
       setLocalBody(data.body);
       lastExternalBodyRef.current = data.body;
     }
-  }, [data?.body]);
-  const updateParentState = useCallback$f(
+    if (data?.editorHtmlContent !== void 0 && data.editorHtmlContent !== editorHtmlContent) {
+      setEditorHtmlContent(data.editorHtmlContent);
+    }
+  }, [data?.body, data?.editorHtmlContent, editorHtmlContent]);
+  const updateParentState = useCallback$e(
     (key, value) => {
       if (data && typeof data.updateNodeData === "function") {
         data.updateNodeData(key, value);
@@ -34399,7 +35935,103 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleUrlChange = useCallback$f(
+  const getEditorContent = useCallback$e(() => {
+    if (!bodyEditorRef.current) return null;
+    try {
+      if (typeof bodyEditorRef.current.getValue === "function") {
+        return bodyEditorRef.current.getValue();
+      }
+    } catch (error) {
+      console.warn("獲取編輯器內容失敗:", error);
+    }
+    return null;
+  }, []);
+  const handleBodyChange = useCallback$e(
+    (e) => {
+      const newBody = e.target.value;
+      isUserInputBodyRef.current = true;
+      setLocalBody(newBody);
+      lastExternalBodyRef.current = newBody;
+      if (updateBodyTimeoutRef.current) {
+        clearTimeout(updateBodyTimeoutRef.current);
+      }
+      updateBodyTimeoutRef.current = setTimeout(() => {
+        updateParentState("body", newBody);
+        if (bodyEditorRef.current) {
+          try {
+            const htmlContent = bodyEditorRef.current.innerHTML || "";
+            if (htmlContent !== editorHtmlContent) {
+              setEditorHtmlContent(htmlContent);
+              updateParentState("editorHtmlContent", htmlContent);
+            }
+          } catch (error) {
+            console.warn("更新 HTML 內容失敗:", error);
+          }
+        }
+        isUserInputBodyRef.current = false;
+      }, 10);
+    },
+    [updateParentState, editorHtmlContent]
+  );
+  const handleTagInsert = useCallback$e(() => {
+    setTimeout(() => {
+      const editorContent = getEditorContent();
+      if (editorContent) {
+        setLocalBody(editorContent);
+        updateParentState("body", editorContent);
+        if (bodyEditorRef.current) {
+          try {
+            const htmlContent = bodyEditorRef.current.innerHTML || "";
+            setEditorHtmlContent(htmlContent);
+            updateParentState("editorHtmlContent", htmlContent);
+          } catch (error) {
+            console.warn("更新 HTML 內容失敗:", error);
+          }
+        }
+      }
+    }, 200);
+  }, [getEditorContent, updateParentState]);
+  const handleBodyCompositionStart = useCallback$e(() => {
+    isComposingBodyRef.current = true;
+    isUserInputBodyRef.current = true;
+    if (updateBodyTimeoutRef.current) {
+      clearTimeout(updateBodyTimeoutRef.current);
+      updateBodyTimeoutRef.current = null;
+    }
+  }, []);
+  const handleBodyCompositionEnd = useCallback$e(
+    (e) => {
+      isComposingBodyRef.current = false;
+      const finalValue = e.target.value;
+      setLocalBody(finalValue);
+      lastExternalBodyRef.current = finalValue;
+      updateParentState("body", finalValue);
+      if (bodyEditorRef.current) {
+        try {
+          const htmlContent = bodyEditorRef.current.innerHTML || "";
+          if (htmlContent !== editorHtmlContent) {
+            setEditorHtmlContent(htmlContent);
+            updateParentState("editorHtmlContent", htmlContent);
+          }
+        } catch (error) {
+          console.warn("更新 HTML 內容失敗:", error);
+        }
+      }
+      setTimeout(() => {
+        isUserInputBodyRef.current = false;
+      }, 10);
+    },
+    [updateParentState, editorHtmlContent]
+  );
+  const handleBodyKeyDown = useCallback$e((e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      isUserInputBodyRef.current = true;
+      setTimeout(() => {
+        isUserInputBodyRef.current = false;
+      }, 300);
+    }
+  }, []);
+  const handleUrlChange = useCallback$e(
     (e) => {
       const newUrl = e.target.value;
       isUserInputUrlRef.current = true;
@@ -34419,7 +36051,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleUrlCompositionStart = useCallback$f(() => {
+  const handleUrlCompositionStart = useCallback$e(() => {
     isComposingUrlRef.current = true;
     isUserInputUrlRef.current = true;
     if (updateUrlTimeoutRef.current) {
@@ -34427,7 +36059,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
       updateUrlTimeoutRef.current = null;
     }
   }, []);
-  const handleUrlCompositionEnd = useCallback$f(
+  const handleUrlCompositionEnd = useCallback$e(
     (e) => {
       isComposingUrlRef.current = false;
       const finalValue = e.target.value;
@@ -34440,7 +36072,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleUrlKeyDown = useCallback$f((e) => {
+  const handleUrlKeyDown = useCallback$e((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputUrlRef.current = true;
       setTimeout(() => {
@@ -34448,7 +36080,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  const handleMethodChange = useCallback$f(
+  const handleMethodChange = useCallback$e(
     (e) => {
       const newMethod = e.target.value;
       setLocalMethod(newMethod);
@@ -34456,62 +36088,13 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleBodyChange = useCallback$f(
-    (e) => {
-      const newBody = e.target.value;
-      isUserInputBodyRef.current = true;
-      setLocalBody(newBody);
-      lastExternalBodyRef.current = newBody;
-      if (updateBodyTimeoutRef.current) {
-        clearTimeout(updateBodyTimeoutRef.current);
-      }
-      if (!isComposingBodyRef.current) {
-        updateBodyTimeoutRef.current = setTimeout(() => {
-          updateParentState("body", newBody);
-          setTimeout(() => {
-            isUserInputBodyRef.current = false;
-          }, 100);
-        }, 150);
-      }
-    },
-    [updateParentState]
-  );
-  const handleBodyCompositionStart = useCallback$f(() => {
-    isComposingBodyRef.current = true;
-    isUserInputBodyRef.current = true;
-    if (updateBodyTimeoutRef.current) {
-      clearTimeout(updateBodyTimeoutRef.current);
-      updateBodyTimeoutRef.current = null;
-    }
-  }, []);
-  const handleBodyCompositionEnd = useCallback$f(
-    (e) => {
-      isComposingBodyRef.current = false;
-      const finalValue = e.target.value;
-      setLocalBody(finalValue);
-      lastExternalBodyRef.current = finalValue;
-      updateParentState("body", finalValue);
-      setTimeout(() => {
-        isUserInputBodyRef.current = false;
-      }, 200);
-    },
-    [updateParentState]
-  );
-  const handleBodyKeyDown = useCallback$f((e) => {
-    if (e.key === "Backspace" || e.key === "Delete") {
-      isUserInputBodyRef.current = true;
-      setTimeout(() => {
-        isUserInputBodyRef.current = false;
-      }, 300);
-    }
-  }, []);
-  const handleAddHeader = useCallback$f(() => {
+  const handleAddHeader = useCallback$e(() => {
     const newHeader = { key: "", value: "" };
     const newHeaders = [...headers, newHeader];
     setHeaders(newHeaders);
     updateParentState("headers", newHeaders);
   }, [headers, updateParentState]);
-  const handleDeleteHeader = useCallback$f(
+  const handleDeleteHeader = useCallback$e(
     (index) => {
       const newHeaders = headers.filter((_, i) => i !== index);
       setHeaders(newHeaders);
@@ -34527,7 +36110,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [headers, updateParentState]
   );
-  const handleHeaderKeyChange = useCallback$f(
+  const handleHeaderKeyChange = useCallback$e(
     (index, value) => {
       const fieldKey = `key_${index}`;
       isUserInputHeaderRef.current[fieldKey] = true;
@@ -34549,7 +36132,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [headers, updateParentState]
   );
-  const handleHeaderValueChange = useCallback$f(
+  const handleHeaderValueChange = useCallback$e(
     (index, value) => {
       const fieldKey = `value_${index}`;
       isUserInputHeaderRef.current[fieldKey] = true;
@@ -34571,7 +36154,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [headers, updateParentState]
   );
-  const handleHeaderKeyCompositionStart = useCallback$f((index) => {
+  const handleHeaderKeyCompositionStart = useCallback$e((index) => {
     isComposingHeaderKeyRef.current[index] = true;
     isUserInputHeaderRef.current[`key_${index}`] = true;
     const fieldKey = `key_${index}`;
@@ -34580,7 +36163,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
       updateHeaderTimeoutRef.current[fieldKey] = null;
     }
   }, []);
-  const handleHeaderKeyCompositionEnd = useCallback$f(
+  const handleHeaderKeyCompositionEnd = useCallback$e(
     (index, e) => {
       isComposingHeaderKeyRef.current[index] = false;
       const finalValue = e.target.value;
@@ -34595,7 +36178,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [headers, updateParentState]
   );
-  const handleHeaderValueCompositionStart = useCallback$f((index) => {
+  const handleHeaderValueCompositionStart = useCallback$e((index) => {
     isComposingHeaderValueRef.current[index] = true;
     isUserInputHeaderRef.current[`value_${index}`] = true;
     const fieldKey = `value_${index}`;
@@ -34604,7 +36187,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
       updateHeaderTimeoutRef.current[fieldKey] = null;
     }
   }, []);
-  const handleHeaderValueCompositionEnd = useCallback$f(
+  const handleHeaderValueCompositionEnd = useCallback$e(
     (index, e) => {
       isComposingHeaderValueRef.current[index] = false;
       const finalValue = e.target.value;
@@ -34619,7 +36202,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     },
     [headers, updateParentState]
   );
-  const handleHeaderKeyDown = useCallback$f((index, type, e) => {
+  const handleHeaderKeyDown = useCallback$e((index, type, e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       const fieldKey = `${type}_${index}`;
       isUserInputHeaderRef.current[fieldKey] = true;
@@ -34628,7 +36211,114 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  useEffect$f(() => {
+  const getFlowId = useCallback$e(() => {
+    if (data?.flowId) return data.flowId;
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlFlowId = urlParams.get("flowId") || urlParams.get("flow_id");
+    if (urlFlowId) return urlFlowId;
+    const pathMatch = window.location.pathname.match(/\/flow\/([^\/]+)/);
+    if (pathMatch) return pathMatch[1];
+    if (typeof window !== "undefined" && window.currentFlowId) {
+      return window.currentFlowId;
+    }
+    return "";
+  }, [data?.flowId]);
+  const connectedNodesInfo = React$i.useMemo(() => {
+    const connectedEdges = edges.filter(
+      (edge) => edge.target === id && edge.targetHandle === "body"
+    );
+    return connectedEdges.map((edge) => {
+      const sourceNode = nodes.find((n) => n.id === edge.source);
+      const getNodeDisplayName = (sourceNode2) => {
+        if (!sourceNode2) return "Unknown";
+        switch (sourceNode2.type) {
+          case "customInput":
+          case "input":
+            return "Input";
+          case "aiCustomInput":
+          case "ai":
+            return "AI";
+          case "combine_text":
+            return "Combine Text Node";
+          case "knowledgeRetrieval":
+            return "Knowledge Retrieval";
+          case "aim_ml":
+            return `QOCA aim Node - ${edge.sourceHandle}`;
+          default:
+            return sourceNode2.type.charAt(0).toUpperCase() + sourceNode2.type.slice(1);
+        }
+      };
+      const getNodeTagColor = (nodeName2) => {
+        const lowerNodeName = nodeName2.toLowerCase();
+        const colorMap = [
+          { keyword: "combine text node", color: "#4E7ECF" },
+          { keyword: "knowledge retrieval", color: "#87CEEB" },
+          { keyword: "qoca aim node", color: "#098D7F" },
+          { keyword: "input", color: "#0075FF" },
+          { keyword: "ai", color: "#FFAA1E" }
+        ];
+        for (const { keyword, color } of colorMap) {
+          if (lowerNodeName.includes(keyword)) {
+            return color;
+          }
+        }
+        return "#6b7280";
+      };
+      const nodeName = getNodeDisplayName(sourceNode);
+      return {
+        id: edge.source,
+        name: nodeName,
+        outputName: edge.sourceHandle || "output",
+        handleId: edge.targetHandle,
+        nodeType: sourceNode?.type || "unknown",
+        data: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}__ENDMARKER__`,
+        code: `QOCA__NODE_ID__${edge.source}__NODE_OUTPUT_NAME__${edge.sourceHandle || "output"}__ENDMARKER__`,
+        color: getNodeTagColor(nodeName)
+      };
+    });
+  }, [edges, nodes, id]);
+  const filteredNodes = React$i.useMemo(
+    () => connectedNodesInfo.filter(
+      (node) => node.name.toLowerCase().includes(filterText.toLowerCase())
+    ),
+    [connectedNodesInfo, filterText]
+  );
+  const handleTagClick = useCallback$e(
+    (nodeInfo) => {
+      if (bodyEditorRef.current && bodyEditorRef.current.insertTagAtCursor) {
+        bodyEditorRef.current.insertTagAtCursor(nodeInfo);
+        setTimeout(() => {
+          const newContent = getEditorContent();
+          if (newContent) {
+            setLocalBody(newContent);
+            updateParentState("body", newContent);
+          }
+        }, 100);
+      }
+      setShowInputPanel(false);
+      setFilterText("");
+    },
+    [getEditorContent, updateParentState]
+  );
+  const handleTagDragStart = useCallback$e((e, nodeInfo) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify(nodeInfo));
+    e.dataTransfer.effectAllowed = "copy";
+    e.target.style.opacity = "0.5";
+  }, []);
+  const handleTagDragEnd = useCallback$e((e) => {
+    e.target.style.opacity = "1";
+  }, []);
+  const closeInputPanel = useCallback$e(() => {
+    setShowInputPanel(false);
+    setFilterText("");
+  }, []);
+  const handleShowPanel = useCallback$e((show) => {
+    setShowInputPanel(show);
+    if (!show) {
+      setFilterText("");
+    }
+  }, []);
+  useEffect$e(() => {
     return () => {
       if (updateUrlTimeoutRef.current) {
         clearTimeout(updateUrlTimeoutRef.current);
@@ -34645,13 +36335,34 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
     { value: "GET", label: "GET" },
     { value: "POST", label: "POST" }
   ];
+  const handleBodyBlur = useCallback$e(() => {
+    if (updateBodyTimeoutRef.current) {
+      clearTimeout(updateBodyTimeoutRef.current);
+      updateBodyTimeoutRef.current = null;
+    }
+    const currentContent = getEditorContent();
+    if (currentContent && currentContent !== lastExternalBodyRef.current) {
+      setLocalBody(currentContent);
+      lastExternalBodyRef.current = currentContent;
+      updateParentState("body", currentContent);
+    }
+    if (bodyEditorRef.current) {
+      try {
+        const htmlContent = bodyEditorRef.current.innerHTML || "";
+        if (htmlContent !== editorHtmlContent) {
+          setEditorHtmlContent(htmlContent);
+          updateParentState("editorHtmlContent", htmlContent);
+        }
+      } catch (error) {
+        console.warn("更新 HTML 內容失敗:", error);
+      }
+    }
+    isUserInputBodyRef.current = false;
+  }, [getEditorContent, updateParentState, editorHtmlContent]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-lg shadow-md overflow-hidden w-98 max-w-lg", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-100 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 rounded-full bg-red-400 flex items-center justify-center text-white mr-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: "http" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
-        " ",
-        formatNodeTitle("HTTP", id)
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatNodeTitle("HTTP", id) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4", children: [
@@ -34769,19 +36480,35 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
         }
       ),
       localMethod === "POST" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 mb-1 font-bold", children: "Body (optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-between mb-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm text-gray-700 font-bold", children: "Body (optional)" }),
+          bodyConnectionCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full ml-2", children: [
+            bodyConnectionCount,
+            " 個連線"
+          ] })
+        ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          AutoResizeTextarea,
+          CombineTextEditor,
           {
-            value: localBody,
+            ref: bodyEditorRef,
+            value: isInitialized ? void 0 : localBody,
             onChange: handleBodyChange,
             onCompositionStart: handleBodyCompositionStart,
             onCompositionEnd: handleBodyCompositionEnd,
             onKeyDown: handleBodyKeyDown,
+            onTagInsert: handleTagInsert,
+            onBlur: handleBodyBlur,
             placeholder: '{"flow_id": "9e956c37-20ea-47a5-bcd5-3cafc35b967a", "func_id": "q1", "data":"$input"}',
-            className: "text-xs font-mono bg-gray-900 text-green-400 border-gray-300",
+            className: "bg-[#e5e7eb] text-[#09090b] border-gray-300",
+            flowId: getFlowId(),
+            initialHtmlContent: editorHtmlContent,
+            shouldShowPanel: bodyConnectionCount > 0,
+            showInputPanel,
+            onShowPanel: handleShowPanel,
             style: {
-              fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace'
+              minHeight: "220px",
+              maxHeight: "400px",
+              color: "#09090b"
             }
           }
         )
@@ -34819,28 +36546,174 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
         },
         isConnectable
       }
-    )
+    ),
+    showInputPanel && bodyConnectionCount > 0 && localMethod === "POST" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 z-[9998]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "absolute inset-0 bg-transparent pointer-events-auto",
+          onClick: closeInputPanel
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "absolute bg-white rounded-lg shadow-xl w-80 flex flex-col pointer-events-auto border border-gray-200 z-[9999]",
+          style: {
+            left: `${(data?.position?.x || 0) - 320}px`,
+            top: `${data?.position?.y || 0}px`,
+            maxHeight: "400px"
+          },
+          onClick: (e) => e.stopPropagation(),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between border-b p-2 flex-shrink-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1 mr-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "svg",
+                  {
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "16",
+                    height: "16",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "circle",
+                        {
+                          cx: "11",
+                          cy: "11",
+                          r: "8"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "line",
+                        {
+                          x1: "21",
+                          y1: "21",
+                          x2: "16.65",
+                          y2: "16.65"
+                        }
+                      )
+                    ]
+                  }
+                ) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: filterText,
+                    onChange: (e) => setFilterText(e.target.value),
+                    placeholder: "Search...",
+                    className: "w-full pl-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: closeInputPanel,
+                  className: "text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "svg",
+                    {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "20",
+                      height: "20",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "line",
+                          {
+                            x1: "18",
+                            y1: "6",
+                            x2: "6",
+                            y2: "18"
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "line",
+                          {
+                            x1: "6",
+                            y1: "6",
+                            x2: "18",
+                            y2: "18"
+                          }
+                        )
+                      ]
+                    }
+                  )
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "flex-1 overflow-y-auto p-4 min-h-0",
+                style: { maxHeight: "calc(400px - 60px)" },
+                onWheelCapture: (e) => e.stopPropagation(),
+                onMouseDownCapture: (e) => e.stopPropagation(),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mb-3 block text-sm font-medium text-gray-700", children: "Input" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-start", children: [
+                    filteredNodes.map((nodeInfo, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        className: "flex items-center px-3 py-2 rounded cursor-pointer text-white text-sm font-medium hover:opacity-80 transition-all duration-200 mr-2 mb-2 w-full select-none",
+                        style: {
+                          backgroundColor: nodeInfo.color,
+                          userSelect: "none"
+                        },
+                        onClick: () => handleTagClick(nodeInfo),
+                        onDragStart: (e) => handleTagDragStart(e, nodeInfo),
+                        onDragEnd: handleTagDragEnd,
+                        draggable: true,
+                        title: "點擊插入或拖拽到文字區域",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "truncate pointer-events-none", children: [
+                          nodeInfo.name,
+                          " (",
+                          nodeInfo.id.slice(-3),
+                          ")"
+                        ] })
+                      },
+                      `${nodeInfo.id}-${index}`
+                    )),
+                    filteredNodes.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-500 text-sm text-center py-8 w-full", children: filterText ? "沒有找到符合的節點" : "沒有連線的節點" })
+                  ] })
+                ]
+              }
+            )
+          ]
+        }
+      )
+    ] })
   ] });
 };
 const HTTPRequestNode = memo$b(HttpRequestNode);
 
-const React$i = await importShared('react');
-const {memo: memo$a,useState: useState$j,useEffect: useEffect$e,useCallback: useCallback$e,useRef: useRef$b} = React$i;
+const React$h = await importShared('react');
+const {memo: memo$a,useState: useState$i,useEffect: useEffect$d,useCallback: useCallback$d,useRef: useRef$a} = React$h;
 const LineNode = ({ data, isConnectable, id }) => {
-  const [selectedConfigId, setSelectedConfigId] = useState$j(
+  const [selectedConfigId, setSelectedConfigId] = useState$i(
     data?.external_service_config_id || ""
   );
-  const [serviceConfigs, setServiceConfigs] = useState$j([]);
-  const [configLoadError, setConfigLoadError] = useState$j(null);
-  const [isLoadingConfigs, setIsLoadingConfigs] = useState$j(false);
-  const [webhookUrl, setWebhookUrl] = useState$j("");
-  const [isCreatingWebhook, setIsCreatingWebhook] = useState$j(false);
-  const isInitialized = useRef$b(false);
-  const lastSyncedConfigId = useRef$b(selectedConfigId);
-  const lastSyncedWebhookUrl = useRef$b(webhookUrl);
-  const isUpdating = useRef$b(false);
+  const [serviceConfigs, setServiceConfigs] = useState$i([]);
+  const [configLoadError, setConfigLoadError] = useState$i(null);
+  const [isLoadingConfigs, setIsLoadingConfigs] = useState$i(false);
+  const [webhookUrl, setWebhookUrl] = useState$i("");
+  const [isCreatingWebhook, setIsCreatingWebhook] = useState$i(false);
+  const isInitialized = useRef$a(false);
+  const lastSyncedConfigId = useRef$a(selectedConfigId);
+  const lastSyncedWebhookUrl = useRef$a(webhookUrl);
+  const isUpdating = useRef$a(false);
   const outputHandles = ["text", "image", "audio"];
-  const updateParentState = useCallback$e(
+  const updateParentState = useCallback$d(
     (key, value) => {
       if (isUpdating.current) {
         console.log(`跳過重複更新: ${key}=${value}`);
@@ -34869,7 +36742,7 @@ const LineNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const loadServiceConfigs = useCallback$e(async () => {
+  const loadServiceConfigs = useCallback$d(async () => {
     if (isLoadingConfigs) {
       console.log("已在載入中，跳過重複載入");
       return;
@@ -34920,10 +36793,10 @@ const LineNode = ({ data, isConnectable, id }) => {
       setIsLoadingConfigs(false);
     }
   }, []);
-  useEffect$e(() => {
+  useEffect$d(() => {
     loadServiceConfigs();
   }, []);
-  useEffect$e(() => {
+  useEffect$d(() => {
     if (isUpdating.current) return;
     let hasChanges = false;
     if (data?.external_service_config_id !== void 0 && data.external_service_config_id !== lastSyncedConfigId.current) {
@@ -34946,7 +36819,7 @@ const LineNode = ({ data, isConnectable, id }) => {
       console.log("LineNode 數據同步完成");
     }
   }, [data?.external_service_config_id, data?.webhook_url]);
-  const handleConfigChange = useCallback$e(
+  const handleConfigChange = useCallback$d(
     (configId) => {
       if (configId === selectedConfigId || isUpdating.current) {
         console.log("配置ID未變更或正在更新中，跳過");
@@ -34958,7 +36831,7 @@ const LineNode = ({ data, isConnectable, id }) => {
     },
     [selectedConfigId, updateParentState]
   );
-  const copyToClipboardSimple = useCallback$e(async (text) => {
+  const copyToClipboardSimple = useCallback$d(async (text) => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         try {
@@ -34999,7 +36872,7 @@ const LineNode = ({ data, isConnectable, id }) => {
       });
     }
   }, []);
-  const createWebhook = useCallback$e(
+  const createWebhook = useCallback$d(
     async (flowId) => {
       setIsCreatingWebhook(true);
       try {
@@ -35039,7 +36912,7 @@ const LineNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleCreateWebhook = useCallback$e(async () => {
+  const handleCreateWebhook = useCallback$d(async () => {
     console.log("handleCreateWebhook 被調用");
     const flowId = data?.flowId || window.currentFlowId || data?.flow_id || localStorage.getItem("current_flow_id");
     console.log("檢查到的 flowId:", flowId);
@@ -35245,12 +37118,12 @@ const LineNode = ({ data, isConnectable, id }) => {
 };
 const LineNode$1 = memo$a(LineNode);
 
-const React$h = await importShared('react');
-const {memo: memo$9,useState: useState$i} = React$h;
+const React$g = await importShared('react');
+const {memo: memo$9,useState: useState$h} = React$g;
 const TimerNode = ({ data, isConnectable }) => {
-  const [hours, setHours] = useState$i(data.hours || 0);
-  const [minutes, setMinutes] = useState$i(data.minutes || 0);
-  const [seconds, setSeconds] = useState$i(data.seconds || 0);
+  const [hours, setHours] = useState$h(data.hours || 0);
+  const [minutes, setMinutes] = useState$h(data.minutes || 0);
+  const [seconds, setSeconds] = useState$h(data.seconds || 0);
   const handleTimeChange = (type, value) => {
     if (value !== "" && !/^\d+$/.test(value)) return;
     let numValue = value === "" ? 0 : parseInt(value, 10);
@@ -35477,26 +37350,26 @@ const TimerNode = ({ data, isConnectable }) => {
 };
 const TimerNode$1 = memo$9(TimerNode);
 
-const React$g = await importShared('react');
-const {memo: memo$8,useState: useState$h,useEffect: useEffect$d,useCallback: useCallback$d,useRef: useRef$a} = React$g;
+const React$f = await importShared('react');
+const {memo: memo$8,useState: useState$g,useEffect: useEffect$c,useCallback: useCallback$c,useRef: useRef$9} = React$f;
 const LineMessageNode = ({ data, isConnectable, id }) => {
-  const [selectedConfigId, setSelectedConfigId] = useState$h(
+  const [selectedConfigId, setSelectedConfigId] = useState$g(
     data?.external_service_config_id || ""
   );
-  const [serviceConfigs, setServiceConfigs] = useState$h([]);
-  const [configLoadError, setConfigLoadError] = useState$h(null);
-  const [isLoadingConfigs, setIsLoadingConfigs] = useState$h(false);
-  const [selectedMessagingType, setSelectedMessagingType] = useState$h(
+  const [serviceConfigs, setServiceConfigs] = useState$g([]);
+  const [configLoadError, setConfigLoadError] = useState$g(null);
+  const [isLoadingConfigs, setIsLoadingConfigs] = useState$g(false);
+  const [selectedMessagingType, setSelectedMessagingType] = useState$g(
     data?.messaging_type || ""
   );
-  const [messagingTypes, setMessagingTypes] = useState$h([]);
-  const [messagingTypesLoadError, setMessagingTypesLoadError] = useState$h(null);
-  const [isLoadingMessagingTypes, setIsLoadingMessagingTypes] = useState$h(false);
-  const isInitialized = useRef$a(false);
-  const lastSyncedConfigId = useRef$a(selectedConfigId);
-  const lastSyncedMessagingType = useRef$a(selectedMessagingType);
-  const isUpdating = useRef$a(false);
-  const updateParentState = useCallback$d(
+  const [messagingTypes, setMessagingTypes] = useState$g([]);
+  const [messagingTypesLoadError, setMessagingTypesLoadError] = useState$g(null);
+  const [isLoadingMessagingTypes, setIsLoadingMessagingTypes] = useState$g(false);
+  const isInitialized = useRef$9(false);
+  const lastSyncedConfigId = useRef$9(selectedConfigId);
+  const lastSyncedMessagingType = useRef$9(selectedMessagingType);
+  const isUpdating = useRef$9(false);
+  const updateParentState = useCallback$c(
     (key, value) => {
       if (isUpdating.current) {
         console.log(`跳過重複更新: ${key}=${value}`);
@@ -35525,7 +37398,7 @@ const LineMessageNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const loadServiceConfigs = useCallback$d(async () => {
+  const loadServiceConfigs = useCallback$c(async () => {
     if (isLoadingConfigs) {
       console.log("已在載入服務配置中，跳過重複載入");
       return;
@@ -35575,7 +37448,7 @@ const LineMessageNode = ({ data, isConnectable, id }) => {
       setIsLoadingConfigs(false);
     }
   }, []);
-  const loadMessagingTypes = useCallback$d(async () => {
+  const loadMessagingTypes = useCallback$c(async () => {
     if (isLoadingMessagingTypes) {
       console.log("已在載入 Messaging Types 中，跳過重複載入");
       return;
@@ -35639,14 +37512,14 @@ const LineMessageNode = ({ data, isConnectable, id }) => {
       setIsLoadingMessagingTypes(false);
     }
   }, []);
-  useEffect$d(() => {
+  useEffect$c(() => {
     const initializeData = async () => {
       await Promise.all([loadServiceConfigs(), loadMessagingTypes()]);
       isInitialized.current = true;
     };
     initializeData();
   }, []);
-  useEffect$d(() => {
+  useEffect$c(() => {
     if (isUpdating.current) return;
     let hasChanges = false;
     console.log("LineNode 數據同步更新:", {
@@ -35680,7 +37553,7 @@ const LineMessageNode = ({ data, isConnectable, id }) => {
     selectedConfigId,
     selectedMessagingType
   ]);
-  const handleConfigChange = useCallback$d(
+  const handleConfigChange = useCallback$c(
     (configId) => {
       if (configId === selectedConfigId || isUpdating.current) {
         console.log("配置ID未變更或正在更新中，跳過");
@@ -35692,7 +37565,7 @@ const LineMessageNode = ({ data, isConnectable, id }) => {
     },
     [selectedConfigId, updateParentState]
   );
-  const handleMessagingTypeChange = useCallback$d(
+  const handleMessagingTypeChange = useCallback$c(
     (messagingType) => {
       if (messagingType === selectedMessagingType || isUpdating.current) {
         console.log("Messaging Type 未變更或正在更新中，跳過");
@@ -35818,20 +37691,20 @@ const LineMessageNode = ({ data, isConnectable, id }) => {
 };
 const LineMessageNode$1 = memo$8(LineMessageNode);
 
-const React$f = await importShared('react');
-const {memo: memo$7,useState: useState$g,useEffect: useEffect$c,useCallback: useCallback$c} = React$f;
+const React$e = await importShared('react');
+const {memo: memo$7,useState: useState$f,useEffect: useEffect$b,useCallback: useCallback$b} = React$e;
 const ExtractDataNode = ({ data, isConnectable, id }) => {
-  const [modelOptions, setModelOptions] = useState$g([]);
-  const [isLoadingModels, setIsLoadingModels] = useState$g(false);
-  const [modelLoadError, setModelLoadError] = useState$g(null);
-  const [localModel, setLocalModel] = useState$g(data?.model || "");
-  const [columns, setColumns] = useState$g(data?.columns || []);
-  useEffect$c(() => {
+  const [modelOptions, setModelOptions] = useState$f([]);
+  const [isLoadingModels, setIsLoadingModels] = useState$f(false);
+  const [modelLoadError, setModelLoadError] = useState$f(null);
+  const [localModel, setLocalModel] = useState$f(data?.model || "");
+  const [columns, setColumns] = useState$f(data?.columns || []);
+  useEffect$b(() => {
     if (data?.model && data.model !== localModel) {
       setLocalModel(data.model);
     }
   }, [data?.model, localModel]);
-  useEffect$c(() => {
+  useEffect$b(() => {
     if (data?.columns && JSON.stringify(data.columns) !== JSON.stringify(columns)) {
       setColumns(data.columns);
     }
@@ -35865,10 +37738,10 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
       setIsLoadingModels(false);
     }
   };
-  useEffect$c(() => {
+  useEffect$b(() => {
     loadModels();
   }, []);
-  const updateParentState = useCallback$c(
+  const updateParentState = useCallback$b(
     (key, value) => {
       if (data && typeof data.updateNodeData === "function") {
         data.updateNodeData(key, value);
@@ -35882,7 +37755,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const handleModelChange = useCallback$c(
+  const handleModelChange = useCallback$b(
     (e) => {
       const newModelValue = e.target.value;
       setLocalModel(newModelValue);
@@ -35891,7 +37764,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleAddColumn = useCallback$c(() => {
+  const handleAddColumn = useCallback$b(() => {
     const newColumn = {
       name: "",
       type: "text",
@@ -35902,7 +37775,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     updateParentState("columns", newColumns);
     console.log("新增欄位", newColumn);
   }, [columns, updateParentState]);
-  const handleDeleteColumn = useCallback$c(
+  const handleDeleteColumn = useCallback$b(
     (index) => {
       const newColumns = columns.filter((_, i) => i !== index);
       setColumns(newColumns);
@@ -35911,7 +37784,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     },
     [columns, updateParentState]
   );
-  const handleColumnNameChange = useCallback$c(
+  const handleColumnNameChange = useCallback$b(
     (index, value) => {
       const newColumns = [...columns];
       newColumns[index].name = value;
@@ -35920,7 +37793,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     },
     [columns, updateParentState]
   );
-  const handleColumnTypeChange = useCallback$c(
+  const handleColumnTypeChange = useCallback$b(
     (index, value) => {
       const newColumns = [...columns];
       newColumns[index].type = value;
@@ -35929,7 +37802,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     },
     [columns, updateParentState]
   );
-  const handleColumnDescriptionChange = useCallback$c(
+  const handleColumnDescriptionChange = useCallback$b(
     (index, value) => {
       const newColumns = [...columns];
       newColumns[index].description = value;
@@ -35943,7 +37816,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
     { value: "number", label: "number" },
     { value: "boolean", label: "boolean" }
   ];
-  const getGroupedModelOptions = useCallback$c(() => {
+  const getGroupedModelOptions = useCallback$b(() => {
     if (!modelOptions || modelOptions.length === 0) {
       return {};
     }
@@ -35956,7 +37829,7 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
       return groups;
     }, {});
   }, [modelOptions]);
-  const renderGroupedOptions = useCallback$c(() => {
+  const renderGroupedOptions = useCallback$b(() => {
     const groupedOptions = getGroupedModelOptions();
     const providers = Object.keys(groupedOptions).sort();
     return providers.map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -36149,36 +38022,36 @@ const ExtractDataNode = ({ data, isConnectable, id }) => {
 };
 const ExtractDataNode$1 = memo$7(ExtractDataNode);
 
-const React$e = await importShared('react');
-const {memo: memo$6,useState: useState$f,useEffect: useEffect$b,useCallback: useCallback$b,useRef: useRef$9} = React$e;
+const React$d = await importShared('react');
+const {memo: memo$6,useState: useState$e,useEffect: useEffect$a,useCallback: useCallback$a,useRef: useRef$8} = React$d;
 const QOCAAimNode = ({ data, isConnectable, id }) => {
-  const [selectedAim, setSelectedAim] = useState$f(data?.aim_ml_id?.data || "");
-  const [trainingId, setTrainingId] = useState$f(data?.training_id?.data || 0);
-  const [simulatorId, setSimulatorId] = useState$f(
+  const [selectedAim, setSelectedAim] = useState$e(data?.aim_ml_id?.data || "");
+  const [trainingId, setTrainingId] = useState$e(data?.training_id?.data || 0);
+  const [simulatorId, setSimulatorId] = useState$e(
     data?.simulator_id?.data || ""
   );
-  const [enableExplain, setEnableExplain] = useState$f(
+  const [enableExplain, setEnableExplain] = useState$e(
     data?.enable_explain?.data ?? true
   );
-  const [promptText, setPromptText] = useState$f(data?.prompt?.data || "");
-  const [llmId, setLlmId] = useState$f(data?.llm_id?.data || 0);
-  const [showRefinePrompt, setShowRefinePrompt] = useState$f(false);
-  const [modelFieldsInfo, setModelFieldsInfo] = useState$f(
+  const [promptText, setPromptText] = useState$e(data?.prompt?.data || "");
+  const [llmId, setLlmId] = useState$e(data?.llm_id?.data || 0);
+  const [showRefinePrompt, setShowRefinePrompt] = useState$e(false);
+  const [modelFieldsInfo, setModelFieldsInfo] = useState$e(
     data?.model_fields_info?.data || ""
   );
-  const [aimOptions, setAimOptions] = useState$f([]);
-  const [llmVisionOptions, setLlmVisionOptions] = useState$f([]);
-  const [isLoadingAimOptions, setIsLoadingAimOptions] = useState$f(false);
-  const [isLoadingLlmVisionOptions, setIsLoadingLlmVisionOptions] = useState$f(false);
-  const [isLoadingFieldInfo, setIsLoadingFieldInfo] = useState$f(false);
-  const isUpdating = useRef$9(false);
-  const hasInitializedAim = useRef$9(false);
-  const hasInitializedLlmVision = useRef$9(false);
-  const isComposingRef = useRef$9(false);
-  const updateTimeoutRef = useRef$9(null);
-  const lastExternalValueRef = useRef$9(data?.prompt?.data || "");
-  const isUserInputRef = useRef$9(false);
-  const loadAimOptions = useCallback$b(async () => {
+  const [aimOptions, setAimOptions] = useState$e([]);
+  const [llmVisionOptions, setLlmVisionOptions] = useState$e([]);
+  const [isLoadingAimOptions, setIsLoadingAimOptions] = useState$e(false);
+  const [isLoadingLlmVisionOptions, setIsLoadingLlmVisionOptions] = useState$e(false);
+  const [isLoadingFieldInfo, setIsLoadingFieldInfo] = useState$e(false);
+  const isUpdating = useRef$8(false);
+  const hasInitializedAim = useRef$8(false);
+  const hasInitializedLlmVision = useRef$8(false);
+  const isComposingRef = useRef$8(false);
+  const updateTimeoutRef = useRef$8(null);
+  const lastExternalValueRef = useRef$8(data?.prompt?.data || "");
+  const isUserInputRef = useRef$8(false);
+  const loadAimOptions = useCallback$a(async () => {
     if (isLoadingAimOptions || hasInitializedAim.current) {
       console.log("AIM 選項已在載入中或已初始化，跳過重複載入");
       return;
@@ -36210,7 +38083,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       setIsLoadingAimOptions(false);
     }
   }, []);
-  const loadLlmVisionOptions = useCallback$b(async () => {
+  const loadLlmVisionOptions = useCallback$a(async () => {
     if (isLoadingLlmVisionOptions || hasInitializedLlmVision.current) {
       console.log("LLM Vision 選項已在載入中或已初始化，跳過重複載入");
       return;
@@ -36242,7 +38115,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       setIsLoadingLlmVisionOptions(false);
     }
   }, []);
-  const loadModelFieldsInfo = useCallback$b(async (targetTrainingId) => {
+  const loadModelFieldsInfo = useCallback$a(async (targetTrainingId) => {
     if (!targetTrainingId || targetTrainingId === 0) {
       console.log("training_id 無效，清空欄位資訊");
       setModelFieldsInfo("");
@@ -36271,12 +38144,12 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       setIsLoadingFieldInfo(false);
     }
   }, []);
-  useEffect$b(() => {
+  useEffect$a(() => {
     loadAimOptions();
     loadLlmVisionOptions();
   }, [loadAimOptions, loadLlmVisionOptions]);
   const outputHandles = enableExplain ? ["text", "images"] : ["text"];
-  const updateParentState = useCallback$b(
+  const updateParentState = useCallback$a(
     (key, value) => {
       console.log(`updateParentState 被調用: ${key}`, value);
       if (data && typeof data.updateNodeData === "function") {
@@ -36300,7 +38173,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  useEffect$b(() => {
+  useEffect$a(() => {
     if (isUpdating.current) {
       console.log("正在更新中，跳過同步");
       return;
@@ -36372,7 +38245,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     llmId,
     modelFieldsInfo
   ]);
-  useEffect$b(() => {
+  useEffect$a(() => {
     console.log("🔍 QOCA AIM 節點狀態監控:", {
       selectedAim,
       llmId,
@@ -36391,7 +38264,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     data?.llmId,
     data?.modelFieldsInfo
   ]);
-  const handleAimChange = useCallback$b(
+  const handleAimChange = useCallback$a(
     async (aimValue) => {
       console.log("handleAimChange:", selectedAim, "->", aimValue);
       isUpdating.current = true;
@@ -36432,7 +38305,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     },
     [selectedAim, aimOptions, updateParentState, loadModelFieldsInfo]
   );
-  const handleEnableExplainToggle = useCallback$b(() => {
+  const handleEnableExplainToggle = useCallback$a(() => {
     const newValue = !enableExplain;
     console.log("handleEnableExplainToggle:", enableExplain, "->", newValue);
     isUpdating.current = true;
@@ -36446,7 +38319,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, [enableExplain, updateParentState]);
-  const handleLlmChange = useCallback$b(
+  const handleLlmChange = useCallback$a(
     (llmValue) => {
       console.log("handleLlmChange:", llmId, "->", llmValue);
       const numericValue = parseInt(llmValue);
@@ -36463,7 +38336,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     },
     [llmId, updateParentState]
   );
-  const handlePromptChange = useCallback$b(
+  const handlePromptChange = useCallback$a(
     (e) => {
       const value = e.target.value;
       isUserInputRef.current = true;
@@ -36487,7 +38360,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState, data?.id]
   );
-  const handleCompositionStart = useCallback$b(() => {
+  const handleCompositionStart = useCallback$a(() => {
     isComposingRef.current = true;
     isUserInputRef.current = true;
     if (updateTimeoutRef.current) {
@@ -36495,7 +38368,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       updateTimeoutRef.current = null;
     }
   }, []);
-  const handleCompositionEnd = useCallback$b(
+  const handleCompositionEnd = useCallback$a(
     (e) => {
       isComposingRef.current = false;
       const finalText = e.target.value;
@@ -36512,7 +38385,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState, data?.id]
   );
-  const handleKeyDown = useCallback$b((e) => {
+  const handleKeyDown = useCallback$a((e) => {
     if (e.key === "Backspace" || e.key === "Delete") {
       isUserInputRef.current = true;
       setTimeout(() => {
@@ -36520,7 +38393,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       }, 300);
     }
   }, []);
-  const handleRefinePromptClick = useCallback$b(() => {
+  const handleRefinePromptClick = useCallback$a(() => {
     const validation = PromptGeneratorService.validateParameters(
       llmId,
       promptText
@@ -36537,7 +38410,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     }
     setShowRefinePrompt(true);
   }, [llmId, promptText]);
-  const handleOptimizedPromptApply = useCallback$b(
+  const handleOptimizedPromptApply = useCallback$a(
     (optimizedPrompt) => {
       setPromptText(optimizedPrompt);
       lastExternalValueRef.current = optimizedPrompt;
@@ -36557,13 +38430,13 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState, data?.id]
   );
-  const handleOptimizedPromptCopy = useCallback$b(() => {
+  const handleOptimizedPromptCopy = useCallback$a(() => {
     console.log("優化後的 Prompt 已複製到剪貼板");
   }, []);
-  const closeRefinePrompt = useCallback$b(() => {
+  const closeRefinePrompt = useCallback$a(() => {
     setShowRefinePrompt(false);
   }, []);
-  useEffect$b(() => {
+  useEffect$a(() => {
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
@@ -36865,13 +38738,13 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
 };
 const QOCAAimNode$1 = memo$6(QOCAAimNode);
 
-const React$d = await importShared('react');
-const {useCallback: useCallback$a,useState: useState$e,useEffect: useEffect$a} = React$d;
+const React$c = await importShared('react');
+const {useCallback: useCallback$9,useState: useState$d,useEffect: useEffect$9} = React$c;
 const SelectableTextWrapper = ({ children, className = "", ...rest }) => {
   const reactFlowInstance = useReactFlow();
-  const [isSelecting, setIsSelecting] = useState$e(false);
-  const [startPos, setStartPos] = useState$e({ x: 0, y: 0 });
-  const setNodesDraggableState = useCallback$a(
+  const [isSelecting, setIsSelecting] = useState$d(false);
+  const [startPos, setStartPos] = useState$d({ x: 0, y: 0 });
+  const setNodesDraggableState = useCallback$9(
     (draggable) => {
       try {
         if (reactFlowInstance && typeof reactFlowInstance.setNodesDraggable === "function") {
@@ -36892,7 +38765,7 @@ const SelectableTextWrapper = ({ children, className = "", ...rest }) => {
     },
     [reactFlowInstance]
   );
-  const handleMouseDown = useCallback$a((e) => {
+  const handleMouseDown = useCallback$9((e) => {
     if (e.button !== 0) return;
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable || e.target.tagName === "BUTTON" || e.target.tagName === "SELECT") {
       return;
@@ -36900,7 +38773,7 @@ const SelectableTextWrapper = ({ children, className = "", ...rest }) => {
     setStartPos({ x: e.clientX, y: e.clientY });
     e.stopPropagation();
   }, []);
-  const handleMouseMove = useCallback$a(
+  const handleMouseMove = useCallback$9(
     (e) => {
       if (e.buttons !== 1) return;
       const dx = Math.abs(e.clientX - startPos.x);
@@ -36915,7 +38788,7 @@ const SelectableTextWrapper = ({ children, className = "", ...rest }) => {
     },
     [isSelecting, startPos, setNodesDraggableState]
   );
-  const handleMouseUp = useCallback$a(
+  const handleMouseUp = useCallback$9(
     (e) => {
       if (isSelecting) {
         e.stopPropagation();
@@ -36927,14 +38800,14 @@ const SelectableTextWrapper = ({ children, className = "", ...rest }) => {
     },
     [isSelecting, setNodesDraggableState]
   );
-  const handleDoubleClick = useCallback$a((e) => {
+  const handleDoubleClick = useCallback$9((e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) {
       e.stopPropagation();
       return;
     }
     e.stopPropagation();
   }, []);
-  useEffect$a(() => {
+  useEffect$9(() => {
     return () => {
       if (isSelecting) {
         setNodesDraggableState(true);
@@ -36960,8 +38833,8 @@ const SelectableTextWrapper = ({ children, className = "", ...rest }) => {
   );
 };
 
-const React$c = await importShared('react');
-const {useState: useState$d,useRef: useRef$8,useEffect: useEffect$9,useCallback: useCallback$9} = React$c;
+const React$b = await importShared('react');
+const {useState: useState$c,useRef: useRef$7,useEffect: useEffect$8,useCallback: useCallback$8} = React$b;
 
 const DateTimeSelector = ({
   value,
@@ -36973,21 +38846,21 @@ const DateTimeSelector = ({
   offsetX = 0,
   offsetY = 0
 }) => {
-  const [isOpen, setIsOpen] = useState$d(false);
-  const [selectedDate, setSelectedDate] = useState$d(/* @__PURE__ */ new Date());
-  const [currentMonth, setCurrentMonth] = useState$d(/* @__PURE__ */ new Date());
-  const [selectedTime, setSelectedTime] = useState$d({
+  const [isOpen, setIsOpen] = useState$c(false);
+  const [selectedDate, setSelectedDate] = useState$c(/* @__PURE__ */ new Date());
+  const [currentMonth, setCurrentMonth] = useState$c(/* @__PURE__ */ new Date());
+  const [selectedTime, setSelectedTime] = useState$c({
     hour: 1,
     minute: 0,
     period: "AM"
   });
-  const [displayValue, setDisplayValue] = useState$d("");
-  const [showYearMonthPicker, setShowYearMonthPicker] = useState$d(false);
-  const [tempYear, setTempYear] = useState$d((/* @__PURE__ */ new Date()).getFullYear());
-  const [tempMonth, setTempMonth] = useState$d((/* @__PURE__ */ new Date()).getMonth());
-  const textFieldRef = useRef$8(null);
-  const overlayRef = useRef$8(null);
-  const getDialogPosition = useCallback$9(() => {
+  const [displayValue, setDisplayValue] = useState$c("");
+  const [showYearMonthPicker, setShowYearMonthPicker] = useState$c(false);
+  const [tempYear, setTempYear] = useState$c((/* @__PURE__ */ new Date()).getFullYear());
+  const [tempMonth, setTempMonth] = useState$c((/* @__PURE__ */ new Date()).getMonth());
+  const textFieldRef = useRef$7(null);
+  const overlayRef = useRef$7(null);
+  const getDialogPosition = useCallback$8(() => {
     if (!textFieldRef.current || position === "center") {
       return {
         position: "fixed",
@@ -37077,7 +38950,7 @@ const DateTimeSelector = ({
     }
     return style;
   }, [position, offsetX, offsetY]);
-  const formatDisplayValue = useCallback$9((date, time) => {
+  const formatDisplayValue = useCallback$8((date, time) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -37085,7 +38958,7 @@ const DateTimeSelector = ({
     const minute = String(time.minute).padStart(2, "0");
     return `${year}-${month}-${day} ${hour}:${minute} ${time.period}`;
   }, []);
-  const convertToTimestamp = useCallback$9((date, time) => {
+  const convertToTimestamp = useCallback$8((date, time) => {
     const newDate = new Date(date);
     let hour24 = time.hour;
     if (time.period === "PM" && time.hour !== 12) {
@@ -37096,7 +38969,7 @@ const DateTimeSelector = ({
     newDate.setHours(hour24, time.minute, 0, 0);
     return newDate.getTime();
   }, []);
-  useEffect$9(() => {
+  useEffect$8(() => {
     if (value) {
       const date = new Date(value);
       setSelectedDate(date);
@@ -37136,7 +39009,7 @@ const DateTimeSelector = ({
       });
     }
   }, [value, formatDisplayValue]);
-  useEffect$9(() => {
+  useEffect$8(() => {
     const handleClickOutside = (event) => {
       if (overlayRef.current && !overlayRef.current.contains(event.target) && textFieldRef.current && !textFieldRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -37682,37 +39555,37 @@ const DateTimeSelector = ({
 
 const magicIcon = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='20'%20height='20'%20rx='4'%20fill='%23F5F5F5'/%3e%3cpath%20d='m11.19%205.596-.002.041a.4.4%200%200%201-.796%200l-.002-.04V4.4a.4.4%200%200%201%20.8%200v1.196zM8.166%206.334a.393.393%200%200%201%200%20.561.407.407%200%200%201-.57%200l-.863-.85a.393.393%200%200%201%200-.561.407.407%200%200%201%20.57%200l.863.85zM6.344%208.846a.4.4%200%201%201%200%20.8H5.117a.4.4%200%201%201%200-.8h1.227zM15.6%208.846a.4.4%200%200%201%200%20.8h-1.227a.4.4%200%200%201%200-.8H15.6zM13.476%205.484a.407.407%200%200%201%20.57%200%20.393.393%200%200%201%200%20.561l-.863.85a.407.407%200%200%201-.57%200%20.393.393%200%200%201%200-.56l.863-.851zM14.619%2012.687a.393.393%200%200%201%200%20.561.407.407%200%200%201-.57%200l-.863-.85a.393.393%200%200%201%200-.562.407.407%200%200%201%20.57%200l.863.85zM11.19%2014.834l-.002.04a.4.4%200%200%201-.796%200l-.002-.04v-1.197a.4.4%200%200%201%20.8%200v1.197z'%20fill='%237C3AED'%20stroke='%237C3AED'%20stroke-width='.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M10.354%207.09c.062-.12.23-.12.292%200l.746%201.448c.016.031.04.056.071.072l1.447.741c.12.062.12.236%200%20.298l-1.447.741a.166.166%200%200%200-.071.072l-.746%201.449a.163.163%200%200%201-.292%200l-.746-1.45a.165.165%200%200%200-.071-.07L8.09%209.648a.168.168%200%200%201%200-.298l1.447-.741a.165.165%200%200%200%20.071-.072l.746-1.449zM8.925%2012.022a.306.306%200%200%200%200-.436l-.444-.438a.316.316%200%200%200-.443%200l-3.946%203.888a.306.306%200%200%200%200%20.436l.444.438a.316.316%200%200%200%20.443%200l3.946-3.888z'%20fill='%237C3AED'/%3e%3c/svg%3e";
 
-const React$b = await importShared('react');
-const {memo: memo$5,useState: useState$c,useEffect: useEffect$8,useCallback: useCallback$8,useRef: useRef$7} = React$b;
+const React$a = await importShared('react');
+const {memo: memo$5,useState: useState$b,useEffect: useEffect$7,useCallback: useCallback$7,useRef: useRef$6} = React$a;
 const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
-  const [scheduleType, setScheduleType] = useState$c(
+  const [scheduleType, setScheduleType] = useState$b(
     data?.schedule_type || "cron"
   );
-  const [cronExpression, setCronExpression] = useState$c(
+  const [cronExpression, setCronExpression] = useState$b(
     data?.cron_expression || ""
   );
-  const [executeAt, setExecuteAt] = useState$c(data?.execute_at || null);
-  const [timezone, setTimezone] = useState$c(data?.timezone || "Asia/Taipei");
-  const [enabled, setEnabled] = useState$c(data?.enabled ?? true);
-  const [description, setDescription] = useState$c(data?.description || "");
-  const [showSmartDialog, setShowSmartDialog] = useState$c(false);
-  const [defaultDescriptions, setDefaultDescriptions] = useState$c([]);
-  const [userInput, setUserInput] = useState$c("");
-  const [selectedLlm, setSelectedLlm] = useState$c("3");
-  const [isGenerating, setIsGenerating] = useState$c(false);
-  const [llmOptions, setLlmOptions] = useState$c([]);
-  const [isLoadingModels, setIsLoadingModels] = useState$c(false);
-  const [modelLoadError, setModelLoadError] = useState$c(null);
-  const [timezoneOptions, setTimezoneOptions] = useState$c([]);
-  const [frequencyMode, setFrequencyMode] = useState$c("preset");
-  const [isLoadingTimezones, setIsLoadingTimezones] = useState$c(false);
-  const [isLoadingDescriptions, setIsLoadingDescriptions] = useState$c(false);
-  const [selectedPresetValue, setSelectedPresetValue] = useState$c("");
-  const [presetScheduleConfigs, setPresetScheduleConfigs] = useState$c([]);
-  const [isLoadingScheduleConfigs, setIsLoadingScheduleConfigs] = useState$c(false);
-  const isInitialized = useRef$7(false);
-  const lastSyncedData = useRef$7({});
-  const updateParentState = useCallback$8(
+  const [executeAt, setExecuteAt] = useState$b(data?.execute_at || null);
+  const [timezone, setTimezone] = useState$b(data?.timezone || "Asia/Taipei");
+  const [enabled, setEnabled] = useState$b(data?.enabled ?? true);
+  const [description, setDescription] = useState$b(data?.description || "");
+  const [showSmartDialog, setShowSmartDialog] = useState$b(false);
+  const [defaultDescriptions, setDefaultDescriptions] = useState$b([]);
+  const [userInput, setUserInput] = useState$b("");
+  const [selectedLlm, setSelectedLlm] = useState$b("3");
+  const [isGenerating, setIsGenerating] = useState$b(false);
+  const [llmOptions, setLlmOptions] = useState$b([]);
+  const [isLoadingModels, setIsLoadingModels] = useState$b(false);
+  const [modelLoadError, setModelLoadError] = useState$b(null);
+  const [timezoneOptions, setTimezoneOptions] = useState$b([]);
+  const [frequencyMode, setFrequencyMode] = useState$b("preset");
+  const [isLoadingTimezones, setIsLoadingTimezones] = useState$b(false);
+  const [isLoadingDescriptions, setIsLoadingDescriptions] = useState$b(false);
+  const [selectedPresetValue, setSelectedPresetValue] = useState$b("");
+  const [presetScheduleConfigs, setPresetScheduleConfigs] = useState$b([]);
+  const [isLoadingScheduleConfigs, setIsLoadingScheduleConfigs] = useState$b(false);
+  const isInitialized = useRef$6(false);
+  const lastSyncedData = useRef$6({});
+  const updateParentState = useCallback$7(
     (key, value) => {
       console.log(`Schedule節點更新: ${key}=${value}`);
       if (data && typeof data.updateNodeData === "function") {
@@ -37725,7 +39598,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
     },
     [data]
   );
-  const loadLlmOptions = useCallback$8(async () => {
+  const loadLlmOptions = useCallback$7(async () => {
     try {
       const options = await llmService.getModelOptions();
       setLlmOptions(options);
@@ -37736,7 +39609,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       console.error("載入 LLM 選項失敗:", error);
     }
   }, [selectedLlm]);
-  const loadTimezoneOptions = useCallback$8(async () => {
+  const loadTimezoneOptions = useCallback$7(async () => {
     if (isLoadingTimezones) return;
     setIsLoadingTimezones(true);
     try {
@@ -37756,7 +39629,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       setIsLoadingTimezones(false);
     }
   }, [isLoadingTimezones]);
-  const loadDefaultDescriptions = useCallback$8(async () => {
+  const loadDefaultDescriptions = useCallback$7(async () => {
     if (isLoadingDescriptions) return;
     setIsLoadingDescriptions(true);
     try {
@@ -37773,7 +39646,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       setIsLoadingDescriptions(false);
     }
   }, [isLoadingDescriptions]);
-  const loadDefaultScheduleConfigs = useCallback$8(async () => {
+  const loadDefaultScheduleConfigs = useCallback$7(async () => {
     if (isLoadingScheduleConfigs) return;
     setIsLoadingScheduleConfigs(true);
     try {
@@ -37791,7 +39664,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       setIsLoadingScheduleConfigs(false);
     }
   }, [isLoadingScheduleConfigs]);
-  useEffect$8(() => {
+  useEffect$7(() => {
     if (!isInitialized.current) {
       loadLlmOptions();
       loadTimezoneOptions();
@@ -37799,7 +39672,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       isInitialized.current = true;
     }
   }, [loadLlmOptions, loadTimezoneOptions, loadDefaultScheduleConfigs]);
-  useEffect$8(() => {
+  useEffect$7(() => {
     let hasChanges = false;
     const fieldsToSync = [
       "schedule_type",
@@ -37839,7 +39712,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       console.log("Schedule節點數據同步完成");
     }
   }, [data]);
-  useEffect$8(() => {
+  useEffect$7(() => {
     if (cronExpression && presetScheduleConfigs.length > 0) {
       const matchedConfig = presetScheduleConfigs.find(
         (config) => config.cronExpression === cronExpression && config.value !== "custom" && config.cronExpression !== ""
@@ -37861,26 +39734,26 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       }
     }
   }, [cronExpression, presetScheduleConfigs]);
-  const handleEnabledToggle = useCallback$8(() => {
+  const handleEnabledToggle = useCallback$7(() => {
     const newEnabled = !enabled;
     setEnabled(newEnabled);
     updateParentState("enabled", newEnabled);
   }, [enabled, updateParentState]);
-  const handleTypeChange = useCallback$8(
+  const handleTypeChange = useCallback$7(
     (newType) => {
       setScheduleType(newType);
       updateParentState("schedule_type", newType);
     },
     [updateParentState]
   );
-  const handleCronExpressionChange = useCallback$8(
+  const handleCronExpressionChange = useCallback$7(
     (newExpression) => {
       setCronExpression(newExpression);
       updateParentState("cron_expression", newExpression);
     },
     [updateParentState]
   );
-  const handleExecuteAtChange = useCallback$8(
+  const handleExecuteAtChange = useCallback$7(
     (dateTimeData) => {
       const isoString = new Date(dateTimeData.timestamp).toISOString();
       setExecuteAt(isoString);
@@ -37888,21 +39761,21 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
     },
     [updateParentState]
   );
-  const handleTimezoneChange = useCallback$8(
+  const handleTimezoneChange = useCallback$7(
     (newTimezone) => {
       setTimezone(newTimezone);
       updateParentState("timezone", newTimezone);
     },
     [updateParentState]
   );
-  const handleDescriptionChange = useCallback$8(
+  const handleDescriptionChange = useCallback$7(
     (newDescription) => {
       setDescription(newDescription);
       updateParentState("description", newDescription);
     },
     [updateParentState]
   );
-  const getDropdownValue = useCallback$8(() => {
+  const getDropdownValue = useCallback$7(() => {
     if (frequencyMode === "custom") {
       const customOption = presetScheduleConfigs.find(
         (config) => config.value === "custom" || config.cronExpression === ""
@@ -37919,7 +39792,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       }
     }
   }, [frequencyMode, selectedPresetValue, presetScheduleConfigs]);
-  const handleFrequencySelectChange = useCallback$8(
+  const handleFrequencySelectChange = useCallback$7(
     (e) => {
       const selectedValue = e.target.value;
       const selectedConfig = presetScheduleConfigs.find(
@@ -37942,20 +39815,20 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
     },
     [presetScheduleConfigs, handleCronExpressionChange]
   );
-  const openSmartDialog = useCallback$8(async () => {
+  const openSmartDialog = useCallback$7(async () => {
     setShowSmartDialog(true);
     if (defaultDescriptions.length === 0) {
       await loadDefaultDescriptions();
     }
   }, [defaultDescriptions.length, loadDefaultDescriptions]);
-  const closeSmartDialog = useCallback$8(() => {
+  const closeSmartDialog = useCallback$7(() => {
     setShowSmartDialog(false);
     setUserInput("");
   }, []);
-  const selectDefaultDescription = useCallback$8((description2) => {
+  const selectDefaultDescription = useCallback$7((description2) => {
     setUserInput(description2);
   }, []);
-  const generateScheduleSettings = useCallback$8(async () => {
+  const generateScheduleSettings = useCallback$7(async () => {
     if (!userInput.trim()) {
       window.notify?.({
         message: "請輸入任務描述",
@@ -38399,8 +40272,8 @@ const ScheduleNode = memo$5(ScheduleTriggerNode);
 
 const copyIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20viewBox='0%200%2018%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M14.344%2016.875H6.469a2.531%202.531%200%200%201-2.532-2.531V6.469A2.531%202.531%200%200%201%206.47%203.937h7.875a2.531%202.531%200%200%201%202.531%202.532v7.875a2.531%202.531%200%200%201-2.531%202.531z'%20fill='%23FC6165'/%3e%3cpath%20d='M5.625%202.813h8.293a2.536%202.536%200%200%200-2.387-1.688H3.656a2.531%202.531%200%200%200-2.531%202.531v7.875a2.536%202.536%200%200%200%201.688%202.387V5.625a2.813%202.813%200%200%201%202.812-2.813z'%20fill='%23FC6165'/%3e%3c/svg%3e";
 
-const React$a = await importShared('react');
-const {memo: memo$4,useState: useState$b,useCallback: useCallback$7} = React$a;
+const React$9 = await importShared('react');
+const {memo: memo$4,useState: useState$a,useCallback: useCallback$6} = React$9;
 const WebhookInputNode = ({ data, isConnectable, id }) => {
   const {
     curl_example,
@@ -38408,9 +40281,9 @@ const WebhookInputNode = ({ data, isConnectable, id }) => {
     "X-QOCA-Agent-Api-Key": apiKey,
     isCreatingWebhook
   } = data;
-  const [isCreating, setIsCreating] = useState$b(false);
-  const [isExampleExpanded, setIsExampleExpanded] = useState$b(false);
-  const handleCreateWebhook = useCallback$7(async () => {
+  const [isCreating, setIsCreating] = useState$a(false);
+  const [isExampleExpanded, setIsExampleExpanded] = useState$a(false);
+  const handleCreateWebhook = useCallback$6(async () => {
     console.log("handleCreateWebhook 被調用");
     setIsCreating(true);
     try {
@@ -38475,7 +40348,7 @@ const WebhookInputNode = ({ data, isConnectable, id }) => {
       }
     }
   };
-  const copyToClipboard = useCallback$7(async (text, label) => {
+  const copyToClipboard = useCallback$6(async (text, label) => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         try {
@@ -38646,18 +40519,18 @@ const WebhookInputNode = ({ data, isConnectable, id }) => {
 };
 const WebhookInputNode$1 = memo$4(WebhookInputNode);
 
-const React$9 = await importShared('react');
-const {memo: memo$3,useEffect: useEffect$7,useState: useState$a,useRef: useRef$6,useCallback: useCallback$6} = React$9;
+const React$8 = await importShared('react');
+const {memo: memo$3,useEffect: useEffect$6,useState: useState$9,useRef: useRef$5,useCallback: useCallback$5} = React$8;
 const WebhookOutputNode = ({ id, data, isConnectable }) => {
-  const [inputs, setInputs] = useState$a([]);
-  const [handleLabels, setHandleLabels] = useState$a({});
+  const [inputs, setInputs] = useState$9([]);
+  const [handleLabels, setHandleLabels] = useState$9({});
   const updateNodeInternals = useUpdateNodeInternals();
-  const initAttempts = useRef$6(0);
+  const initAttempts = useRef$5(0);
   const nodeId = id || "unknown";
-  const isUpdating = useRef$6(false);
-  const isInitialized = useRef$6(false);
+  const isUpdating = useRef$5(false);
+  const isInitialized = useRef$5(false);
   const handleHeight = 40;
-  const getNodeHeight = useCallback$6(() => {
+  const getNodeHeight = useCallback$5(() => {
     const headerHeight = 50;
     const buttonAreaHeight = 48;
     const textAreaHeight = 40;
@@ -38680,7 +40553,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     }
     return handleId;
   };
-  const loadLabelsFromNodeInput = useCallback$6(() => {
+  const loadLabelsFromNodeInput = useCallback$5(() => {
     if (!data.node_input) return {};
     const labels = {};
     Object.entries(data.node_input).forEach(([key, value]) => {
@@ -38691,7 +40564,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     });
     return labels;
   }, [data.node_input]);
-  useEffect$7(() => {
+  useEffect$6(() => {
     if (isUpdating.current || isInitialized.current) return;
     isUpdating.current = true;
     initAttempts.current += 1;
@@ -38789,7 +40662,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       isUpdating.current = false;
     }, 200);
   }, [nodeId, data, updateNodeInternals, loadLabelsFromNodeInput]);
-  useEffect$7(() => {
+  useEffect$6(() => {
     if (inputs.length > 0) {
       setTimeout(() => {
         try {
@@ -38800,7 +40673,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       }, 50);
     }
   }, [inputs, nodeId, updateNodeInternals]);
-  useEffect$7(() => {
+  useEffect$6(() => {
     const nodeEdges = edges.filter((edge) => edge.target === nodeId);
     if (data.node_input) {
       const updatedNodeInput = { ...data.node_input };
@@ -38837,7 +40710,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       }
     }
   }, [edges, nodeId, inputs, data, handleLabels]);
-  const handleAddOutput = useCallback$6(() => {
+  const handleAddOutput = useCallback$5(() => {
     let maxIndex = -1;
     inputs.forEach((input) => {
       if (input.id && input.id.startsWith("text")) {
@@ -38896,7 +40769,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
       console.warn(`節點 ${nodeId} 沒有 onAddOutput 回調函數`);
     }
   }, [inputs, data, nodeId, handleLabels]);
-  const handleDeleteInput = useCallback$6(
+  const handleDeleteInput = useCallback$5(
     (handleId) => {
       const newInputs = inputs.filter((input) => input.id !== handleId);
       const currentLabels = { ...handleLabels };
@@ -38938,7 +40811,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     },
     [inputs, data, nodeId, handleLabels]
   );
-  const handleLabelChange = useCallback$6(
+  const handleLabelChange = useCallback$5(
     (handleId, newLabel) => {
       setHandleLabels((prev) => {
         if (prev[handleId] === newLabel) return prev;
@@ -38991,7 +40864,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
     },
     [data]
   );
-  useEffect$7(() => {
+  useEffect$6(() => {
     if (Object.keys(handleLabels).length > 0 && data) {
       if (!data.handleLabels) {
         data.handleLabels = {};
@@ -39033,7 +40906,7 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
             top: `${topPosition + 14}px`,
             border: "1px solid #D3D3D3"
           };
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$9.Fragment, { children: [
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(React$8.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Handle$1,
               {
@@ -39121,998 +40994,6 @@ const WebhookOutputNode = ({ id, data, isConnectable }) => {
   );
 };
 const WebhookOutputNode$1 = memo$3(WebhookOutputNode);
-
-const React$8 = await importShared('react');
-const {useRef: useRef$5,useEffect: useEffect$6,useState: useState$9,useCallback: useCallback$5,forwardRef: forwardRef$1,useImperativeHandle: useImperativeHandle$1} = React$8;
-
-const CombineTextEditor = forwardRef$1(
-  ({
-    value,
-    onChange,
-    onCompositionStart,
-    onCompositionEnd,
-    onKeyDown,
-    placeholder,
-    className,
-    flowId,
-    onTagInsert,
-    initialHtmlContent,
-    shouldShowPanel,
-    showInputPanel,
-    onShowPanel,
-    ...props
-  }, ref) => {
-    const editorRef = useRef$5(null);
-    const [isFocused, setIsFocused] = useState$9(false);
-    const [tags, setTags] = useState$9([]);
-    const [selectedTag, setSelectedTag] = useState$9(null);
-    const [isComposing, setIsComposing] = useState$9(false);
-    const [isInitialized, setIsInitialized] = useState$9(false);
-    const [isRestoring, setIsRestoring] = useState$9(false);
-    const [isDragOver, setIsDragOver] = useState$9(false);
-    const [draggedTag, setDraggedTag] = useState$9(null);
-    const isUpdatingFromExternal = useRef$5(false);
-    const lastReportedValue = useRef$5("");
-    const clickCountRef = useRef$5(0);
-    const lastClickTimeRef = useRef$5(0);
-    const clickTimerRef = useRef$5(null);
-    const isSelectingRef = useRef$5(false);
-    const selectionStartRef = useRef$5(null);
-    const generateDefaultContent = useCallback$5(() => {
-      return JSON.stringify(
-        {
-          flow_id: flowId || "default-flow-id",
-          func_id: "",
-          data: ""
-        },
-        null,
-        2
-      );
-    }, [flowId]);
-    const getEditorTextContent = useCallback$5(() => {
-      if (!editorRef.current) return "";
-      let content = "";
-      const walker = document.createTreeWalker(
-        editorRef.current,
-        NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
-        null,
-        false
-      );
-      let node;
-      while (node = walker.nextNode()) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          if (node.parentElement?.classList?.contains("delete-btn") || node.parentElement?.classList?.contains("tag-display-name")) {
-            continue;
-          }
-          content += node.textContent;
-        } else if (node.classList && node.classList.contains("inline-tag")) {
-          const tagData = node.getAttribute("data-tag-data");
-          if (tagData) {
-            content += tagData;
-          }
-        }
-      }
-      return content;
-    }, []);
-    const handleContentChange = useCallback$5(() => {
-      if (isComposing || isRestoring || isUpdatingFromExternal.current) return;
-      const textContent = getEditorTextContent();
-      if (textContent !== lastReportedValue.current) {
-        lastReportedValue.current = textContent;
-        if (onChange) {
-          onChange({
-            target: {
-              value: textContent
-            }
-          });
-        }
-      }
-    }, [onChange, getEditorTextContent, isComposing, isRestoring]);
-    const setCursorPosition = useCallback$5((x, y) => {
-      if (!editorRef.current) return;
-      let range;
-      if (document.caretRangeFromPoint) {
-        range = document.caretRangeFromPoint(x, y);
-      } else if (document.caretPositionFromPoint) {
-        const caretPos = document.caretPositionFromPoint(x, y);
-        if (caretPos) {
-          range = document.createRange();
-          range.setStart(caretPos.offsetNode, caretPos.offset);
-          range.collapse(true);
-        }
-      }
-      if (range && editorRef.current.contains(range.startContainer)) {
-        const selection2 = window.getSelection();
-        selection2.removeAllRanges();
-        selection2.addRange(range);
-        return true;
-      }
-      range = document.createRange();
-      range.selectNodeContents(editorRef.current);
-      range.collapse(false);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      return false;
-    }, []);
-    const createTagElement = useCallback$5((tagInfo) => {
-      const tagElement = document.createElement("span");
-      tagElement.className = "inline-tag";
-      tagElement.setAttribute("data-tag-id", tagInfo.id);
-      tagElement.setAttribute("data-tag-data", tagInfo.data);
-      tagElement.style.cssText = `
-        display: inline-block;
-        background-color: ${tagInfo.color};
-        color: white;
-        padding: 4px 8px;
-        margin: 2px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 500;
-        cursor: move;
-        white-space: nowrap;
-        user-select: none;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      `;
-      tagElement.contentEditable = false;
-      tagElement.draggable = true;
-      const tagContent = document.createElement("span");
-      tagContent.className = "tag-display-name";
-      tagContent.textContent = tagInfo.name;
-      tagElement.appendChild(tagContent);
-      const deleteBtn = document.createElement("span");
-      deleteBtn.className = "delete-btn";
-      deleteBtn.textContent = "×";
-      deleteBtn.style.cssText = "margin-left: 6px; cursor: pointer; font-weight: bold;";
-      tagElement.appendChild(deleteBtn);
-      return tagElement;
-    }, []);
-    const insertTagAtCursor = useCallback$5(
-      (tagInfo) => {
-        if (!editorRef.current) return;
-        const selection = window.getSelection();
-        let range;
-        if (!editorRef.current.contains(document.activeElement)) {
-          editorRef.current.focus();
-        }
-        if (selection.rangeCount === 0) {
-          range = document.createRange();
-          range.selectNodeContents(editorRef.current);
-          range.collapse(false);
-        } else {
-          range = selection.getRangeAt(0);
-          if (!editorRef.current.contains(range.startContainer)) {
-            range = document.createRange();
-            range.selectNodeContents(editorRef.current);
-            range.collapse(false);
-          }
-        }
-        const newTag = {
-          id: Date.now(),
-          name: `${tagInfo.name} (${tagInfo.id.slice(-3)})`,
-          data: tagInfo.data || tagInfo.code,
-          color: tagInfo.color
-        };
-        setTags((prev) => [...prev, newTag]);
-        const tagElement = createTagElement(newTag);
-        range.deleteContents();
-        range.insertNode(tagElement);
-        const spaceNode = document.createTextNode(" ");
-        tagElement.after(spaceNode);
-        range.setStartAfter(spaceNode);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        const editor = editorRef.current;
-        if (editor) {
-          editor.style.outline = "";
-          editor.style.outlineOffset = "";
-          editor.style.backgroundColor = "";
-        }
-        setIsDragOver(false);
-        handleContentChange();
-        if (onTagInsert) {
-          onTagInsert(newTag);
-        }
-        editorRef.current.focus();
-      },
-      [onTagInsert, handleContentChange, createTagElement]
-    );
-    const handleTagDragStart = useCallback$5((e) => {
-      const tagElement = e.target.closest(".inline-tag");
-      if (tagElement) {
-        const tagId = tagElement.getAttribute("data-tag-id");
-        const tagData = tagElement.getAttribute("data-tag-data");
-        const tagName = tagElement.querySelector(".tag-display-name")?.textContent || "";
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData(
-          "text/internal-tag",
-          JSON.stringify({
-            id: tagId,
-            data: tagData,
-            name: tagName,
-            isInternal: true
-          })
-        );
-        tagElement.style.opacity = "0.5";
-        setDraggedTag(tagElement);
-      }
-    }, []);
-    const handleTagDragEnd = useCallback$5((e) => {
-      const tagElement = e.target.closest(".inline-tag");
-      if (tagElement) {
-        tagElement.style.opacity = "1";
-      }
-      setDraggedTag(null);
-      const editor = editorRef.current;
-      if (editor) {
-        editor.style.outline = "";
-        editor.style.backgroundColor = "";
-      }
-    }, []);
-    const cleanupTagsByConnection = useCallback$5(
-      (nodeId, outputName) => {
-        if (!editorRef.current) return 0;
-        const expectedTagDataOld = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}`;
-        const expectedTagDataNew = `QOCA__NODE_ID__${nodeId}__NODE_OUTPUT_NAME__${outputName}__ENDMARKER__`;
-        const tagElements = editorRef.current.querySelectorAll(".inline-tag");
-        let removedCount = 0;
-        tagElements.forEach((tagElement) => {
-          const tagData = tagElement.getAttribute("data-tag-data");
-          if (tagData === expectedTagDataOld || tagData === expectedTagDataNew) {
-            const tagId = parseInt(tagElement.getAttribute("data-tag-id"));
-            setTags((prev) => prev.filter((tag) => tag.id !== tagId));
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.setStartBefore(tagElement);
-            range.collapse(true);
-            const nextNode = tagElement.nextSibling;
-            tagElement.remove();
-            if (nextNode && nextNode.nodeType === Node.TEXT_NODE && /^[\u00A0\s]*$/.test(nextNode.nodeValue)) {
-              nextNode.remove();
-            }
-            selection.removeAllRanges();
-            selection.addRange(range);
-            removedCount++;
-          }
-        });
-        if (removedCount > 0) {
-          handleContentChange();
-        }
-        return removedCount;
-      },
-      [setTags, handleContentChange]
-    );
-    const removeTag = useCallback$5(
-      (tagId) => {
-        const numericTagId = typeof tagId === "string" ? parseInt(tagId) : tagId;
-        setTags((prev) => prev.filter((tag) => tag.id !== numericTagId));
-        setSelectedTag((prev) => prev?.id === numericTagId ? null : prev);
-        const tagElement = document.querySelector(
-          `[data-tag-id="${numericTagId}"]`
-        );
-        if (tagElement) {
-          const selection = window.getSelection();
-          const range = document.createRange();
-          range.setStartBefore(tagElement);
-          range.collapse(true);
-          const nextNode = tagElement.nextSibling;
-          tagElement.remove();
-          if (nextNode && nextNode.nodeType === Node.TEXT_NODE && /^[\u00A0\s]*$/.test(nextNode.nodeValue)) {
-            nextNode.remove();
-          }
-          selection.removeAllRanges();
-          selection.addRange(range);
-          handleContentChange();
-        }
-      },
-      [handleContentChange]
-    );
-    const handleMouseDown = useCallback$5((e) => {
-      if (e.target.closest(".inline-tag")) {
-        return;
-      }
-      isSelectingRef.current = true;
-      selectionStartRef.current = {
-        x: e.clientX,
-        y: e.clientY,
-        shiftKey: e.shiftKey
-      };
-    }, []);
-    const handleMouseMove = useCallback$5((e) => {
-      if (!isSelectingRef.current || !selectionStartRef.current) {
-        return;
-      }
-      const deltaX = Math.abs(e.clientX - selectionStartRef.current.x);
-      const deltaY = Math.abs(e.clientY - selectionStartRef.current.y);
-      if (deltaX < 3 && deltaY < 3) {
-        return;
-      }
-      const selection = window.getSelection();
-      const startRange = document.caretRangeFromPoint(
-        selectionStartRef.current.x,
-        selectionStartRef.current.y
-      );
-      const endRange = document.caretRangeFromPoint(e.clientX, e.clientY);
-      if (startRange && endRange && editorRef.current.contains(startRange.startContainer) && editorRef.current.contains(endRange.startContainer)) {
-        const range = document.createRange();
-        const startPos = startRange.startContainer.compareDocumentPosition(
-          endRange.startContainer
-        );
-        if (startPos === 0) {
-          if (startRange.startOffset <= endRange.startOffset) {
-            range.setStart(startRange.startContainer, startRange.startOffset);
-            range.setEnd(endRange.startContainer, endRange.startOffset);
-          } else {
-            range.setStart(endRange.startContainer, endRange.startOffset);
-            range.setEnd(startRange.startContainer, startRange.startOffset);
-          }
-        } else if (startPos & Node.DOCUMENT_POSITION_FOLLOWING) {
-          range.setStart(startRange.startContainer, startRange.startOffset);
-          range.setEnd(endRange.startContainer, endRange.startOffset);
-        } else {
-          range.setStart(endRange.startContainer, endRange.startOffset);
-          range.setEnd(startRange.startContainer, startRange.startOffset);
-        }
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    }, []);
-    const handleMouseUp = useCallback$5(() => {
-      isSelectingRef.current = false;
-      selectionStartRef.current = null;
-    }, []);
-    const handleEditorClick = useCallback$5(
-      (e) => {
-        const tagElement = e.target.closest(".inline-tag");
-        if (tagElement) {
-          const tagId = parseInt(tagElement.getAttribute("data-tag-id"));
-          const tagData = tagElement.getAttribute("data-tag-data");
-          if (e.target.classList.contains("delete-btn")) {
-            e.preventDefault();
-            e.stopPropagation();
-            removeTag(tagId);
-            return;
-          } else {
-            e.preventDefault();
-            e.stopPropagation();
-            if (tagData) {
-              navigator.clipboard.writeText(tagData).then(() => {
-                const originalBg = tagElement.style.backgroundColor;
-                setTimeout(() => {
-                  tagElement.style.backgroundColor = originalBg;
-                }, 200);
-              }).catch(() => {
-                const textArea = document.createElement("textarea");
-                textArea.value = tagData;
-                textArea.style.position = "fixed";
-                textArea.style.left = "-999999px";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                  document.execCommand("copy");
-                } catch (err) {
-                  console.error("複製失敗:", err);
-                }
-                document.body.removeChild(textArea);
-                editorRef.current?.focus();
-              });
-            }
-            const currentTag = tags.find((tag) => tag.id === tagId);
-            const isCurrentlySelected = selectedTag?.id === tagId;
-            document.querySelectorAll(".inline-tag").forEach((tag) => {
-              tag.style.boxShadow = "";
-            });
-            if (isCurrentlySelected) {
-              setSelectedTag(null);
-            } else if (currentTag) {
-              setSelectedTag(currentTag);
-              tagElement.style.boxShadow = "0 0 0 2px #FFFFFF";
-            }
-            return;
-          }
-        }
-        const currentTime = Date.now();
-        const timeDiff = currentTime - lastClickTimeRef.current;
-        if (timeDiff < 300) {
-          clickCountRef.current++;
-        } else {
-          clickCountRef.current = 1;
-        }
-        lastClickTimeRef.current = currentTime;
-        if (clickTimerRef.current) {
-          clearTimeout(clickTimerRef.current);
-        }
-        if (clickCountRef.current === 2) {
-          e.preventDefault();
-          const selection = window.getSelection();
-          const range = document.caretRangeFromPoint(e.clientX, e.clientY);
-          if (range) {
-            const textNode = range.startContainer;
-            if (textNode.nodeType === Node.TEXT_NODE) {
-              const text = textNode.textContent;
-              let start = range.startOffset;
-              let end = range.startOffset;
-              while (start > 0 && !/\s/.test(text[start - 1])) {
-                start--;
-              }
-              while (end < text.length && !/\s/.test(text[end])) {
-                end++;
-              }
-              range.setStart(textNode, start);
-              range.setEnd(textNode, end);
-              selection.removeAllRanges();
-              selection.addRange(range);
-            }
-          }
-        } else if (clickCountRef.current === 3) {
-          e.preventDefault();
-          const selection = window.getSelection();
-          const range = document.createRange();
-          const clickTarget = e.target;
-          if (clickTarget === editorRef.current || editorRef.current.contains(clickTarget)) {
-            const caretRange = document.caretRangeFromPoint(
-              e.clientX,
-              e.clientY
-            );
-            if (caretRange) {
-              let container = caretRange.startContainer;
-              if (container.nodeType === Node.TEXT_NODE) {
-                container = container.parentNode;
-              }
-              range.selectNodeContents(
-                container === editorRef.current ? container : editorRef.current
-              );
-              selection.removeAllRanges();
-              selection.addRange(range);
-            }
-          }
-        } else if (clickCountRef.current === 1) {
-          const selection = window.getSelection();
-          if (selection.toString().length === 0) {
-            setSelectedTag(null);
-            document.querySelectorAll(".inline-tag").forEach((tag) => {
-              tag.style.boxShadow = "";
-            });
-            if (!editorRef.current.contains(document.activeElement)) {
-              editorRef.current.focus();
-            }
-          }
-        }
-        clickTimerRef.current = setTimeout(() => {
-          clickCountRef.current = 0;
-        }, 400);
-        if (shouldShowPanel && onShowPanel && !showInputPanel && clickCountRef.current === 1) {
-          setTimeout(() => {
-            onShowPanel(true);
-          }, 500);
-        }
-      },
-      [
-        tags,
-        selectedTag,
-        removeTag,
-        shouldShowPanel,
-        showInputPanel,
-        onShowPanel
-      ]
-    );
-    const handleKeyDown = useCallback$5(
-      (e) => {
-        if (onKeyDown) {
-          onKeyDown(e);
-          if (e.defaultPrevented) {
-            return;
-          }
-        }
-        if ((e.metaKey || e.ctrlKey) && e.key === "c" && selectedTag) {
-          e.preventDefault();
-          navigator.clipboard.writeText(selectedTag.data);
-          return;
-        }
-        if (e.key === "Backspace" || e.key === "Delete") {
-          if (selectedTag) {
-            e.preventDefault();
-            removeTag(selectedTag.id);
-            return;
-          }
-          const selection = window.getSelection();
-          if (!selection.rangeCount) return;
-          const range = selection.getRangeAt(0);
-          if (!range.collapsed) return;
-          let tagToDelete = null;
-          if (e.key === "Backspace") {
-            const container = range.startContainer;
-            const offset = range.startOffset;
-            if (container.nodeType === Node.TEXT_NODE) {
-              if (offset === 0 && container.previousSibling?.classList?.contains("inline-tag")) {
-                tagToDelete = container.previousSibling;
-              }
-            } else {
-              if (offset > 0) {
-                const prevNode = container.childNodes[offset - 1];
-                if (prevNode?.classList?.contains("inline-tag")) {
-                  tagToDelete = prevNode;
-                }
-              }
-            }
-          } else if (e.key === "Delete") {
-            const container = range.endContainer;
-            const offset = range.endOffset;
-            if (container.nodeType === Node.TEXT_NODE) {
-              if (offset === container.textContent.length && container.nextSibling?.classList?.contains("inline-tag")) {
-                tagToDelete = container.nextSibling;
-              }
-            } else {
-              if (offset < container.childNodes.length) {
-                const nextNode = container.childNodes[offset];
-                if (nextNode?.classList?.contains("inline-tag")) {
-                  tagToDelete = nextNode;
-                }
-              }
-            }
-          }
-          if (tagToDelete) {
-            e.preventDefault();
-            const tagId = parseInt(tagToDelete.getAttribute("data-tag-id"));
-            removeTag(tagId);
-          }
-        }
-      },
-      [selectedTag, removeTag, onKeyDown]
-    );
-    const handleCompositionStart = useCallback$5(
-      (e) => {
-        setIsComposing(true);
-        if (onCompositionStart) {
-          onCompositionStart(e);
-        }
-      },
-      [onCompositionStart]
-    );
-    const handleCompositionEnd = useCallback$5(
-      (e) => {
-        setIsComposing(false);
-        setTimeout(() => {
-          handleContentChange();
-        }, 0);
-        if (onCompositionEnd) {
-          onCompositionEnd(e);
-        }
-      },
-      [onCompositionEnd, handleContentChange]
-    );
-    const handleInput = useCallback$5(() => {
-      if (!isComposing && !isRestoring && !isUpdatingFromExternal.current) {
-        setTimeout(() => {
-          handleContentChange();
-        }, 0);
-      }
-    }, [isComposing, isRestoring, handleContentChange]);
-    useImperativeHandle$1(
-      ref,
-      () => ({
-        insertTagAtCursor: (tagData) => {
-          insertTagAtCursor(tagData);
-        },
-        focus: () => {
-          if (editorRef.current) {
-            editorRef.current.focus();
-          }
-        },
-        getValue: () => {
-          return getEditorTextContent();
-        },
-        get innerHTML() {
-          return editorRef.current ? editorRef.current.innerHTML : "";
-        },
-        set innerHTML(content) {
-          if (editorRef.current) {
-            isUpdatingFromExternal.current = true;
-            editorRef.current.innerHTML = content;
-            setTimeout(() => {
-              isUpdatingFromExternal.current = false;
-            }, 500);
-          }
-        },
-        // 根據連接信息清理tag
-        cleanupTagsByConnection
-      }),
-      [cleanupTagsByConnection, insertTagAtCursor, getEditorTextContent]
-    );
-    useEffect$6(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      editor.addEventListener("mousedown", handleMouseDown);
-      editor.addEventListener("mousemove", handleMouseMove);
-      editor.addEventListener("mouseup", handleMouseUp);
-      document.addEventListener("mouseup", handleMouseUp);
-      return () => {
-        editor.removeEventListener("mousedown", handleMouseDown);
-        editor.removeEventListener("mousemove", handleMouseMove);
-        editor.removeEventListener("mouseup", handleMouseUp);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    }, [handleMouseDown, handleMouseMove, handleMouseUp]);
-    useEffect$6(() => {
-      return () => {
-        if (clickTimerRef.current) {
-          clearTimeout(clickTimerRef.current);
-        }
-      };
-    }, []);
-    useEffect$6(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      const resizeObserver = new ResizeObserver(() => {
-        editor.style.height = "auto";
-        const scrollHeight = Math.max(editor.scrollHeight, 60);
-        editor.style.height = `${Math.min(scrollHeight, 400)}px`;
-      });
-      resizeObserver.observe(editor);
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }, []);
-    useEffect$6(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      editor.style.position = "relative";
-      editor.style.zIndex = "10001";
-      const setupTagDragEvents = () => {
-        const tagElements = editor.querySelectorAll(".inline-tag");
-        tagElements.forEach((tag) => {
-          tag.draggable = true;
-          tag.style.cursor = "move";
-        });
-      };
-      setupTagDragEvents();
-      const observer = new MutationObserver(() => {
-        setupTagDragEvents();
-      });
-      observer.observe(editor, {
-        childList: true,
-        subtree: true
-      });
-      const handleDragOverCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.dataTransfer.dropEffect = draggedTag ? "move" : "copy";
-        setIsDragOver(true);
-        const x = e.clientX;
-        const y = e.clientY;
-        setCursorPosition(x, y);
-      };
-      const handleDragEnterCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(true);
-      };
-      const handleDragLeaveCapture = (e) => {
-        if (!editor.contains(e.relatedTarget)) {
-          setIsDragOver(false);
-          editor.style.outline = "";
-          editor.style.outlineOffset = "";
-          editor.style.backgroundColor = "";
-        }
-      };
-      const handleDropCapture = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragOver(false);
-        const cleanupVisualEffects = () => {
-          editor.style.outline = "";
-          editor.style.outlineOffset = "";
-          editor.style.backgroundColor = "";
-        };
-        cleanupVisualEffects();
-        const internalTagData = e.dataTransfer.getData("text/internal-tag");
-        const externalData = e.dataTransfer.getData("text/plain");
-        if (internalTagData) {
-          try {
-            const tagInfo = JSON.parse(internalTagData);
-            const originalTag = editor.querySelector(
-              `[data-tag-id="${tagInfo.id}"]`
-            );
-            if (originalTag) {
-              originalTag.remove();
-              const targetElement = document.elementFromPoint(
-                e.clientX,
-                e.clientY
-              );
-              const targetTag = targetElement?.closest(".inline-tag");
-              let insertPosition;
-              if (targetTag && targetTag !== originalTag) {
-                const tagRect = targetTag.getBoundingClientRect();
-                const isLeftHalf = e.clientX < tagRect.left + tagRect.width / 2;
-                const range = document.createRange();
-                if (isLeftHalf) {
-                  range.setStartBefore(targetTag);
-                } else {
-                  range.setStartAfter(targetTag);
-                }
-                range.collapse(true);
-                insertPosition = range;
-              } else {
-                editor.focus();
-                setCursorPosition(e.clientX, e.clientY);
-                const selection2 = window.getSelection();
-                insertPosition = selection2.getRangeAt(0);
-              }
-              const newTagElement = createTagElement({
-                id: tagInfo.id,
-                name: tagInfo.name,
-                data: tagInfo.data,
-                color: originalTag.style.backgroundColor
-              });
-              insertPosition.insertNode(newTagElement);
-              const spaceNode = document.createTextNode(" ");
-              newTagElement.after(spaceNode);
-              const newRange = document.createRange();
-              newRange.setStartAfter(spaceNode);
-              newRange.collapse(true);
-              const selection = window.getSelection();
-              selection.removeAllRanges();
-              selection.addRange(newRange);
-              handleContentChange();
-            }
-          } catch (error) {
-            console.error("內部標籤移動失敗:", error);
-          }
-        } else if (externalData) {
-          try {
-            const nodeInfo = JSON.parse(externalData);
-            editor.focus();
-            const x = e.clientX;
-            const y = e.clientY;
-            setCursorPosition(x, y);
-            insertTagAtCursor(nodeInfo);
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 0);
-            setTimeout(() => {
-              cleanupVisualEffects();
-            }, 100);
-          } catch (error) {
-            console.error("⌠標籤插入失敗:", error);
-            cleanupVisualEffects();
-          }
-        } else {
-          cleanupVisualEffects();
-        }
-        setDraggedTag(null);
-      };
-      editor.addEventListener("dragstart", handleTagDragStart);
-      editor.addEventListener("dragend", handleTagDragEnd);
-      editor.addEventListener("dragover", handleDragOverCapture, true);
-      editor.addEventListener("dragenter", handleDragEnterCapture, true);
-      editor.addEventListener("dragleave", handleDragLeaveCapture, true);
-      editor.addEventListener("drop", handleDropCapture, true);
-      return () => {
-        observer.disconnect();
-        editor.style.outline = "";
-        editor.style.outlineOffset = "";
-        editor.style.backgroundColor = "";
-        editor.removeEventListener("dragstart", handleTagDragStart);
-        editor.removeEventListener("dragend", handleTagDragEnd);
-        editor.removeEventListener("dragover", handleDragOverCapture, true);
-        editor.removeEventListener("dragenter", handleDragEnterCapture, true);
-        editor.removeEventListener("dragleave", handleDragLeaveCapture, true);
-        editor.removeEventListener("drop", handleDropCapture, true);
-      };
-    }, [
-      setCursorPosition,
-      insertTagAtCursor,
-      handleTagDragStart,
-      handleTagDragEnd,
-      draggedTag,
-      createTagElement,
-      handleContentChange
-    ]);
-    useEffect$6(() => {
-      if (initialHtmlContent && editorRef.current && !isInitialized) {
-        setIsRestoring(true);
-        isUpdatingFromExternal.current = true;
-        editorRef.current.innerHTML = initialHtmlContent;
-        lastReportedValue.current = getEditorTextContent();
-        const tagElements = editorRef.current.querySelectorAll(".inline-tag");
-        const restoredTags = [];
-        tagElements.forEach((element) => {
-          const tagId = parseInt(element.getAttribute("data-tag-id"));
-          const tagData = element.getAttribute("data-tag-data");
-          if (!isNaN(tagId) && tagData) {
-            const tagNameElement = element.querySelector(
-              "span:not(.delete-btn)"
-            );
-            const tagName = tagNameElement ? tagNameElement.textContent.trim() : "Tag";
-            restoredTags.push({
-              id: tagId,
-              data: tagData,
-              name: tagName
-            });
-            element.draggable = true;
-            element.style.cursor = "move";
-          }
-        });
-        setTags(restoredTags);
-        setIsInitialized(true);
-        setTimeout(() => {
-          setIsRestoring(false);
-          isUpdatingFromExternal.current = false;
-        }, 500);
-      }
-    }, [initialHtmlContent, isInitialized, getEditorTextContent]);
-    useEffect$6(() => {
-      if (!initialHtmlContent && editorRef.current && (!value || value === "") && editorRef.current.textContent === "" && !isInitialized) {
-        const defaultContent = generateDefaultContent();
-        isUpdatingFromExternal.current = true;
-        editorRef.current.textContent = defaultContent;
-        lastReportedValue.current = defaultContent;
-        setIsInitialized(true);
-        setTimeout(() => {
-          isUpdatingFromExternal.current = false;
-          handleContentChange();
-        }, 500);
-      }
-    }, [
-      value,
-      generateDefaultContent,
-      handleContentChange,
-      initialHtmlContent,
-      isInitialized
-    ]);
-    useEffect$6(() => {
-      if (isInitialized && value !== void 0 && value !== lastReportedValue.current && !isUpdatingFromExternal.current && !isFocused) {
-        isUpdatingFromExternal.current = true;
-        editorRef.current.textContent = value;
-        lastReportedValue.current = value;
-        setTimeout(() => {
-          isUpdatingFromExternal.current = false;
-        }, 500);
-      }
-    }, [value, isInitialized, isFocused]);
-    useEffect$6(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      const handleFocus = () => setIsFocused(true);
-      const handleBlur = () => {
-        setIsFocused(false);
-        setTimeout(() => {
-          if (!isUpdatingFromExternal.current) {
-            handleContentChange();
-          }
-        }, 0);
-      };
-      editor.addEventListener("focus", handleFocus);
-      editor.addEventListener("blur", handleBlur);
-      return () => {
-        editor.removeEventListener("focus", handleFocus);
-        editor.removeEventListener("blur", handleBlur);
-      };
-    }, [handleContentChange]);
-    useEffect$6(() => {
-      if (isFocused) {
-        const findReactFlowNode = (element) => {
-          let current = element;
-          while (current && !current.classList?.contains("react-flow__node")) {
-            current = current.parentElement;
-          }
-          return current;
-        };
-        const reactFlowNode = findReactFlowNode(editorRef.current);
-        if (reactFlowNode) {
-          reactFlowNode._originalClassName = reactFlowNode.className;
-          reactFlowNode.classList.add("nodrag");
-        }
-        return () => {
-          if (reactFlowNode && reactFlowNode._originalClassName) {
-            reactFlowNode.className = reactFlowNode._originalClassName;
-            delete reactFlowNode._originalClassName;
-          }
-        };
-      }
-    }, [isFocused]);
-    useEffect$6(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      const handleWheelCapture = (e) => {
-        if (isFocused && (e.target === editor || editor.contains(e.target))) {
-          e.stopPropagation();
-          const isAtTop = editor.scrollTop <= 0;
-          const isAtBottom = Math.abs(
-            editor.scrollTop + editor.clientHeight - editor.scrollHeight
-          ) <= 1;
-          if (isAtTop && e.deltaY < 0 || isAtBottom && e.deltaY > 0) {
-            e.preventDefault();
-          }
-        }
-      };
-      const preventZoom = (e) => {
-        if (isFocused && (e.ctrlKey || e.metaKey) && (e.target === editor || editor.contains(e.target))) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      };
-      document.addEventListener("wheel", handleWheelCapture, {
-        passive: false,
-        capture: true
-      });
-      document.addEventListener("wheel", preventZoom, {
-        passive: false,
-        capture: true
-      });
-      return () => {
-        document.removeEventListener("wheel", handleWheelCapture, {
-          passive: false,
-          capture: true
-        });
-        document.removeEventListener("wheel", preventZoom, {
-          passive: false,
-          capture: true
-        });
-      };
-    }, [isFocused]);
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
-            @keyframes blink {
-              0%, 50% { opacity: 1; }
-              51%, 100% { opacity: 0.3; }
-            }
-            .inline-tag {
-              transition: transform 0.2s;
-            }
-            .inline-tag:hover {
-              transform: scale(1.05);
-            }
-            .inline-tag.dragging {
-              opacity: 0.5;
-            }
-          ` }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          ref: editorRef,
-          contentEditable: true,
-          suppressContentEditableWarning: true,
-          onInput: handleInput,
-          onClick: handleEditorClick,
-          onKeyDown: handleKeyDown,
-          onCompositionStart: handleCompositionStart,
-          onCompositionEnd: handleCompositionEnd,
-          className: `
-            w-full 
-            border 
-            border-gray-300 
-            rounded 
-            p-3 
-            text-sm 
-            resize-none 
-            overflow-auto 
-            min-h-[60px] 
-            max-h-[400px]
-            font-[SpaceMono-Regular]
-            ${isFocused ? "z-50 shadow-md border-blue-400" : ""} 
-            ${isDragOver ? "border-blue-500 border-2 shadow-lg" : ""}
-            ${className}
-          `,
-          style: {
-            fontFamily: 'Monaco, Menlo, Consolas, "Courier New", monospace',
-            lineHeight: "1.5",
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-            position: "relative",
-            zIndex: isDragOver ? 10001 : isFocused ? 1e4 : "auto",
-            ...props.style
-          },
-          "data-placeholder": placeholder,
-          ...props
-        }
-      )
-    ] });
-  }
-);
-CombineTextEditor.displayName = "CombineTextEditor";
 
 const React$7 = await importShared('react');
 const {memo: memo$2,useState: useState$8,useEffect: useEffect$5,useCallback: useCallback$4,useRef: useRef$4,useMemo: useMemo$1} = React$7;
@@ -40320,7 +41201,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             console.warn("更新 HTML 內容失敗:", error);
           }
         }
-      }, 300);
+      }, 10);
     },
     [updateContent, editorHtmlContent, data]
   );
