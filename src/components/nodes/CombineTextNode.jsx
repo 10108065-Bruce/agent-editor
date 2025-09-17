@@ -279,7 +279,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
         clearTimeout(updateTimeoutRef.current);
       }
 
-      // 延遲更新，避免頻繁觸發
+      // 減少延遲時間到 10ms
       updateTimeoutRef.current = setTimeout(() => {
         updateContent(newContent, 'handleTextChange');
 
@@ -297,7 +297,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             console.warn('更新 HTML 內容失敗:', error);
           }
         }
-      }, 300); // 增加防抖時間
+      }, 10); // 從 300ms 改為 10ms
     },
     [updateContent, editorHtmlContent, data]
   );

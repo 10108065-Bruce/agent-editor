@@ -186,9 +186,61 @@ export class WorkflowMappingService {
     const isMessageNode = targetNode.type === 'line_send_message';
     const isExtractDataNode = targetNode.type === 'extract_data';
     const isSpeechToTextNode = targetNode.type === 'speech_to_text';
+    const isHttpRequestNode = targetNode && targetNode.type === 'httpRequest';
 
     // Schedule Trigger 節點沒有輸入連接，直接返回空對象
     if (isScheduleTriggerNode) {
+      return nodeInput;
+    }
+
+    // 查找所有連線到此節點的邊
+    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
+
+    if (isHttpRequestNode) {
+      // 收集所有 body 連線
+      const bodyEdges = [];
+
+      relevantEdges.forEach((edge) => {
+        const targetHandle = edge.targetHandle || 'input';
+
+        // 檢查是否為 body 相關的 handle
+        if (
+          targetHandle === 'body' ||
+          !targetHandle ||
+          targetHandle === 'input'
+        ) {
+          bodyEdges.push(edge);
+        }
+      });
+
+      // 處理 body 連線 - 使用 body0, body1, body2 格式
+      bodyEdges.forEach((edge, index) => {
+        const inputKey = `body${index}`;
+
+        // 查找源節點以獲取 return_name
+        const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
+          edge,
+          allNodes
+        );
+
+        // 添加到 nodeInput
+        nodeInput[inputKey] = {
+          node_id: edge.source,
+          output_name: edge.sourceHandle || 'output',
+          type: 'string',
+          return_name: returnName
+        };
+      });
+
+      // 檢查是否有直接輸入的 body（當沒有連線時）
+      if (targetNode.data?.body && bodyEdges.length === 0) {
+        nodeInput.body0 = {
+          type: 'string',
+          data: targetNode.data.body,
+          node_id: '' // 空 node_id 表示使用直接輸入的文本
+        };
+      }
+
       return nodeInput;
     }
 
@@ -229,9 +281,6 @@ export class WorkflowMappingService {
           `特殊處理: 將 input.return_name (${originalNodeInput.input.return_name}) 映射到 output0`
         );
       }
-
-      // 查找所有連線到此節點的邊
-      const relevantEdges = edges.filter((edge) => edge.target === nodeId);
 
       // 按基本 handle 分組
       const handleGroups = {};
@@ -524,10 +573,6 @@ export class WorkflowMappingService {
 
       return nodeInput;
     }
-
-    // 獲取所有以該節點為目標的邊緣
-    const relevantEdges = edges.filter((edge) => edge.target === nodeId);
-
     // 如果沒有連接，處理特殊情況
     if (relevantEdges.length === 0) {
       // 對於 AI 節點，仍需檢查是否有直接輸入的 promptText
@@ -543,34 +588,26 @@ export class WorkflowMappingService {
 
     // AI 節點的特殊處理邏輯 ===
     if (isAINode) {
-      // 分別收集 context 和 prompt 連線
-      const contextEdges = [];
+      // 收集所有 prompt 連線
       const promptEdges = [];
 
       relevantEdges.forEach((edge) => {
         const targetHandle = edge.targetHandle || 'input';
 
-        // 檢查是否為 context 相關的 handle
-        if (
-          targetHandle === 'context-input' ||
-          targetHandle.startsWith('context-input_') ||
-          targetHandle.startsWith('context')
-        ) {
-          contextEdges.push(edge);
-        }
         // 檢查是否為 prompt 相關的 handle
-        else if (
-          targetHandle === 'prompt-input' ||
-          targetHandle.startsWith('prompt-input_') ||
-          targetHandle.startsWith('prompt')
+        // 現在所有連到 AI 節點的連線都視為 prompt
+        if (
+          targetHandle === 'prompt' ||
+          !targetHandle ||
+          targetHandle === 'input'
         ) {
           promptEdges.push(edge);
         }
       });
 
-      // 處理 context 連線 - 統一使用 context0, context1, context2 格式
-      contextEdges.forEach((edge, index) => {
-        const inputKey = `context${index}`;
+      // 處理 prompt 連線 - 使用 prompt0, prompt1, prompt2 格式
+      promptEdges.forEach((edge, index) => {
+        const inputKey = `prompt${index}`;
 
         // 查找源節點以獲取 return_name
         const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
@@ -587,28 +624,9 @@ export class WorkflowMappingService {
         };
       });
 
-      // 處理 prompt 連線 - 只使用 "prompt" 作為 key
-      if (promptEdges.length > 0) {
-        const edge = promptEdges[0]; // 只取第一個連接，因為 prompt 只能有一個
-        const inputKey = 'prompt';
-
-        // 查找源節點以獲取 return_name
-        const returnName = WorkflowMappingService.getReturnNameFromSourceNode(
-          edge,
-          allNodes
-        );
-
-        nodeInput[inputKey] = {
-          node_id: edge.source,
-          output_name: edge.sourceHandle || 'output',
-          type: 'string',
-          return_name: returnName
-        };
-      }
-
-      // 檢查是否有直接輸入的 promptText（當沒有 prompt 連線時）
+      // 檢查是否有直接輸入的 promptText（當沒有連線時）
       if (targetNode.data?.promptText && promptEdges.length === 0) {
-        nodeInput.prompt = {
+        nodeInput.prompt0 = {
           type: 'string',
           data: targetNode.data.promptText,
           node_id: '' // 空 node_id 表示使用直接輸入的文本

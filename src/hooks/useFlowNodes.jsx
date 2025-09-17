@@ -1603,31 +1603,6 @@ export default function useFlowNodes() {
           return; // 不創建新連線
         }
       }
-      // 檢查目標節點是否為 HTTP Request 節點
-      if (targetNode && targetNode.type === 'httpRequest') {
-        console.log('目標是 HTTP Request 節點，檢查連線限制');
-
-        // 檢查是否已有輸入連線
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.target === targetNodeId && edge.targetHandle === 'input'
-        );
-
-        if (existingEdges.length > 0) {
-          console.log(`HTTP Request 節點已有輸入連線，拒絕新連線`);
-
-          // 使用通知系統提示用戶
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `HTTP Request 節點只能有一個輸入連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
-          }
-
-          return; // 不創建新連線
-        }
-      }
 
       // 檢查知識檢索節點的連線限制
       if (targetNode && targetNode.type === 'knowledgeRetrieval') {
@@ -1829,37 +1804,6 @@ export default function useFlowNodes() {
 
           return; // 不創建新連線
         }
-      }
-
-      // 處理AI節點的連線限制
-      if (isAINode) {
-        console.log('目標是AI節點，檢查連線限制');
-
-        // 允許多個連接到 context-input，但仍限制 prompt-input 只能有一個連線
-        if (targetHandle === 'prompt-input') {
-          // 檢查 prompt-input 是否已經有連線
-          const existingEdges = edges.filter(
-            (edge) =>
-              edge.target === targetNodeId &&
-              edge.targetHandle === 'prompt-input'
-          );
-
-          if (existingEdges.length > 0) {
-            console.log(`AI節點的 Prompt 已有連線，拒絕新連線`);
-
-            // 使用通知系統提示用戶
-            if (typeof window !== 'undefined' && window.notify) {
-              window.notify({
-                message: `AI節點的 Prompt 已有連線，請先刪除現有連線`,
-                type: 'error',
-                duration: 3000
-              });
-            }
-
-            return; // 不創建新連線
-          }
-        }
-        // context-input 允許多個連線，所以不進行檢查
       }
 
       // 檢查 Extract Data 節點的連線限制

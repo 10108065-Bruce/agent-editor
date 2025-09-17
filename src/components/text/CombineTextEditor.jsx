@@ -237,11 +237,10 @@ const CombineTextEditor = forwardRef(
         range.insertNode(tagElement);
 
         // 插入空格
-        const spaceNode = document.createTextNode('\u00A0');
-        tagElement.after(spaceNode);
 
         // 將游標移到空格後面
-        range.setStartAfter(spaceNode);
+        range.setStartAfter(tagElement);
+
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
@@ -348,7 +347,7 @@ const CombineTextEditor = forwardRef(
             if (
               nextNode &&
               nextNode.nodeType === Node.TEXT_NODE &&
-              /^[\u00A0\s]*$/.test(nextNode.nodeValue)
+              /^\s*$/.test(nextNode.nodeValue)
             ) {
               nextNode.remove();
             }
@@ -395,7 +394,7 @@ const CombineTextEditor = forwardRef(
           if (
             nextNode &&
             nextNode.nodeType === Node.TEXT_NODE &&
-            /^[\u00A0\s]*$/.test(nextNode.nodeValue)
+            /^\s*$/.test(nextNode.nodeValue)
           ) {
             nextNode.remove();
           }
@@ -1020,13 +1019,13 @@ const CombineTextEditor = forwardRef(
               // 插入標籤
               insertPosition.insertNode(newTagElement);
 
-              // 插入空格
-              const spaceNode = document.createTextNode('\u00A0');
-              newTagElement.after(spaceNode);
+              // // 插入空格
+              // const spaceNode = document.createTextNode('\u00A0');
+              // newTagElement.after(spaceNode);
 
               // 設置游標位置
               const newRange = document.createRange();
-              newRange.setStartAfter(spaceNode);
+              newRange.setStartAfter(newTagElement);
               newRange.collapse(true);
               const selection = window.getSelection();
               selection.removeAllRanges();

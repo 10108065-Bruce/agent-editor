@@ -235,25 +235,58 @@ export class WorkflowDataConverter {
       const isMessageNode = node.operator === 'line_send_message';
       const isExtractDataNode = node.operator === 'extract_data';
       const isQOCAAimNode = node.operator === 'aim_ml';
+      const isHttpRequestNode = node.operator === 'http_request';
+
+      if (isHttpRequestNode) {
+        // 檢查是否有直接輸入的 body（body0 且 node_id 為空）
+        const body0 = node.node_input?.body0;
+        if (body0 && body0.node_id === '') {
+          const reactFlowNode = nodes.find((n) => n.id === node.id);
+          if (reactFlowNode) {
+            // 設置直接輸入的 body 文本
+            reactFlowNode.data.body = body0.data || '';
+            console.log(`設置HTTP Request節點直接輸入的body: "${body0.data}"`);
+          }
+        }
+
+        // 另外檢查參數中的 body 和 editor_html_content
+        if (node.parameters?.body?.data) {
+          const reactFlowNode = nodes.find((n) => n.id === node.id);
+          if (reactFlowNode && !reactFlowNode.data.body) {
+            reactFlowNode.data.body = node.parameters.body.data;
+          }
+        }
+
+        if (node.parameters?.editor_html_content?.data) {
+          const reactFlowNode = nodes.find((n) => n.id === node.id);
+          if (reactFlowNode) {
+            reactFlowNode.data.editorHtmlContent =
+              node.parameters.editor_html_content.data;
+            console.log(`恢復HTTP Request節點的編輯器HTML內容`);
+          }
+        }
+      }
 
       if (node.node_input && Object.keys(node.node_input).length > 0) {
         console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
 
         if (isAINode) {
-          const promptInput = node.node_input.prompt;
-          if (promptInput && promptInput.node_id === '') {
+          // 處理 promptText 直接輸入
+          const prompt0 = node.node_input.prompt0;
+          if (prompt0 && prompt0.node_id === '') {
             const reactFlowNode = nodes.find((n) => n.id === node.id);
             if (reactFlowNode) {
-              reactFlowNode.data.promptText = promptInput.data || '';
-              console.log(
-                `設置AI節點直接輸入的提示文本: "${promptInput.data}"`
-              );
+              reactFlowNode.data.promptText = prompt0.data || '';
+              reactFlowNode.data.editorHtmlContent = prompt0.html_content || '';
             }
           }
         }
 
         Object.entries(node.node_input).forEach(([inputKey, inputValue]) => {
-          if (inputKey === 'prompt' && inputValue.node_id === '') {
+          if (
+            (inputKey.startsWith('prompt') && inputValue.node_id === '') ||
+            inputValue.is_empty === true
+          ) {
             return;
           }
 
@@ -284,10 +317,8 @@ export class WorkflowDataConverter {
           }
 
           if (isAINode) {
-            if (inputKey.startsWith('context')) {
-              targetHandle = 'context-input';
-            } else if (inputKey === 'prompt' || inputKey === 'prompt-input') {
-              targetHandle = 'prompt-input';
+            if (inputKey.startsWith('prompt')) {
+              targetHandle = 'prompt';
             }
           } else if (isKnowledgeNode) {
             if (inputKey === 'passage' || inputKey === 'input') {
@@ -307,6 +338,11 @@ export class WorkflowDataConverter {
           } else if (isQOCAAimNode) {
             if (inputKey === 'context' || inputKey === 'input') {
               targetHandle = 'input';
+            }
+          } else if (isHttpRequestNode) {
+            // 所有 body 連接都指向 'body' handle
+            if (inputKey.startsWith('body')) {
+              targetHandle = 'body';
             }
           }
 
@@ -439,15 +475,21 @@ export class WorkflowDataConverter {
             ''
         };
       }
-      case 'http_request':
+      case 'http_request': {
         // HTTP Request 節點的數據轉換
+        const bodyText = node.parameters?.body?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data || '';
+
         return {
           ...baseData,
           url: node.parameters?.url?.data || '',
           method: node.parameters?.method?.data || 'GET',
           headers: node.parameters?.headers?.data || [{ key: '', value: '' }],
-          body: node.parameters?.body?.data || ''
+          body: bodyText,
+          editorHtmlContent: editorHtmlContent // 新增：恢復編輯器 HTML 內容
         };
+      }
       case 'extract_data': {
         // Extract Data 節點的數據轉換
         const columnsData = node.parameters?.columns?.data || [];
@@ -579,11 +621,14 @@ export class WorkflowDataConverter {
 
         // 提取 prompt 文本
         const promptText = node.parameters?.prompt?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data || '';
 
         return {
           ...baseData,
           model: modelId,
-          promptText: promptText
+          promptText: promptText,
+          editorHtmlContent: editorHtmlContent // 新增：恢復編輯器 HTML 內容
         };
       }
 
@@ -1022,12 +1067,17 @@ export class WorkflowDataConverter {
           }
         }
 
-        // Body 處理 - 只有在支援 body 的方法且有內容時才加入
-        if (
-          ['POST', 'PUT', 'PATCH'].includes(node.data.method) &&
-          node.data.body
-        ) {
-          parameters.body = { data: node.data.body };
+        // Body 處理 - 只有在支持 body 的方法且有內容時才加入
+        if (['POST', 'PUT', 'PATCH'].includes(node.data.method)) {
+          if (node.data.body) {
+            parameters.body = { data: node.data.body };
+          }
+
+          if (node.data.editorHtmlContent) {
+            parameters.editor_html_content = {
+              data: node.data.editorHtmlContent
+            };
+          }
         }
         break;
       case 'line_webhook_input':
@@ -1080,30 +1130,26 @@ export class WorkflowDataConverter {
 
       case 'aiCustomInput':
       case 'ai': {
-        // 處理可能的無效model值
         const modelValue = node.data.model || '';
-
-        // 確保值為字符串
         const safeModelValue =
           modelValue && typeof modelValue !== 'string'
             ? modelValue.toString()
             : modelValue || null;
 
-        // 使用model作為llm_id - 現在存的是ID值而非名稱
-        // 不要再有預設值，讓後端驗證
-        console.log(safeModelValue);
-        if (!safeModelValue) {
-          console.warn(
-            `節點 ${node.id} 沒有設置模型，請確保選擇一個有效的模型`
-          );
-        } else {
+        if (safeModelValue) {
           parameters.llm_id = { data: Number(safeModelValue) };
         }
 
-        // 新增處理 promptText - 當有直接輸入的提示文本時
-        // 兼容舊版：不覆蓋已有的 prompt 參數
-        if (node.data.promptText && !parameters.prompt) {
+        // 無論是否有連線，都要處理 promptText
+        // 確保 promptText 存在且不是空字串
+        if (node.data.promptText !== undefined && node.data.promptText !== '') {
           parameters.prompt = { data: node.data.promptText };
+        }
+
+        if (node.data.editorHtmlContent) {
+          parameters.editor_html_content = {
+            data: node.data.editorHtmlContent
+          };
         }
 
         break;
