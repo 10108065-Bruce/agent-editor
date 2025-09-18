@@ -1538,11 +1538,6 @@ export default function useFlowNodes() {
       const isWebhookOutput =
         targetNode && targetNode.type === 'webhook_output';
 
-      // 檢查目標節點是否為AI節點
-      const isAINode =
-        targetNode &&
-        (targetNode.type === 'aiCustomInput' || targetNode.type === 'ai');
-
       // 檢查目標節點是否為Extract Data節點
       const isExtractDataNode =
         targetNode && targetNode.type === 'extract_data';
@@ -1552,34 +1547,6 @@ export default function useFlowNodes() {
       const isBrowserExtensionInput =
         sourceNode && sourceNode.type === 'browserExtensionInput';
 
-      // 檢查源節點是否為CustomInputNode
-      const isCustomInputNode = sourceNode && sourceNode.type === 'customInput';
-
-      // 如果是CustomInputNode，檢查輸出連線限制
-      if (isCustomInputNode) {
-        console.log('源節點是CustomInputNode，檢查連線限制');
-
-        // 檢查該輸出handle是否已有連線
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.source === params.source && edge.sourceHandle === sourceHandle
-        );
-
-        if (existingEdges.length > 0) {
-          console.log(`Input的輸出已有連線，拒絕新連線`);
-
-          // 使用通知系統提示用戶
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `Input已有連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
-          }
-
-          return; // 不創建新連線
-        }
-      }
       if (targetNode && targetNode.type === 'aim_ml') {
         console.log('目標是 QOCA AIM 節點，檢查連線限制');
 
@@ -1633,101 +1600,7 @@ export default function useFlowNodes() {
       // 檢查源節點是否為知識檢索節點
       if (sourceNode && sourceNode.type === 'knowledgeRetrieval') {
         console.log('源節點是知識檢索節點，檢查連線限制');
-
-        // 檢查是否已有輸出連線
-        // const existingEdges = edges.filter(
-        //   (edge) =>
-        //     edge.source === params.source && edge.sourceHandle === 'output'
-        // );
-
-        // if (existingEdges.length > 0) {
-        //   console.log(`知識檢索節點已有輸出連線，拒絕新連線`);
-
-        //   // 使用通知系統提示用戶
-        //   if (typeof window !== 'undefined' && window.notify) {
-        //     window.notify({
-        //       message: `知識檢索節點只能有一個輸出連線，請先刪除現有連線`,
-        //       type: 'error',
-        //       duration: 3000
-        //     });
-        //   }
-
-        //   return; // 不創建新連線
-        // }
       }
-
-      // 檢查webook input節點的連線限制
-      // if (sourceNode && sourceNode.type === 'webhook_input') {
-      //   console.log('目標是Webhook Input節點，檢查連線限制');
-      //   const existingEdges = edges.filter(
-      //     (edge) =>
-      //       edge.source === params.source && edge.sourceHandle === 'output'
-      //   );
-      //   if (existingEdges.length > 0) {
-      //     console.log(`Webhook Input節點已有輸出連線，拒絕新連線`);
-      //     // 使用通知系統提示用戶
-      //     if (typeof window !== 'undefined' && window.notify) {
-      //       window.notify({
-      //         message: `Webhook Input節點只能有一個輸出連線，請先刪除現有連線`,
-      //         type: 'error',
-      //         duration: 3000
-      //       });
-      //     }
-      //     return; // 不創建新連線
-      //   }
-      // }
-
-      // 檢查源節點是否為extractData節點，只能有一個輸出
-      // if (sourceNode && sourceNode.type === 'extract_data') {
-      //   console.log('源節點是Extract Data節點，檢查連線限制');
-
-      //   // 檢查是否已有輸出連線
-      //   const existingEdges = edges.filter(
-      //     (edge) =>
-      //       edge.source === params.source && edge.sourceHandle === 'output'
-      //   );
-
-      //   if (existingEdges.length > 0) {
-      //     console.log(`Extract Data節點已有輸出連線，拒絕新連線`);
-
-      //     // 使用通知系統提示用戶
-      //     if (typeof window !== 'undefined' && window.notify) {
-      //       window.notify({
-      //         message: `Extract Data節點只能有一個輸出連線，請先刪除現有連線`,
-      //         type: 'error',
-      //         duration: 3000
-      //       });
-      //     }
-
-      //     return; // 不創建新連線
-      //   }
-      // }
-
-      // 檢查目標節點是否為Line Message節點
-      // if (targetNode && targetNode.type === 'line_send_message') {
-      //   console.log('目標是LineMessage節點，檢查連線限制');
-
-      //   // 檢查是否已有輸入連線
-      //   const existingEdges = edges.filter(
-      //     (edge) =>
-      //       edge.target === targetNodeId && edge.targetHandle === 'message'
-      //   );
-
-      //   if (existingEdges.length > 0) {
-      //     console.log(`LineMessage節點已有輸入連線，拒絕新連線`);
-
-      //     // 使用通知系統提示用戶
-      //     if (typeof window !== 'undefined' && window.notify) {
-      //       window.notify({
-      //         message: `LineMessage節點只能有一個輸入連線，請先刪除現有連線`,
-      //         type: 'error',
-      //         duration: 3000
-      //       });
-      //     }
-
-      //     return; // 不創建新連線
-      //   }
-      // }
 
       // 檢查目標節點是否為 Speech to Text 節點
       if (targetNode && targetNode.type === 'speech_to_text') {
@@ -1771,32 +1644,6 @@ export default function useFlowNodes() {
           if (typeof window !== 'undefined' && window.notify) {
             window.notify({
               message: `Router Switch 節點只能有一個輸入連線，請先刪除現有連線`,
-              type: 'error',
-              duration: 3000
-            });
-          }
-
-          return; // 不創建新連線
-        }
-      }
-
-      // 檢查源節點是否為 HTTP Request 節點，只能有一個輸出
-      if (sourceNode && sourceNode.type === 'httpRequest') {
-        console.log('源節點是 HTTP Request 節點，檢查連線限制');
-
-        // 檢查是否已有輸出連線
-        const existingEdges = edges.filter(
-          (edge) =>
-            edge.source === params.source && edge.sourceHandle === 'output'
-        );
-
-        if (existingEdges.length > 0) {
-          console.log(`HTTP Request 節點已有輸出連線，拒絕新連線`);
-
-          // 使用通知系統提示用戶
-          if (typeof window !== 'undefined' && window.notify) {
-            window.notify({
-              message: `HTTP Request 節點只能有一個輸出連線，請先刪除現有連線`,
               type: 'error',
               duration: 3000
             });
