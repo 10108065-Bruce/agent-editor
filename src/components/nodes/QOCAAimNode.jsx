@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useCallback, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 import IconBase from '../icons/IconBase';
 import AutoResizeTextarea from '../text/AutoResizeText';
-import { aimService } from '../../services/index';
+import { aimService, externalService } from '../../services/index';
 import RefinePromptOverlay from '../common/RefinePromptOverlay';
 import { PromptGeneratorService } from '../../services/PromptGeneratorService';
 import promptIcon from '../../assets/prompt-generator.svg';
@@ -22,6 +22,16 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
   const [promptText, setPromptText] = useState(data?.prompt?.data || '');
   const [llmId, setLlmId] = useState(data?.llm_id?.data || 0);
 
+  // 新增連結密鑰相關狀態
+  const [externalServiceConfigId, setExternalServiceConfigId] = useState(
+    data?.external_service_config_id?.data ||
+      data?.externalServiceConfigId ||
+      ''
+  );
+  const [externalServiceOptions, setExternalServiceOptions] = useState([]);
+  const [isLoadingExternalServices, setIsLoadingExternalServices] =
+    useState(false);
+
   // Refine Prompt 相關狀態
   const [showRefinePrompt, setShowRefinePrompt] = useState(false);
 
@@ -36,7 +46,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
   const [isLoadingLlmVisionOptions, setIsLoadingLlmVisionOptions] =
     useState(false);
 
-  // 新增：欄位資訊載入狀態
+  // 欄位資訊載入狀態
   const [isLoadingFieldInfo, setIsLoadingFieldInfo] = useState(false);
 
   // 防止重複更新的標記
@@ -45,17 +55,68 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
   const hasInitializedAim = useRef(false);
   const hasInitializedLlmVision = useRef(false);
 
-  // 關鍵新增：IME 和用戶輸入狀態追踪
+  // 關鍵IME 和用戶輸入狀態追蹤
   const isComposingRef = useRef(false);
   const updateTimeoutRef = useRef(null);
   const lastExternalValueRef = useRef(data?.prompt?.data || '');
-  const isUserInputRef = useRef(false); // 追踪是否為用戶輸入
+  const isUserInputRef = useRef(false); // 追蹤是否為用戶輸入
 
-  // 載入 AIM 模型選項
-  const loadAimOptions = useCallback(async () => {
-    // 防止重複載入的完整檢查
-    if (isLoadingAimOptions || hasInitializedAim.current) {
-      console.log('AIM 選項已在載入中或已初始化，跳過重複載入');
+  // 載入外部服務配置選項（連結密鑰）
+  const loadExternalServiceOptions = useCallback(async () => {
+    if (isLoadingExternalServices) {
+      return;
+    }
+
+    setIsLoadingExternalServices(true);
+
+    try {
+      const options = await externalService.getExternalServiceConfigs('AIM');
+      if (options && options.length > 0) {
+        setExternalServiceOptions(options);
+      } else {
+        console.warn('未獲取到 AIM 外部服務配置或配置列表為空');
+        setExternalServiceOptions([]);
+      }
+    } catch (error) {
+      console.error('載入 AIM 外部服務配置失敗:', error);
+      setExternalServiceOptions([]);
+    } finally {
+      setIsLoadingExternalServices(false);
+    }
+  }, []);
+
+  // 組件載入時獲取所有必要資料
+  useEffect(() => {
+    loadExternalServiceOptions();
+    loadLlmVisionOptions();
+  }, []);
+
+  // 當選擇連結密鑰時，重新載入 AIM 模型
+  useEffect(() => {
+    if (externalServiceConfigId) {
+      // 清除現有的 AIM 模型快取
+      hasInitializedAim.current = false;
+
+      // 使用新的 external_service_config_id 重新載入 AIM 模型
+      loadAimOptionsWithConfigId();
+    } else {
+      // 如果沒有選擇連結密鑰，清空 AIM 選項
+      setAimOptions([]);
+    }
+  }, [externalServiceConfigId]);
+
+  // 載入帶 config_id 的 AIM 模型選項
+  const loadAimOptionsWithConfigId = useCallback(async () => {
+    if (isLoadingAimOptions || !externalServiceConfigId) {
+      if (!externalServiceConfigId) {
+        console.log('未選擇連結密鑰，無法載入 AIM 模型');
+        setAimOptions([]);
+      }
+      return;
+    }
+
+    if (hasInitializedAim.current) {
+      console.log('AIM 選項已初始化，跳過重複載入');
       return;
     }
 
@@ -63,32 +124,24 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     setIsLoadingAimOptions(true);
 
     try {
-      console.log('開始載入 AIM 模型選項...');
-      const options = await aimService.getAIMModelOptions();
-      console.log('載入的 AIM 模型選項:', options);
+      const options = await aimService.getAIMModelOptions(
+        externalServiceConfigId
+      );
 
       if (options && options.length > 0) {
         setAimOptions(options);
       } else {
-        console.warn('未獲取到 AIM 模型選項或選項列表為空，設置空陣列');
+        console.warn('未獲取到 AIM 模型選項或選項列表為空');
         setAimOptions([]);
       }
     } catch (error) {
       console.error('載入 AIM 模型選項失敗:', error);
       setAimOptions([]);
       hasInitializedAim.current = false; // 失敗時重置，允許重試
-
-      if (typeof window !== 'undefined' && window.notify) {
-        window.notify({
-          message: '載入 AIM 模型選項失敗',
-          type: 'error',
-          duration: 3000
-        });
-      }
     } finally {
       setIsLoadingAimOptions(false);
     }
-  }, []); // 移除所有依賴，避免重複調用
+  }, [externalServiceConfigId]);
 
   // 載入 LLM Vision 模型選項
   const loadLlmVisionOptions = useCallback(async () => {
@@ -127,48 +180,46 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     } finally {
       setIsLoadingLlmVisionOptions(false);
     }
-  }, []); // 移除所有依賴，避免重複調用
-
-  // 新增：載入模型欄位資訊的函數
-  const loadModelFieldsInfo = useCallback(async (targetTrainingId) => {
-    if (!targetTrainingId || targetTrainingId === 0) {
-      console.log('training_id 無效，清空欄位資訊');
-      setModelFieldsInfo('');
-      updateParentState('model_fields_info', { data: '' });
-      return;
-    }
-
-    setIsLoadingFieldInfo(true);
-
-    try {
-      console.log(`開始載入模型欄位資訊 (training_id: ${targetTrainingId})...`);
-      const fieldInfo = await aimService.getAIMFieldInfo(targetTrainingId);
-      console.log('載入的模型欄位資訊:', fieldInfo);
-
-      setModelFieldsInfo(fieldInfo);
-      updateParentState('model_fields_info', { data: fieldInfo });
-    } catch (error) {
-      console.error('載入模型欄位資訊失敗:', error);
-      setModelFieldsInfo('');
-      updateParentState('model_fields_info', { data: '' });
-
-      if (typeof window !== 'undefined' && window.notify) {
-        window.notify({
-          message: '載入模型欄位資訊失敗',
-          type: 'error',
-          duration: 3000
-        });
-      }
-    } finally {
-      setIsLoadingFieldInfo(false);
-    }
   }, []);
 
-  // 組件載入時獲取模型選項
-  useEffect(() => {
-    loadAimOptions();
-    loadLlmVisionOptions();
-  }, [loadAimOptions, loadLlmVisionOptions]);
+  // 載入模型欄位資訊的函數（帶 config_id）
+  const loadModelFieldsInfo = useCallback(
+    async (targetTrainingId) => {
+      if (!targetTrainingId || targetTrainingId === 0) {
+        console.log('training_id 無效，清空欄位資訊');
+        setModelFieldsInfo('');
+        updateParentState('model_fields_info', { data: '' });
+        return;
+      }
+
+      setIsLoadingFieldInfo(true);
+
+      try {
+        const fieldInfo = await aimService.getAIMFieldInfo(
+          targetTrainingId,
+          externalServiceConfigId
+        );
+
+        setModelFieldsInfo(fieldInfo);
+        updateParentState('model_fields_info', { data: fieldInfo });
+      } catch (error) {
+        console.error('載入模型欄位資訊失敗:', error);
+        setModelFieldsInfo('');
+        updateParentState('model_fields_info', { data: '' });
+
+        // if (typeof window !== 'undefined' && window.notify) {
+        //   window.notify({
+        //     message: '載入模型欄位資訊失敗',
+        //     type: 'error',
+        //     duration: 3000
+        //   });
+        // }
+      } finally {
+        setIsLoadingFieldInfo(false);
+      }
+    },
+    [externalServiceConfigId]
+  );
 
   // 輸出類型（當解釋功能開啟時）
   const outputHandles = enableExplain ? ['text', 'images'] : ['text'];
@@ -186,7 +237,8 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
           enable_explain: 'enableExplain',
           llm_id: 'llmId',
           prompt: 'promptText',
-          model_fields_info: 'modelFieldsInfo' // 新增欄位資訊映射
+          model_fields_info: 'modelFieldsInfo',
+          external_service_config_id: 'externalServiceConfigId'
         };
 
         const propertyName = propertyMap[key] || key;
@@ -209,6 +261,15 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     }
 
     let hasChanges = false;
+
+    // 同步 externalServiceConfigId
+    if (
+      data?.externalServiceConfigId !== undefined &&
+      data.externalServiceConfigId !== externalServiceConfigId
+    ) {
+      setExternalServiceConfigId(data.externalServiceConfigId);
+      hasChanges = true;
+    }
 
     // 只在數據真正不同時才同步
     if (data?.selectedAim !== undefined && data.selectedAim !== selectedAim) {
@@ -262,7 +323,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       hasChanges = true;
     }
 
-    // 新增：同步 modelFieldsInfo
+    // 同步 modelFieldsInfo
     if (
       data?.modelFieldsInfo !== undefined &&
       data.modelFieldsInfo !== modelFieldsInfo
@@ -281,13 +342,15 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
       console.log('檢測到數據變化，已同步');
     }
   }, [
+    data?.externalServiceConfigId,
     data?.selectedAim,
     data?.trainingId,
     data?.simulatorId,
     data?.enableExplain,
     data?.promptText,
     data?.llmId,
-    data?.modelFieldsInfo, // 新增依賴
+    data?.modelFieldsInfo,
+    externalServiceConfigId,
     selectedAim,
     trainingId,
     simulatorId,
@@ -297,26 +360,40 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     modelFieldsInfo
   ]);
 
-  // 5. 調試用的組件狀態監控
-  useEffect(() => {
-    console.log('🔍 QOCA AIM 節點狀態監控:', {
-      selectedAim,
-      llmId,
-      enableExplain,
-      modelFieldsInfo,
-      'data.llm_id': data?.llm_id,
-      'data.llmId': data?.llmId,
-      'data.modelFieldsInfo': data?.modelFieldsInfo
-    });
-  }, [
-    selectedAim,
-    llmId,
-    enableExplain,
-    modelFieldsInfo,
-    data?.llm_id,
-    data?.llmId,
-    data?.modelFieldsInfo
-  ]);
+  // 處理連結密鑰選擇變更
+  const handleExternalServiceChange = useCallback(
+    (configId) => {
+      console.log('選擇連結密鑰:', configId);
+
+      isUpdating.current = true;
+
+      try {
+        setExternalServiceConfigId(configId);
+        updateParentState('external_service_config_id', {
+          data: parseInt(configId) || ''
+        });
+
+        // 清空現有的 AIM 模型選擇
+        setSelectedAim('');
+        setTrainingId(0);
+        setSimulatorId('');
+        setModelFieldsInfo('');
+
+        updateParentState('aim_ml_id', { data: '' });
+        updateParentState('training_id', { data: 0 });
+        updateParentState('simulator_id', { data: '' });
+        updateParentState('model_fields_info', { data: '' });
+
+        // 重置載入標記，允許重新載入 AIM 模型
+        hasInitializedAim.current = false;
+      } finally {
+        setTimeout(() => {
+          isUpdating.current = false;
+        }, 300);
+      }
+    },
+    [updateParentState]
+  );
 
   // 處理 AIM 選擇變更
   const handleAimChange = useCallback(
@@ -451,7 +528,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     [updateParentState, data?.id]
   );
 
-  // 關鍵新增：IME 組合開始處理
+  // 關鍵IME 組合開始處理
   const handleCompositionStart = useCallback(() => {
     isComposingRef.current = true;
     isUserInputRef.current = true;
@@ -463,7 +540,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     }
   }, []);
 
-  // 關鍵新增：IME 組合結束處理
+  // IME 組合結束處理
   const handleCompositionEnd = useCallback(
     (e) => {
       isComposingRef.current = false;
@@ -489,7 +566,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     [updateParentState, data?.id]
   );
 
-  // 關鍵新增：處理鍵盤事件，特別是刪除操作
+  // 關鍵處理鍵盤事件，特別是刪除操作
   const handleKeyDown = useCallback((e) => {
     // 對於刪除操作，立即標記為用戶輸入
     if (e.key === 'Backspace' || e.key === 'Delete') {
@@ -585,6 +662,43 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     return colors[handleType] || '#00ced1';
   };
 
+  // 獲取分群的 LLM Vision 選項
+  const getGroupedLlmVisionOptions = useCallback(() => {
+    if (!llmVisionOptions || llmVisionOptions.length === 0) {
+      return {};
+    }
+
+    return llmVisionOptions.reduce((groups, option) => {
+      const provider = option.provider || 'Other';
+      if (!groups[provider]) {
+        groups[provider] = [];
+      }
+      groups[provider].push(option);
+      return groups;
+    }, {});
+  }, [llmVisionOptions]);
+
+  // 渲染分群的 LLM Vision 選項
+  const renderGroupedLlmVisionOptions = useCallback(() => {
+    const groupedOptions = getGroupedLlmVisionOptions();
+    const providers = Object.keys(groupedOptions).sort();
+
+    return providers.map((provider) => (
+      <optgroup
+        key={provider}
+        label={provider}>
+        {groupedOptions[provider].map((option) => (
+          <option
+            key={option.value}
+            value={option.value}
+            title={option.description || ''}>
+            {option.label}
+          </option>
+        ))}
+      </optgroup>
+    ));
+  }, [getGroupedLlmVisionOptions]);
+
   return (
     <>
       {/* 左側輸入 Handle */}
@@ -622,20 +736,72 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
 
         {/* White content area */}
         <div className='bg-white p-4 space-y-4'>
-          {/* AIM 模型選擇 */}
+          {/* 連結密鑰選擇 */}
           <div>
             <label className='block text-sm text-gray-700 mb-2 font-medium'>
-              aim 模型
+              連結密鑰
             </label>
             <div className='relative'>
               <select
                 className={`w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8
-                  ${showRefinePrompt ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    ${showRefinePrompt ? 'opacity-50 cursor-not-allowed' : ''}`}
+                value={externalServiceConfigId}
+                onChange={(e) => handleExternalServiceChange(e.target.value)}
+                disabled={isLoadingExternalServices || showRefinePrompt}>
+                <option value=''>
+                  {isLoadingExternalServices ? '載入中...' : '選擇連結密鑰'}
+                </option>
+                {externalServiceOptions.map((option) => (
+                  <option
+                    key={option.id}
+                    value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+              <div className='absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'>
+                  <polyline points='6 9 12 15 18 9'></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* AIM 模型選擇 - 需要先選擇連結密鑰 */}
+          <div>
+            <label className='block text-sm text-gray-700 mb-2 font-medium'>
+              ML Model
+            </label>
+            <div className='relative'>
+              <select
+                className={`w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8
+                    ${
+                      showRefinePrompt || !externalServiceConfigId
+                        ? 'opacity-50 cursor-not-allowed'
+                        : ''
+                    }`}
                 value={selectedAim}
                 onChange={(e) => handleAimChange(e.target.value)}
-                disabled={isLoadingAimOptions || showRefinePrompt}>
+                disabled={
+                  isLoadingAimOptions ||
+                  showRefinePrompt ||
+                  !externalServiceConfigId
+                }>
                 <option value=''>
-                  {isLoadingAimOptions ? '載入中...' : '選擇 AIM 模型'}
+                  {!externalServiceConfigId
+                    ? '請先選擇連結密鑰'
+                    : isLoadingAimOptions
+                    ? '載入中...'
+                    : '選擇 ML 模型'}
                 </option>
                 {aimOptions.map((option) => (
                   <option
@@ -697,9 +863,11 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
                 <div className='relative'>
                   <select
                     className={`w-full border border-gray-300 rounded p-2 text-sm appearance-none bg-white pr-8
-                      ${
-                        showRefinePrompt ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
+                        ${
+                          showRefinePrompt
+                            ? 'opacity-50 cursor-not-allowed'
+                            : ''
+                        }`}
                     value={llmId}
                     onChange={(e) => handleLlmChange(e.target.value)}
                     disabled={isLoadingLlmVisionOptions || showRefinePrompt}>
@@ -708,18 +876,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
                         ? '載入中...'
                         : '選擇 LLM Vision 模型'}
                     </option>
-                    {llmVisionOptions.map((option) => (
-                      <option
-                        key={option.value}
-                        value={option.value}
-                        title={
-                          option.description
-                            ? `${option.description} (${option.provider})`
-                            : option.provider
-                        }>
-                        {option.label}
-                      </option>
-                    ))}
+                    {renderGroupedLlmVisionOptions()}
                   </select>
                   <div className='absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none'>
                     <svg
@@ -878,8 +1035,8 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
         onOptimizedPromptApply={handleOptimizedPromptApply}
         onOptimizedPromptCopy={handleOptimizedPromptCopy}
         nodePosition={{ x: data?.position?.x || 0, y: data?.position?.y || 0 }}
-        offsetX={330} // 自定義 X 軸偏移量
-        offsetY={-150} // 可選：自定義 Y 軸偏移量
+        offsetX={330}
+        offsetY={-150}
       />
     </>
   );

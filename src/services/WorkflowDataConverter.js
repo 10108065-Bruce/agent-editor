@@ -768,6 +768,8 @@ export class WorkflowDataConverter {
         // 確保正確讀取所有參數
         const nodeData = {
           ...baseData,
+          externalServiceConfigId:
+            node.parameters?.external_service_config_id?.data || '',
           selectedAim: node.parameters?.aim_ml_id?.data || '',
           trainingId: node.parameters?.training_id?.data || 0,
           simulatorId: node.parameters?.simulator_id?.data || '',
@@ -1417,6 +1419,14 @@ export class WorkflowDataConverter {
         break;
       case 'aim_ml': {
         // QOCA AIM 節點參數轉換
+
+        // external_service_config_id 參數
+        if (node.data.externalServiceConfigId) {
+          parameters.external_service_config_id = {
+            data: parseInt(node.data.externalServiceConfigId) || 0
+          };
+        }
+
         // aim_ml 參數
         if (node.data.selectedAim || node.data.aim_ml_id) {
           const aimValue =

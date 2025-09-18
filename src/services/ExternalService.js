@@ -2,7 +2,7 @@ import { tokenService } from './TokenService';
 import { API_CONFIG } from './config';
 
 /**
- * 外部服務配置管理 - 處理與外部服務（LINE、WHATSAPP等）相關的API請求
+ * 外部服務配置管理 - 處理與外部服務（LINE、WHATSAPP、AIM等）相關的API請求
  */
 export class ExternalService {
   constructor() {
@@ -15,8 +15,8 @@ export class ExternalService {
     this.messagingTypesCache = new Map(); // 緩存不同頻道的 messaging types
     this.lastMessagingTypesFetchTimes = new Map(); // 記錄每個頻道的最後獲取時間
     this.pendingMessagingTypesRequests = new Map(); // 用於追蹤進行中的請求
-    // 支援的服務類型
-    this.supportedServiceTypes = ['LINE', 'WHATSAPP'];
+    // 支援的服務類型 - 新增 AIM
+    this.supportedServiceTypes = ['LINE', 'WHATSAPP', 'AIM'];
     // 支援的頻道類型 (用於 messaging types)
     this.supportedChannelTypes = ['line'];
   }
@@ -28,16 +28,7 @@ export class ExternalService {
   createWebhook(flowId) {
     try {
       console.log(`創建新的Webhook，工作流ID: ${flowId}`);
-      // const options = tokenService.createAuthHeader({
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Accept: 'application/json'
-      //   }
-      // });
-      // url is API_CONFIG.CREATE_WEBHOOK_URL, need to append flowId
       const url = `${API_CONFIG.CREATE_WEBHOOK_URL}/${flowId}`;
-      // use promise to reply url
       return url;
     } catch (error) {
       console.error('創建Webhook失敗:', error);
@@ -238,7 +229,7 @@ export class ExternalService {
 
   /**
    * 獲取指定類型的外部服務配置
-   * @param {string} serviceType - 服務類型 (LINE, WHATSAPP等)
+   * @param {string} serviceType - 服務類型 (LINE, WHATSAPP, AIM等)
    * @returns {Promise<Array>} 服務配置列表
    */
   async getExternalServiceConfigs(serviceType) {
@@ -248,6 +239,39 @@ export class ExternalService {
         throw new Error('服務類型不能為空且必須是字符串');
       }
       const upperServiceType = serviceType.toUpperCase();
+
+      // // 如果是 AIM 類型且沒有實際 API，返回 mock 資料
+      // if (upperServiceType === 'AIM') {
+      //   console.log('使用 AIM mock 資料');
+      //   const mockData = [
+      //     {
+      //       service_type: 'AIM',
+      //       name: '測試 AIM 服務 1',
+      //       description: '測試用 AIM 連結密鑰 1',
+      //       config: {
+      //         channel_secret: 'test_secret_1',
+      //         channel_access_token: 'test_token_1'
+      //       },
+      //       id: 1,
+      //       user_id: 1,
+      //       updated_at: '2025-09-17T06:38:37.836Z'
+      //     },
+      //     {
+      //       service_type: 'AIM',
+      //       name: '測試 AIM 服務 2',
+      //       description: '測試用 AIM 連結密鑰 2',
+      //       config: {
+      //         channel_secret: 'test_secret_2',
+      //         channel_access_token: 'test_token_2'
+      //       },
+      //       id: 2,
+      //       user_id: 1,
+      //       updated_at: '2025-09-17T06:38:37.836Z'
+      //     }
+      //   ];
+      //   return mockData;
+      // }
+
       // 檢查是否有有效的快取
       const now = Date.now();
       const cacheKey = upperServiceType;

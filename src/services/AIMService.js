@@ -6,30 +6,31 @@ import { API_CONFIG } from './config';
  */
 export class AIMService {
   constructor() {
-    // AIM模型相關緩存
-    this.aimModelsCache = null;
-    this.aimLastFetchTime = null;
+    // AIM模型相關緩存 - 改為支援多個 config_id
+    this.aimModelsCache = {};
+    this.aimLastFetchTime = {};
 
     // LLM Vision模型相關緩存
     this.llmVisionModelsCache = null;
     this.llmVisionLastFetchTime = null;
 
     // AIM 欄位資訊緩存
-    this.aimFieldInfoCache = new Map(); // 使用 Map 以 training_id 為 key
-    this.aimFieldInfoLastFetchTime = new Map(); // 每個 training_id 的最後獲取時間
+    this.aimFieldInfoCache = new Map();
+    this.aimFieldInfoLastFetchTime = new Map();
 
     this.cacheExpiryTime = 10 * 60 * 1000; // 10分鐘cache過期
-    this.aimPendingRequest = null; // 用於追蹤進行中的AIM請求
-    this.llmVisionPendingRequest = null; // 用於追蹤進行中的LLM Vision請求
-    this.aimFieldInfoPendingRequests = new Map(); // 追蹤進行中的欄位資訊請求
+    this.aimPendingRequest = {}; // 用於追蹤進行中的AIM請求
+    this.llmVisionPendingRequest = null;
+    this.aimFieldInfoPendingRequests = new Map();
   }
 
   /**
    * 獲取 AIM 模型的欄位資訊
    * @param {number} trainingId - 訓練模型 ID
+   * @param {number} externalServiceConfigId - 外部服務配置 ID
    * @returns {Promise<string>} 欄位資訊字串
    */
-  async getAIMFieldInfo(trainingId) {
+  async getAIMFieldInfo(trainingId, externalServiceConfigId = null) {
     try {
       // 驗證 trainingId
       if (!trainingId || trainingId === 0) {
@@ -37,32 +38,27 @@ export class AIMService {
         return '';
       }
 
-      const trainingIdStr = trainingId.toString();
+      const cacheKey = `${trainingId}_${externalServiceConfigId || 'default'}`;
 
       // 檢查是否有有效的快取
       const now = Date.now();
-      const lastFetchTime = this.aimFieldInfoLastFetchTime.get(trainingIdStr);
-      const cachedData = this.aimFieldInfoCache.get(trainingIdStr);
+      const lastFetchTime = this.aimFieldInfoLastFetchTime.get(cacheKey);
+      const cachedData = this.aimFieldInfoCache.get(cacheKey);
 
       if (
         cachedData &&
         lastFetchTime &&
         now - lastFetchTime < this.cacheExpiryTime
       ) {
-        console.log(`使用快取的 AIM 欄位資訊 (training_id: ${trainingId})`);
         return cachedData;
       }
 
-      // 如果已經有相同 training_id 的請求在進行中，則返回該請求
-      if (this.aimFieldInfoPendingRequests.has(trainingIdStr)) {
-        console.log(
-          `已有進行中的 AIM 欄位資訊請求 (training_id: ${trainingId})，使用相同請求`
-        );
-        return this.aimFieldInfoPendingRequests.get(trainingIdStr);
+      // 如果已經有相同的請求在進行中，則返回該請求
+      if (this.aimFieldInfoPendingRequests.has(cacheKey)) {
+        return this.aimFieldInfoPendingRequests.get(cacheKey);
       }
 
       // 創建新請求
-      console.log(`獲取 AIM 欄位資訊 (training_id: ${trainingId})...`);
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -77,13 +73,19 @@ export class AIMService {
           console.log(
             `嘗試獲取 AIM 欄位資訊，第 ${
               retryCount + 1
-            } 次嘗試 (training_id: ${trainingId})`
+            } 次嘗試 (training_id: ${trainingId}, config_id: ${externalServiceConfigId})`
           );
+
+          // 創建查詢參數
+          const queryParams = { training_id: trainingId };
+          if (externalServiceConfigId) {
+            queryParams.external_service_config_id = externalServiceConfigId;
+          }
 
           // 使用新的方法創建帶 workspace_id 的 URL
           const url = tokenService.createUrlWithWorkspace(
             `${API_CONFIG.BASE_URL}/agent_designer/aim/field-info`,
-            { training_id: trainingId }
+            queryParams
           );
 
           const response = await fetch(url, options);
@@ -92,17 +94,11 @@ export class AIMService {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
           }
 
-          let fieldInfo = await response.text(); // 使用 text() 因為後端回覆 string
-          console.log(
-            `API返回 AIM 欄位資訊原始內容 (training_id: ${trainingId}):`,
-            fieldInfo
-          );
+          let fieldInfo = await response.text();
 
           // 檢查 API 是否回傳了已經被 JSON 序列化的字串
-          // 如果字串以 " 開頭和結尾，表示它是一個被序列化的 JSON 字串
           if (fieldInfo.startsWith('"') && fieldInfo.endsWith('"')) {
             try {
-              // 解析掉外層的 JSON 序列化，獲得真正的字串內容
               fieldInfo = JSON.parse(fieldInfo);
               console.log(
                 `解析後的 AIM 欄位資訊 (training_id: ${trainingId}):`,
@@ -126,14 +122,12 @@ export class AIMService {
           // 如果還有重試次數，進行重試
           if (retryCount < 2) {
             console.log(`準備進行第 ${retryCount + 2} 次重試...`);
-            // 添加延遲，避免立即重試
             await new Promise((resolve) =>
               setTimeout(resolve, 1000 * (retryCount + 1))
             );
             return attemptFetch(retryCount + 1);
           }
 
-          // 所有重試都失敗，返回空字串
           console.error(
             `所有重試都失敗 (training_id: ${trainingId})，返回空字串`
           );
@@ -144,9 +138,9 @@ export class AIMService {
       const pendingRequest = attemptFetch()
         .then((fieldInfo) => {
           // 更新快取
-          this.aimFieldInfoCache.set(trainingIdStr, fieldInfo);
-          this.aimFieldInfoLastFetchTime.set(trainingIdStr, now);
-          this.aimFieldInfoPendingRequests.delete(trainingIdStr); // 清除進行中的請求
+          this.aimFieldInfoCache.set(cacheKey, fieldInfo);
+          this.aimFieldInfoLastFetchTime.set(cacheKey, now);
+          this.aimFieldInfoPendingRequests.delete(cacheKey);
 
           return fieldInfo;
         })
@@ -155,14 +149,11 @@ export class AIMService {
             `獲取 AIM 欄位資訊過程中發生意外錯誤 (training_id: ${trainingId}):`,
             error
           );
-          this.aimFieldInfoPendingRequests.delete(trainingIdStr); // 清除進行中的請求，即使出錯
-
-          // 返回空字串
+          this.aimFieldInfoPendingRequests.delete(cacheKey);
           return '';
         });
 
-      // 記錄進行中的請求
-      this.aimFieldInfoPendingRequests.set(trainingIdStr, pendingRequest);
+      this.aimFieldInfoPendingRequests.set(cacheKey, pendingRequest);
 
       return pendingRequest;
     } catch (error) {
@@ -170,38 +161,40 @@ export class AIMService {
         `獲取 AIM 欄位資訊過程中出錯 (training_id: ${trainingId}):`,
         error
       );
-      this.aimFieldInfoPendingRequests.delete(trainingId?.toString());
-
-      // 返回空字串
       return '';
     }
   }
 
   /**
    * 獲取所有可用的AIM模型
+   * @param {number} externalServiceConfigId - 外部服務配置 ID
    * @returns {Promise<Array>} AIM模型列表
    */
-  async getAIMModels() {
+  /**
+   * 獲取所有可用的AIM模型
+   * @param {number} externalServiceConfigId - 外部服務配置 ID
+   * @returns {Promise<Array>} AIM模型列表
+   */
+  async getAIMModels(externalServiceConfigId = null) {
     try {
+      const cacheKey = `aim_models_${externalServiceConfigId || 'default'}`;
+
       // 檢查是否有有效的快取
       const now = Date.now();
       if (
-        this.aimModelsCache &&
-        this.aimLastFetchTime &&
-        now - this.aimLastFetchTime < this.cacheExpiryTime
+        this.aimModelsCache[cacheKey] &&
+        this.aimLastFetchTime[cacheKey] &&
+        now - this.aimLastFetchTime[cacheKey] < this.cacheExpiryTime
       ) {
-        console.log('使用快取的AIM模型列表');
-        return this.aimModelsCache;
+        return this.aimModelsCache[cacheKey];
       }
 
       // 如果已經有一個請求在進行中，則返回該請求
-      if (this.aimPendingRequest) {
-        console.log('已有進行中的AIM模型請求，使用相同請求');
-        return this.aimPendingRequest;
+      if (this.aimPendingRequest[cacheKey]) {
+        return this.aimPendingRequest[cacheKey];
       }
 
       // 創建新請求
-      console.log('獲取AIM模型列表...');
       const options = tokenService.createAuthHeader({
         method: 'GET',
         headers: {
@@ -213,48 +206,63 @@ export class AIMService {
       // 定義重試邏輯的函數
       const attemptFetch = async (retryCount = 0) => {
         try {
-          console.log(`嘗試獲取AIM模型，第 ${retryCount + 1} 次嘗試`);
+          // 創建查詢參數
+          const queryParams = {};
+          if (externalServiceConfigId) {
+            queryParams.external_service_config_id = externalServiceConfigId;
+          }
 
-          const response = await fetch(
+          const url = tokenService.createUrlWithWorkspace(
             `${API_CONFIG.BASE_URL}/agent_designer/aim/info`,
-            options
+            queryParams
           );
+
+          const response = await fetch(url, options);
 
           if (!response.ok) {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
           }
 
-          let data = await response.json();
-          console.log('API返回原始AIM模型數據:', data);
+          let responseData = await response.json();
 
-          // 檢查數據是否為數組
-          if (!Array.isArray(data)) {
-            console.warn('API返回的AIM模型數據不是陣列');
-            // 嘗試從可能的非數組格式中提取數據
-            if (
-              data &&
-              typeof data === 'object' &&
-              data.models &&
-              Array.isArray(data.models)
-            ) {
-              data = data.models;
-              console.log('從API回應中提取models陣列:', data);
-            } else {
-              // 如果無法提取合理的數據，返回空陣列
-              console.warn('無法從API回應中提取合理的AIM模型數據，返回空陣列');
-              return [];
-            }
+          // 根據新的資料結構解析
+          let models = [];
+
+          // 檢查是否是新的資料結構 (包在 success/data 裡面)
+          if (
+            responseData.success &&
+            responseData.data &&
+            responseData.data.models
+          ) {
+            models = responseData.data.models;
+          }
+          // 舊的資料結構 (直接是陣列)
+          else if (Array.isArray(responseData)) {
+            models = responseData;
+          }
+          // 嘗試其他可能的結構
+          else if (responseData.models && Array.isArray(responseData.models)) {
+            models = responseData.models;
+          } else {
+            console.warn('無法從API回應中提取AIM模型數據，返回空陣列');
+            return [];
+          }
+
+          // 檢查是否為有效的陣列
+          if (!Array.isArray(models)) {
+            console.warn('提取的模型數據不是陣列，返回空陣列');
+            return [];
           }
 
           // 檢查每個模型對象，確保結構正確
-          const processedData = data
+          const processedData = models
             .map((model, index) => {
               if (!model || typeof model !== 'object') {
                 console.warn(`AIM模型 ${index} 無效，跳過該模型`);
-                return null; // 標記為無效，稍後過濾掉
+                return null;
               }
 
-              // 確保模型有必要的屬性
+              // 檢查必要欄位
               if (!model.aim_ml_id) {
                 console.warn(`AIM模型 ${index} 缺少aim_ml_id，跳過該模型`);
                 return null;
@@ -265,7 +273,7 @@ export class AIMService {
                 return null;
               }
 
-              // training_id 和 simulator_id 可以是可選的
+              // 返回處理後的模型資料
               return {
                 aim_ml_id: model.aim_ml_id,
                 training_id: model.training_id || 0,
@@ -273,52 +281,44 @@ export class AIMService {
                 model_name: model.model_name
               };
             })
-            .filter((model) => model !== null); // 過濾掉無效模型
+            .filter((model) => model !== null);
 
           console.log('處理後的AIM模型數據:', processedData);
           return processedData;
         } catch (error) {
           console.error(`第 ${retryCount + 1} 次嘗試失敗:`, error);
 
-          // 如果還有重試次數，進行重試
           if (retryCount < 2) {
             console.log(`準備進行第 ${retryCount + 2} 次重試...`);
-            // 添加延遲，避免立即重試
             await new Promise((resolve) =>
               setTimeout(resolve, 1000 * (retryCount + 1))
             );
             return attemptFetch(retryCount + 1);
           }
 
-          // 所有重試都失敗，返回空陣列
           console.error('所有重試都失敗，返回空陣列');
           return [];
         }
       };
 
-      this.aimPendingRequest = attemptFetch()
+      this.aimPendingRequest[cacheKey] = attemptFetch()
         .then((processedData) => {
           // 更新快取
-          this.aimModelsCache = processedData;
-          this.aimLastFetchTime = now;
-          this.aimPendingRequest = null; // 清除進行中的請求
+          this.aimModelsCache[cacheKey] = processedData;
+          this.aimLastFetchTime[cacheKey] = now;
+          delete this.aimPendingRequest[cacheKey];
 
           return processedData;
         })
         .catch((error) => {
           console.error('獲取AIM模型過程中發生意外錯誤:', error);
-          this.aimPendingRequest = null; // 清除進行中的請求，即使出錯
-
-          // 返回空陣列
+          delete this.aimPendingRequest[cacheKey];
           return [];
         });
 
-      return this.aimPendingRequest;
+      return this.aimPendingRequest[cacheKey];
     } catch (error) {
       console.error('獲取AIM模型過程中出錯:', error);
-      this.aimPendingRequest = null;
-
-      // 返回空陣列，而不是預設模型
       return [];
     }
   }
@@ -461,11 +461,12 @@ export class AIMService {
 
   /**
    * 獲取格式化後的AIM模型選項，適用於下拉選單
+   * @param {number} externalServiceConfigId - 外部服務配置 ID
    * @returns {Promise<Array>} 格式化的AIM模型選項
    */
-  async getAIMModelOptions() {
+  async getAIMModelOptions(externalServiceConfigId = null) {
     try {
-      const models = await this.getAIMModels();
+      const models = await this.getAIMModels(externalServiceConfigId);
       console.log('API返回的AIM模型數據:', models);
 
       // 檢查模型數據是否有效
@@ -621,9 +622,9 @@ export class AIMService {
    */
   clearCache() {
     // 清除AIM模型快取
-    this.aimModelsCache = null;
-    this.aimLastFetchTime = null;
-    this.aimPendingRequest = null;
+    this.aimModelsCache = {};
+    this.aimLastFetchTime = {};
+    this.aimPendingRequest = {};
 
     // 清除LLM Vision模型快取
     this.llmVisionModelsCache = null;
@@ -642,9 +643,9 @@ export class AIMService {
    * 只清除AIM模型快取
    */
   clearAIMCache() {
-    this.aimModelsCache = null;
-    this.aimLastFetchTime = null;
-    this.aimPendingRequest = null;
+    this.aimModelsCache = {};
+    this.aimLastFetchTime = {};
+    this.aimPendingRequest = {};
     console.log('AIM模型快取已清除');
   }
 
