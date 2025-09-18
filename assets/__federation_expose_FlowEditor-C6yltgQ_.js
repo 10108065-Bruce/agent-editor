@@ -23535,28 +23535,9 @@ function useFlowNodes() {
       const targetNode = nodes.find((node) => node.id === targetNodeId);
       const isBrowserExtensionOutput = targetNode && targetNode.type === "browserExtensionOutput";
       const isWebhookOutput = targetNode && targetNode.type === "webhook_output";
-      targetNode && (targetNode.type === "aiCustomInput" || targetNode.type === "ai");
       const isExtractDataNode = targetNode && targetNode.type === "extract_data";
       const sourceNode = nodes.find((node) => node.id === params.source);
       const isBrowserExtensionInput = sourceNode && sourceNode.type === "browserExtensionInput";
-      const isCustomInputNode = sourceNode && sourceNode.type === "customInput";
-      if (isCustomInputNode) {
-        console.log("源節點是CustomInputNode，檢查連線限制");
-        const existingEdges = edges.filter(
-          (edge) => edge.source === params.source && edge.sourceHandle === sourceHandle
-        );
-        if (existingEdges.length > 0) {
-          console.log(`Input的輸出已有連線，拒絕新連線`);
-          if (typeof window !== "undefined" && window.notify) {
-            window.notify({
-              message: `Input已有連線，請先刪除現有連線`,
-              type: "error",
-              duration: 3e3
-            });
-          }
-          return;
-        }
-      }
       if (targetNode && targetNode.type === "aim_ml") {
         console.log("目標是 QOCA AIM 節點，檢查連線限制");
         const existingEdges = edges.filter((edge) => {
@@ -23621,23 +23602,6 @@ function useFlowNodes() {
           if (typeof window !== "undefined" && window.notify) {
             window.notify({
               message: `Router Switch 節點只能有一個輸入連線，請先刪除現有連線`,
-              type: "error",
-              duration: 3e3
-            });
-          }
-          return;
-        }
-      }
-      if (sourceNode && sourceNode.type === "httpRequest") {
-        console.log("源節點是 HTTP Request 節點，檢查連線限制");
-        const existingEdges = edges.filter(
-          (edge) => edge.source === params.source && edge.sourceHandle === "output"
-        );
-        if (existingEdges.length > 0) {
-          console.log(`HTTP Request 節點已有輸出連線，拒絕新連線`);
-          if (typeof window !== "undefined" && window.notify) {
-            window.notify({
-              message: `HTTP Request 節點只能有一個輸出連線，請先刪除現有連線`,
               type: "error",
               duration: 3e3
             });
@@ -24179,7 +24143,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4ab0e61343e1dd44a31538a438f3450a6bc0032f", "VITE_APP_BUILD_TIME": "2025-09-18T06:33:34.243Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.10"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bac76599ae671c1c816067e913b908c7d4b7ecb7", "VITE_APP_BUILD_TIME": "2025-09-18T06:42:26.371Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.11"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
