@@ -24179,7 +24179,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "8b2533bb2bd6a52a85819a89e2bb0db502073de2", "VITE_APP_BUILD_TIME": "2025-09-18T02:12:07.142Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.9"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4ab0e61343e1dd44a31538a438f3450a6bc0032f", "VITE_APP_BUILD_TIME": "2025-09-18T06:33:34.243Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.10"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -28911,6 +28911,26 @@ class WorkflowDataConverter {
           'transformNodeDataToReactFlow - aim_ml 節點參數:',
           node.parameters
         );
+        // 處理 model_fields_info 的向後相容
+        let modelFieldsInfo = {};
+
+        if (node.parameters?.model_fields_info?.data) {
+          const rawData = node.parameters.model_fields_info.data;
+
+          // 檢查是否為字串格式（舊版）
+          if (typeof rawData === 'string') {
+            try {
+              // 嘗試解析 JSON 字串
+              modelFieldsInfo = JSON.parse(rawData);
+            } catch (error) {
+              console.error('解析 model_fields_info 字串失敗:', error);
+              modelFieldsInfo = {};
+            }
+          } else if (typeof rawData === 'object' && rawData !== null) {
+            // 新版已經是物件格式
+            modelFieldsInfo = rawData;
+          }
+        }
 
         // 確保正確讀取所有參數
         const nodeData = {
@@ -28923,7 +28943,7 @@ class WorkflowDataConverter {
           enableExplain: node.parameters?.enable_explain?.data ?? true,
           llmId: node.parameters?.llm_id?.data || '',
           promptText: node.parameters?.prompt?.data || '',
-          modelFieldsInfo: node.parameters?.model_fields_info?.data || ''
+          modelFieldsInfo: modelFieldsInfo
         };
 
         console.log('QOCA AIM 節點轉換後的數據:', nodeData);
@@ -29609,7 +29629,7 @@ class WorkflowDataConverter {
           const modelFieldsInfoValue =
             node.data.modelFieldsInfo ||
             node.data.model_fields_info?.data ||
-            '';
+            {};
           parameters.model_fields_info = { data: modelFieldsInfoValue };
         }
 
@@ -29825,12 +29845,13 @@ class AIMService {
    * @param {number} externalServiceConfigId - 外部服務配置 ID
    * @returns {Promise<string>} 欄位資訊字串
    */
+
   async getAIMFieldInfo(trainingId, externalServiceConfigId = null) {
     try {
       // 驗證 trainingId
       if (!trainingId || trainingId === 0) {
         console.log('trainingId 無效，跳過欄位資訊獲取');
-        return '';
+        return {}; // 改為返回空物件
       }
 
       const cacheKey = `${trainingId}_${externalServiceConfigId || 'default'}`;
@@ -29889,22 +29910,24 @@ class AIMService {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
           }
 
-          let fieldInfo = await response.text();
+          const responseData = await response.json();
 
-          // 檢查 API 是否回傳了已經被 JSON 序列化的字串
-          if (fieldInfo.startsWith('"') && fieldInfo.endsWith('"')) {
-            try {
-              fieldInfo = JSON.parse(fieldInfo);
-              console.log(
-                `解析後的 AIM 欄位資訊 (training_id: ${trainingId}):`,
-                fieldInfo
-              );
-            } catch (parseError) {
-              console.warn(
-                '無法解析 API 回傳的 JSON 字串，使用原始值:',
-                parseError
-              );
-            }
+          // 處理新的 API 回傳格式
+          let fieldInfo = {};
+
+          if (responseData.success && responseData.data) {
+            // 直接返回 data 物件，不轉換為字串
+            fieldInfo = responseData.data;
+          } else if (responseData.error) {
+            console.error(
+              `API 回傳錯誤 (training_id: ${trainingId}):`,
+              responseData.error
+            );
+            return {};
+          } else {
+            // 如果資料格式不符預期，返回空物件
+            console.warn('API 回傳格式不符預期，返回空物件');
+            return {};
           }
 
           return fieldInfo;
@@ -29924,9 +29947,9 @@ class AIMService {
           }
 
           console.error(
-            `所有重試都失敗 (training_id: ${trainingId})，返回空字串`
+            `所有重試都失敗 (training_id: ${trainingId})，返回空物件`
           );
-          return '';
+          return {};
         }
       };
 
@@ -29945,7 +29968,7 @@ class AIMService {
             error
           );
           this.aimFieldInfoPendingRequests.delete(cacheKey);
-          return '';
+          return {};
         });
 
       this.aimFieldInfoPendingRequests.set(cacheKey, pendingRequest);
@@ -29956,7 +29979,7 @@ class AIMService {
         `獲取 AIM 欄位資訊過程中出錯 (training_id: ${trainingId}):`,
         error
       );
-      return '';
+      return {};
     }
   }
 
@@ -38077,7 +38100,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
   const [isLoadingExternalServices, setIsLoadingExternalServices] = useState$e(false);
   const [showRefinePrompt, setShowRefinePrompt] = useState$e(false);
   const [modelFieldsInfo, setModelFieldsInfo] = useState$e(
-    data?.model_fields_info?.data || ""
+    data?.model_fields_info?.data || {}
   );
   const [aimOptions, setAimOptions] = useState$e([]);
   const [llmVisionOptions, setLlmVisionOptions] = useState$e([]);
@@ -38191,8 +38214,8 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     async (targetTrainingId) => {
       if (!targetTrainingId || targetTrainingId === 0) {
         console.log("training_id 無效，清空欄位資訊");
-        setModelFieldsInfo("");
-        updateParentState("model_fields_info", { data: "" });
+        setModelFieldsInfo({});
+        updateParentState("model_fields_info", { data: {} });
         return;
       }
       setIsLoadingFieldInfo(true);
@@ -38205,8 +38228,8 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
         updateParentState("model_fields_info", { data: fieldInfo });
       } catch (error) {
         console.error("載入模型欄位資訊失敗:", error);
-        setModelFieldsInfo("");
-        updateParentState("model_fields_info", { data: "" });
+        setModelFieldsInfo({});
+        updateParentState("model_fields_info", { data: {} });
       } finally {
         setIsLoadingFieldInfo(false);
       }
