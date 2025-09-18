@@ -37,7 +37,7 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
 
   // 模型欄位資訊狀態
   const [modelFieldsInfo, setModelFieldsInfo] = useState(
-    data?.model_fields_info?.data || ''
+    data?.model_fields_info?.data || {}
   );
 
   const [aimOptions, setAimOptions] = useState([]);
@@ -187,8 +187,8 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
     async (targetTrainingId) => {
       if (!targetTrainingId || targetTrainingId === 0) {
         console.log('training_id 無效，清空欄位資訊');
-        setModelFieldsInfo('');
-        updateParentState('model_fields_info', { data: '' });
+        setModelFieldsInfo({});
+        updateParentState('model_fields_info', { data: {} });
         return;
       }
 
@@ -204,16 +204,8 @@ const QOCAAimNode = ({ data, isConnectable, id }) => {
         updateParentState('model_fields_info', { data: fieldInfo });
       } catch (error) {
         console.error('載入模型欄位資訊失敗:', error);
-        setModelFieldsInfo('');
-        updateParentState('model_fields_info', { data: '' });
-
-        // if (typeof window !== 'undefined' && window.notify) {
-        //   window.notify({
-        //     message: '載入模型欄位資訊失敗',
-        //     type: 'error',
-        //     duration: 3000
-        //   });
-        // }
+        setModelFieldsInfo({});
+        updateParentState('model_fields_info', { data: {} });
       } finally {
         setIsLoadingFieldInfo(false);
       }

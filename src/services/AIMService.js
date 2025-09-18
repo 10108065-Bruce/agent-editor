@@ -30,12 +30,13 @@ export class AIMService {
    * @param {number} externalServiceConfigId - 外部服務配置 ID
    * @returns {Promise<string>} 欄位資訊字串
    */
+
   async getAIMFieldInfo(trainingId, externalServiceConfigId = null) {
     try {
       // 驗證 trainingId
       if (!trainingId || trainingId === 0) {
         console.log('trainingId 無效，跳過欄位資訊獲取');
-        return '';
+        return {}; // 改為返回空物件
       }
 
       const cacheKey = `${trainingId}_${externalServiceConfigId || 'default'}`;
@@ -94,22 +95,24 @@ export class AIMService {
             throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
           }
 
-          let fieldInfo = await response.text();
+          const responseData = await response.json();
 
-          // 檢查 API 是否回傳了已經被 JSON 序列化的字串
-          if (fieldInfo.startsWith('"') && fieldInfo.endsWith('"')) {
-            try {
-              fieldInfo = JSON.parse(fieldInfo);
-              console.log(
-                `解析後的 AIM 欄位資訊 (training_id: ${trainingId}):`,
-                fieldInfo
-              );
-            } catch (parseError) {
-              console.warn(
-                '無法解析 API 回傳的 JSON 字串，使用原始值:',
-                parseError
-              );
-            }
+          // 處理新的 API 回傳格式
+          let fieldInfo = {};
+
+          if (responseData.success && responseData.data) {
+            // 直接返回 data 物件，不轉換為字串
+            fieldInfo = responseData.data;
+          } else if (responseData.error) {
+            console.error(
+              `API 回傳錯誤 (training_id: ${trainingId}):`,
+              responseData.error
+            );
+            return {};
+          } else {
+            // 如果資料格式不符預期，返回空物件
+            console.warn('API 回傳格式不符預期，返回空物件');
+            return {};
           }
 
           return fieldInfo;
@@ -129,9 +132,9 @@ export class AIMService {
           }
 
           console.error(
-            `所有重試都失敗 (training_id: ${trainingId})，返回空字串`
+            `所有重試都失敗 (training_id: ${trainingId})，返回空物件`
           );
-          return '';
+          return {};
         }
       };
 
@@ -150,7 +153,7 @@ export class AIMService {
             error
           );
           this.aimFieldInfoPendingRequests.delete(cacheKey);
-          return '';
+          return {};
         });
 
       this.aimFieldInfoPendingRequests.set(cacheKey, pendingRequest);
@@ -161,7 +164,7 @@ export class AIMService {
         `獲取 AIM 欄位資訊過程中出錯 (training_id: ${trainingId}):`,
         error
       );
-      return '';
+      return {};
     }
   }
 

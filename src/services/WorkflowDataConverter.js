@@ -764,6 +764,26 @@ export class WorkflowDataConverter {
           'transformNodeDataToReactFlow - aim_ml 節點參數:',
           node.parameters
         );
+        // 處理 model_fields_info 的向後相容
+        let modelFieldsInfo = {};
+
+        if (node.parameters?.model_fields_info?.data) {
+          const rawData = node.parameters.model_fields_info.data;
+
+          // 檢查是否為字串格式（舊版）
+          if (typeof rawData === 'string') {
+            try {
+              // 嘗試解析 JSON 字串
+              modelFieldsInfo = JSON.parse(rawData);
+            } catch (error) {
+              console.error('解析 model_fields_info 字串失敗:', error);
+              modelFieldsInfo = {};
+            }
+          } else if (typeof rawData === 'object' && rawData !== null) {
+            // 新版已經是物件格式
+            modelFieldsInfo = rawData;
+          }
+        }
 
         // 確保正確讀取所有參數
         const nodeData = {
@@ -776,7 +796,7 @@ export class WorkflowDataConverter {
           enableExplain: node.parameters?.enable_explain?.data ?? true,
           llmId: node.parameters?.llm_id?.data || '',
           promptText: node.parameters?.prompt?.data || '',
-          modelFieldsInfo: node.parameters?.model_fields_info?.data || ''
+          modelFieldsInfo: modelFieldsInfo
         };
 
         console.log('QOCA AIM 節點轉換後的數據:', nodeData);
@@ -1462,7 +1482,7 @@ export class WorkflowDataConverter {
           const modelFieldsInfoValue =
             node.data.modelFieldsInfo ||
             node.data.model_fields_info?.data ||
-            '';
+            {};
           parameters.model_fields_info = { data: modelFieldsInfoValue };
         }
 
