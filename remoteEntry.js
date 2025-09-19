@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DLMUxP3u.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-RpjOudUF.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15853,11 +15853,11 @@ const IFrameFlowEditor = () => {
           window.self !== window.top
         );
         console.log("IFrameFlowEditor: flowEditorRef:", flowEditorRef.current);
-        if (window.self === window.top && validation.hasToken && validation.hasWorkspaceId && flowEditorRef.current && flowEditorRef.current.loadNodeList) {
+        if (window.self === window.top && validation.hasToken && validation.hasWorkspaceId && flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
           console.log(
             "IFrameFlowEditor: Token 和 Workspace ID 已設置，載入節點列表"
           );
-          flowEditorRef.current.loadNodeList().catch((err) => {
+          flowEditorRef.current.reloadNodeList().catch((err) => {
             console.error("IFrameFlowEditor: 載入節點列表失敗:", err);
             setError("無法載入節點列表");
           });
