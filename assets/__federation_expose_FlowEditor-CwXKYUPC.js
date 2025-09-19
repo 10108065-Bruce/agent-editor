@@ -24143,7 +24143,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-19T07:16:42.210Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.16"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-19T07:33:59.291Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.17"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44457,6 +44457,11 @@ const ReactFlowWithControls = forwardRef(
     isLocked = false
   }, ref) => {
     const reactFlowInstance = useReactFlow();
+    if (typeof window !== "undefined") {
+      window.globalNodeListLoaded = globalNodeListLoaded;
+      window.globalNodeListPromise = globalNodeListPromise;
+      window.globalNodeListData = globalNodeListData;
+    }
     const fitViewToNodes = useCallback(
       (padding = 0.1, maxZoom = 1.85, duration = 800) => {
         if (!reactFlowInstance) {
@@ -44641,6 +44646,11 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       globalNodeListLoaded = false;
       globalNodeListPromise = null;
       globalNodeListData = null;
+      if (typeof window !== "undefined") {
+        window.globalNodeListLoaded = false;
+        window.globalNodeListPromise = null;
+        window.globalNodeListData = null;
+      }
     }
     if (globalNodeListPromise && !forceReload) {
       console.log(`[${loadId}] 使用現有的載入 Promise`);
@@ -44671,6 +44681,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             setNodeListError(null);
             globalNodeListLoaded = true;
             globalNodeListData = cachedData;
+            if (typeof window !== "undefined") {
+              window.globalNodeListLoaded = true;
+              window.globalNodeListData = cachedData;
+            }
             return cachedData;
           } else {
             console.warn(`[${loadId}] 快取已過期，重新載入`);
@@ -44696,6 +44710,10 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         setNodeList(nodeListData);
         globalNodeListLoaded = true;
         globalNodeListData = nodeListData;
+        if (typeof window !== "undefined") {
+          window.globalNodeListLoaded = true;
+          window.globalNodeListData = nodeListData;
+        }
         try {
           localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
           localStorage.setItem(cacheTimeKey, Date.now().toString());
@@ -44710,15 +44728,24 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
         const defaultNodeList = [];
         setNodeList(defaultNodeList);
         globalNodeListData = defaultNodeList;
+        if (typeof window !== "undefined") {
+          window.globalNodeListData = defaultNodeList;
+        }
         throw error;
       } finally {
         setNodeListLoading(false);
         globalNodeListPromise = null;
+        if (typeof window !== "undefined") {
+          window.globalNodeListPromise = null;
+        }
         console.log(
           `[${loadId}] loadNodeList 完成，重置 globalNodeListPromise`
         );
       }
     })();
+    if (typeof window !== "undefined") {
+      window.globalNodeListPromise = globalNodeListPromise;
+    }
     return globalNodeListPromise;
   }, []);
   useEffect(() => {
@@ -44726,16 +44753,29 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     const token = tokenService.getToken();
     const workspaceId = tokenService.getWorkspaceId();
     if (token && workspaceId) {
-      console.log(`[${effectId}] 有認證資訊，開始載入節點清單`);
+      console.log(`[${effectId}] 有認證資訊，檢查是否需要載入節點清單`);
       if (globalNodeListLoaded && globalNodeListData) {
+        console.log(`[${effectId}] 使用已載入的全局數據`);
         setNodeList(globalNodeListData);
         setNodeListLoading(false);
         setNodeListError(null);
         return;
       }
       if (!globalNodeListPromise) {
+        console.log(`[${effectId}] 開始載入節點清單`);
         loadNodeList(false).catch((error) => {
           console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
+        });
+      } else {
+        console.log(`[${effectId}] 等待現有的載入請求`);
+        globalNodeListPromise.then((data) => {
+          if (data) {
+            setNodeList(data);
+            setNodeListLoading(false);
+            setNodeListError(null);
+          }
+        }).catch((error) => {
+          console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
         });
       }
     } else {
