@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CwXKYUPC.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-qc1Rj0uA.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15877,28 +15877,27 @@ const IFrameFlowEditor = () => {
         }
         const validation = validateRequiredData();
         if (validation.hasToken && validation.hasWorkspaceId) {
-          console.log("Token 和 Workspace ID 已就緒");
-          setTimeout(async () => {
-            if (flowEditorRef.current) {
-              const needsLoad = isWorkspaceChanged || !window.globalNodeListLoaded || !window.globalNodeListPromise;
-              if (needsLoad) {
-                if (isWorkspaceChanged) {
-                  console.log("因為 Workspace 變更，強制重新載入節點清單");
-                  if (flowEditorRef.current.reloadNodeList) {
-                    try {
-                      await flowEditorRef.current.reloadNodeList();
-                      console.log("節點清單重新載入成功");
-                    } catch (error2) {
-                      console.error("節點清單重新載入失敗:", error2);
-                      setError("無法載入節點清單");
-                    }
-                  }
-                } else if (!window.globalNodeListLoaded) {
-                  console.log("節點清單尚未載入，等待 FlowEditor 自動載入");
-                }
+          console.log("Token 和 Workspace ID 已就緒，準備載入節點清單");
+          setTimeout(() => {
+            if (flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
+              if (isWorkspaceChanged) {
+                console.log("因為 Workspace 變更，強制重新載入節點清單");
               } else {
-                console.log("節點清單已載入且無 Workspace 變更，跳過載入");
+                console.log("初次載入節點清單");
               }
+              flowEditorRef.current.reloadNodeList().then(() => {
+                console.log("節點清單載入成功");
+              }).catch((error2) => {
+                console.error("節點清單載入失敗:", error2);
+                setError("無法載入節點清單");
+              });
+            } else {
+              console.warn("FlowEditor ref 尚未準備好");
+              setTimeout(() => {
+                if (flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
+                  flowEditorRef.current.reloadNodeList();
+                }
+              }, 500);
             }
           }, 100);
         }
@@ -15906,8 +15905,7 @@ const IFrameFlowEditor = () => {
           type: "MESSAGE_ACKNOWLEDGED",
           originalType: "SET_FLOW_ID_AND_TOKEN",
           timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-          validation,
-          workspaceChanged: isWorkspaceChanged
+          validation
         });
       } catch (error2) {
         console.error("IFrameFlowEditor: 處理 token 時發生錯誤:", error2);
