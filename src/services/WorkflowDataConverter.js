@@ -621,14 +621,18 @@ export class WorkflowDataConverter {
 
         // 提取 prompt 文本
         const promptText = node.parameters?.prompt?.data || '';
+
+        // 舊版node.parameters中沒有editor_html_content，改從node.parameters?.prompt.data中提取
         const editorHtmlContent =
-          node.parameters?.editor_html_content?.data || '';
+          node.parameters?.editor_html_content?.data ||
+          node.parameters?.prompt?.data ||
+          '';
 
         return {
           ...baseData,
           model: modelId,
           promptText: promptText,
-          editorHtmlContent: editorHtmlContent // 新增：恢復編輯器 HTML 內容
+          editorHtmlContent: editorHtmlContent // 恢復編輯器 HTML 內容
         };
       }
 

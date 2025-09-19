@@ -1161,16 +1161,25 @@ const CombineTextEditor = forwardRef(
         editorRef.current.textContent === '' &&
         !isInitialized
       ) {
-        const defaultContent = generateDefaultContent();
-        isUpdatingFromExternal.current = true;
-        editorRef.current.textContent = defaultContent;
-        lastReportedValue.current = defaultContent;
-        setIsInitialized(true);
+        // 檢查是否為 AI 節點，如果是則不生成默認內容
+        const isAINode = editorRef.current.closest(
+          '.react-flow__node-aiCustomInput'
+        );
+        if (!isAINode) {
+          const defaultContent = generateDefaultContent();
+          isUpdatingFromExternal.current = true;
+          editorRef.current.textContent = defaultContent;
+          lastReportedValue.current = defaultContent;
+          setIsInitialized(true);
 
-        setTimeout(() => {
-          isUpdatingFromExternal.current = false;
-          handleContentChange();
-        }, 500);
+          setTimeout(() => {
+            isUpdatingFromExternal.current = false;
+            handleContentChange();
+          }, 500);
+        }
+      } else {
+        // AI 節點只設置為已初始化，不生成內容
+        setIsInitialized(true);
       }
     }, [
       value,
