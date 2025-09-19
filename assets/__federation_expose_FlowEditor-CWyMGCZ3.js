@@ -24143,7 +24143,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-19T06:49:02.801Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.15"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-19T07:16:42.210Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.16"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44723,26 +44723,24 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   }, []);
   useEffect(() => {
     const effectId = Date.now();
-    if (globalNodeListLoaded && globalNodeListData) {
-      setNodeList(globalNodeListData);
-      setNodeListLoading(false);
-      setNodeListError(null);
-      return;
-    }
-    if (!globalNodeListPromise) {
-      loadNodeList().catch((error) => {
-        console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
-      });
+    const token = tokenService.getToken();
+    const workspaceId = tokenService.getWorkspaceId();
+    if (token && workspaceId) {
+      console.log(`[${effectId}] 有認證資訊，開始載入節點清單`);
+      if (globalNodeListLoaded && globalNodeListData) {
+        setNodeList(globalNodeListData);
+        setNodeListLoading(false);
+        setNodeListError(null);
+        return;
+      }
+      if (!globalNodeListPromise) {
+        loadNodeList(false).catch((error) => {
+          console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
+        });
+      }
     } else {
-      globalNodeListPromise.then((data) => {
-        if (data) {
-          setNodeList(data);
-          setNodeListLoading(false);
-          setNodeListError(null);
-        }
-      }).catch((error) => {
-        console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
-      });
+      console.log(`[${effectId}] 缺少認證資訊，跳過自動載入節點清單`);
+      setNodeListLoading(false);
     }
   }, []);
   useEffect(() => {
