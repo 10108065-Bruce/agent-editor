@@ -24143,7 +24143,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-19T07:41:52.947Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.18"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-19T08:08:49.350Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.19"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44633,75 +44633,53 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       return true;
     }
   }, []);
-  const loadNodeList = useCallback(async (forceReload = false) => {
+  const loadNodeList = useCallback(async () => {
     const loadId = Date.now();
-    console.log(`[${loadId}] loadNodeList 被調用, forceReload: ${forceReload}`);
-    if (forceReload) {
-      console.log(`[${loadId}] 強制重新載入，清除全局狀態`);
-      globalNodeListLoaded = false;
-      globalNodeListPromise = null;
-      globalNodeListData = null;
-    }
-    if (globalNodeListPromise && !forceReload) {
-      console.log(`[${loadId}] 使用現有的載入 Promise`);
+    if (globalNodeListPromise) {
       return globalNodeListPromise;
     }
-    if (globalNodeListLoaded && globalNodeListData && !forceReload) {
-      console.log(`[${loadId}] 使用已載入的數據`);
+    if (globalNodeListLoaded && globalNodeListData) {
       setNodeList(globalNodeListData);
       setNodeListLoading(false);
       setNodeListError(null);
       return globalNodeListData;
     }
-    const workspaceId = tokenService.getWorkspaceId();
-    const cacheKey = `nodeListCache_${workspaceId}`;
-    const cacheTimeKey = `nodeListCacheTime_${workspaceId}`;
+    const cacheKey = "nodeListCache";
+    const cacheTimeKey = "nodeListCacheTime";
     const cacheExpiry = 1 * 60 * 1e3;
-    if (!forceReload) {
-      try {
-        const cached = localStorage.getItem(cacheKey);
-        const cacheTime = localStorage.getItem(cacheTimeKey);
-        if (cached && cacheTime) {
-          const isExpired = Date.now() - parseInt(cacheTime) > cacheExpiry;
-          if (!isExpired) {
-            console.log(`[${loadId}] 使用 localStorage 快取`);
-            const cachedData = JSON.parse(cached);
-            setNodeList(cachedData);
-            setNodeListLoading(false);
-            setNodeListError(null);
-            globalNodeListLoaded = true;
-            globalNodeListData = cachedData;
-            return cachedData;
-          } else {
-            console.warn(`[${loadId}] 快取已過期，重新載入`);
-          }
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      const cacheTime = localStorage.getItem(cacheTimeKey);
+      if (cached && cacheTime) {
+        const isExpired = Date.now() - parseInt(cacheTime) > cacheExpiry;
+        if (!isExpired) {
+          const cachedData = JSON.parse(cached);
+          setNodeList(cachedData);
+          setNodeListLoading(false);
+          setNodeListError(null);
+          globalNodeListLoaded = true;
+          globalNodeListData = cachedData;
+          return cachedData;
+        } else {
+          console.warn(`[${loadId}] 緩存已過期，重新載入`);
         }
-      } catch (error) {
-        console.warn(`[${loadId}] 讀取快取失敗:`, error);
       }
+    } catch (error) {
+      console.warn(`[${loadId}] 讀取緩存失敗:`, error);
     }
     globalNodeListPromise = (async () => {
       try {
-        console.log(`[${loadId}] 開始從 API 載入節點清單`);
         setNodeListLoading(true);
         setNodeListError(null);
-        const token = tokenService.getToken();
-        const currentWorkspaceId = tokenService.getWorkspaceId();
-        if (!token || !currentWorkspaceId) {
-          throw new Error("缺少認證資訊或 Workspace ID");
-        }
-        console.log(`[${loadId}] 使用 Workspace ID: ${currentWorkspaceId}`);
         const nodeListData = await workflowAPIService.getNodeList();
-        console.log(`[${loadId}] API 返回 ${nodeListData.length} 個節點`);
         setNodeList(nodeListData);
         globalNodeListLoaded = true;
         globalNodeListData = nodeListData;
         try {
           localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
           localStorage.setItem(cacheTimeKey, Date.now().toString());
-          console.log(`[${loadId}] 已快取節點清單到 ${cacheKey}`);
         } catch (error) {
-          console.warn(`[${loadId}] 快取節點清單失敗:`, error);
+          console.warn(`[${loadId}] 緩存節點清單失敗:`, error);
         }
         return nodeListData;
       } catch (error) {
@@ -44720,6 +44698,32 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       }
     })();
     return globalNodeListPromise;
+  }, []);
+  useEffect(() => {
+    if (!isInIframe) {
+      const effectId = Date.now();
+      if (globalNodeListLoaded && globalNodeListData) {
+        setNodeList(globalNodeListData);
+        setNodeListLoading(false);
+        setNodeListError(null);
+        return;
+      }
+      if (!globalNodeListPromise) {
+        loadNodeList().catch((error) => {
+          console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
+        });
+      } else {
+        globalNodeListPromise.then((data) => {
+          if (data) {
+            setNodeList(data);
+            setNodeListLoading(false);
+            setNodeListError(null);
+          }
+        }).catch((error) => {
+          console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
+        });
+      }
+    }
   }, []);
   useEffect(() => {
     return () => {
@@ -44868,7 +44872,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     reloadNodeList: () => {
       console.log("手動重新載入節點清單");
       resetGlobalNodeListState();
-      return loadNodeList(true);
+      return loadNodeList();
     }
   }));
   useEffect(() => {

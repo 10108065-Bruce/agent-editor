@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-qc1Rj0uA.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CuBVWhZI.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15828,26 +15828,6 @@ const IFrameFlowEditor = () => {
     });
     return validation;
   }, []);
-  const clearNodeListCache = () => {
-    console.log("清除節點清單快取");
-    try {
-      localStorage.removeItem("nodeListCache");
-      localStorage.removeItem("nodeListCacheTime");
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.includes("nodeList")) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach((key) => {
-        localStorage.removeItem(key);
-        console.log(`已清除快取: ${key}`);
-      });
-    } catch (error2) {
-      console.warn("清除節點清單快取時發生錯誤:", error2);
-    }
-  };
   const handleTokenReceived = useCallback(
     (data) => {
       console.log("IFrameFlowEditor: 接收到 token 資料", {
@@ -15856,50 +15836,24 @@ const IFrameFlowEditor = () => {
         hasWorkspaceId: !!data.selectedWorkspaceId
       });
       try {
-        const currentWorkspaceId = tokenService.getWorkspaceId();
-        const newWorkspaceId = data.selectedWorkspaceId;
-        const isWorkspaceChanged = currentWorkspaceId && newWorkspaceId && currentWorkspaceId !== newWorkspaceId;
-        if (isWorkspaceChanged) {
-          console.log("檢測到 Workspace ID 變更:", {
-            舊的: currentWorkspaceId,
-            新的: newWorkspaceId
-          });
-          clearNodeListCache();
-          if (typeof window.resetGlobalNodeListState === "function") {
-            window.resetGlobalNodeListState();
-          }
-        }
         if (data.token) {
           tokenService.setToken(data.token, data.storage || "local");
         }
-        if (newWorkspaceId) {
-          tokenService.setWorkspaceId(newWorkspaceId, data.storage || "local");
+        if (data.selectedWorkspaceId) {
+          tokenService.setWorkspaceId(
+            data.selectedWorkspaceId,
+            data.storage || "local"
+          );
         }
         const validation = validateRequiredData();
-        if (validation.hasToken && validation.hasWorkspaceId) {
-          console.log("Token 和 Workspace ID 已就緒，準備載入節點清單");
-          setTimeout(() => {
-            if (flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
-              if (isWorkspaceChanged) {
-                console.log("因為 Workspace 變更，強制重新載入節點清單");
-              } else {
-                console.log("初次載入節點清單");
-              }
-              flowEditorRef.current.reloadNodeList().then(() => {
-                console.log("節點清單載入成功");
-              }).catch((error2) => {
-                console.error("節點清單載入失敗:", error2);
-                setError("無法載入節點清單");
-              });
-            } else {
-              console.warn("FlowEditor ref 尚未準備好");
-              setTimeout(() => {
-                if (flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
-                  flowEditorRef.current.reloadNodeList();
-                }
-              }, 500);
-            }
-          }, 100);
+        if (window.self !== window.top && validation.hasToken && validation.hasWorkspaceId && flowEditorRef.current && flowEditorRef.current.loadNodeList) {
+          console.log(
+            "IFrameFlowEditor: Token 和 Workspace ID 已設置，載入節點列表"
+          );
+          flowEditorRef.current.loadNodeList().catch((err) => {
+            console.error("IFrameFlowEditor: 載入節點列表失敗:", err);
+            setError("無法載入節點列表");
+          });
         }
         iframeBridge.sendToParent({
           type: "MESSAGE_ACKNOWLEDGED",
