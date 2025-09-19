@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-C6yltgQ_.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-dyUzYVPa.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15846,6 +15846,15 @@ const IFrameFlowEditor = () => {
           );
         }
         const validation = validateRequiredData();
+        if (validation.hasToken && validation.hasWorkspaceId) {
+          console.log("Token 和 Workspace ID 已就緒，嘗試載入節點清單");
+          setTimeout(() => {
+            if (flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
+              console.log("透過 ref 調用 reloadNodeList");
+              flowEditorRef.current.reloadNodeList();
+            }
+          }, 100);
+        }
         iframeBridge.sendToParent({
           type: "MESSAGE_ACKNOWLEDGED",
           originalType: "SET_FLOW_ID_AND_TOKEN",
