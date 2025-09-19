@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CLTnkhq9.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DLMUxP3u.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15835,6 +15835,7 @@ const IFrameFlowEditor = () => {
         storage: data.storage,
         hasWorkspaceId: !!data.selectedWorkspaceId
       });
+      console.log("IFrameFlowEditor: token 已設置:", data);
       try {
         if (data.token) {
           tokenService.setToken(data.token, data.storage || "local");
@@ -15846,6 +15847,12 @@ const IFrameFlowEditor = () => {
           );
         }
         const validation = validateRequiredData();
+        console.log("IFrameFlowEditor: 更新後的驗證狀態", validation);
+        console.log(
+          "IFrameFlowEditor: isInIframe:",
+          window.self !== window.top
+        );
+        console.log("IFrameFlowEditor: flowEditorRef:", flowEditorRef.current);
         if (window.self === window.top && validation.hasToken && validation.hasWorkspaceId && flowEditorRef.current && flowEditorRef.current.loadNodeList) {
           console.log(
             "IFrameFlowEditor: Token 和 Workspace ID 已設置，載入節點列表"
