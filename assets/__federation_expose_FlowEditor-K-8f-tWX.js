@@ -24143,7 +24143,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-24T03:06:38.736Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.25"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-24T03:08:32.763Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.26"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44646,7 +44646,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     }
     const cacheKey = "nodeListCache";
     const cacheTimeKey = "nodeListCacheTime";
-    const cacheExpiry = 5 * 60 * 1e3;
+    const cacheExpiry = 5 * 1e3;
     try {
       const cached = localStorage.getItem(cacheKey);
       const cacheTime = localStorage.getItem(cacheTimeKey);
