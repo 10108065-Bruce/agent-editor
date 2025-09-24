@@ -302,7 +302,7 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
     // 檢查 localStorage 緩存
     const cacheKey = 'nodeListCache';
     const cacheTimeKey = 'nodeListCacheTime';
-    const cacheExpiry = 1 * 60 * 1000; // 1分鐘緩存
+    const cacheExpiry = 5 * 1000; // 5秒緩存
 
     try {
       const cached = localStorage.getItem(cacheKey);
@@ -371,33 +371,35 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
 
   // 改進的 useEffect - 只在組件掛載時執行一次
   useEffect(() => {
-    const effectId = Date.now();
+    if (!isInIframe) {
+      const effectId = Date.now();
 
-    // 如果全局狀態顯示已載入且有數據，直接使用
-    if (globalNodeListLoaded && globalNodeListData) {
-      setNodeList(globalNodeListData);
-      setNodeListLoading(false);
-      setNodeListError(null);
-      return;
-    }
+      // 如果全局狀態顯示已載入且有數據，直接使用
+      if (globalNodeListLoaded && globalNodeListData) {
+        setNodeList(globalNodeListData);
+        setNodeListLoading(false);
+        setNodeListError(null);
+        return;
+      }
 
-    // 如果沒有正在進行的請求，開始載入
-    if (!globalNodeListPromise) {
-      loadNodeList().catch((error) => {
-        console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
-      });
-    } else {
-      globalNodeListPromise
-        .then((data) => {
-          if (data) {
-            setNodeList(data);
-            setNodeListLoading(false);
-            setNodeListError(null);
-          }
-        })
-        .catch((error) => {
-          console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
+      // 如果沒有正在進行的請求，開始載入
+      if (!globalNodeListPromise) {
+        loadNodeList().catch((error) => {
+          console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
         });
+      } else {
+        globalNodeListPromise
+          .then((data) => {
+            if (data) {
+              setNodeList(data);
+              setNodeListLoading(false);
+              setNodeListError(null);
+            }
+          })
+          .catch((error) => {
+            console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
+          });
+      }
     }
   }, []); // 空依賴數組確保只在掛載時執行一次
 

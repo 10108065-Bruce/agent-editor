@@ -83,6 +83,18 @@ const IFrameFlowEditor = () => {
         // 更新驗證狀態
         const validation = validateRequiredData();
 
+        // call to load nodelist if token and workspaceId are present
+        if (
+          window.self !== window.top &&
+          validation.hasToken &&
+          validation.hasWorkspaceId &&
+          flowEditorRef.current
+        ) {
+          flowEditorRef.current.reloadNodeList().catch(() => {
+            setError('無法載入節點列表');
+          });
+        }
+
         // 發送確認消息
         iframeBridge.sendToParent({
           type: 'MESSAGE_ACKNOWLEDGED',
