@@ -24012,53 +24012,12 @@ function useFlowNodes() {
       return validEdges;
     });
   }, [nodes, setEdges]);
-  const cleanupNodeInputs = useCallback$n(() => {
-    setNodes((currentNodes) => {
-      return currentNodes.map((node) => {
-        if (!node.data?.node_input) return node;
-        const nodeInput = { ...node.data.node_input };
-        const connectedSources = /* @__PURE__ */ new Set();
-        edges.filter((edge) => edge.target === node.id).forEach((edge) => {
-          connectedSources.add(
-            `${edge.source}:${edge.sourceHandle || "output"}`
-          );
-        });
-        let hasChanges = false;
-        const cleanedNodeInput = {};
-        Object.entries(nodeInput).forEach(([key, value]) => {
-          if (value.is_empty || !value.node_id) {
-            cleanedNodeInput[key] = value;
-          } else {
-            const sourceKey = `${value.node_id}:${value.output_name || "output"}`;
-            if (connectedSources.has(sourceKey)) {
-              cleanedNodeInput[key] = value;
-            } else {
-              console.log(`移除節點 ${node.id} 的孤兒 node_input 項目: ${key}`);
-              hasChanges = true;
-            }
-          }
-        });
-        if (hasChanges) {
-          console.log(`清理節點 ${node.id} 的 node_input，移除了孤兒項目`);
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              node_input: cleanedNodeInput
-            }
-          };
-        }
-        return node;
-      });
-    });
-  }, [nodes, edges, setNodes]);
   useEffect$p(() => {
     if (isLoadingWorkflow.current) {
       return;
     }
     const timeoutId = setTimeout(() => {
       cleanupInvalidEdges();
-      cleanupNodeInputs();
     }, 1e3);
     return () => clearTimeout(timeoutId);
   }, [nodes.length, edges.length]);
@@ -24085,17 +24044,15 @@ function useFlowNodes() {
   useEffect$p(() => {
     if (typeof window !== "undefined") {
       window.cleanupInvalidEdges = cleanupInvalidEdges;
-      window.cleanupNodeInputs = cleanupNodeInputs;
       window.currentEdges = edges;
     }
     return () => {
       if (typeof window !== "undefined") {
         delete window.cleanupInvalidEdges;
-        delete window.cleanupNodeInputs;
         delete window.currentEdges;
       }
     };
-  }, [cleanupInvalidEdges, cleanupNodeInputs, edges]);
+  }, [cleanupInvalidEdges, edges]);
   return {
     nodes,
     setNodes: safeSetNodes,
@@ -24143,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "836e27f7dca8525f30efbca82d7cf3366e338858", "VITE_APP_BUILD_TIME": "2025-09-24T03:08:32.763Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.26"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "bababa6521f376203fe1376639201ad008ad6cda", "VITE_APP_BUILD_TIME": "2025-10-01T06:21:52.153Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.27"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24347,8 +24304,30 @@ const NodeSidebar = ({
     return displayName.toLowerCase().includes(searchTerm.toLowerCase());
   };
   const checkNodeTypeRestriction = (operator) => {
-    if (operator === "line_webhook_input") {
-      return nodes.some((node) => node.type === "line_webhook_input");
+    const singletonNodeTypes = [
+      "line_webhook_input",
+      "browser_extension_input",
+      "browser_extension_output",
+      "webhook_input",
+      "webhook_output",
+      "schedule_trigger"
+    ];
+    if (singletonNodeTypes.includes(operator)) {
+      return nodes.some((node) => {
+        const nodeType = node.type || node.data?.type || node.data?.nodeType || node.data?.operator || node.nodeType || node.operator;
+        const nodeLabel = node.data?.label?.toLowerCase() || "";
+        const nodeName = node.data?.name?.toLowerCase() || "";
+        const operatorCamelCase = operator.replace(
+          /_([a-z])/g,
+          (g) => g[1].toUpperCase()
+        );
+        const operatorWords = operator.split("_").join(" ");
+        const isMatchingNode = nodeType === operator || nodeType === operatorCamelCase || nodeLabel.includes(operatorWords) || nodeName.includes(operatorWords) || node.id?.includes(operator);
+        if (isMatchingNode) {
+          console.log(`Found existing ${operator} node:`, node);
+        }
+        return isMatchingNode;
+      });
     }
     return false;
   };
@@ -34317,7 +34296,7 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     const bottomPadding = 30;
     return headerHeight + inputs.length * handleHeight + buttonAreaHeight + textAreaHeight + bottomPadding;
   }, [inputs.length]);
-  const edges = useEdges();
+  useEdges();
   const processHandleId = (handleId) => {
     if (!handleId) return "";
     const match = handleId && handleId.match(/^(output\d+)(?:_\d+)?$/);
@@ -34635,56 +34614,6 @@ const BrowserExtensionOutputNode = ({ id, data, isConnectable }) => {
     height: `${getNodeHeight()}px`,
     transition: "height 0.3s ease"
   };
-  const cleanupOrphanNodeInputs = useCallback$h(() => {
-    if (!data.node_input) return;
-    const currentEdges = window.currentEdges || [];
-    const nodeInputKeys = Object.keys(data.node_input);
-    const connectedHandles = /* @__PURE__ */ new Set();
-    currentEdges.filter((edge) => edge.target === nodeId).forEach((edge) => {
-      if (edge.targetHandle) {
-        const baseHandle = edge.targetHandle.split("_")[0];
-        connectedHandles.add(baseHandle);
-      }
-    });
-    let hasOrphans = false;
-    const cleanedNodeInput = { ...data.node_input };
-    nodeInputKeys.forEach((key) => {
-      const baseKey = key.split("_")[0];
-      const inputData = data.node_input[key];
-      if (inputData.node_id && !connectedHandles.has(baseKey)) {
-        console.log(`發現孤兒 node_input 項目: ${key}，準備清理`);
-        delete cleanedNodeInput[key];
-        hasOrphans = true;
-      }
-    });
-    if (hasOrphans) {
-      console.log(`清理了孤兒 node_input 項目，更新節點數據`);
-      if (data.updateNodeData) {
-        data.updateNodeData("node_input", cleanedNodeInput);
-      }
-    }
-  }, [data, nodeId]);
-  useEffect$h(() => {
-    const handleRouterDeleted = () => {
-      setTimeout(() => {
-        cleanupOrphanNodeInputs();
-      }, 100);
-    };
-    if (typeof window !== "undefined") {
-      window.addEventListener("routerDeleted", handleRouterDeleted);
-    }
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("routerDeleted", handleRouterDeleted);
-      }
-    };
-  }, [cleanupOrphanNodeInputs]);
-  useEffect$h(() => {
-    const timeoutId = setTimeout(() => {
-      cleanupOrphanNodeInputs();
-    }, 200);
-    return () => clearTimeout(timeoutId);
-  }, [edges, cleanupOrphanNodeInputs]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
