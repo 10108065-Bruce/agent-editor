@@ -26,9 +26,58 @@ const NodeSidebar = ({
 
   // 檢查是否已存在特定類型的節點（針對只能有一個的節點類型）
   const checkNodeTypeRestriction = (operator) => {
-    // 目前只有 line_webhook_input 有限制
-    if (operator === 'line_webhook_input') {
-      return nodes.some((node) => node.type === 'line_webhook_input');
+    // 定義只能有一個的節點類型列表
+    const singletonNodeTypes = [
+      'line_webhook_input',
+      'browser_extension_output'
+    ];
+
+    if (singletonNodeTypes.includes(operator)) {
+      return nodes.some((node) => {
+        // 檢查多種可能的屬性組合
+        const nodeType =
+          node.type ||
+          node.data?.type ||
+          node.data?.nodeType ||
+          node.data?.operator ||
+          node.nodeType ||
+          node.operator;
+
+        // 檢查節點的標籤或名稱
+        const nodeLabel = node.data?.label?.toLowerCase() || '';
+        const nodeName = node.data?.name?.toLowerCase() || '';
+
+        // 特別處理 browser_extension_output
+        if (operator === 'browser_extension_output') {
+          // 檢查各種可能的匹配方式
+          const isBrowserOutput =
+            nodeType === 'browser_extension_output' ||
+            nodeType === 'browserExtensionOutput' ||
+            (nodeLabel.includes('browser') &&
+              nodeLabel.includes('extension') &&
+              nodeLabel.includes('output')) ||
+            (nodeName.includes('browser') &&
+              nodeName.includes('extension') &&
+              nodeName.includes('output')) ||
+            node.id?.includes('browser_extension_output');
+
+          return isBrowserOutput;
+        }
+
+        // 特別處理 line_webhook_input
+        if (operator === 'line_webhook_input') {
+          const isLineWebhook =
+            nodeType === 'line_webhook_input' ||
+            nodeType === 'lineWebhookInput' ||
+            (nodeLabel.includes('line') && nodeLabel.includes('webhook')) ||
+            (nodeName.includes('line') && nodeName.includes('webhook')) ||
+            node.id?.includes('line_webhook_input');
+
+          return isLineWebhook;
+        }
+
+        return nodeType === operator;
+      });
     }
     return false;
   };
