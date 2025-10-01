@@ -29,7 +29,11 @@ const NodeSidebar = ({
     // 定義只能有一個的節點類型列表
     const singletonNodeTypes = [
       'line_webhook_input',
-      'browser_extension_output'
+      'browser_extension_input',
+      'browser_extension_output',
+      'webhook_input',
+      'webhook_output',
+      'schedule_trigger'
     ];
 
     if (singletonNodeTypes.includes(operator)) {
@@ -47,36 +51,25 @@ const NodeSidebar = ({
         const nodeLabel = node.data?.label?.toLowerCase() || '';
         const nodeName = node.data?.name?.toLowerCase() || '';
 
-        // 特別處理 browser_extension_output
-        if (operator === 'browser_extension_output') {
-          // 檢查各種可能的匹配方式
-          const isBrowserOutput =
-            nodeType === 'browser_extension_output' ||
-            nodeType === 'browserExtensionOutput' ||
-            (nodeLabel.includes('browser') &&
-              nodeLabel.includes('extension') &&
-              nodeLabel.includes('output')) ||
-            (nodeName.includes('browser') &&
-              nodeName.includes('extension') &&
-              nodeName.includes('output')) ||
-            node.id?.includes('browser_extension_output');
+        // 將 operator 轉換為不同格式以便比對
+        const operatorCamelCase = operator.replace(/_([a-z])/g, (g) =>
+          g[1].toUpperCase()
+        );
+        const operatorWords = operator.split('_').join(' ');
 
-          return isBrowserOutput;
+        // 通用檢查邏輯
+        const isMatchingNode =
+          nodeType === operator ||
+          nodeType === operatorCamelCase ||
+          nodeLabel.includes(operatorWords) ||
+          nodeName.includes(operatorWords) ||
+          node.id?.includes(operator);
+
+        if (isMatchingNode) {
+          console.log(`Found existing ${operator} node:`, node);
         }
 
-        // 特別處理 line_webhook_input
-        if (operator === 'line_webhook_input') {
-          const isLineWebhook =
-            nodeType === 'line_webhook_input' ||
-            nodeType === 'lineWebhookInput' ||
-            (nodeLabel.includes('line') && nodeLabel.includes('webhook')) ||
-            (nodeName.includes('line') && nodeName.includes('webhook')) ||
-            node.id?.includes('line_webhook_input');
-
-          return isLineWebhook;
-        }
-
-        return nodeType === operator;
+        return isMatchingNode;
       });
     }
     return false;
