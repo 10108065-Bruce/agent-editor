@@ -2237,63 +2237,6 @@ export default function useFlowNodes() {
     });
   }, [nodes, setEdges]);
 
-  // 添加清理節點 node_input 的方法
-  const cleanupNodeInputs = useCallback(() => {
-    setNodes((currentNodes) => {
-      return currentNodes.map((node) => {
-        // 只處理有 node_input 的節點
-        if (!node.data?.node_input) return node;
-
-        const nodeInput = { ...node.data.node_input };
-        const connectedSources = new Set();
-
-        // 收集所有連接到此節點的邊緣的源信息
-        edges
-          .filter((edge) => edge.target === node.id)
-          .forEach((edge) => {
-            connectedSources.add(
-              `${edge.source}:${edge.sourceHandle || 'output'}`
-            );
-          });
-
-        let hasChanges = false;
-        const cleanedNodeInput = {};
-
-        // 檢查每個 node_input 項目
-        Object.entries(nodeInput).forEach(([key, value]) => {
-          if (value.is_empty || !value.node_id) {
-            // 保留空的 node_input 項目
-            cleanedNodeInput[key] = value;
-          } else {
-            // 檢查是否有對應的邊緣
-            const sourceKey = `${value.node_id}:${
-              value.output_name || 'output'
-            }`;
-            if (connectedSources.has(sourceKey)) {
-              cleanedNodeInput[key] = value;
-            } else {
-              console.log(`移除節點 ${node.id} 的孤兒 node_input 項目: ${key}`);
-              hasChanges = true;
-            }
-          }
-        });
-
-        if (hasChanges) {
-          console.log(`清理節點 ${node.id} 的 node_input，移除了孤兒項目`);
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              node_input: cleanedNodeInput
-            }
-          };
-        }
-
-        return node;
-      });
-    });
-  }, [nodes, edges, setNodes]);
-
   useEffect(() => {
     // 只有在非載入狀態且節點/邊緣穩定後才清理
     if (isLoadingWorkflow.current) {
@@ -2303,7 +2246,7 @@ export default function useFlowNodes() {
     // 延遲執行清理，避免在正常操作中干擾
     const timeoutId = setTimeout(() => {
       cleanupInvalidEdges();
-      cleanupNodeInputs();
+      // cleanupNodeInputs();
     }, 1000); // 增加延遲時間，確保載入完成
 
     return () => clearTimeout(timeoutId);
@@ -2339,18 +2282,16 @@ export default function useFlowNodes() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.cleanupInvalidEdges = cleanupInvalidEdges;
-      window.cleanupNodeInputs = cleanupNodeInputs;
       window.currentEdges = edges; // 暴露當前邊緣供其他組件使用
     }
 
     return () => {
       if (typeof window !== 'undefined') {
         delete window.cleanupInvalidEdges;
-        delete window.cleanupNodeInputs;
         delete window.currentEdges;
       }
     };
-  }, [cleanupInvalidEdges, cleanupNodeInputs, edges]);
+  }, [cleanupInvalidEdges, edges]);
 
   return {
     nodes,
