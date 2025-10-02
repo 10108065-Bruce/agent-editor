@@ -1019,6 +1019,18 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
   // 修改保存函數來設置保存狀態
   const saveToServer = useCallback(async () => {
     if (isLocked) return;
+
+    // 檢查是否為 create 模式且沒有 title
+    const isCreateMode = !flowMetadata.id || flowMetadata.id === 'new';
+    const isTitleValid =
+      flowMetadata.title && flowMetadata.title.trim().length > 0;
+
+    // 如果是 create 模式且沒有 title，顯示對話框
+    if (isCreateMode && !isTitleValid) {
+      setShowSaveDialog(true);
+      return;
+    }
+
     // 設置保存中狀態
     setIsSaving(true);
 
