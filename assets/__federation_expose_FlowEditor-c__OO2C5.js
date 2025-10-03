@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:12:54.765Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.1"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:15:10.703Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.2"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26554,17 +26554,17 @@ class TokenService {
         return urlWorkspaceId;
       }
 
-      // 2. 如果 URL 沒有，使用內部快取
-      if (this.workspaceId) {
-        return this.workspaceId;
-      }
+      // // 2. 如果 URL 沒有，使用內部快取
+      // if (this.workspaceId) {
+      //   return this.workspaceId;
+      // }
 
-      // 3. 最後嘗試從 localStorage 讀取
-      const storedWorkspaceId = localStorage.getItem('selected_workspace_id');
-      if (storedWorkspaceId) {
-        this.workspaceId = storedWorkspaceId;
-        return storedWorkspaceId;
-      }
+      // // 3. 最後嘗試從 localStorage 讀取
+      // const storedWorkspaceId = localStorage.getItem('selected_workspace_id');
+      // if (storedWorkspaceId) {
+      //   this.workspaceId = storedWorkspaceId;
+      //   return storedWorkspaceId;
+      // }
 
       return null;
     } catch (error) {
