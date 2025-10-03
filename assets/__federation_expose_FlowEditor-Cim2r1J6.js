@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "3c786e2b6369f840c019aff8961c62d0824e2948", "VITE_APP_BUILD_TIME": "2025-10-03T06:09:20.741Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.0"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:12:54.765Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.1"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26468,7 +26468,9 @@ class TokenService {
   constructor() {
     this.token = null;
     this.storageType = 'local'; // 默認使用 localStorage
+    this.workspaceId = null; // 快取 workspace ID
     this.initToken();
+    this.initWorkspaceFromUrl(); // 從 URL 初始化 workspace ID
   }
 
   initToken() {
@@ -26480,6 +26482,24 @@ class TokenService {
       }
     } catch (error) {
       console.error('初始化 token 失敗:', error);
+    }
+  }
+
+  /**
+   * 從 URL 參數初始化 workspace ID
+   */
+  initWorkspaceFromUrl() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const workspaceId = urlParams.get('workspace');
+
+      if (workspaceId) {
+        this.workspaceId = workspaceId;
+      } else {
+        console.log('URL 中未找到 workspace 參數');
+      }
+    } catch (error) {
+      console.error('從 URL 初始化 workspace ID 失敗:', error);
     }
   }
 
@@ -26505,6 +26525,9 @@ class TokenService {
   setWorkspaceId(workspaceId) {
     if (!workspaceId) return;
 
+    // 更新內部快取
+    this.workspaceId = workspaceId;
+
     try {
       localStorage.setItem('selected_workspace_id', workspaceId);
       console.log(`已設置工作區 ID: ${workspaceId}`);
@@ -26513,12 +26536,70 @@ class TokenService {
     }
   }
 
+  /**
+   * 取得工作區 ID
+   * 優先順序：URL 參數 > 內部快取 > localStorage
+   */
   getWorkspaceId() {
     try {
-      return localStorage.getItem('selected_workspace_id');
+      // 1. 首先嘗試從 URL 取得最新的值
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlWorkspaceId = urlParams.get('workspace');
+
+      if (urlWorkspaceId) {
+        // 更新內部快取
+        if (this.workspaceId !== urlWorkspaceId) {
+          this.workspaceId = urlWorkspaceId;
+        }
+        return urlWorkspaceId;
+      }
+
+      // 2. 如果 URL 沒有，使用內部快取
+      if (this.workspaceId) {
+        return this.workspaceId;
+      }
+
+      // 3. 最後嘗試從 localStorage 讀取
+      const storedWorkspaceId = localStorage.getItem('selected_workspace_id');
+      if (storedWorkspaceId) {
+        this.workspaceId = storedWorkspaceId;
+        return storedWorkspaceId;
+      }
+
+      return null;
     } catch (error) {
       console.error('讀取工作區 ID 失敗:', error);
       return null;
+    }
+  }
+
+  /**
+   * 檢查 URL 是否有 workspace 參數
+   */
+  hasWorkspaceInUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.has('workspace');
+  }
+
+  /**
+   * 更新 URL 中的 workspace 參數（不重新載入頁面）
+   */
+  updateWorkspaceInUrl(workspaceId) {
+    if (!workspaceId) return;
+
+    try {
+      const url = new URL(window.location);
+      url.searchParams.set('workspace', workspaceId);
+
+      // 使用 pushState 更新 URL 而不重新載入頁面
+      window.history.pushState({ workspace: workspaceId }, '', url.toString());
+
+      // 更新內部快取
+      this.workspaceId = workspaceId;
+
+      console.log(`已更新 URL 中的 workspace 參數: ${workspaceId}`);
+    } catch (error) {
+      console.error('更新 URL workspace 參數失敗:', error);
     }
   }
 
@@ -26593,6 +26674,39 @@ class TokenService {
     });
 
     return url.toString();
+  }
+
+  /**
+   * 監聽 URL 變化（用於 SPA 路由變化）
+   */
+  watchUrlChanges(callback) {
+    // 監聽 popstate 事件（瀏覽器前進/後退）
+    window.addEventListener('popstate', () => {
+      const newWorkspaceId = this.getWorkspaceId();
+      if (callback && typeof callback === 'function') {
+        callback(newWorkspaceId);
+      }
+    });
+
+    // 監聽 pushState 和 replaceState（程式化路由變化）
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
+
+    window.history.pushState = function (...args) {
+      originalPushState.apply(window.history, args);
+      const newWorkspaceId = tokenService.getWorkspaceId();
+      if (callback && typeof callback === 'function') {
+        callback(newWorkspaceId);
+      }
+    };
+
+    window.history.replaceState = function (...args) {
+      originalReplaceState.apply(window.history, args);
+      const newWorkspaceId = tokenService.getWorkspaceId();
+      if (callback && typeof callback === 'function') {
+        callback(newWorkspaceId);
+      }
+    };
   }
 }
 
