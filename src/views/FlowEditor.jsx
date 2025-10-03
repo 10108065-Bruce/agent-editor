@@ -123,7 +123,7 @@ const ReactFlowWithControls = forwardRef(
           nodesDraggable={!isLocked} // 鎖定時節點不可拖拽
           nodesConnectable={!isLocked} // 鎖定時節點不可連接
           elementsSelectable={!isLocked} // 鎖定時元素不可選擇
-        >
+          proOptions={{ hideAttribution: true }}>
           <MiniMap />
           <Controls style={controlsStyle} /> {/* 使用動態樣式控制位置 */}
           <Background />
