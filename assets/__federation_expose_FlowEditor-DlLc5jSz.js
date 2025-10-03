@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:15:10.703Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.2"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:18:11.729Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.3"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26541,11 +26541,12 @@ class TokenService {
    * 優先順序：URL 參數 > 內部快取 > localStorage
    */
   getWorkspaceId() {
+    console.log('getWorkspaceId');
     try {
       // 1. 首先嘗試從 URL 取得最新的值
       const urlParams = new URLSearchParams(window.location.search);
       const urlWorkspaceId = urlParams.get('workspace');
-
+      console.log('getWorkspaceId', urlWorkspaceId);
       if (urlWorkspaceId) {
         // 更新內部快取
         if (this.workspaceId !== urlWorkspaceId) {
