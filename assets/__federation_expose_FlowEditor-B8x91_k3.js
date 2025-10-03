@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "798d655d78ab3108f36d051cff8fbbab13ed5844", "VITE_APP_BUILD_TIME": "2025-10-02T08:11:59.208Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.28"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "3c786e2b6369f840c019aff8961c62d0824e2948", "VITE_APP_BUILD_TIME": "2025-10-03T06:07:48.796Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.53.29"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44453,6 +44453,7 @@ const ReactFlowWithControls = forwardRef(
         nodesDraggable: !isLocked,
         nodesConnectable: !isLocked,
         elementsSelectable: !isLocked,
+        proOptions: { hideAttribution: true },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(MiniMap$1, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Controls$1, { style: controlsStyle }),
