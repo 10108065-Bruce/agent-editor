@@ -4,7 +4,9 @@ class TokenService {
   constructor() {
     this.token = null;
     this.storageType = 'local'; // 默認使用 localStorage
+    this.workspaceId = null; // 快取 workspace ID
     this.initToken();
+    this.initWorkspaceFromUrl(); // 從 URL 初始化 workspace ID
   }
 
   initToken() {
@@ -16,6 +18,24 @@ class TokenService {
       }
     } catch (error) {
       console.error('初始化 token 失敗:', error);
+    }
+  }
+
+  /**
+   * 從 URL 參數初始化 workspace ID
+   */
+  initWorkspaceFromUrl() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const workspaceId = urlParams.get('workspace');
+
+      if (workspaceId) {
+        this.workspaceId = workspaceId;
+      } else {
+        console.log('URL 中未找到 workspace 參數');
+      }
+    } catch (error) {
+      console.error('從 URL 初始化 workspace ID 失敗:', error);
     }
   }
 
@@ -41,6 +61,9 @@ class TokenService {
   setWorkspaceId(workspaceId) {
     if (!workspaceId) return;
 
+    // 更新內部快取
+    this.workspaceId = workspaceId;
+
     try {
       localStorage.setItem('selected_workspace_id', workspaceId);
       console.log(`已設置工作區 ID: ${workspaceId}`);
@@ -49,9 +72,36 @@ class TokenService {
     }
   }
 
+  /**
+   * 取得工作區 ID
+   * 優先順序：URL 參數 > 內部快取 > localStorage
+   */
   getWorkspaceId() {
     try {
-      return localStorage.getItem('selected_workspace_id');
+      // 1. 首先嘗試從 URL的query 取得最新的值
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlWorkspaceId = urlParams.get('workspace');
+      if (urlWorkspaceId) {
+        // 更新內部快取
+        if (this.workspaceId !== urlWorkspaceId) {
+          this.workspaceId = urlWorkspaceId;
+        }
+        return urlWorkspaceId;
+      }
+
+      // 2. 如果 URL 沒有，使用內部快取
+      if (this.workspaceId) {
+        return this.workspaceId;
+      }
+
+      // // 3. 最後嘗試從 localStorage 讀取
+      // const storedWorkspaceId = localStorage.getItem('selected_workspace_id');
+      // if (storedWorkspaceId) {
+      //   this.workspaceId = storedWorkspaceId;
+      //   return storedWorkspaceId;
+      // }
+
+      return null;
     } catch (error) {
       console.error('讀取工作區 ID 失敗:', error);
       return null;

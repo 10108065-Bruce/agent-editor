@@ -4,7 +4,7 @@ import { iframeBridge } from '../services/IFrameBridgeService';
 import { tokenService } from '../services/TokenService';
 
 /**
- * 增強版 IFrameFlowEditor - 改善資料驗證和 API 調用時機
+ * 增強版 IFrameFlowEditor - 從 URL 取得 workspace ID
  */
 const IFrameFlowEditor = () => {
   // 狀態管理
@@ -23,10 +23,37 @@ const IFrameFlowEditor = () => {
     allRequiredDataReceived: false
   });
 
+  // // 初始化時從 URL 取得 workspace ID
+  // useEffect(() => {
+  //   const workspaceId = tokenService.getWorkspaceId();
+  //   if (workspaceId) {
+  //     setCurrentWorkspaceId(workspaceId);
+  //     console.log('IFrameFlowEditor: 從 URL 初始化 workspace ID:', workspaceId);
+  //   }
+
+  //   // 監聽 URL 變化
+  //   tokenService.watchUrlChanges((newWorkspaceId) => {
+  //     if (newWorkspaceId !== currentWorkspaceId) {
+  //       console.log(
+  //         'IFrameFlowEditor: 偵測到 workspace ID 變更:',
+  //         newWorkspaceId
+  //       );
+  //       setCurrentWorkspaceId(newWorkspaceId);
+
+  //       // 重新載入節點列表
+  //       if (flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
+  //         flowEditorRef.current.reloadNodeList().catch(() => {
+  //           setError('無法重新載入節點列表');
+  //         });
+  //       }
+  //     }
+  //   });
+  // }, []);
+
   // 驗證必要資料是否齊全
   const validateRequiredData = useCallback((flowId = null) => {
     const token = tokenService.getToken();
-    const workspaceId = tokenService.getWorkspaceId();
+    const workspaceId = tokenService.getWorkspaceId(); // 會自動從 URL 取得
 
     const validation = {
       hasToken: !!token,
@@ -64,26 +91,20 @@ const IFrameFlowEditor = () => {
       console.log('IFrameFlowEditor: 接收到 token 資料', {
         hasToken: !!data.token,
         storage: data.storage,
-        hasWorkspaceId: !!data.selectedWorkspaceId
+        hasWorkspaceId: !!data.selectedWorkspaceId,
+        urlWorkspaceId: tokenService.getWorkspaceId()
       });
 
       try {
-        // 設置 token 和 workspace ID
+        // 設置 token
         if (data.token) {
           tokenService.setToken(data.token, data.storage || 'local');
-        }
-
-        if (data.selectedWorkspaceId) {
-          tokenService.setWorkspaceId(
-            data.selectedWorkspaceId,
-            data.storage || 'local'
-          );
         }
 
         // 更新驗證狀態
         const validation = validateRequiredData();
 
-        // call to load nodelist if token and workspaceId are present
+        // 如果 token 和 workspaceId 都存在，載入節點列表
         if (
           window.self !== window.top &&
           validation.hasToken &&
@@ -356,7 +377,8 @@ const IFrameFlowEditor = () => {
         const requiredMethods = [
           'loadWorkflow',
           'saveWorkflow',
-          'exportFlowData'
+          'exportFlowData',
+          'reloadNodeList'
         ];
         const missingMethods = requiredMethods.filter(
           (method) => typeof flowEditorRef.current[method] !== 'function'
