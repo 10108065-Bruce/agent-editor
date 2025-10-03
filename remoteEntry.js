@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-DlLc5jSz.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CKYVgiwi.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15840,10 +15840,6 @@ const IFrameFlowEditor = () => {
       try {
         if (data.token) {
           tokenService.setToken(data.token, data.storage || "local");
-        }
-        if (data.selectedWorkspaceId && !tokenService.hasWorkspaceInUrl()) {
-          tokenService.updateWorkspaceInUrl(data.selectedWorkspaceId);
-          setCurrentWorkspaceId(data.selectedWorkspaceId);
         }
         const validation = validateRequiredData();
         if (window.self !== window.top && validation.hasToken && validation.hasWorkspaceId && flowEditorRef.current) {
