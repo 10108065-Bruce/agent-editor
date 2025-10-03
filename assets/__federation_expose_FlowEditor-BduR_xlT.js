@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:29:33.597Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.5"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:52:22.193Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.6"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26544,9 +26544,7 @@ class TokenService {
     try {
       // 1. 首先嘗試從 URL的query 取得最新的值
       const urlParams = new URLSearchParams(window.location.search);
-      console.log('getWorkspaceId', window.location.search);
       const urlWorkspaceId = urlParams.get('workspace');
-      console.log('getWorkspaceId', urlWorkspaceId);
       if (urlWorkspaceId) {
         // 更新內部快取
         if (this.workspaceId !== urlWorkspaceId) {
@@ -26571,36 +26569,6 @@ class TokenService {
     } catch (error) {
       console.error('讀取工作區 ID 失敗:', error);
       return null;
-    }
-  }
-
-  /**
-   * 檢查 URL 是否有 workspace 參數
-   */
-  hasWorkspaceInUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.has('workspace');
-  }
-
-  /**
-   * 更新 URL 中的 workspace 參數（不重新載入頁面）
-   */
-  updateWorkspaceInUrl(workspaceId) {
-    if (!workspaceId) return;
-
-    try {
-      const url = new URL(window.location);
-      url.searchParams.set('workspace', workspaceId);
-
-      // 使用 pushState 更新 URL 而不重新載入頁面
-      window.history.pushState({ workspace: workspaceId }, '', url.toString());
-
-      // 更新內部快取
-      this.workspaceId = workspaceId;
-
-      console.log(`已更新 URL 中的 workspace 參數: ${workspaceId}`);
-    } catch (error) {
-      console.error('更新 URL workspace 參數失敗:', error);
     }
   }
 
@@ -26675,39 +26643,6 @@ class TokenService {
     });
 
     return url.toString();
-  }
-
-  /**
-   * 監聽 URL 變化（用於 SPA 路由變化）
-   */
-  watchUrlChanges(callback) {
-    // 監聽 popstate 事件（瀏覽器前進/後退）
-    window.addEventListener('popstate', () => {
-      const newWorkspaceId = this.getWorkspaceId();
-      if (callback && typeof callback === 'function') {
-        callback(newWorkspaceId);
-      }
-    });
-
-    // 監聽 pushState 和 replaceState（程式化路由變化）
-    const originalPushState = window.history.pushState;
-    const originalReplaceState = window.history.replaceState;
-
-    window.history.pushState = function (...args) {
-      originalPushState.apply(window.history, args);
-      const newWorkspaceId = tokenService.getWorkspaceId();
-      if (callback && typeof callback === 'function') {
-        callback(newWorkspaceId);
-      }
-    };
-
-    window.history.replaceState = function (...args) {
-      originalReplaceState.apply(window.history, args);
-      const newWorkspaceId = tokenService.getWorkspaceId();
-      if (callback && typeof callback === 'function') {
-        callback(newWorkspaceId);
-      }
-    };
   }
 }
 

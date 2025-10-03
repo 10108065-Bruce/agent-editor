@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-CI4v1soM.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-BduR_xlT.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15796,7 +15796,6 @@ const IFrameFlowEditor = () => {
   const [flowTitle, setFlowTitle] = useState$1("");
   const [isLoading, setIsLoading] = useState$1(false);
   const [error, setError] = useState$1(null);
-  const [currentWorkspaceId, setCurrentWorkspaceId] = useState$1(null);
   const flowEditorRef = useRef(null);
   const eventsRegistered = useRef(false);
   const isLoadingRef = useRef(false);
