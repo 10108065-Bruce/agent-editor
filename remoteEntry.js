@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-PA9TiQKy.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-BZ7J8xvt.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16197,35 +16197,58 @@ const WorkflowContainer = () => {
         )
       ] }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "flex-1 overflow-hidden", children: activeView === "canvas" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-full", children: isInIframe ? (
-      // If we're in an iframe, use the IFrameFlowEditor which has
-      // the iframe communication functionality
-      /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, {})
-    ) : (
-      // Otherwise, use the regular FlowEditor for standalone mode
-      /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {})
-    ) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-full flex items-center justify-center bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { className: "flex-1 overflow-hidden relative", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "svg",
+        "div",
         {
-          className: "w-24 h-24 mx-auto text-gray-300 mb-4",
-          fill: "none",
-          viewBox: "0 0 24 24",
-          stroke: "currentColor",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
-            {
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              strokeWidth: 1.5,
-              d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            }
+          className: "w-full absolute inset-0",
+          style: {
+            height: "calc(100vh - 64px)",
+            display: activeView === "canvas" ? "block" : "none"
+          },
+          children: isInIframe ? (
+            // If we're in an iframe, use the IFrameFlowEditor which has
+            // the iframe communication functionality
+            /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, {})
+          ) : (
+            // Otherwise, use the regular FlowEditor for standalone mode
+            /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {})
           )
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium text-gray-600 mb-2", children: "沒有執行歷史記錄" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500 max-w-sm mx-auto", children: "當您執行工作流程後，執行歷史記錄將會顯示在這裡" })
-    ] }) }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "w-full absolute inset-0 flex items-center justify-center bg-gray-50",
+          style: {
+            height: "calc(100vh - 64px)",
+            display: activeView === "history" ? "flex" : "none"
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "svg",
+              {
+                className: "w-24 h-24 mx-auto text-gray-300 mb-4",
+                fill: "none",
+                viewBox: "0 0 24 24",
+                stroke: "currentColor",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "path",
+                  {
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    strokeWidth: 1.5,
+                    d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium text-gray-600 mb-2", children: "沒有執行歷史記錄" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500 max-w-sm mx-auto", children: "當您執行工作流程後，執行歷史記錄將會顯示在這裡" })
+          ] })
+        }
+      )
+    ] })
   ] });
 };
 
