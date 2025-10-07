@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "16664c4449be14bbed636859970b17f1fe7ec565", "VITE_APP_BUILD_TIME": "2025-10-03T08:52:22.193Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.6"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-07T03:05:14.011Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.7"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -45535,133 +45535,140 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       window.removeEventListener("requestSaveFlow", handleSaveRequest);
     };
   }, [flowMetadata.id, showSaveFlowDialog, isLocked]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      APAAssistant,
-      {
-        title: flowMetadata.title,
-        onTitleChange: handleTitleChange,
-        isLocked
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ReactFlowProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "w-full h-full",
-        ref: reactFlowWrapper,
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          ReactFlowWithControls,
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "relative w-full h-screen",
+      style: { height: "calc(100vh - 64px)" },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          APAAssistant,
           {
-            ref: reactFlowControlsRef,
-            nodes,
-            edges,
-            onNodesChange,
-            onEdgesChange,
-            onConnect,
-            onNodesDelete,
-            nodeTypes,
-            edgeTypes,
-            defaultViewport,
-            onSelectionChange: handleSelectionChange,
-            onInit: setReactFlowInstance,
-            onDrop,
-            onDragOver,
-            sidebarVisible,
+            title: flowMetadata.title,
+            onTitleChange: handleTitleChange,
             isLocked
           }
-        )
-      }
-    ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: `absolute top-0 left-0 h-full transition-transform duration-300 transform ${sidebarVisible ? "translate-x-0" : "-translate-x-full"}`,
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            NodeSidebar,
-            {
-              handleButtonClick: handleNodeTypeSelection,
-              onDragStart,
-              nodes,
-              nodeList,
-              isLoading: nodeListLoading,
-              onRetryLoad: loadNodeList,
-              isLocked
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              className: "absolute top-1/2 -right-6 bg-white border border-gray-300 rounded-r-md p-1 shadow-md",
-              onClick: toggleSidebar,
-              children: sidebarVisible ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "svg",
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ReactFlowProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "w-full h-full",
+            ref: reactFlowWrapper,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ReactFlowWithControls,
+              {
+                ref: reactFlowControlsRef,
+                nodes,
+                edges,
+                onNodesChange,
+                onEdgesChange,
+                onConnect,
+                onNodesDelete,
+                nodeTypes,
+                edgeTypes,
+                defaultViewport,
+                onSelectionChange: handleSelectionChange,
+                onInit: setReactFlowInstance,
+                onDrop,
+                onDragOver,
+                sidebarVisible,
+                isLocked
+              }
+            )
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: `absolute top-0 left-0 h-full transition-transform duration-300 transform ${sidebarVisible ? "translate-x-0" : "-translate-x-full"}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                NodeSidebar,
                 {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 18 9 12 15 6" })
+                  handleButtonClick: handleNodeTypeSelection,
+                  onDragStart,
+                  nodes,
+                  nodeList,
+                  isLoading: nodeListLoading,
+                  onRetryLoad: loadNodeList,
+                  isLocked
                 }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "svg",
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
                 {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "9 18 15 12 9 6" })
+                  className: "absolute top-1/2 -right-6 bg-white border border-gray-300 rounded-r-md p-1 shadow-md",
+                  onClick: toggleSidebar,
+                  children: sidebarVisible ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "svg",
+                    {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "16",
+                      height: "16",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      strokeLinecap: "round",
+                      strokeLinejoin: "round",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 18 9 12 15 6" })
+                    }
+                  ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "svg",
+                    {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "16",
+                      height: "16",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      strokeLinecap: "round",
+                      strokeLinejoin: "round",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "9 18 15 12 9 6" })
+                    }
+                  )
                 }
               )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AutoLayoutButton,
+            {
+              onLayout: handleAutoLayout,
+              disabled: isSaving || nodes.length === 0 || isLocked,
+              isLocked
             }
-          )
-        ]
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        AutoLayoutButton,
-        {
-          onLayout: handleAutoLayout,
-          disabled: isSaving || nodes.length === 0 || isLocked,
-          isLocked
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        SaveButton,
-        {
-          onSave: saveToServer,
-          title: flowMetadata.title,
-          flowId: flowMetadata.id,
-          disabled: isSaving,
-          isLocked
-        }
-      ) })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      SaveFlowDialog,
-      {
-        isOpen: showSaveDialog,
-        onClose: closeSaveDialog,
-        onSave: handleDialogSave,
-        title: "請先儲存您的 Flow"
-      }
-    )
-  ] });
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SaveButton,
+            {
+              onSave: saveToServer,
+              title: flowMetadata.title,
+              flowId: flowMetadata.id,
+              disabled: isSaving,
+              isLocked
+            }
+          ) })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          SaveFlowDialog,
+          {
+            isOpen: showSaveDialog,
+            onClose: closeSaveDialog,
+            onSave: handleDialogSave,
+            title: "請先儲存您的 Flow"
+          }
+        )
+      ]
+    }
+  );
 });
 FlowEditor.displayName = "FlowEditor";
 const debugConnections = (edges, message) => {

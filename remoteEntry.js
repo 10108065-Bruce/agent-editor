@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-BduR_xlT.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports } from './assets/__federation_expose_FlowEditor-PA9TiQKy.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15791,15 +15791,15 @@ var clientExports = requireClient();
 const ReactDOM = /*@__PURE__*/getDefaultExportFromCjs(clientExports);
 
 const React$2 = await importShared('react');
-const {useEffect: useEffect$1,useState: useState$1,useCallback,useRef} = React$2;
+const {useEffect: useEffect$1,useState: useState$1,useCallback,useRef: useRef$1} = React$2;
 const IFrameFlowEditor = () => {
   const [flowTitle, setFlowTitle] = useState$1("");
   const [isLoading, setIsLoading] = useState$1(false);
   const [error, setError] = useState$1(null);
-  const flowEditorRef = useRef(null);
-  const eventsRegistered = useRef(false);
-  const isLoadingRef = useRef(false);
-  const dataValidationRef = useRef({
+  const flowEditorRef = useRef$1(null);
+  const eventsRegistered = useRef$1(false);
+  const isLoadingRef = useRef$1(false);
+  const dataValidationRef = useRef$1({
     hasToken: false,
     hasWorkspaceId: false,
     hasFlowId: false,
@@ -16163,8 +16163,10 @@ const IFrameFlowEditor = () => {
 };
 
 const React$1 = await importShared('react');
-const {useEffect,useState} = React$1;
-function App() {
+const {useState,useRef,useEffect} = React$1;
+const WorkflowContainer = () => {
+  const [activeView, setActiveView] = useState("canvas");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isInIframe, setIsInIframe] = useState(false);
   useEffect(() => {
     try {
@@ -16173,14 +16175,63 @@ function App() {
       setIsInIframe(true);
     }
   }, []);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "App", children: isInIframe ? (
-    // If we're in an iframe, use the IFrameFlowEditor which has
-    // the iframe communication functionality
-    /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, {})
-  ) : (
-    // Otherwise, use the regular FlowEditor for standalone mode
-    /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {})
-  ) });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-white shadow-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex rounded-lg border border-gray-200 p-1 bg-gray-50", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setActiveView("canvas"),
+            className: `px-4 py-2 rounded-md font-medium text-sm transition-all ${activeView === "canvas" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
+            children: "Canvas"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setActiveView("history"),
+            className: `px-4 py-2 rounded-md font-medium text-sm transition-all ${activeView === "history" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
+            children: "Run History"
+          }
+        )
+      ] }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "flex-1 overflow-hidden", children: activeView === "canvas" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-full", children: isInIframe ? (
+      // If we're in an iframe, use the IFrameFlowEditor which has
+      // the iframe communication functionality
+      /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, {})
+    ) : (
+      // Otherwise, use the regular FlowEditor for standalone mode
+      /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {})
+    ) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-full flex items-center justify-center bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "svg",
+        {
+          className: "w-24 h-24 mx-auto text-gray-300 mb-4",
+          fill: "none",
+          viewBox: "0 0 24 24",
+          stroke: "currentColor",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              strokeWidth: 1.5,
+              d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            }
+          )
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium text-gray-600 mb-2", children: "沒有執行歷史記錄" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500 max-w-sm mx-auto", children: "當您執行工作流程後，執行歷史記錄將會顯示在這裡" })
+    ] }) }) })
+  ] });
+};
+
+await importShared('react');
+function App() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "App", children: /* @__PURE__ */ jsxRuntimeExports.jsx(WorkflowContainer, {}) });
 }
 
 const React = await importShared('react');
