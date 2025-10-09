@@ -1196,6 +1196,9 @@ video {
 .h-8 {
   height: 2rem;
 }
+.h-9 {
+  height: 2.25rem;
+}
 .h-\[450px\] {
   height: 450px;
 }
@@ -1517,6 +1520,9 @@ video {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.whitespace-normal {
+  white-space: normal;
 }
 .whitespace-nowrap {
   white-space: nowrap;
@@ -1877,6 +1883,10 @@ video {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
 }
+.px-10 {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -1904,6 +1914,10 @@ video {
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 .py-4 {
   padding-top: 1rem;
@@ -2093,6 +2107,10 @@ video {
 .text-purple-600 {
   --tw-text-opacity: 1;
   color: rgb(147 51 234 / var(--tw-text-opacity, 1));
+}
+.text-red-400 {
+  --tw-text-opacity: 1;
+  color: rgb(248 113 113 / var(--tw-text-opacity, 1));
 }
 .text-red-500 {
   --tw-text-opacity: 1;
