@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$C = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$2,memo: memo$p,useRef: useRef$n,useState: useState$x,useEffect: useEffect$t,forwardRef: forwardRef$2,useCallback: useCallback$o} = React$C;
+const {createContext,useContext,useMemo: useMemo$2,memo: memo$p,useRef: useRef$n,useState: useState$x,useEffect: useEffect$s,forwardRef: forwardRef$2,useCallback: useCallback$o} = React$C;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3920,7 +3920,7 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
   const edgeRef = useRef$n(null);
   const [edgeTextBbox, setEdgeTextBbox] = useState$x({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$p(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$t(() => {
+  useEffect$s(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$t(() => {
+  useEffect$s(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$t(() => {
+  useEffect$s(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$t(() => {
+  useEffect$s(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$t(() => {
+  useEffect$s(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5627,7 +5627,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
   const isPanScrolling = useRef$n(false);
   const panScrollTimeout = useRef$n();
   useResizeHandler(zoomPane);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -6279,7 +6279,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
   const dragStarted = useRef$n(false);
   const abortDrag = useRef$n(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$t(() => {
+    useEffect$s(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$t(() => {
+    useEffect$s(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$t(() => {
+    useEffect$s(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6640,7 +6640,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
   const nodeRef = useRef$n(null);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$t(() => {
+  useEffect$s(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -7205,7 +7205,7 @@ function Viewport({ children }) {
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
   const isInitialized = useRef$n(false);
-  useEffect$t(() => {
+  useEffect$s(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7698,7 +7698,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$B = await importShared('react');
-const {memo: memo$o,useRef: useRef$m,useEffect: useEffect$s} = React$B;
+const {memo: memo$o,useRef: useRef$m,useEffect: useEffect$r} = React$B;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7769,7 +7769,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
     const viewScaleRef = useRef$m(0);
     viewScaleRef.current = viewScale;
-    useEffect$s(() => {
+    useEffect$r(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7836,7 +7836,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$o(MiniMap);
 
 const React$A = await importShared('react');
-const {memo: memo$n,useState: useState$w,useEffect: useEffect$r} = React$A;
+const {memo: memo$n,useState: useState$w,useEffect: useEffect$q} = React$A;
 
 function PlusIcon() {
     return (React$A.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7876,7 +7876,7 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
     const [isVisible, setIsVisible] = useState$w(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$r(() => {
+    useEffect$q(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -22293,7 +22293,7 @@ const validateLayoutQuality = (nodes, direction) => {
   };
 };
 
-const {useRef: useRef$k,useCallback: useCallback$n,useEffect: useEffect$q} = await importShared('react');
+const {useRef: useRef$k,useCallback: useCallback$n,useEffect: useEffect$p} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -23956,7 +23956,7 @@ function useFlowNodes() {
     },
     [edges, safeSetEdges]
   );
-  useEffect$q(() => {
+  useEffect$p(() => {
     if (typeof window !== "undefined") {
       window.deleteEdgesByHandle = deleteEdgesByHandle;
       window.deleteEdgesBySourceHandle = deleteEdgesBySourceHandle;
@@ -24012,7 +24012,7 @@ function useFlowNodes() {
       return validEdges;
     });
   }, [nodes, setEdges]);
-  useEffect$q(() => {
+  useEffect$p(() => {
     if (isLoadingWorkflow.current) {
       return;
     }
@@ -24029,7 +24029,7 @@ function useFlowNodes() {
       isLoadingWorkflow.current = false;
     }, 2e3);
   }, []);
-  useEffect$q(() => {
+  useEffect$p(() => {
     if (typeof window !== "undefined") {
       window.startWorkflowLoading = startWorkflowLoading;
       window.finishWorkflowLoading = finishWorkflowLoading;
@@ -24041,7 +24041,7 @@ function useFlowNodes() {
       }
     };
   }, [startWorkflowLoading, finishWorkflowLoading]);
-  useEffect$q(() => {
+  useEffect$p(() => {
     if (typeof window !== "undefined") {
       window.cleanupInvalidEdges = cleanupInvalidEdges;
       window.currentEdges = edges;
@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-09T07:47:36.356Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.11"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-09T07:53:14.962Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.12"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24282,7 +24282,7 @@ const IconBase = ({ type, className = "" }) => {
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
 const React$y = await importShared('react');
-const {useState: useState$v,useEffect: useEffect$p} = React$y;
+const {useState: useState$v,useEffect: useEffect$o} = React$y;
 const NodeSidebar = ({
   handleButtonClick,
   onDragStart: customDragStart,
@@ -24635,7 +24635,7 @@ const lockIcon = "data:image/svg+xml,%3csvg%20width='33'%20height='32'%20viewBox
 const checkIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAMAAABiM0N1AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAB7UExURUdwTFbO4mXO5STO2E7P4EXP3j/P3knP4D3P3i/P2ybP2WPO5HHP5xnP12HO5EbP4DXO2yfO2RfO1WPP4z3O3SrO2i7O2iTO2R/O1zjO3ELO3kbO30rO4FXO4k7O4WDO5DPO21LO4VnO4xnO1lzP42fO5WTO5WvO5m/O5yR+6GYAAAAUdFJOUwDdYoKfSN8gEMxggN7fvDBwqe+QSDPPrAAAA3VJREFUWMPtmNmaqjAQhEUJAo7bDJuICkbR93/CEyBLdycoztyeeO3/VVcq3Qmz2f/1xxVu2Xwl1pxt/wCZ/3i3y+XStu39/rg/vnwW/gLDNtfr7daBBpJgPZ+PzfxDMavr6XTVpIskCdTza76cztmdGvG7noimx0OiphblnZumOZ2gphajJonaVWexBhSqrtWg53P13p1NVQlSM5Cs6u6KtHkjahkcq57UgRpHdQ8l6nV5gnMEJMsnqOkVaRmUJSJZPt2BT+OkjkNIrzWNBT1KJOg4gDrUS9LGzVkkSU96owmmwBnNZZJIEtBkSAYFNTEHKDhQkqXpZlX3ZXPiwwGRqrHqsKa5vWMHQrI1XTtSS04w3bm4rl0k5NPNtXf01AUDaJpPRpQgUUEZkPSR43jj9nW3XJrOFU7mxZsz3/Qnksowy7IxEsmT152wDdw7aDfLCKnsUaA6pannzHxYHUzAPu1AGdRUYp+agTRwZh40/Ace1zSVkkZ96num5PgoBTDdaQ8aNOnNK2V1lUIZDtg7IcmYtE1ThVKaDkpSaRxXnD7iIAVmmrPcJtl5UhwrTyZJcT6BpDlWfzLbtsgpKUqwT8cqkBzQx1V/WiGQJtV1Jv60jIxPJeIY0kWSAKjIkaa4C3sEq1McZx+nIKMpnhGS4rj7uAHFhSF1kqIQkzQHnBYwzY3ZrJAkhcIkwHF1ldZs/7aQpNRFUhw6g6+qaZpAhkUhUYpUG5LikK7SmCEFztq6oMVpTZoz0p9uNw8OWd6TCkd1kpOAcwduGAJ18WHL5rwY8UlyzGk5Usdh0w4FSIvqSRkk+a6JoJOJJlvEgSadTEnyR/t4h8JXEsY1qaB58lH7RZrEJfpEhvY3B5rSoTqBChjbv56cHr0cce6qLsU9MwGGSxK9RYTfHFen8oQ7HbmInVUbh/d0bkj4CNdwItDqHHe2SJNgMNWYOtSAZKrzXE8Qzrl772yftCbnDXkoruD0ANMZDO50I0+S6ENN5WbsQbMGpBxrshwXoGD86r9GW+fWpKsLXj1G1qi6cU1vOISU23kyPgXvHmwRMTzVJKQpev9yX3ATg5xMTu3TbsqjVpZX2P0pkxGP2MR3duxCmRO8m/7wX/aooToSqMPiw+8a8R5pUi2TzT5fIdtHsLj1Iv7NRxY1zVm8ECtm2z9A/q9h/QPpFUBEJ2Ee7AAAAABJRU5ErkJggg==";
 
 const React$x = await importShared('react');
-const {useState: useState$u,useEffect: useEffect$o} = React$x;
+const {useState: useState$u} = React$x;
 const APAAssistant = ({
   title,
   onTitleChange,
@@ -24661,7 +24661,6 @@ const APAAssistant = ({
         return;
       }
       setIsEditing(false);
-      setIsManualEdit(false);
     }
   };
   const handleTitleChange = (value) => {
