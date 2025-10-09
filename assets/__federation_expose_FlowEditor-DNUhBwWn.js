@@ -3861,7 +3861,7 @@ function zoom() {
 }
 
 const React$C = await importShared('react');
-const {createContext,useContext,useMemo: useMemo$2,memo: memo$p,useRef: useRef$n,useState: useState$x,useEffect: useEffect$s,forwardRef: forwardRef$2,useCallback: useCallback$o} = React$C;
+const {createContext,useContext,useMemo: useMemo$2,memo: memo$p,useRef: useRef$n,useState: useState$x,useEffect: useEffect$t,forwardRef: forwardRef$2,useCallback: useCallback$o} = React$C;
 const {createPortal} = await importShared('react-dom');
 
 const StoreContext = createContext(null);
@@ -3920,7 +3920,7 @@ const EdgeText = ({ x, y, label, labelStyle = {}, labelShowBg = true, labelBgSty
   const edgeRef = useRef$n(null);
   const [edgeTextBbox, setEdgeTextBbox] = useState$x({ x: 0, y: 0, width: 0, height: 0 });
   const edgeTextClasses = cc(["react-flow__edge-textwrapper", className]);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (edgeRef.current) {
       const textBbox = edgeRef.current.getBBox();
       setEdgeTextBbox({
@@ -4924,7 +4924,7 @@ function areEqual(a, b) {
 const SelectionListener = memo$p(({ onSelectionChange }) => {
   const store = useStoreApi();
   const { selectedNodes, selectedEdges } = useStore(selector$e, areEqual);
-  useEffect$s(() => {
+  useEffect$t(() => {
     const params = { nodes: selectedNodes, edges: selectedEdges };
     onSelectionChange?.(params);
     store.getState().onSelectionChange.forEach((fn) => fn(params));
@@ -4951,14 +4951,14 @@ const selector$d = (s) => ({
   reset: s.reset
 });
 function useStoreUpdater(value, setStoreState) {
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (typeof value !== "undefined") {
       setStoreState(value);
     }
   }, [value]);
 }
 function useDirectStoreUpdater(key, value, setState) {
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (typeof value !== "undefined") {
       setState({ [key]: value });
     }
@@ -4967,7 +4967,7 @@ function useDirectStoreUpdater(key, value, setState) {
 const StoreUpdater = ({ nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, elementsSelectable, connectionMode, snapGrid, snapToGrid, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDrag, onNodeDragStart, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection, nodeDragThreshold }) => {
   const { setNodes, setEdges, setDefaultNodesAndEdges, setMinZoom, setMaxZoom, setTranslateExtent, setNodeExtent, reset } = useStore(selector$d, shallow$1);
   const store = useStoreApi();
-  useEffect$s(() => {
+  useEffect$t(() => {
     const edgesWithDefaults = defaultEdges?.map((e) => ({ ...e, ...defaultEdgeOptions }));
     setDefaultNodesAndEdges(defaultNodes, edgesWithDefaults);
     return () => {
@@ -5069,7 +5069,7 @@ var useKeyPress = (keyCode = null, options = { actInsideInputWithModifier: true 
     }
     return [[], []];
   }, [keyCode]);
-  useEffect$s(() => {
+  useEffect$t(() => {
     const doc = typeof document !== "undefined" ? document : null;
     const target = options?.target || doc;
     if (keyCode !== null) {
@@ -5548,7 +5548,7 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
   const { deleteElements } = useReactFlow();
   const deleteKeyPressed = useKeyPress(deleteKeyCode, deleteKeyOptions);
   const multiSelectionKeyPressed = useKeyPress(multiSelectionKeyCode);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (deleteKeyPressed) {
       const { edges, getNodes } = store.getState();
       const selectedNodes = getNodes().filter((node) => node.selected);
@@ -5557,13 +5557,13 @@ var useGlobalKeyHandler = ({ deleteKeyCode, multiSelectionKeyCode }) => {
       store.setState({ nodesSelectionActive: false });
     }
   }, [deleteKeyPressed]);
-  useEffect$s(() => {
+  useEffect$t(() => {
     store.setState({ multiSelectionActive: multiSelectionKeyPressed });
   }, [multiSelectionKeyPressed]);
 };
 function useResizeHandler(rendererNode) {
   const store = useStoreApi();
-  useEffect$s(() => {
+  useEffect$t(() => {
     let resizeObserver;
     const updateDimensions = () => {
       if (!rendererNode.current) {
@@ -5627,7 +5627,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
   const isPanScrolling = useRef$n(false);
   const panScrollTimeout = useRef$n();
   useResizeHandler(zoomPane);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (zoomPane.current) {
       const bbox = zoomPane.current.getBoundingClientRect();
       const d3ZoomInstance = zoom().scaleExtent([minZoom, maxZoom]).translateExtent(translateExtent);
@@ -5650,7 +5650,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, []);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (d3Selection && d3Zoom) {
       if (panOnScroll && !zoomActivationKeyPressed && !userSelectionActive) {
         d3Selection.on("wheel.zoom", (event) => {
@@ -5725,7 +5725,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
     onMove,
     onMoveEnd
   ]);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (d3Zoom) {
       d3Zoom.on("start", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5744,7 +5744,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, onMoveStart]);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (d3Zoom) {
       if (userSelectionActive && !isZoomingOrPanning.current) {
         d3Zoom.on("zoom", null);
@@ -5762,7 +5762,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       }
     }
   }, [userSelectionActive, d3Zoom, onMove, panOnDrag, onPaneContextMenu]);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (d3Zoom) {
       d3Zoom.on("end", (event) => {
         if (!event.sourceEvent || event.sourceEvent.internal) {
@@ -5787,7 +5787,7 @@ const ZoomPane = ({ onMove, onMoveStart, onMoveEnd, onPaneContextMenu, zoomOnScr
       });
     }
   }, [d3Zoom, panOnScroll, panOnDrag, onMoveEnd, onPaneContextMenu]);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (d3Zoom) {
       d3Zoom.filter((event) => {
         const zoomScroll = zoomActivationKeyPressed || zoomOnScroll;
@@ -6279,7 +6279,7 @@ function useDrag({ nodeRef, disabled = false, noDragClassName, handleSelector, n
   const dragStarted = useRef$n(false);
   const abortDrag = useRef$n(false);
   const getPointerPosition = useGetPointerPosition();
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (nodeRef?.current) {
       const selection = select(nodeRef.current);
       const updateNodes = ({ x, y }) => {
@@ -6545,7 +6545,7 @@ var wrapNode = (NodeComponent) => {
         });
       }
     };
-    useEffect$s(() => {
+    useEffect$t(() => {
       return () => {
         if (prevNodeRef.current) {
           resizeObserver?.unobserve(prevNodeRef.current);
@@ -6553,7 +6553,7 @@ var wrapNode = (NodeComponent) => {
         }
       };
     }, []);
-    useEffect$s(() => {
+    useEffect$t(() => {
       if (nodeRef.current && !hidden) {
         const currNode = nodeRef.current;
         if (!initialized || !hasHandleBounds || prevNodeRef.current !== currNode) {
@@ -6565,7 +6565,7 @@ var wrapNode = (NodeComponent) => {
         }
       }
     }, [hidden, initialized, hasHandleBounds]);
-    useEffect$s(() => {
+    useEffect$t(() => {
       const typeChanged = prevType.current !== type;
       const sourcePosChanged = prevSourcePosition.current !== sourcePosition;
       const targetPosChanged = prevTargetPosition.current !== targetPosition;
@@ -6640,7 +6640,7 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
   const { width, height, x: left, y: top, transformString, userSelectionActive } = useStore(selector$7, shallow$1);
   const updatePositions = useUpdateNodePositions();
   const nodeRef = useRef$n(null);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (!disableKeyboardA11y) {
       nodeRef.current?.focus({
         preventScroll: true
@@ -6762,7 +6762,7 @@ const NodeRenderer = (props) => {
     resizeObserverRef.current = observer;
     return observer;
   }, []);
-  useEffect$s(() => {
+  useEffect$t(() => {
     return () => {
       resizeObserverRef?.current?.disconnect();
     };
@@ -7205,7 +7205,7 @@ function Viewport({ children }) {
 function useOnInitHandler(onInit) {
   const rfInstance = useReactFlow();
   const isInitialized = useRef$n(false);
-  useEffect$s(() => {
+  useEffect$t(() => {
     if (!isInitialized.current && rfInstance.viewportInitialized && onInit) {
       setTimeout(() => onInit(rfInstance), 1);
       isInitialized.current = true;
@@ -7698,7 +7698,7 @@ const useNodesState = createUseItemsState(applyNodeChanges);
 const useEdgesState = createUseItemsState(applyEdgeChanges);
 
 const React$B = await importShared('react');
-const {memo: memo$o,useRef: useRef$m,useEffect: useEffect$r} = React$B;
+const {memo: memo$o,useRef: useRef$m,useEffect: useEffect$s} = React$B;
 
 const MiniMapNode = ({ id, x, y, width, height, style, color, strokeColor, strokeWidth, className, borderRadius, shapeRendering, onClick, selected, }) => {
     const { background, backgroundColor } = style || {};
@@ -7769,7 +7769,7 @@ nodeComponent, maskColor = 'rgb(240, 240, 240, 0.6)', maskStrokeColor = 'none', 
     const labelledBy = `${ARIA_LABEL_KEY}-${rfId}`;
     const viewScaleRef = useRef$m(0);
     viewScaleRef.current = viewScale;
-    useEffect$r(() => {
+    useEffect$s(() => {
         if (svg.current) {
             const selection = select(svg.current);
             const zoomHandler = (event) => {
@@ -7836,7 +7836,7 @@ MiniMap.displayName = 'MiniMap';
 var MiniMap$1 = memo$o(MiniMap);
 
 const React$A = await importShared('react');
-const {memo: memo$n,useState: useState$w,useEffect: useEffect$q} = React$A;
+const {memo: memo$n,useState: useState$w,useEffect: useEffect$r} = React$A;
 
 function PlusIcon() {
     return (React$A.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 32 32" },
@@ -7876,7 +7876,7 @@ const Controls = ({ style, showZoom = true, showFitView = true, showInteractive 
     const [isVisible, setIsVisible] = useState$w(false);
     const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector$1, shallow$1);
     const { zoomIn, zoomOut, fitView } = useReactFlow();
-    useEffect$q(() => {
+    useEffect$r(() => {
         setIsVisible(true);
     }, []);
     if (!isVisible) {
@@ -22293,7 +22293,7 @@ const validateLayoutQuality = (nodes, direction) => {
   };
 };
 
-const {useRef: useRef$k,useCallback: useCallback$n,useEffect: useEffect$p} = await importShared('react');
+const {useRef: useRef$k,useCallback: useCallback$n,useEffect: useEffect$q} = await importShared('react');
 function useFlowNodes() {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -23956,7 +23956,7 @@ function useFlowNodes() {
     },
     [edges, safeSetEdges]
   );
-  useEffect$p(() => {
+  useEffect$q(() => {
     if (typeof window !== "undefined") {
       window.deleteEdgesByHandle = deleteEdgesByHandle;
       window.deleteEdgesBySourceHandle = deleteEdgesBySourceHandle;
@@ -24012,7 +24012,7 @@ function useFlowNodes() {
       return validEdges;
     });
   }, [nodes, setEdges]);
-  useEffect$p(() => {
+  useEffect$q(() => {
     if (isLoadingWorkflow.current) {
       return;
     }
@@ -24029,7 +24029,7 @@ function useFlowNodes() {
       isLoadingWorkflow.current = false;
     }, 2e3);
   }, []);
-  useEffect$p(() => {
+  useEffect$q(() => {
     if (typeof window !== "undefined") {
       window.startWorkflowLoading = startWorkflowLoading;
       window.finishWorkflowLoading = finishWorkflowLoading;
@@ -24041,7 +24041,7 @@ function useFlowNodes() {
       }
     };
   }, [startWorkflowLoading, finishWorkflowLoading]);
-  useEffect$p(() => {
+  useEffect$q(() => {
     if (typeof window !== "undefined") {
       window.cleanupInvalidEdges = cleanupInvalidEdges;
       window.currentEdges = edges;
@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-09T06:13:48.748Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.9"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-09T07:47:36.356Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.11"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24282,7 +24282,7 @@ const IconBase = ({ type, className = "" }) => {
 const dragIcon = "data:image/svg+xml,%3csvg%20width='12'%20height='20'%20viewBox='0%200%2012%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M2%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%204a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2020a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM10%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204zM2%2012a2%202%200%201%200%200-4%202%202%200%200%200%200%204z'%20fill='%23000'/%3e%3c/svg%3e";
 
 const React$y = await importShared('react');
-const {useState: useState$v,useEffect: useEffect$o} = React$y;
+const {useState: useState$v,useEffect: useEffect$p} = React$y;
 const NodeSidebar = ({
   handleButtonClick,
   onDragStart: customDragStart,
@@ -24628,27 +24628,40 @@ const NodeItem = ({
   );
 };
 
-const workflowIcon = "data:image/svg+xml,%3csvg%20width='18'%20height='18'%20viewBox='0%200%2018%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20clip-path='url(%23nujox52vfa)'%20fill='%233F3F46'%3e%3cpath%20d='M5.143%205.143H0V0h5.143v5.143zM1.286%203.857h2.572V1.286H1.286v2.57zM18%2018h-5.143v-5.143H18V18zm-3.857-1.286h2.572v-2.572h-2.572v2.572zM11.571%2016.072H3.857a3.857%203.857%200%200%201%200-7.715v1.286a2.572%202.572%200%201%200%200%205.143h7.714v1.286zM14.143%209.643V8.357a2.572%202.572%200%200%200%200-5.143H6.43V1.928h7.714a3.857%203.857%200%200%201%200%207.715z'/%3e%3cpath%20d='M10.926%205.786H7.07L5.143%208.358l3.856%203.857%203.857-3.857-1.93-2.572z'/%3e%3c/g%3e%3cdefs%3e%3cclipPath%20id='nujox52vfa'%3e%3cpath%20fill='%23fff'%20d='M0%200h18v18H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
-
 const pencilIcon = "data:image/svg+xml,%3csvg%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill='%23fff'%20fill-opacity='.01'%20d='M0%200h16v16H0z'/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M12.644%201.223a.533.533%200%200%200-.754%200L3.962%209.15c-.096.096-.173.21-.226.334l-1.56%203.64a.533.533%200%200%200%20.7.7l3.64-1.56c.124-.053.238-.13.334-.226l7.927-7.928a.533.533%200%200%200%200-.754l-2.133-2.133zM4.716%209.904l7.55-7.55%201.38%201.38-7.55%207.55-1.596.683-.467-.468.683-1.595z'%20fill='%231C2024'/%3e%3c/svg%3e";
 
 const lockIcon = "data:image/svg+xml,%3csvg%20width='33'%20height='32'%20viewBox='0%200%2033%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M16.333%202.667a8%208%200%200%201%208%208v.435c0%20.526-.053%201.04-.15%201.538a6.626%206.626%200%200%201%203.966%204.576c.184.76.184%201.683.184%203.526%200%201.843%200%202.765-.184%203.525a6.638%206.638%200%200%201-4.926%204.884c-.767.183-1.697.183-3.557.183H13c-1.859%200-2.788%200-3.555-.183a6.639%206.639%200%200%201-4.927-4.884c-.184-.76-.184-1.682-.184-3.525s0-2.765.184-3.526a6.627%206.627%200%200%201%203.965-4.576%208.038%208.038%200%200%201-.149-1.538v-.436a8%208%200%200%201%208-8zm0%2015.431c-1.104%200-2%20.888-2%201.983v1.322c0%201.095.896%201.982%202%201.982%201.105%200%202-.888%202-1.982V20.08a1.992%201.992%200%200%200-2-1.983zm0-12.764A5.334%205.334%200%200%200%2011%2010.666v.436c0%20.364.036.719.106%201.062.507-.014%201.12-.013%201.894-.013h6.667c.774%200%201.387%200%201.894.013.07-.344.106-.698.106-1.062v-.436a5.333%205.333%200%200%200-5.333-5.333z'%20fill='%23FFAA1E'/%3e%3c/svg%3e";
 
+const checkIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAMAAABiM0N1AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAB7UExURUdwTFbO4mXO5STO2E7P4EXP3j/P3knP4D3P3i/P2ybP2WPO5HHP5xnP12HO5EbP4DXO2yfO2RfO1WPP4z3O3SrO2i7O2iTO2R/O1zjO3ELO3kbO30rO4FXO4k7O4WDO5DPO21LO4VnO4xnO1lzP42fO5WTO5WvO5m/O5yR+6GYAAAAUdFJOUwDdYoKfSN8gEMxggN7fvDBwqe+QSDPPrAAAA3VJREFUWMPtmNmaqjAQhEUJAo7bDJuICkbR93/CEyBLdycoztyeeO3/VVcq3Qmz2f/1xxVu2Xwl1pxt/wCZ/3i3y+XStu39/rg/vnwW/gLDNtfr7daBBpJgPZ+PzfxDMavr6XTVpIskCdTza76cztmdGvG7noimx0OiphblnZumOZ2gphajJonaVWexBhSqrtWg53P13p1NVQlSM5Cs6u6KtHkjahkcq57UgRpHdQ8l6nV5gnMEJMsnqOkVaRmUJSJZPt2BT+OkjkNIrzWNBT1KJOg4gDrUS9LGzVkkSU96owmmwBnNZZJIEtBkSAYFNTEHKDhQkqXpZlX3ZXPiwwGRqrHqsKa5vWMHQrI1XTtSS04w3bm4rl0k5NPNtXf01AUDaJpPRpQgUUEZkPSR43jj9nW3XJrOFU7mxZsz3/Qnksowy7IxEsmT152wDdw7aDfLCKnsUaA6pannzHxYHUzAPu1AGdRUYp+agTRwZh40/Ace1zSVkkZ96num5PgoBTDdaQ8aNOnNK2V1lUIZDtg7IcmYtE1ThVKaDkpSaRxXnD7iIAVmmrPcJtl5UhwrTyZJcT6BpDlWfzLbtsgpKUqwT8cqkBzQx1V/WiGQJtV1Jv60jIxPJeIY0kWSAKjIkaa4C3sEq1McZx+nIKMpnhGS4rj7uAHFhSF1kqIQkzQHnBYwzY3ZrJAkhcIkwHF1ldZs/7aQpNRFUhw6g6+qaZpAhkUhUYpUG5LikK7SmCEFztq6oMVpTZoz0p9uNw8OWd6TCkd1kpOAcwduGAJ18WHL5rwY8UlyzGk5Usdh0w4FSIvqSRkk+a6JoJOJJlvEgSadTEnyR/t4h8JXEsY1qaB58lH7RZrEJfpEhvY3B5rSoTqBChjbv56cHr0cce6qLsU9MwGGSxK9RYTfHFen8oQ7HbmInVUbh/d0bkj4CNdwItDqHHe2SJNgMNWYOtSAZKrzXE8Qzrl772yftCbnDXkoruD0ANMZDO50I0+S6ENN5WbsQbMGpBxrshwXoGD86r9GW+fWpKsLXj1G1qi6cU1vOISU23kyPgXvHmwRMTzVJKQpev9yX3ATg5xMTu3TbsqjVpZX2P0pkxGP2MR3duxCmRO8m/7wX/aooToSqMPiw+8a8R5pUi2TzT5fIdtHsLj1Iv7NRxY1zVm8ECtm2z9A/q9h/QPpFUBEJ2Ee7AAAAABJRU5ErkJggg==";
+
 const React$x = await importShared('react');
-const {useState: useState$u} = React$x;
-const APAAssistant = ({ title, onTitleChange, isLocked = false }) => {
-  const [isEditing, setIsEditing] = useState$u(true);
+const {useState: useState$u,useEffect: useEffect$o} = React$x;
+const APAAssistant = ({
+  title,
+  onTitleChange,
+  isLocked = false,
+  isNew = false
+}) => {
+  const [isEditing, setIsEditing] = useState$u(false);
   const handleEditClick = () => {
     if (isLocked) return;
     setIsEditing(true);
   };
-  const handleSave = () => {
+  const handleConfirm = () => {
     if (isLocked) return;
+    if (!title || title.trim() === "") {
+      return;
+    }
+    setIsEditing(false);
   };
   const handleKeyDown = (e) => {
     if (isLocked) return;
     if (e.key === "Enter") {
+      if (!title || title.trim() === "") {
+        return;
+      }
       setIsEditing(false);
+      setIsManualEdit(false);
     }
   };
   const handleTitleChange = (value) => {
@@ -24657,95 +24670,121 @@ const APAAssistant = ({ title, onTitleChange, isLocked = false }) => {
       onTitleChange(value);
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-4 left-1/2 transform -translate-x-1/2 z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-full shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      className: `bg-white border border-gray-200 rounded-full px-4 py-2 flex items-center w-64 md:w-80 ${isLocked ? "bg-gray-50" : ""}`,
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+  const showBorderAndShadow = isEditing;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-3 left-[80px] transform", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: `transition-all duration-300 ease-in-out ${showBorderAndShadow && !isLocked ? "shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]" : ""}`,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
-            className: "flex items-center justify-center",
-            style: {
-              width: "16px",
-              height: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "img",
-              {
-                src: workflowIcon,
-                width: 16,
-                height: 16,
-                className: "max-w-full max-h-full object-contain",
-                style: {
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  objectFit: "contain"
-                }
-              }
-            )
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative min-w-0", children: isEditing && !isLocked ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "text",
-            className: "w-full outline-none text-gray-800 bg-transparent",
-            value: title || "",
-            onChange: (e) => handleTitleChange(e.target.value),
-            onBlur: handleSave,
-            onKeyDown: handleKeyDown,
-            autoFocus: true
-          }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: `w-full text-gray-800 truncate ${isLocked ? "text-gray-600 cursor-not-allowed" : "cursor-pointer hover:text-gray-600"}`,
-            onClick: handleEditClick,
-            title: isLocked ? "工作流已鎖定，無法編輯標題" : "點擊編輯標題",
-            children: title || ""
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: `ml-2 flex-shrink-0 ${isLocked ? "text-orange-500" : "text-gray-500"}`,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "flex items-center justify-center",
-                style: {
-                  width: "16px",
-                  height: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                },
-                title: isLocked ? "工作流已鎖定" : "編輯標題",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "img",
-                  {
-                    src: isLocked ? lockIcon : pencilIcon,
-                    width: 16,
-                    height: 16,
-                    className: "max-w-full max-h-full object-contain",
-                    style: {
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                      objectFit: "contain"
+            className: `transition-all duration-300 ease-in-out ${showBorderAndShadow && !isLocked || isNew ? "border border-gray-200 bg-white" : ""} px-4 py-2 flex items-center w-64 md:w-80 ${isLocked ? "bg-gray-50" : ""}`,
+            children: [
+              !isEditing && !isNew && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-110",
+                  style: {
+                    width: "16px",
+                    height: "16px"
+                  },
+                  onClick: handleEditClick,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "img",
+                    {
+                      src: isLocked ? lockIcon : pencilIcon,
+                      width: 16,
+                      height: 16,
+                      className: "max-w-full max-h-full object-contain transition-opacity duration-200",
+                      alt: isLocked ? "locked" : "edit"
                     }
-                  }
-                )
-              }
-            )
+                  )
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative min-w-0", children: isEditing && !isLocked || isNew ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "w-full outline-none text-gray-800 bg-transparent animate-fadeIn",
+                  value: title || "",
+                  onChange: (e) => handleTitleChange(e.target.value),
+                  onKeyDown: handleKeyDown,
+                  placeholder: "輸入標題...",
+                  autoFocus: true
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: `w-full text-gray-800 truncate transition-colors duration-200 ${isLocked ? "text-gray-600 cursor-not-allowed" : "cursor-pointer hover:text-gray-600"}`,
+                  onClick: handleEditClick,
+                  title: isLocked ? "工作流已鎖定，無法編輯標題" : "點擊編輯標題",
+                  children: title || ""
+                }
+              ) }),
+              isEditing && !isLocked && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "ml-2 flex-shrink-0 text-cyan-500 cursor-pointer animate-scaleIn",
+                  onClick: handleConfirm,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
+                    {
+                      className: "flex items-center justify-center transition-transform duration-200 hover:scale-110",
+                      style: {
+                        width: "16px",
+                        height: "16px"
+                      },
+                      title: "確認",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "img",
+                        {
+                          src: checkIcon,
+                          width: 16,
+                          height: 16,
+                          className: "max-w-full max-h-full object-contain",
+                          alt: "confirm"
+                        }
+                      )
+                    }
+                  )
+                }
+              )
+            ]
           }
         )
-      ]
-    }
-  ) }) });
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("style", { jsx: true, children: `
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .animate-scaleIn {
+          animation: scaleIn 0.3s ease-in-out;
+        }
+      ` })
+  ] });
 };
 
 const React$w = await importShared('react');
@@ -45648,12 +45687,14 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       className: "relative w-full h-screen",
       style: { height: "calc(100vh - 64px)" },
       children: [
+        flowMetadata.id,
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           APAAssistant,
           {
             title: flowMetadata.title,
             onTitleChange: handleTitleChange,
-            isLocked
+            isLocked,
+            isNew: !flowMetadata.id || flowMetadata.id === "new"
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
