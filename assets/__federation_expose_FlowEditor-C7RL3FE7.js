@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:08:41.021Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.14"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:19:17.649Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.15"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26513,6 +26513,7 @@ class TokenService {
     this.token = null;
     this.storageType = 'local'; // 默認使用 localStorage
     this.workspaceId = null; // 快取 workspace ID
+    this.workFlowId = null; // 快取 workflow ID
     this.initToken();
     this.initWorkspaceFromUrl(); // 從 URL 初始化 workspace ID
   }
@@ -26536,6 +26537,15 @@ class TokenService {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const workspaceId = urlParams.get('workspace');
+      // 如果 URL 中有 workFlowId path參數，則使用它
+      const workFlowId = window.location.pathname
+        .split('/')
+        .find((segment) => /^[0-9a-fA-F-]{36}$/.test(segment));
+      if (workFlowId) {
+        this.workFlowId = workFlowId;
+        console.log(`已從 URL 路徑參數載入 workspace ID: ${workFlowId}`);
+        return;
+      }
 
       if (workspaceId) {
         this.workspaceId = workspaceId;
@@ -26564,6 +26574,53 @@ class TokenService {
 
   getToken() {
     return this.token;
+  }
+
+  setWorkFlowId(workFlowId) {
+    if (!workFlowId) return;
+
+    // 更新內部快取
+    this.workFlowId = workFlowId;
+
+    try {
+      localStorage.setItem('selected_workflow_id', workFlowId);
+      console.log(`已設置工作流 ID: ${workFlowId}`);
+    } catch (error) {
+      console.error('保存工作流 ID 失敗:', error);
+    }
+  }
+
+  getWorkFlowId() {
+    try {
+      // 1. 首先嘗試從 URL的path 取得最新的值
+      const workFlowId = window.location.pathname
+        .split('/')
+        .find((segment) => /^[0-9a-fA-F-]{36}$/.test(segment));
+      if (workFlowId) {
+        // 更新內部快取
+        if (this.workFlowId !== workFlowId) {
+          this.workFlowId = workFlowId;
+        }
+        return workFlowId;
+      }
+
+      // 2. 如果 URL 沒有，使用內部快取
+      if (this.workFlowId) {
+        return this.workFlowId;
+      }
+
+      // // 3. 最後嘗試從 localStorage 讀取
+      // const storedWorkFlowId = localStorage.getItem('selected_workflow_id');
+      // if (storedWorkFlowId) {
+      //   this.workFlowId = storedWorkFlowId;
+      //   return storedWorkFlowId;
+      // }
+
+      return null;
+    } catch (error) {
+      console.error('讀取工作流 ID 失敗:', error);
+      return null;
+    }
   }
 
   setWorkspaceId(workspaceId) {

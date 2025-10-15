@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DoYr9V3k.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-C7RL3FE7.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16245,14 +16245,14 @@ const RunHistoryView = ({ onClose }) => {
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
-  const workspaceId = tokenService.getWorkspaceId();
+  const workFlowId = tokenService.getWorkFlowId();
   useEffect$1(() => {
     loadHistory();
   }, []);
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const data = await runHistoryAPIService.getRunHistory(workspaceId);
+      const data = await runHistoryAPIService.getRunHistory(workFlowId);
       setHistoryData(data);
       if (data && data.data && data.data.length > 0 && data.data[0].workflow_snapshot) {
         setCurrentSnapshot(data.data[0].workflow_snapshot);
