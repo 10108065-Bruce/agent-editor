@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:19:17.649Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.15"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:23:18.156Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.16"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26538,6 +26538,7 @@ class TokenService {
       const urlParams = new URLSearchParams(window.location.search);
       const workspaceId = urlParams.get('workspace');
       // 如果 URL 中有 workFlowId path參數，則使用它
+      console.log('window.location.pathname:', window.location.pathname);
       const workFlowId = window.location.pathname
         .split('/')
         .find((segment) => /^[0-9a-fA-F-]{36}$/.test(segment));
