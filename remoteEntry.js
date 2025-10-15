@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-hDUJm8UQ.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-CR36u8mQ.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16784,7 +16784,7 @@ const WorkflowContainer = () => {
       setIsInIframe(true);
     }
   }, []);
-  const isNew = tokenService.getWorkFlowId() === "new" || !tokenService.getWorkFlowId();
+  const isNewFlow = tokenService.getWorkFlowId() === "new" || !tokenService.getWorkFlowId();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -16808,9 +16808,10 @@ const WorkflowContainer = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
-            disabled: isNew,
-            onClick: () => setActiveView("history"),
-            className: `px-10 py-1 rounded-md font-medium text-sm transition-all ${activeView === "history" ? "bg-[#00ced1] text-white shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
+            onClick: () => !isNewFlow && setActiveView("history"),
+            disabled: isNewFlow,
+            className: `px-10 py-1 rounded-md font-medium text-sm transition-all ${isNewFlow ? "text-gray-400 cursor-not-allowed opacity-50 bg-gray-100" : activeView === "history" ? "bg-[#00ced1] text-white shadow-sm cursor-pointer" : "text-gray-600 hover:text-gray-800 cursor-pointer hover:bg-gray-50"}`,
+            style: { cursor: isNewFlow ? "not-allowed" : "pointer" },
             children: "Run History"
           }
         )
