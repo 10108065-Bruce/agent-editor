@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T07:15:58.898Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.39"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T07:17:59.122Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.40"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -46278,7 +46278,7 @@ const FlowEditor = forwardRef(
               title: flowMetadata.title,
               onTitleChange: handleTitleChange,
               isLocked: isLocked || runhistory,
-              isNew: !flowMetadata.id || flowMetadata.id === "new"
+              isNew: (!flowMetadata.id || flowMetadata.id === "new") && !runhistory
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
