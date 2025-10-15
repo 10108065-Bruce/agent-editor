@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BKjQm7uv.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-xEXQKNKM.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16163,6 +16163,7 @@ const IFrameFlowEditor = () => {
 };
 
 // import mockRunHistory from './runhistory_mock.js';
+
 /**
  * 執行歷史 API 服務
  */
@@ -16186,9 +16187,10 @@ class RunHistoryAPIService {
   /**
    * 獲取執行歷史列表
    * @param {string} workflowId - 工作流 ID
+   * @param {number} page - 頁碼（預設為 1）
    * @returns {Promise<Object>} 執行歷史數據
    */
-  async getRunHistory(workflowId) {
+  async getRunHistory(workflowId, page = 1) {
     try {
       // TODO: 實際 API 呼叫
       const options = tokenService.createAuthHeader({
@@ -16199,7 +16201,7 @@ class RunHistoryAPIService {
       });
 
       const url = tokenService.createUrlWithWorkspace(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/${workflowId}/execution-logs`
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/${workflowId}/execution-logs?page=${page}`
       );
 
       const response = await fetch(url, options);
@@ -16245,6 +16247,11 @@ const RunHistoryView = ({}) => {
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
   const [hasLoaded, setHasLoaded] = useState$1(false);
+  const [currentPage, setCurrentPage] = useState$1(1);
+  const [hasMore, setHasMore] = useState$1(false);
+  const [loadingMore, setLoadingMore] = useState$1(false);
+  const [allRuns, setAllRuns] = useState$1([]);
+  const scrollContainerRef = useRef(null);
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
   const workFlowId = tokenService.getWorkFlowId();
   useEffect$1(() => {
@@ -16253,21 +16260,54 @@ const RunHistoryView = ({}) => {
       setHasLoaded(true);
     }
   }, [hasLoaded]);
-  const loadHistory = async () => {
-    try {
-      setLoading(true);
-      console.log("開始載入執行歷史");
-      const data = await runHistoryAPIService.getRunHistory(workFlowId);
-      setHistoryData(data);
-      if (data && data.data && data.data.length > 0 && data.data[0].workflow_snapshot) {
-        setCurrentSnapshot(data.data[0].workflow_snapshot);
+  useEffect$1(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      if (loadingMore || !hasMore || activeTab !== "previous") return;
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        loadMoreHistory();
       }
-      console.log("載入執行歷史完成");
+    };
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [loadingMore, hasMore, activeTab]);
+  const loadHistory = async (page = 1) => {
+    try {
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      console.log(`開始載入執行歷史，第 ${page} 頁`);
+      const data = await runHistoryAPIService.getRunHistory(workFlowId, page);
+      if (page === 1) {
+        setHistoryData(data);
+        setAllRuns(data.data || []);
+        setHasMore(data.has_more || false);
+        if (data && data.data && data.data.length > 0 && data.data[0].workflow_snapshot) {
+          setCurrentSnapshot(data.data[0].workflow_snapshot);
+        }
+      } else {
+        setAllRuns((prevRuns) => [...prevRuns, ...data.data || []]);
+        setHasMore(data.has_more || false);
+      }
+      setCurrentPage(page);
+      console.log(`載入執行歷史完成，第 ${page} 頁`);
     } catch (error) {
-      console.error("載入執行歷史失敗:", error);
+      console.error(`載入執行歷史失敗，第 ${page} 頁:`, error);
     } finally {
-      setLoading(false);
+      if (page === 1) {
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
     }
+  };
+  const loadMoreHistory = async () => {
+    if (!hasMore || loadingMore) return;
+    await loadHistory(currentPage + 1);
   };
   const toggleNodeExpand = (nodeId, runId) => {
     const key = `${runId}_${nodeId}`;
@@ -16287,18 +16327,16 @@ const RunHistoryView = ({}) => {
   };
   const getStatusIcon = (status) => {
     if (status === "skipped") {
-      {
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "img",
-          {
-            src: skipIcon,
-            alt: "skipped",
-            width: 20,
-            height: 20,
-            className: "max-w-full max-h-full object-contain"
-          }
-        );
-      }
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "img",
+        {
+          src: skipIcon,
+          alt: "skipped",
+          width: 20,
+          height: 20,
+          className: "max-w-full max-h-full object-contain"
+        }
+      );
     } else if (status === "success" || status === true) {
       return /* @__PURE__ */ jsxRuntimeExports.jsx(
         "img",
@@ -16391,8 +16429,8 @@ const RunHistoryView = ({}) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行歷史中..." })
     ] }) }) });
   }
-  const currentRun = historyData.data[0] ? formatRunData(historyData.data[0]) : null;
-  const previousRuns = historyData.data.map((run) => formatRunData(run));
+  const currentRun = historyData && historyData.data && historyData.data[0] ? formatRunData(historyData.data[0]) : null;
+  const previousRuns = allRuns.map((run) => formatRunData(run));
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-16 left-0 right-0 bottom-0 flex z-50", children: [
     showFlowEditor && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
@@ -16426,227 +16464,241 @@ const RunHistoryView = ({}) => {
               }
             )
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-auto p-2", children: [
-            activeTab === "current" && currentRun && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg border border-gray-200 p-4 mb-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-4", children: [
-                  getStatusIcon(currentRun.status),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg font-semibold text-gray-800", children: currentRun.start_time ? currentRun.start_time.replace("T", " ").replace("Z", "") : "時間未記錄" })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "Start Time:" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: currentRun.start_time ? currentRun.start_time.replace("T", " ").replace("Z", "") : "N/A" })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "End Time:" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: currentRun.end_time ? currentRun.end_time.replace("T", " ").replace("Z", "") : "N/A" })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "Duration:" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-medium text-gray-800", children: [
-                      currentRun.total_duration_ms || 0,
-                      " ms"
-                    ] })
-                  ] })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                currentRun.flowCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "div",
-                    {
-                      onClick: () => toggleNodeExpand("flow_check", currentRun.request_id),
-                      className: `flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${currentRun.flowCheck.status === "failed" ? "bg-red-50 hover:bg-red-100" : "bg-gray-50 hover:bg-gray-100"}`,
-                      children: [
-                        getStatusIcon(currentRun.flowCheck.is_valid),
-                        getNodeIcon("flow_check"),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-bold text-gray-800 text-sm", children: currentRun.flowCheck.display_name }),
-                          currentRun.flowCheck.error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-600 mt-1 truncate", children: currentRun.flowCheck.error.message })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "svg",
-                          {
-                            className: `w-4 h-4 mr-2 text-gray-400 transition-transform flex-shrink-0 ${expandedNodeId === `${currentRun.request_id}_flow_check` ? "rotate-180" : ""}`,
-                            fill: "none",
-                            viewBox: "0 0 24 24",
-                            stroke: "currentColor",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "path",
-                              {
-                                strokeLinecap: "round",
-                                strokeLinejoin: "round",
-                                strokeWidth: 2,
-                                d: "M19 9l-7 7-7-7"
-                              }
-                            )
-                          }
-                        )
-                      ]
-                    }
-                  ),
-                  expandedNodeId === `${currentRun.request_id}_flow_check` && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 p-3 bg-gray-100 rounded-lg border border-gray-200 text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
-                    "狀態:",
-                    " ",
-                    currentRun.flowCheck.is_valid ? "Valid" : "Invalid"
-                  ] }) }) }) })
-                ] }, "flow_check"),
-                currentRun.nodes.map((node) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "div",
-                    {
-                      onClick: () => toggleNodeExpand(node.node_id, currentRun.request_id),
-                      className: `flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${node.status === "failed" ? "bg-red-50 hover:bg-red-100" : "bg-gray-50 hover:bg-gray-100"}`,
-                      children: [
-                        getStatusIcon(node.status),
-                        getNodeIcon(node.operator),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-bold text-gray-800 text-sm", children: node.display_name }),
-                          node.error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-600 mt-1 truncate", children: node.error })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 border border-gray-300 rounded-full px-2 py-1", children: getNodeDisplayId(node.node_id) }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "button",
-                          {
-                            onClick: (e) => {
-                              e.stopPropagation();
-                              handleViewNodeIO(
-                                node,
-                                node.display_name,
-                                node.node_id
-                              );
-                            },
-                            className: "text-[#00ced1] hover:text-[#00b8bb] transition-colors p-1",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "img",
-                              {
-                                src: detailIcon,
-                                className: "w-5 h-5",
-                                alt: "view io"
-                              }
-                            )
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "svg",
-                          {
-                            className: `w-4 h-4 mr-2 text-gray-400 transition-transform flex-shrink-0 ${expandedNodeId === `${currentRun.request_id}_${node.node_id}` ? "rotate-180" : ""}`,
-                            fill: "none",
-                            viewBox: "0 0 24 24",
-                            stroke: "currentColor",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "path",
-                              {
-                                strokeLinecap: "round",
-                                strokeLinejoin: "round",
-                                strokeWidth: 2,
-                                d: "M19 9l-7 7-7-7"
-                              }
-                            )
-                          }
-                        )
-                      ]
-                    }
-                  ),
-                  expandedNodeId === `${currentRun.request_id}_${node.node_id}` && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      className: `mt-2 p-3 rounded-lg border text-sm ${node.status === "failed" ? "bg-red-100 border-red-200" : "bg-gray-100 border-gray-200"}`,
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
-                          "節點 ID: ",
-                          node.node_id
-                        ] }) }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
-                          "狀態: ",
-                          node.status
-                        ] }) }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
-                          "執行時間: ",
-                          node.duration_ms,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "flex-1 overflow-auto p-2",
+              ref: scrollContainerRef,
+              children: [
+                activeTab === "current" && currentRun && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg border border-gray-200 p-4 mb-4", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-4", children: [
+                      getStatusIcon(currentRun.status),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg font-semibold text-gray-800", children: currentRun.start_time ? currentRun.start_time.replace("T", " ").replace("Z", "") : "時間未記錄" })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "Start Time:" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: currentRun.start_time ? currentRun.start_time.replace("T", " ").replace("Z", "") : "N/A" })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "End Time:" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: currentRun.end_time ? currentRun.end_time.replace("T", " ").replace("Z", "") : "N/A" })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "Duration:" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-medium text-gray-800", children: [
+                          currentRun.total_duration_ms || 0,
                           " ms"
-                        ] }) }),
-                        node.error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-medium text-gray-700 mb-1", children: "錯誤訊息:" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-700", children: node.error })
                         ] })
                       ] })
-                    }
-                  )
-                ] }, node.node_id))
-              ] })
-            ] }),
-            activeTab === "previous" && previousRuns && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: previousRuns.map((run) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                className: "bg-white rounded-lg border border-gray-200 overflow-hidden",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      onClick: () => toggleRunExpand(run.request_id),
-                      className: "p-4 cursor-pointer hover:bg-gray-50 transition-colors",
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 flex-1", children: [
-                          getStatusIcon(run.status),
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-800", children: run.start_time ? run.start_time.replace("T", " ").replace("Z", "") : "時間未記錄" }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-gray-500", children: [
-                              "Duration: ",
-                              run.total_duration_ms || 0,
-                              " ms"
-                            ] })
-                          ] })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "svg",
-                          {
-                            className: `w-5 h-5 text-gray-400 transition-transform ${expandedRunId === run.request_id ? "rotate-180" : ""}`,
-                            fill: "none",
-                            viewBox: "0 0 24 24",
-                            stroke: "currentColor",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "path",
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                    currentRun.flowCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "div",
+                        {
+                          onClick: () => toggleNodeExpand("flow_check", currentRun.request_id),
+                          className: `flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${currentRun.flowCheck.status === "failed" ? "bg-red-50 hover:bg-red-100" : "bg-gray-50 hover:bg-gray-100"}`,
+                          children: [
+                            getStatusIcon(currentRun.flowCheck.is_valid),
+                            getNodeIcon("flow_check"),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-bold text-gray-800 text-sm", children: currentRun.flowCheck.display_name }),
+                              currentRun.flowCheck.error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-600 mt-1 truncate", children: currentRun.flowCheck.error.message })
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "svg",
                               {
-                                strokeLinecap: "round",
-                                strokeLinejoin: "round",
-                                strokeWidth: 2,
-                                d: "M19 9l-7 7-7-7"
+                                className: `w-4 h-4 mr-2 text-gray-400 transition-transform flex-shrink-0 ${expandedNodeId === `${currentRun.request_id}_flow_check` ? "rotate-180" : ""}`,
+                                fill: "none",
+                                viewBox: "0 0 24 24",
+                                stroke: "currentColor",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                  "path",
+                                  {
+                                    strokeLinecap: "round",
+                                    strokeLinejoin: "round",
+                                    strokeWidth: 2,
+                                    d: "M19 9l-7 7-7-7"
+                                  }
+                                )
                               }
                             )
-                          }
-                        )
-                      ] })
-                    }
-                  ),
-                  expandedRunId === run.request_id && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200 bg-gray-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                    run.flowCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 p-2 bg-white rounded", children: [
-                      getStatusIcon(run.flowCheck.is_valid),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: run.flowCheck.display_name }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-500", children: run.flowCheck.is_valid ? "Valid" : "Invalid" })
-                    ] }),
-                    run.nodes && run.nodes.map((node) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "div",
-                      {
-                        className: "flex items-center gap-3 p-2 bg-white rounded",
-                        children: [
-                          getStatusIcon(node.status),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: node.display_name || "Unknown Node" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
-                            node.duration_ms || 0,
-                            " ms"
+                          ]
+                        }
+                      ),
+                      expandedNodeId === `${currentRun.request_id}_flow_check` && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 p-3 bg-gray-100 rounded-lg border border-gray-200 text-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
+                        "狀態:",
+                        " ",
+                        currentRun.flowCheck.is_valid ? "Valid" : "Invalid"
+                      ] }) }) }) })
+                    ] }, "flow_check"),
+                    currentRun.nodes.map((node) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "div",
+                        {
+                          onClick: () => toggleNodeExpand(node.node_id, currentRun.request_id),
+                          className: `flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${node.status === "failed" ? "bg-red-50 hover:bg-red-100" : "bg-gray-50 hover:bg-gray-100"}`,
+                          children: [
+                            getStatusIcon(node.status),
+                            getNodeIcon(node.operator),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-bold text-gray-800 text-sm", children: node.display_name }),
+                              node.error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-600 mt-1 truncate", children: node.error })
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 border border-gray-300 rounded-full px-2 py-1", children: getNodeDisplayId(node.node_id) }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  handleViewNodeIO(
+                                    node,
+                                    node.display_name,
+                                    node.node_id
+                                  );
+                                },
+                                className: "text-[#00ced1] hover:text-[#00b8bb] transition-colors p-1",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                  "img",
+                                  {
+                                    src: detailIcon,
+                                    className: "w-5 h-5",
+                                    alt: "view io"
+                                  }
+                                )
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "svg",
+                              {
+                                className: `w-4 h-4 mr-2 text-gray-400 transition-transform flex-shrink-0 ${expandedNodeId === `${currentRun.request_id}_${node.node_id}` ? "rotate-180" : ""}`,
+                                fill: "none",
+                                viewBox: "0 0 24 24",
+                                stroke: "currentColor",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                  "path",
+                                  {
+                                    strokeLinecap: "round",
+                                    strokeLinejoin: "round",
+                                    strokeWidth: 2,
+                                    d: "M19 9l-7 7-7-7"
+                                  }
+                                )
+                              }
+                            )
+                          ]
+                        }
+                      ),
+                      expandedNodeId === `${currentRun.request_id}_${node.node_id}` && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          className: `mt-2 p-3 rounded-lg border text-sm ${node.status === "failed" ? "bg-red-100 border-red-200" : "bg-gray-100 border-gray-200"}`,
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
+                              "節點 ID: ",
+                              node.node_id
+                            ] }) }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
+                              "狀態: ",
+                              node.status
+                            ] }) }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
+                              "執行時間: ",
+                              node.duration_ms,
+                              " ms"
+                            ] }) }),
+                            node.error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-medium text-gray-700 mb-1", children: "錯誤訊息:" }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-700", children: node.error })
+                            ] })
                           ] })
-                        ]
-                      },
-                      node.node_id
-                    ))
-                  ] }) })
-                ]
-              },
-              run.request_id
-            )) })
-          ] })
+                        }
+                      )
+                    ] }, node.node_id))
+                  ] })
+                ] }),
+                activeTab === "previous" && previousRuns && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                  previousRuns.map((run) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "bg-white rounded-lg border border-gray-200 overflow-hidden",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "div",
+                          {
+                            onClick: () => toggleRunExpand(run.request_id),
+                            className: "p-4 cursor-pointer hover:bg-gray-50 transition-colors",
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 flex-1", children: [
+                                getStatusIcon(run.status),
+                                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-800", children: run.start_time ? run.start_time.replace("T", " ").replace("Z", "") : "時間未記錄" }),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-gray-500", children: [
+                                    "Duration: ",
+                                    run.total_duration_ms || 0,
+                                    " ms"
+                                  ] })
+                                ] })
+                              ] }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "svg",
+                                {
+                                  className: `w-5 h-5 text-gray-400 transition-transform ${expandedRunId === run.request_id ? "rotate-180" : ""}`,
+                                  fill: "none",
+                                  viewBox: "0 0 24 24",
+                                  stroke: "currentColor",
+                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                    "path",
+                                    {
+                                      strokeLinecap: "round",
+                                      strokeLinejoin: "round",
+                                      strokeWidth: 2,
+                                      d: "M19 9l-7 7-7-7"
+                                    }
+                                  )
+                                }
+                              )
+                            ] })
+                          }
+                        ),
+                        expandedRunId === run.request_id && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200 bg-gray-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                          run.flowCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 p-2 bg-white rounded", children: [
+                            getStatusIcon(run.flowCheck.is_valid),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: run.flowCheck.display_name }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-500", children: run.flowCheck.is_valid ? "Valid" : "Invalid" })
+                          ] }),
+                          run.nodes && run.nodes.map((node) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            "div",
+                            {
+                              className: "flex items-center gap-3 p-2 bg-white rounded",
+                              children: [
+                                getStatusIcon(node.status),
+                                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: node.display_name || "Unknown Node" }),
+                                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
+                                  node.duration_ms || 0,
+                                  " ms"
+                                ] })
+                              ]
+                            },
+                            node.node_id
+                          ))
+                        ] }) })
+                      ]
+                    },
+                    run.request_id
+                  )),
+                  loadingMore && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-[#00ced1] mx-auto mb-2" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-sm", children: "載入更多執行歷史..." })
+                  ] }),
+                  !hasMore && previousRuns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm", children: "已載入所有執行歷史" }) })
+                ] })
+              ]
+            }
+          )
         ]
       }
     ),
