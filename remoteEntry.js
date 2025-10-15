@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DN9KQXU9.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-2wqdXPDo.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15792,42 +15792,52 @@ const ReactDOM = /*@__PURE__*/getDefaultExportFromCjs(clientExports);
 
 const React$3 = await importShared('react');
 const {useEffect: useEffect$2,useState: useState$2,useCallback,useRef: useRef$1} = React$3;
-const IFrameFlowEditor = () => {
+const IFrameFlowEditor = ({ onFlowStatusChange }) => {
   const [flowTitle, setFlowTitle] = useState$2("");
   const [isLoading, setIsLoading] = useState$2(false);
   const [error, setError] = useState$2(null);
   const flowEditorRef = useRef$1(null);
   const eventsRegistered = useRef$1(false);
   const isLoadingRef = useRef$1(false);
+  const lastFlowStatus = useRef$1(null);
   const dataValidationRef = useRef$1({
     hasToken: false,
     hasWorkspaceId: false,
     hasFlowId: false,
     allRequiredDataReceived: false
   });
-  const validateRequiredData = useCallback((flowId = null) => {
-    const token = tokenService.getToken();
-    const workspaceId = tokenService.getWorkspaceId();
-    const validation = {
-      hasToken: !!token,
-      hasWorkspaceId: !!workspaceId,
-      hasFlowId: !!flowId,
-      allRequiredDataReceived: false
-    };
-    if (flowId === "new" || !flowId) {
-      validation.allRequiredDataReceived = validation.hasToken && validation.hasWorkspaceId;
-    } else {
-      validation.allRequiredDataReceived = validation.hasToken && validation.hasWorkspaceId && validation.hasFlowId;
-    }
-    dataValidationRef.current = validation;
-    console.log("IFrameFlowEditor: 資料驗證結果", {
-      ...validation,
-      token: token ? `${token.substring(0, 10)}...` : "null",
-      workspaceId,
-      flowId: flowId || "null"
-    });
-    return validation;
-  }, []);
+  const validateRequiredData = useCallback(
+    (flowId = null) => {
+      const token = tokenService.getToken();
+      const workspaceId = tokenService.getWorkspaceId();
+      const validation = {
+        hasToken: !!token,
+        hasWorkspaceId: !!workspaceId,
+        hasFlowId: !!flowId,
+        allRequiredDataReceived: false
+      };
+      const isNew = flowId === "new" || !flowId;
+      if (isNew) {
+        validation.allRequiredDataReceived = validation.hasToken && validation.hasWorkspaceId;
+      } else {
+        validation.allRequiredDataReceived = validation.hasToken && validation.hasWorkspaceId && validation.hasFlowId;
+      }
+      dataValidationRef.current = validation;
+      if (onFlowStatusChange && lastFlowStatus.current !== isNew) {
+        console.log("IFrameFlowEditor: 流程狀態變更 - isNewFlow:", isNew);
+        onFlowStatusChange(isNew);
+        lastFlowStatus.current = isNew;
+      }
+      console.log("IFrameFlowEditor: 資料驗證結果", {
+        ...validation,
+        token: token ? `${token.substring(0, 10)}...` : "null",
+        workspaceId,
+        flowId: flowId || "null"
+      });
+      return validation;
+    },
+    [onFlowStatusChange]
+  );
   const handleTokenReceived = useCallback(
     (data) => {
       console.log("IFrameFlowEditor: 接收到 token 資料", {
@@ -16779,14 +16789,15 @@ const WorkflowContainer = () => {
   const [isInIframe, setIsInIframe] = useState(false);
   const [isNewFlow, setIsNewFlow] = useState(false);
   useEffect(() => {
-    setIsNewFlow(tokenService.getWorkFlowId() === "new");
-    console.log("isNewFlow", tokenService.getWorkFlowId());
     try {
       setIsInIframe(window.self !== window.top);
     } catch {
       setIsInIframe(true);
     }
   }, []);
+  const handleFlowStatusChange = (isNew) => {
+    setIsNewFlow(isNew);
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -16831,7 +16842,7 @@ const WorkflowContainer = () => {
           children: isInIframe ? (
             // If we're in an iframe, use the IFrameFlowEditor which has
             // the iframe communication functionality
-            /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, {})
+            /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, { onFlowStatusChange: handleFlowStatusChange })
           ) : (
             // Otherwise, use the regular FlowEditor for standalone mode
             /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {})
