@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BKz1UhUq.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DXImcp2v.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15891,7 +15891,6 @@ const IFrameFlowEditor = () => {
         if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
           console.log("IFrameFlowEditor: 開始載入工作流");
           if (typeof flowEditorRef.current.loadWorkflow === "function") {
-            tokenService.setWorkFlowId(workflowId);
             const result = await flowEditorRef.current.loadWorkflow(workflowId);
             console.log("IFrameFlowEditor: 載入工作流結果:", result);
             iframeBridge.sendToParent({
