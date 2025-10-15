@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DMEW-R7z.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-Bu-6sMG6.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15791,15 +15791,15 @@ var clientExports = requireClient();
 const ReactDOM = /*@__PURE__*/getDefaultExportFromCjs(clientExports);
 
 const React$3 = await importShared('react');
-const {useEffect: useEffect$2,useState: useState$2,useCallback,useRef} = React$3;
+const {useEffect: useEffect$2,useState: useState$2,useCallback,useRef: useRef$1} = React$3;
 const IFrameFlowEditor = () => {
   const [flowTitle, setFlowTitle] = useState$2("");
   const [isLoading, setIsLoading] = useState$2(false);
   const [error, setError] = useState$2(null);
-  const flowEditorRef = useRef(null);
-  const eventsRegistered = useRef(false);
-  const isLoadingRef = useRef(false);
-  const dataValidationRef = useRef({
+  const flowEditorRef = useRef$1(null);
+  const eventsRegistered = useRef$1(false);
+  const isLoadingRef = useRef$1(false);
+  const dataValidationRef = useRef$1({
     hasToken: false,
     hasWorkspaceId: false,
     hasFlowId: false,
@@ -16232,7 +16232,7 @@ const failedIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgBAMAAA
 const detailIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTP////////////////////////b+/v///////////////////wDO0d75+YLn6V7g4yDU15/t7jbY27ny8hDR1HDj5RW9wREAAAAMdFJOUwA6IJC3EHD531ufz6arFycAAAN0SURBVGjezVrblqsgDBVFQKWggv7/px5sx06rSQTFNWe/dVXZ5h4CRRGFmomKd0rqAKk4rwSri1yom0ppAF3blBlWF1wT4Bc5GLn6ynH+45WOgjpHIaSOxgkKpnQSEilqrpPRJpi7kfoEooWoK30SVVTwlUqfhopQE5P6AhQ7VL++iANDCH0Z4ub1SYZGZwGqJaYzgeX3z29I0FvrbOsHb4UirtIZUcUZ2PgRh/cyxdB7A5h5ehzAjbgZtkpqt0/MjxgMBq2ktIKkW16fegLu9YiP89WtgpaXnT+wpLFBiRMmg6IEsGF9G+EsZghakhEpYyOAiVw/PDnhT37YGRBgiHT4MSjpOOsBFhhjQyqI4I+ssIuxoKHoujYT2lwdadujmB8N2QGBk1/qnA9iodQwgcTjy34ZoUfFq2ENrRI4bP1P3ycJBKihN4E2CKSOJOCghn4JIv0UJ3jqqLmToIHyaE6CpfB0dxKEWKv1nQTBCAwnMBbBGE/AoGZuJRjQQPPRBAJqJtZIxmvyGE1QFfxeFXGKIK7khAaG+Lsr1EWCox6vkPcSyELfS6D/YwI/u6W4WXOewBGtov+NQkdSEEY2UIi96q/ssQq6NzLhpkB7/frapaF7TLMPxc0/qXrCTbsTNlh0N6+im/5BNhYnItl+Z6Pnb48SVMkE+861x1+oqHSNICznNpbE+0dBFRwEw341i9qZpZdMA/TTBu2x6wLwU5pg3Gno1WNLOFtD+2NJdtdghQlqA+O5hTfIA+52iQRL41WDju7wJAf9iclcgs0vvUcLCpxkDOl7gyDAbctkiURh96HR4wMFQEfPfXhv0Eyx2bouEhtUQwWYjp7p3m029/M7br++Vw6IAJyYdG0y/k+5eWv8M30ah+33G2wb+1qmxwieg5JhdeRxwgqCOho2yu24yH+NYobZjraf8KL2OzOqk6e99rPYDQ5kUJfmpWb99ODPUoIMDTXOiYG3wbGsf7u1JcY5l0emAMNmasdzM7TbqanMwPBRdPYnCZfn1oGhJ+fX1wezhhzM3j9aLkqZbf3yb8b79x9Q3H/Ecv8h0f3HXOnHsJtoY39/1Hj/YeliiFNCyIQz67JNX5+nXbRIFUKxIhUpFFKcupcQS6HE6WsoTczFDVZcQUlzcJHhDk3ZtB2omarJeENnuf7D1+s/XcL1n3/3il3jSrcc5wAAAABJRU5ErkJggg==";
 
 const React$2 = await importShared('react');
-const {useState: useState$1,useEffect: useEffect$1} = React$2;
+const {useState: useState$1,useEffect: useEffect$1,useRef} = React$2;
 const RunHistoryView = ({ onClose }) => {
   const [historyData, setHistoryData] = useState$1(null);
   const [loading, setLoading] = useState$1(true);
@@ -16242,10 +16242,16 @@ const RunHistoryView = ({ onClose }) => {
   const [ioDialogOpen, setIoDialogOpen] = useState$1(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
+  const hasLoadedRef = useRef(false);
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
   const workFlowId = tokenService.getWorkFlowId();
   useEffect$1(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
     loadHistory();
+    return () => {
+      hasLoadedRef.current = false;
+    };
   }, []);
   const loadHistory = async () => {
     try {
