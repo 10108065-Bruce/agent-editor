@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BecAS5oz.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BKz1UhUq.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16741,6 +16741,7 @@ const {useState,useEffect} = React$1;
 const WorkflowContainer = () => {
   const [activeView, setActiveView] = useState("canvas");
   const [isInIframe, setIsInIframe] = useState(false);
+  const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
   useEffect(() => {
     try {
       setIsInIframe(window.self !== window.top);
@@ -16748,6 +16749,11 @@ const WorkflowContainer = () => {
       setIsInIframe(true);
     }
   }, []);
+  useEffect(() => {
+    if (activeView === "history" && !hasLoadedHistory) {
+      setHasLoadedHistory(true);
+    }
+  }, [activeView, hasLoadedHistory]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -16805,7 +16811,7 @@ const WorkflowContainer = () => {
             height: "calc(100vh - 64px)",
             display: activeView === "history" ? "block" : "none"
           },
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(RunHistoryView, {})
+          children: hasLoadedHistory && /* @__PURE__ */ jsxRuntimeExports.jsx(RunHistoryView, {})
         }
       )
     ] })
