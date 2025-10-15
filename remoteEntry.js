@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DtE6beIw.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BYFX-T2P.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16777,7 +16777,6 @@ const {useState,useEffect} = React$1;
 const WorkflowContainer = () => {
   const [activeView, setActiveView] = useState("canvas");
   const [isInIframe, setIsInIframe] = useState(false);
-  const [isNewFlow, setIsNewFlow] = useState(false);
   useEffect(() => {
     try {
       setIsInIframe(window.self !== window.top);
@@ -16785,27 +16784,6 @@ const WorkflowContainer = () => {
       setIsInIframe(true);
     }
   }, []);
-  useEffect(() => {
-    const checkIsNewFlow = () => {
-      const currentPath = window.location.pathname;
-      const isNew = currentPath.includes("/new");
-      setIsNewFlow(isNew);
-      if (isNew && activeView === "history") {
-        setActiveView("canvas");
-      }
-    };
-    checkIsNewFlow();
-    const handlePopState = () => checkIsNewFlow();
-    window.addEventListener("popstate", handlePopState);
-    const observer = new MutationObserver(() => {
-      checkIsNewFlow();
-    });
-    observer.observe(document, { subtree: true, childList: true });
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-      observer.disconnect();
-    };
-  }, [activeView]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -16829,7 +16807,6 @@ const WorkflowContainer = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
-            disabled: isNewFlow,
             onClick: () => setActiveView("history"),
             className: `px-10 py-1 rounded-md font-medium text-sm transition-all ${activeView === "history" ? "bg-[#00ced1] text-white shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
             children: "Run History"
