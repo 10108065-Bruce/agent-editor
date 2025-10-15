@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-ZF8eF_UA.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-Bbrpt-xH.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16242,30 +16242,20 @@ const RunHistoryView = ({}) => {
   const [ioDialogOpen, setIoDialogOpen] = useState$1(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
-  const abortControllerRef = useRef(null);
+  const [hasLoaded, setHasLoaded] = useState$1(false);
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
   const workFlowId = tokenService.getWorkFlowId();
   useEffect$1(() => {
-    loadHistory();
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-  const loadHistory = async () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+    if (!hasLoaded) {
+      loadHistory();
+      setHasLoaded(true);
     }
-    abortControllerRef.current = new AbortController();
+  }, [hasLoaded]);
+  const loadHistory = async () => {
     try {
       setLoading(true);
       console.log("開始載入執行歷史");
       const data = await runHistoryAPIService.getRunHistory(workFlowId);
-      if (abortControllerRef.current.signal.aborted) {
-        console.log("請求已被取消");
-        return;
-      }
       setHistoryData(data);
       if (data && data.data && data.data.length > 0 && data.data[0].workflow_snapshot) {
         setCurrentSnapshot(data.data[0].workflow_snapshot);
@@ -16797,7 +16787,7 @@ const WorkflowContainer = () => {
             height: "calc(100vh - 64px)",
             display: activeView === "history" ? "block" : "none"
           },
-          children: activeView === "history" && /* @__PURE__ */ jsxRuntimeExports.jsx(RunHistoryView, {}, historyKey)
+          children: activeView === "history" && /* @__PURE__ */ jsxRuntimeExports.jsx(RunHistoryView, {})
         }
       )
     ] })
