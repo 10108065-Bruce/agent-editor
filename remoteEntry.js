@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-CR36u8mQ.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BCgx8PdN.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16784,7 +16784,7 @@ const WorkflowContainer = () => {
       setIsInIframe(true);
     }
   }, []);
-  const isNewFlow = tokenService.getWorkFlowId() === "new" || !tokenService.getWorkFlowId();
+  const isNewFlow = tokenService.getWorkFlowId() === "new";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
