@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-CR0DPjb-.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DkriKa_i.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16294,7 +16294,6 @@ const RunHistoryView = ({}) => {
       }
       setCurrentPage(page);
     } catch (error) {
-      setLoading(true);
       console.error(`載入失敗，第 ${page} 頁:`, error);
     } finally {
       if (page === 1) {
@@ -16302,7 +16301,6 @@ const RunHistoryView = ({}) => {
       } else {
         setLoadingMore(false);
       }
-      setLoading(true);
     }
   };
   const loadMoreHistory = async () => {
@@ -16418,12 +16416,6 @@ const RunHistoryView = ({}) => {
     };
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ced1] mx-auto mb-4" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行中..." })
-    ] }) }) });
-  }
-  if (!historyData) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ced1] mx-auto mb-4" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行中..." })
