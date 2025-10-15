@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DTgCJEzw.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-B3vKKqqA.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16233,7 +16233,7 @@ const detailIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAA
 
 const React$2 = await importShared('react');
 const {useState: useState$1,useEffect: useEffect$1,useRef} = React$2;
-const RunHistoryView = ({ onClose }) => {
+const RunHistoryView = ({}) => {
   const [historyData, setHistoryData] = useState$1(null);
   const [loading, setLoading] = useState$1(true);
   const [expandedNodeId, setExpandedNodeId] = useState$1(null);
@@ -16242,26 +16242,32 @@ const RunHistoryView = ({ onClose }) => {
   const [ioDialogOpen, setIoDialogOpen] = useState$1(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
-  const hasLoadedRef = useRef(false);
+  const loadingRef = useRef(false);
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
   const workFlowId = tokenService.getWorkFlowId();
   useEffect$1(() => {
-    if (hasLoadedRef.current) return;
-    hasLoadedRef.current = true;
     loadHistory();
   }, []);
   const loadHistory = async () => {
+    if (loadingRef.current) {
+      console.log("已經在載入中，跳過重複請求");
+      return;
+    }
     try {
+      loadingRef.current = true;
       setLoading(true);
+      console.log("開始載入執行歷史");
       const data = await runHistoryAPIService.getRunHistory(workFlowId);
       setHistoryData(data);
       if (data && data.data && data.data.length > 0 && data.data[0].workflow_snapshot) {
         setCurrentSnapshot(data.data[0].workflow_snapshot);
       }
+      console.log("載入執行歷史完成");
     } catch (error) {
       console.error("載入執行歷史失敗:", error);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   };
   const toggleNodeExpand = (nodeId, runId) => {
