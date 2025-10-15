@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T07:17:59.122Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.40"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T07:19:51.379Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.41"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24646,7 +24646,8 @@ const APAAssistant = ({
   title,
   onTitleChange,
   isLocked = false,
-  isNew = false
+  isNew = false,
+  runhistory = false
 }) => {
   const [isEditing, setIsEditing] = useState$u(false);
   const handleEditClick = () => {
@@ -24686,7 +24687,7 @@ const APAAssistant = ({
           {
             className: `transition-all duration-300 ease-in-out ${showBorderAndShadow && !isLocked || isNew ? "border border-gray-200 bg-white" : ""} px-4 py-2 flex items-center w-64 md:w-80 ${isLocked ? "bg-gray-50" : ""}`,
             children: [
-              !isEditing && !isNew && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              !runhistory && !isEditing && !isNew && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
                   className: "flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-110",
@@ -46278,6 +46279,7 @@ const FlowEditor = forwardRef(
               title: flowMetadata.title,
               onTitleChange: handleTitleChange,
               isLocked: isLocked || runhistory,
+              runhistory,
               isNew: (!flowMetadata.id || flowMetadata.id === "new") && !runhistory
             }
           ),
