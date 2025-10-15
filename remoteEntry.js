@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-Bbrpt-xH.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-D9nVjUfK.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16382,7 +16382,6 @@ const RunHistoryView = ({}) => {
     showFlowEditor && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
       {
-        initialTitle: currentRun?.flow_name || "",
         isLocked: true,
         runhistory: true,
         runHistorySnapshot: currentSnapshot
