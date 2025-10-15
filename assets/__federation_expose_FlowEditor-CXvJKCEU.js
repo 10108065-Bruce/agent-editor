@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:24:57.369Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.17"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:30:12.564Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.18"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26535,28 +26535,31 @@ class TokenService {
    */
   initWorkspaceFromUrl() {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
+      // 在 iframe 中，確保讀取正確的 location
+      const currentLocation = window.location;
+
+      // 如果需要讀取父視窗的 URL (需要同源)
+      // const parentLocation = window.parent.location;
+
+      const urlParams = new URLSearchParams(currentLocation.search);
       const workspaceId = urlParams.get('workspace');
-      // 如果 URL 中有 workFlowId path參數，則使用它
-      console.log('window.location.pathname:', window.location.pathname);
-      console.log('window.location.search:', window.location.search);
-      console.log('window.locaion', window.location);
-      const workFlowId = window.location.pathname
-        .split('/')
-        .find((segment) => /^[0-9a-fA-F-]{36}$/.test(segment));
-      if (workFlowId) {
-        this.workFlowId = workFlowId;
-        console.log(`已從 URL 路徑參數載入 workspace ID: ${workFlowId}`);
-        return;
+
+      const pathname = currentLocation.pathname;
+      console.log('initWorkspaceFromUrl, pathname:', pathname);
+      console.log('initWorkspaceFromUrl, workspaceId from URL:', workspaceId);
+      const uuidPattern =
+        /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+      const match = pathname.match(uuidPattern);
+
+      if (match) {
+        this.workFlowId = match[0];
       }
 
       if (workspaceId) {
         this.workspaceId = workspaceId;
-      } else {
-        console.log('URL 中未找到 workspace 參數');
       }
     } catch (error) {
-      console.error('從 URL 初始化 workspace ID 失敗:', error);
+      console.error('從 URL 初始化失敗:', error);
     }
   }
 
