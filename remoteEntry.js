@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BbovuwbH.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, I as IconBase } from './assets/__federation_expose_FlowEditor-Dj-9E0s1.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16162,7 +16162,6455 @@ const IFrameFlowEditor = () => {
   ] });
 };
 
-// import mockRunHistory from './runhistory_mock.js';
+const mockRunHistory = {
+  flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  page: 1,
+  page_size: 20,
+  total_entries: 20,
+  has_more: true,
+  query_start_time: '2025-10-08T00:33:58.661878',
+  query_end_time: '2025-10-15T00:33:58.661878',
+  next_start_time: '2025-10-09T00:52:47.364567',
+  data:[]
+  // data: [
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '99f3578c-4a04-4ac7-90cd-304f79d12951',
+  //     status: 'error',
+  //     total_duration_ms: 36,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:09:14.682773Z',
+  //         ended_at: '2025-10-09T02:09:14.683807Z',
+  //         duration_ms: 1,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'string',
+  //             data: {}
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 1,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 2
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:09:14.684987Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (error)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '79d4d9eba0a04fd5',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 1,
+  //     timestamp: '2025-10-09T02:09:14.684971Z',
+  //     error_message: 'Pipeline is not connected or has circular dependencies'
+  //   },
+  //   {
+  //     start_time: '2025-10-14T00:41:01.160521Z',
+  //     end_time: '2025-10-14T00:41:03.692933Z',
+  //     request_id: '6f5d8b33-b2a1-437c-9cdf-1a2d53258799',
+  //     status: 'success',
+  //     total_duration_ms: 2532,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-14T00:41:01.196178Z',
+  //         ended_at: '2025-10-14T00:41:01.196885Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-14T00:41:01.224463Z',
+  //         ended_at: '2025-10-14T00:41:03.691930Z',
+  //         duration_ms: 2467,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-14T00:41:03.692565Z',
+  //         ended_at: '2025-10-14T00:41:03.692718Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: "{\"docs\":\"['有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg', '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg', '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級', '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級', '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急']\"}"
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-14T00:41:03.692964Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '1dcb4d611c0247e4',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-14T00:41:03.692954Z'
+  //   },
+  //   {
+  //     start_time: '2025-10-09T07:52:24.480089Z',
+  //     end_time: '2025-10-09T07:52:26.724864Z',
+  //     request_id: '86222612-12bb-44bf-bb50-8f796c540bb9',
+  //     status: 'success',
+  //     total_duration_ms: 2244,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:52:24.500769Z',
+  //         ended_at: '2025-10-09T07:52:24.501314Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:52:24.513124Z',
+  //         ended_at: '2025-10-09T07:52:26.723787Z',
+  //         duration_ms: 2210,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:52:26.724284Z',
+  //         ended_at: '2025-10-09T07:52:26.724497Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: "{\"docs\":\"['有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg', '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg', '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級', '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級', '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急']\"}"
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T07:52:26.724909Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '089bcb24ac894b88',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T07:52:26.724890Z'
+  //   },
+  //   {
+  //     start_time: '2025-10-09T07:38:44.276161Z',
+  //     end_time: '2025-10-09T07:38:44.674877Z',
+  //     request_id: '8401fbb5-35eb-4ac5-bc54-adcdc9dde55e',
+  //     status: 'success',
+  //     total_duration_ms: 398,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:38:44.299810Z',
+  //         ended_at: '2025-10-09T07:38:44.300162Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:38:44.308248Z',
+  //         ended_at: '2025-10-09T07:38:44.673836Z',
+  //         duration_ms: 365,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:38:44.674549Z',
+  //         ended_at: '2025-10-09T07:38:44.674686Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: "{\"docs\":\"['有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg', '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg', '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級', '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級', '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急']\"}"
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T07:38:44.674909Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '513e19c9aedc4f9d',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T07:38:44.674899Z'
+  //   },
+  //   {
+  //     start_time: '2025-10-09T07:36:02.298931Z',
+  //     end_time: '2025-10-09T07:36:04.596034Z',
+  //     request_id: '57574fdb-a129-4536-a3b7-0d95c3495da0',
+  //     status: 'success',
+  //     total_duration_ms: 2297,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:36:02.319801Z',
+  //         ended_at: '2025-10-09T07:36:02.320311Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:36:02.329614Z',
+  //         ended_at: '2025-10-09T07:36:04.595091Z',
+  //         duration_ms: 2265,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T07:36:04.595607Z',
+  //         ended_at: '2025-10-09T07:36:04.595803Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: "{\"docs\":\"['有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg', '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg', '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級', '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級', '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急']\"}"
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T07:36:04.596074Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: 'c809fcc85e514941',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T07:36:04.596061Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'de5ef076-1e42-4164-a1a2-a27f681a6503',
+  //     status: 'success',
+  //     total_duration_ms: 30189,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T05:31:17.933684Z',
+  //         ended_at: '2025-10-09T05:31:17.933908Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T05:31:17.945186Z',
+  //         ended_at: '2025-10-09T05:31:48.096298Z',
+  //         duration_ms: 30151,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'error',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T05:31:48.097757Z',
+  //         ended_at: '2025-10-09T05:31:48.098025Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"502: NLP Service knowledge retrieval failed"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 2,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T05:31:48.098370Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: 'e68287ed151c4ec3',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T05:31:48.098357Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '04f6cd4c-63d9-4156-ae22-e33ffb696ff1',
+  //     status: 'success',
+  //     total_duration_ms: 31043,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:51:44.692131Z',
+  //         ended_at: '2025-10-09T02:51:44.692330Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T02:51:44.712327Z',
+  //         ended_at: '2025-10-09T02:52:15.364557Z',
+  //         duration_ms: 30652,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'error',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:52:15.630590Z',
+  //         ended_at: '2025-10-09T02:52:15.704231Z',
+  //         duration_ms: 73,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"502: NLP Service knowledge retrieval failed"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 2,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:52:15.705782Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '65210bf1bb714f7b',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T02:52:15.705761Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'fddae5dd-eb83-4331-946f-23b2b726557c',
+  //     status: 'success',
+  //     total_duration_ms: 30199,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:48:57.571941Z',
+  //         ended_at: '2025-10-09T02:48:57.572128Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T02:48:57.583057Z',
+  //         ended_at: '2025-10-09T02:49:27.730368Z',
+  //         duration_ms: 30147,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'error',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:49:27.732595Z',
+  //         ended_at: '2025-10-09T02:49:27.733078Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"502: NLP Service knowledge retrieval failed"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 2,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:49:27.733648Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '2b353286f3474802',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T02:49:27.733633Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '0bc32535-3f7f-489e-a214-40e0d36d3810',
+  //     status: 'success',
+  //     total_duration_ms: 30289,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:45:29.724016Z',
+  //         ended_at: '2025-10-09T02:45:29.724509Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T02:45:29.752461Z',
+  //         ended_at: '2025-10-09T02:45:59.970938Z',
+  //         duration_ms: 30218,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'error',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:45:59.972963Z',
+  //         ended_at: '2025-10-09T02:45:59.973314Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"502: NLP Service knowledge retrieval failed"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 2,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:45:59.973638Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '6cf43059456849e3',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T02:45:59.973626Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'f0934c90-258c-428d-a094-2c6647800320',
+  //     status: 'success',
+  //     total_duration_ms: 30193,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:38:39.989452Z',
+  //         ended_at: '2025-10-09T02:38:39.989810Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T02:38:40.006213Z',
+  //         ended_at: '2025-10-09T02:39:10.160870Z',
+  //         duration_ms: 30154,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'error',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:39:10.161941Z',
+  //         ended_at: '2025-10-09T02:39:10.162264Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: '502: NLP Service knowledge retrieval failed'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"502: NLP Service knowledge retrieval failed"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 2,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:39:10.162661Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '72e5dc09eb4144a3',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T02:39:10.162646Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '1bf26888-ba05-4219-a4ce-c213655fe625',
+  //     status: 'error',
+  //     total_duration_ms: 30202,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:33:43.963977Z',
+  //         ended_at: '2025-10-09T02:33:43.964128Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T02:33:43.975483Z',
+  //         ended_at: '2025-10-09T02:34:14.144978Z',
+  //         duration_ms: 30169,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {},
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 1,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 1
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:34:14.146473Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (error)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: 'd1c341a42cc74e64',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 2,
+  //     timestamp: '2025-10-09T02:34:14.146452Z',
+  //     error_message: 'Pipeline is not connected or has circular dependencies'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '68d50cec-d3c0-452f-afcc-8e35c1b91cc7',
+  //     status: 'error',
+  //     total_duration_ms: 30279,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:32:44.916328Z',
+  //         ended_at: '2025-10-09T02:32:44.916562Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T02:32:44.928399Z',
+  //         ended_at: '2025-10-09T02:33:15.166255Z',
+  //         duration_ms: 30237,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {},
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 1,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 1
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:33:15.175544Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (error)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '228b7c42a0804980',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 2,
+  //     timestamp: '2025-10-09T02:33:15.175457Z',
+  //     error_message: 'Pipeline is not connected or has circular dependencies'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'c25f1064-64f8-4a49-9eaf-0da139415986',
+  //     status: 'success',
+  //     total_duration_ms: 30198,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:21:33.518955Z',
+  //         ended_at: '2025-10-09T02:21:33.519847Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:21:33.533325Z',
+  //         ended_at: '2025-10-09T02:22:03.670355Z',
+  //         duration_ms: 30137,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               'API 呼叫異常: 502: NLP Service knowledge retrieval failed'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:22:03.670864Z',
+  //         ended_at: '2025-10-09T02:22:03.671023Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               'API 呼叫異常: 502: NLP Service knowledge retrieval failed'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"[\'API 呼叫異常: 502: NLP Service knowledge retrieval failed\']"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:22:03.671235Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '5106f7339d7b4f11',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T02:22:03.671225Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'f6caadea-1edf-4272-9370-5f13cf9f0b45',
+  //     status: 'success',
+  //     total_duration_ms: 2675,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:14:18.959542Z',
+  //         ended_at: '2025-10-09T02:14:18.959944Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:14:18.972868Z',
+  //         ended_at: '2025-10-09T02:14:21.574665Z',
+  //         duration_ms: 2601,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:14:21.578681Z',
+  //         ended_at: '2025-10-09T02:14:21.580420Z',
+  //         duration_ms: 1,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               '有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg',
+  //               '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg',
+  //               '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級',
+  //               '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級',
+  //               '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: "{\"docs\":\"['有 關節炎、慢性腎衰竭及糖尿病病史 她的左手掌有一個 1cm傷口，合併 紅、腫、痛 病人沒有過敏史，也沒 有發燒 體溫 36 8℃、心跳 72次/分、 呼吸 16次/分、血壓 102/64mmHg', '–S B P＜70mmHg( 絕對低血壓 ) –血壓偏低 (＜90 mmHg) 伴隨典型休克徵 象 –現場突發姿勢性昏厥 –H R＜50 or HR ＞140合併休克徵象與症狀 或BP＜70 mmHg', '• SBP>200mmHg 或DBP>110mmHg ， 有症狀者為二級，無症狀者為三級 • SBP<200mmHg 或DBP<110mmHg ， 有症狀者為三級', '• 160mmHg<SBP<200mmHg 或 90mmHg<DBP<110mmHg 無症狀為 四級 • 160mmHg<SBP 或DBP<90mmHg 無 症狀為五級', '•臨床表徵：無症狀的高血壓 205/105mmHg •高危險： – SBP>200mmHg 或DBP>110mmHg ，有 症狀者為二級，無症狀者為三級 • TTAS檢傷分級：第三級，緊急']\"}"
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:14:21.581766Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '2e9c563c8fdc46c7',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T02:14:21.581409Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '23632204-b38e-457f-8163-f40289c2a290',
+  //     status: 'success',
+  //     total_duration_ms: 30245,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:12:44.529579Z',
+  //         ended_at: '2025-10-09T02:12:44.529762Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:12:44.539504Z',
+  //         ended_at: '2025-10-09T02:13:14.744942Z',
+  //         duration_ms: 30205,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               'API 呼叫異常: 502: NLP Service knowledge retrieval failed'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:13:14.749601Z',
+  //         ended_at: '2025-10-09T02:13:14.750120Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               'API 呼叫異常: 502: NLP Service knowledge retrieval failed'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"[\'API 呼叫異常: 502: NLP Service knowledge retrieval failed\']"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:13:14.750499Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '1c89f30311804acf',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T02:13:14.750458Z'
+  //   },
+
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'b0b4502a-a40f-4487-8c64-4d1dcfc12265',
+  //     status: 'error',
+  //     total_duration_ms: 36,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T02:06:57.320881Z',
+  //         ended_at: '2025-10-09T02:06:57.321531Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'string',
+  //             data: {}
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 1,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 2
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T02:06:57.322456Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (error)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '9edac3ba7a1a47f4',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 1,
+  //     timestamp: '2025-10-09T02:06:57.322439Z',
+  //     error_message: 'Pipeline is not connected or has circular dependencies'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '747197be-5bf7-4ef2-8644-a9dcde0e2347',
+  //     status: 'success',
+  //     total_duration_ms: 93,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T01:57:52.170722Z',
+  //         ended_at: '2025-10-09T01:57:52.171408Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T01:57:52.191649Z',
+  //         ended_at: '2025-10-09T01:57:52.212657Z',
+  //         duration_ms: 20,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: ['API 呼叫異常: 502: Failed to connect to NLP Service']
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T01:57:52.214674Z',
+  //         ended_at: '2025-10-09T01:57:52.214896Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: ['API 呼叫異常: 502: Failed to connect to NLP Service']
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"[\'API 呼叫異常: 502: Failed to connect to NLP Service\']"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T01:57:52.215612Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '626d1d79f0574350',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T01:57:52.215594Z'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'c0639bca-22b3-47b3-9fb5-006d1a75a32c',
+  //     status: 'error',
+  //     total_duration_ms: 30255,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T01:10:40.245727Z',
+  //         ended_at: '2025-10-09T01:10:40.246198Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T01:10:40.256999Z',
+  //         ended_at: '2025-10-09T01:11:10.479889Z',
+  //         duration_ms: 30222,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {},
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 1,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 1
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T01:11:10.485181Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (error)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '26fab950a7f74c43',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 2,
+  //     timestamp: '2025-10-09T01:11:10.485159Z',
+  //     error_message: "'str' object has no attribute 'get'"
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: '875f35bf-d429-42e6-a8d2-1b4ac69b987e',
+  //     status: 'error',
+  //     total_duration_ms: 30119,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T01:08:50.911576Z',
+  //         ended_at: '2025-10-09T01:08:50.911715Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'error',
+  //         started_at: '2025-10-09T01:08:50.919097Z',
+  //         ended_at: '2025-10-09T01:09:21.013528Z',
+  //         duration_ms: 30094,
+  //         error: '502: NLP Service knowledge retrieval failed',
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {},
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'skipped',
+  //         started_at: null,
+  //         ended_at: null,
+  //         duration_ms: null,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 1,
+  //       failed_nodes: 1,
+  //       skipped_nodes: 1
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T01:09:21.014931Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (error)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: 'd3d6b280e4c1468e',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 2,
+  //     timestamp: '2025-10-09T01:09:21.014911Z',
+  //     error_message: 'Pipeline is not connected or has circular dependencies'
+  //   },
+  //   {
+  //     start_time: null,
+  //     end_time: null,
+  //     request_id: 'f9eb9900-3d4d-4a23-8aca-284b1e561b0b',
+  //     status: 'success',
+  //     total_duration_ms: 30190,
+  //     nodes_execution_summary: [
+  //       {
+  //         node_id: 'webhook_input_1759223521681',
+  //         operator: 'webhook_input',
+  //         display_name: 'Webhook',
+  //         status: 'success',
+  //         started_at: '2025-10-09T00:52:17.194367Z',
+  //         ended_at: '2025-10-09T00:52:17.194538Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           body_data: {
+  //             type: 'webhook_payload',
+  //             data: {
+  //               data: '糖尿病，腎出血'
+  //             }
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         }
+  //       },
+  //       {
+  //         node_id: 'knowledge_1759223525314',
+  //         operator: 'knowledge_retrieval',
+  //         display_name: 'Knowledge Retrieval',
+  //         status: 'success',
+  //         started_at: '2025-10-09T00:52:17.204218Z',
+  //         ended_at: '2025-10-09T00:52:47.363144Z',
+  //         duration_ms: 30158,
+  //         error: null,
+  //         node_input: {
+  //           passage: {
+  //             node_id: 'webhook_input_1759223521681',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             data: '糖尿病，腎出血'
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'knowledge_1759223525314',
+  //             type: 'list',
+  //             data: [
+  //               'API 呼叫異常: 502: NLP Service knowledge retrieval failed'
+  //             ]
+  //           }
+  //         },
+  //         resolved_names: {
+  //           knowledge_base_name: '9'
+  //         }
+  //       },
+  //       {
+  //         node_id: 'webhook_output_1759223548025',
+  //         operator: 'webhook_output',
+  //         display_name: 'Output',
+  //         status: 'success',
+  //         started_at: '2025-10-09T00:52:47.363725Z',
+  //         ended_at: '2025-10-09T00:52:47.364121Z',
+  //         duration_ms: 0,
+  //         error: null,
+  //         node_input: {
+  //           text0: {
+  //             node_id: 'knowledge_1759223525314',
+  //             output_name: 'output',
+  //             type: 'string',
+  //             return_name: 'docs',
+  //             data: [
+  //               'API 呼叫異常: 502: NLP Service knowledge retrieval failed'
+  //             ]
+  //           }
+  //         },
+  //         node_output: {
+  //           output: {
+  //             node_id: 'webhook_output_1759223548025',
+  //             type: 'string',
+  //             data: '{"docs":"[\'API 呼叫異常: 502: NLP Service knowledge retrieval failed\']"}'
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     execution_stats: {
+  //       total_nodes: 3,
+  //       successful_nodes: 3,
+  //       failed_nodes: 0,
+  //       skipped_nodes: 0
+  //     },
+  //     workflow_snapshot: {
+  //       flow_type: 'WEBHOOK',
+  //       flow_pipeline: [
+  //         {
+  //           id: 'webhook_input_1759223521681',
+  //           category: 'advanced',
+  //           operator: 'webhook_input',
+  //           parameters: {
+  //             curl_example: {
+  //               data: "# 使用以下 cURL 命令來執行 Webhook Flow:\n\ncurl -X POST \\\n'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681' \\\n-H 'Content-Type: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik' \\\n-d '{\"data\": \"Input your value here.\"}'\n\n# 使用以下 cURL 命令來獲取 Webhook Flow 的結果:\n\ncurl -X 'GET' \\\n'http://localhost:8000/api/v1/agent_designer/webhook/result/{task_id}' \\\n-H 'accept: application/json' \\\n-H 'X-QOCA-Agent-Api-Key: Bearer zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'"
+  //             },
+  //             webhook_url: {
+  //               data: 'http://localhost:8000/api/v1/agent_designer/webhook/4bbe379a-7b09-442c-a572-a1f726c3734b/webhook_input_1759223521681'
+  //             },
+  //             'X-QOCA-Agent-Api-Key': {
+  //               data: 'zRTzqejmP3IkYtjWCP14Trsl_K6Vi_q9HHR2Ms-GWik'
+  //             }
+  //           },
+  //           position_x: 221.53846153846155,
+  //           position_y: 100.00000000000001,
+  //           version: '0.0.1',
+  //           node_input: {},
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Webhook'
+  //         },
+  //         {
+  //           id: 'knowledge_1759223525314',
+  //           category: 'advanced',
+  //           operator: 'knowledge_retrieval',
+  //           parameters: {
+  //             knowledge_base_id: {
+  //               data: '9'
+  //             },
+  //             top_k: {
+  //               data: 5
+  //             },
+  //             threshold: {
+  //               type: 'float',
+  //               data: 0.3
+  //             }
+  //           },
+  //           position_x: 740.5817569093006,
+  //           position_y: 89.69646983809122,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             passage: {
+  //               node_id: 'webhook_input_1759223521681',
+  //               output_name: 'output',
+  //               type: 'string'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'knowledge_1759223525314',
+  //               type: 'string',
+  //               data: {}
+  //             }
+  //           },
+  //           display_name: 'Knowledge Retrieval',
+  //           parameter_display_values: {
+  //             knowledge_base_id: 'embeddingGemma-2'
+  //           }
+  //         },
+  //         {
+  //           id: 'webhook_output_1759223548025',
+  //           category: 'advanced',
+  //           operator: 'webhook_output',
+  //           parameters: {
+  //             inputHandles: {
+  //               data: ['text0']
+  //             }
+  //           },
+  //           position_x: 1264.4933566500658,
+  //           position_y: 133.76769370268403,
+  //           version: '0.0.1',
+  //           node_input: {
+  //             text0: {
+  //               node_id: 'knowledge_1759223525314',
+  //               output_name: 'output',
+  //               type: 'string',
+  //               return_name: 'docs'
+  //             }
+  //           },
+  //           node_output: {
+  //             output: {
+  //               node_id: 'webhook_output_1759223548025',
+  //               type: 'string'
+  //             }
+  //           },
+  //           display_name: 'Output'
+  //         }
+  //       ],
+  //       total_nodes: 3
+  //     },
+  //     flow_check: {
+  //       node_results: [
+  //         {
+  //           node_id: 'webhook_input_1759223521681',
+  //           operator: 'webhook_input',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'knowledge_1759223525314',
+  //           operator: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         },
+  //         {
+  //           node_id: 'webhook_output_1759223548025',
+  //           operator: 'webhook_output',
+  //           is_valid: true,
+  //           missing_fields: []
+  //         }
+  //       ],
+  //       flow_validations: [
+  //         {
+  //           validation_type: 'flow_type',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'flow_structure',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           validation_type: 'node_parameters',
+  //           is_valid: true,
+  //           error_message: null,
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       is_valid: true,
+  //       results: [
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_input_1759223521681',
+  //           name: 'webhook_input',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_input'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'knowledge_1759223525314',
+  //           name: 'knowledge_retrieval',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'knowledge_retrieval'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'node',
+  //           id: 'webhook_output_1759223548025',
+  //           name: 'webhook_output',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             node_operator: 'webhook_output'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_type',
+  //           name: 'flow_type_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             determined_flow_type: 'WEBHOOK'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'flow_structure',
+  //           name: 'flow_structure_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             flow_type: 'WEBHOOK',
+  //             flow_id: 'temp_check_flow'
+  //           }
+  //         },
+  //         {
+  //           result_type: 'flow',
+  //           id: 'node_parameters',
+  //           name: 'node_parameters_validation',
+  //           is_valid: true,
+  //           error_messages: [],
+  //           details: {
+  //             total_nodes: 3,
+  //             valid_nodes: 3
+  //           }
+  //         }
+  //       ],
+  //       failures: []
+  //     },
+  //     level: 'info',
+  //     time: '2025-10-09T00:52:47.364567Z',
+  //     message:
+  //       'Flow execution completed: 4bbe379a-7b09-442c-a572-a1f726c3734b (success)',
+  //     service: 'agent-designer',
+  //     logger: 'src.core.execution_logger',
+  //     flow_id: '4bbe379a-7b09-442c-a572-a1f726c3734b',
+  //     execution_id: '7d5a120801df4fd0',
+  //     event_type: 'flow_end',
+  //     total_nodes_executed: 3,
+  //     timestamp: '2025-10-09T00:52:47.364550Z'
+  //   }
+  // ]
+};
+
 /**
  * 執行歷史 API 服務
  */
@@ -16190,33 +22638,32 @@ class RunHistoryAPIService {
    */
   async getRunHistory(workflowId) {
     try {
-      console.log(`獲取工作流 ${workflowId} 的執行歷史`);
+      // console.log(`獲取工作流 ${workflowId} 的執行歷史`);
 
-      // TODO: 實際 API 呼叫
-      const options = tokenService.createAuthHeader({
-        method: 'GET',
-        headers: {
-          accept: 'application/json'
-        }
-      });
+      // // TODO: 實際 API 呼叫
+      // const options = tokenService.createAuthHeader({
+      //   method: 'GET',
+      //   headers: {
+      //     accept: 'application/json'
+      //   }
+      // });
 
-      const url = tokenService.createUrlWithWorkspace(
-        `${API_CONFIG.BASE_URL}/agent_designer/workflows/${workflowId}/execution-logs`
-      );
+      // const url = tokenService.createUrlWithWorkspace(
+      //   `${API_CONFIG.BASE_URL}/agent_designer/workflows/${workflowId}/execution-logs`
+      // );
 
-      const response = await fetch(url, options);
+      // const response = await fetch(url, options);
 
-      if (!response.ok) {
-        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
-      }
+      // if (!response.ok) {
+      //   throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      // }
 
-      const data = await response.json();
-      return data;
+      // const data = await response.json();
+      // return data;
 
       // Mock 資料
-      // await new Promise((resolve) => setTimeout(resolve, 500)); // 模擬網路延遲
-      // return mockRunHistory;
-      // return this.getMockRunHistory();
+      await new Promise((resolve) => setTimeout(resolve, 500)); // 模擬網路延遲
+      return mockRunHistory;
     } catch (error) {
       console.error('獲取執行歷史失敗:', error);
       throw error;
@@ -16366,43 +22813,16 @@ const RunHistoryView = ({ onClose }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行歷史中..." })
     ] }) }) });
   }
-  if (!historyData || !historyData.data) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex flex-col", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-6 border-b border-gray-200", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800", children: "Run History" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: onClose,
-            className: "text-gray-400 hover:text-gray-600 transition-colors",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "svg",
-              {
-                className: "w-6 h-6",
-                fill: "none",
-                viewBox: "0 0 24 24",
-                stroke: "currentColor",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "path",
-                  {
-                    strokeLinecap: "round",
-                    strokeLinejoin: "round",
-                    strokeWidth: 2,
-                    d: "M6 18L18 6M6 6l12 12"
-                  }
-                )
-              }
-            )
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium text-gray-600 mb-2", children: "沒有執行歷史記錄" }) }) })
-    ] }) });
+  if (!historyData) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ced1] mx-auto mb-4" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行歷史中..." })
+    ] }) }) });
   }
   const currentRun = historyData.data[0] ? formatRunData(historyData.data[0]) : null;
   const previousRuns = historyData.data.map((run) => formatRunData(run));
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-16 left-0 right-0 bottom-0 flex z-50", children: [
-    showFlowEditor && currentSnapshot && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    showFlowEditor && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
       {
         initialTitle: currentRun?.flow_name || "",
