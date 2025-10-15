@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T07:39:57.471Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.47"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T07:58:19.120Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.48"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24329,9 +24329,6 @@ const NodeSidebar = ({
         );
         const operatorWords = operator.split("_").join(" ");
         const isMatchingNode = nodeType === operator || nodeType === operatorCamelCase || nodeLabel.includes(operatorWords) || nodeName.includes(operatorWords) || node.id?.includes(operator);
-        if (isMatchingNode) {
-          console.log(`Found existing ${operator} node:`, node);
-        }
         return isMatchingNode;
       });
     }
@@ -45420,6 +45417,7 @@ const FlowEditor = forwardRef(
       setSidebarVisible((prev) => !prev);
     }, []);
     const handleLoadWorkflow = useCallback(async (flowId) => {
+      tokenService.setWorkflowId(flowId);
       try {
         const success = await loadWorkflowImpl(flowId);
         return success;
@@ -45498,7 +45496,6 @@ const FlowEditor = forwardRef(
             type: "success",
             duration: 2e3
           });
-          tokenService.setWorkflowId(flowId);
           return true;
         } catch (error) {
           console.error("載入工作流失敗:", error);
