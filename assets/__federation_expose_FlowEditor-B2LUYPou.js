@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T06:09:54.308Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.35"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T06:31:46.541Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.36"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -45013,13 +45013,15 @@ const FlowCheckButton = ({
   showBorder = false,
   errors = [],
   // 接收錯誤訊息陣列
-  unreadCount = 5
-  // 新增：未讀訊息數量
+  unreadCount = 0
+  // 修改：默認為0
 }) => {
   const [showPopover, setShowPopover] = React$1.useState(false);
+  const errorCount = unreadCount || errors.length;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "span",
     {
+      className: "relative",
       onMouseEnter: () => setShowPopover(true),
       onMouseLeave: () => setShowPopover(false),
       children: [
@@ -45032,7 +45034,7 @@ const FlowCheckButton = ({
             width,
             title,
             buttonStyle: "secondary",
-            badgeCount: unreadCount,
+            badgeCount: errorCount > 0 ? errorCount : void 0,
             showBorder,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "img",
@@ -45043,26 +45045,31 @@ const FlowCheckButton = ({
             )
           }
         ),
-        showPopover && errors.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        showPopover && errors.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
             className: "absolute left-0 bg-gray-900 text-white px-4 py-3 rounded-lg text-xs z-50 shadow-xl",
             style: {
-              minWidth: "200px",
-              maxWidth: "300px",
-              top: "calc(100% + 8px)"
+              minWidth: "300px",
+              maxWidth: "550px",
+              top: "calc(100% + 8px)",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word"
             },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 whitespace-normal", children: errors.map((error, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                className: "flex items-start space-x-2",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-red-400 flex-shrink-0", children: "⚠" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: error })
-                ]
-              },
-              index
-            )) })
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute -top-2 left-6 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-gray-900" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: errors.map((error, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  className: "flex items-start space-x-2",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-left font-bold", children: error }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("br", {})
+                  ]
+                },
+                index
+              )) })
+            ]
           }
         )
       ]
@@ -45223,6 +45230,7 @@ const FlowEditor = forwardRef(
     const [nodeList, setNodeList] = useState([]);
     const [nodeListLoading, setNodeListLoading] = useState(true);
     const [nodeListError, setNodeListError] = useState(null);
+    const [validationFailures, setValidationFailures] = useState([]);
     const {
       nodes,
       edges,
@@ -45951,6 +45959,9 @@ const FlowEditor = forwardRef(
         if (flowMetadata.id) {
           response = await workflowAPIService.updateWorkflow(apiData);
           console.log("FlowEditor: 更新流程成功", response);
+          if (response && response.failures && response.failures.length > 0) {
+            setValidationFailures(response.failures);
+          }
           window.notify({
             message: "流程更新成功",
             type: "success",
@@ -45963,6 +45974,9 @@ const FlowEditor = forwardRef(
         } else {
           response = await workflowAPIService.createWorkflow(apiData);
           console.log("FlowEditor: 創建流程成功", response);
+          if (response && response.failures && response.failures.length > 0) {
+            setValidationFailures(response.failures);
+          }
           flowIdToUse = response?.flow_id;
           if (flowIdToUse) {
             setFlowMetadata((prev) => ({
@@ -46229,6 +46243,29 @@ const FlowEditor = forwardRef(
         window.removeEventListener("requestSaveFlow", handleSaveRequest);
       };
     }, [flowMetadata.id, showSaveFlowDialog, isLocked]);
+    const formatValidationErrors = useCallback((failures) => {
+      if (!failures || failures.length === 0) return [];
+      const flowErrors = [];
+      const nodeErrors = [];
+      failures.forEach((failure) => {
+        const nodeIdSuffix = failure.id ? failure.id.slice(-3) : "???";
+        const nodeTypeNames = {
+          router_switch: "Router",
+          webhook_output: "Webhook Response",
+          line_send_message: "Line Message",
+          aim_ml: "QOCA aim",
+          node_parameters_validation: "節點參數驗證"
+        };
+        const nodeName = nodeTypeNames[failure.details?.node_operator] || nodeTypeNames[failure.name] || failure.name || "未知節點";
+        const errorMessage = failure.error_messages.join(" ");
+        if (failure.failure_type === "flow") {
+          flowErrors.push(errorMessage);
+        } else {
+          nodeErrors.push(`${nodeName} (${nodeIdSuffix}) ${errorMessage}`);
+        }
+      });
+      return [...flowErrors, ...nodeErrors];
+    }, []);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -46334,11 +46371,8 @@ const FlowEditor = forwardRef(
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               FlowCheckButton,
               {
-                errors: [
-                  "流程無效檢測失敗: The flow should not contain multiple trigger nodes",
-                  "流程無效檢測失敗: The flow can contain only one starter node",
-                  "發現 5 個節點參數驗證失敗"
-                ]
+                errors: formatValidationErrors(validationFailures),
+                unreadCount: validationFailures.length - 1
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
