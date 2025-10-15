@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-B3vKKqqA.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-ZF8eF_UA.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16242,22 +16242,30 @@ const RunHistoryView = ({}) => {
   const [ioDialogOpen, setIoDialogOpen] = useState$1(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
-  const loadingRef = useRef(false);
+  const abortControllerRef = useRef(null);
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
   const workFlowId = tokenService.getWorkFlowId();
   useEffect$1(() => {
     loadHistory();
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
   const loadHistory = async () => {
-    if (loadingRef.current) {
-      console.log("已經在載入中，跳過重複請求");
-      return;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
+    abortControllerRef.current = new AbortController();
     try {
-      loadingRef.current = true;
       setLoading(true);
       console.log("開始載入執行歷史");
       const data = await runHistoryAPIService.getRunHistory(workFlowId);
+      if (abortControllerRef.current.signal.aborted) {
+        console.log("請求已被取消");
+        return;
+      }
       setHistoryData(data);
       if (data && data.data && data.data.length > 0 && data.data[0].workflow_snapshot) {
         setCurrentSnapshot(data.data[0].workflow_snapshot);
@@ -16267,7 +16275,6 @@ const RunHistoryView = ({}) => {
       console.error("載入執行歷史失敗:", error);
     } finally {
       setLoading(false);
-      loadingRef.current = false;
     }
   };
   const toggleNodeExpand = (nodeId, runId) => {
