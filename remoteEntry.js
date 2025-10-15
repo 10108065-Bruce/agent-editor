@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BYZTcRHC.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-CR0DPjb-.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16294,6 +16294,7 @@ const RunHistoryView = ({}) => {
       }
       setCurrentPage(page);
     } catch (error) {
+      setLoading(true);
       console.error(`載入失敗，第 ${page} 頁:`, error);
     } finally {
       if (page === 1) {
@@ -16301,6 +16302,7 @@ const RunHistoryView = ({}) => {
       } else {
         setLoadingMore(false);
       }
+      setLoading(true);
     }
   };
   const loadMoreHistory = async () => {
