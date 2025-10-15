@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-DkriKa_i.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-jw2fUiEa.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16423,11 +16423,12 @@ const RunHistoryView = ({}) => {
   }
   const currentRun = historyData && historyData.data && historyData.data[0] ? formatRunData(historyData.data[0]) : null;
   const previousRuns = allRuns.map((run) => formatRunData(run));
+  const initialTitle = historyData && historyData.flow_name ? historyData.flow_name : "Untitled Flow";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-16 left-0 right-0 bottom-0 flex z-50", children: [
     showFlowEditor && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
       {
-        initialTitle: historyData.flow_name || "Untitled Flow",
+        initialTitle,
         isLocked: true,
         runhistory: true,
         runHistorySnapshot: currentSnapshot
