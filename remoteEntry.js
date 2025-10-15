@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-D9nVjUfK.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-1xWtNv0F.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16229,6 +16229,8 @@ const successIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgBAMAA
 
 const failedIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgBAMAAAAQtmoLAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAkUExURUdwTPVsbPdwcPVqavVtbfVtbfVsbPZtbfZsbPZsbPRsbPVsbHrVrtEAAAALdFJOUwDvHDNgm3nav69Q240sIQAAAi9JREFUWMPtlztPAkEQgE8QjVZGfBTXQKISQ3MUJiY2xAQTQ0PUwoQGjY3SKA0FncbC0BhjjImVjY3V8fJ0/pwcHHi7O7s7e1gyFbmbj9l57NyMZU0lmsQOTusA6w9XDk390oZA3OeUXn+rCSHx9nX6OzawcqTW3wVBlMQ2gBExZ2MAVKTxaaD68CWL1RlIZA3XT4BU0EPFmnLAww6VAYXU6B5L/VYaALgVgKYa8IScgUZKHFDVAT3OZVsHuKzb86CVa7MTcWeK6fXZMyUIADyGgCwFaIeAMgXwzFzoi2PmQjjZWRqwPAaKNKCHV6p7Mg7BaqGBeh3jDMeDwnIdK828GqVulnctN/yV5MMx6gULzNO8FZjoG+D+a5TrGSF4ucAAZ2EpAPaYp75ePDDAvWoFwCdblc4w0AOQvVcd/DIkB3EYcDk8EW+AmGiLBqAr6TADE/1gWe+SeuV7nutg+fH7XwAIHSMpKbERIF5fBzUAIANgRVLDUqBjCOiO1KA67UYNq3HiytTS+I5afEVqef+gbck/yyJ+gdpRr6hxE5ijtpm8vpFl0EYmbZXdgo1/IKq0ZtwZA2ka0Ir+QYnTgBR5lGG7kthdtS7wuSYMQPphhnXBfDgxH3+MByzjEU6f7MqkY6hu0K1NPkobD+tKL9B1QDVNl/5npTFfmiSHcivyRW4TA55UqyJC3KmXUZ5wj3Xr7ga7Hp8TFvDDvwX8hbCA+23q4/UGoH5/QVOfiii/XvNFo5y2WmQAAAAASUVORK5CYII=";
 
+const skipIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGwAAABgCAMAAADPemeEAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAA8UExURUdwTOfo6+Xn6+Xn69/f6+bn6+Tn6+bn7Obo6+Xo7OTn6uXn6+Xn60tVY5CWoFtkcdbZ3r/DyaittW93gpmdFFkAAAAMdFJOUwAjgJAQvUPfcO9gz9SotskAAAJeSURBVGje7VnZkoMgEFRBAYOc//+vuzFuNqJcA+GJfrOsop17bIaho6Ojo6MQI0UzIfwX5DEjunyNCNOZcQdsXsevMHEP5rUy1cR4AGQaW1G96CpxLYQngNRIFox4IhAuznXCk0EKI7cwngFW5ErKM0HhXBPPxtTMrgLbFg4CKG4jg5ExQE5iwoEg+fWGOBioUcBgYSMlZJmOvK8wpY2wUkprhVHVqu22I2ohtw/YAB/DZYZpu7mQ4qCzosS0q2H2ON5opZTW5ng2z3dikwpu2noxS+5M+jN+ZneqeHJtm4Z3LXe3MfuxlxDtdHZ/aS9bUHJ63HBJfZed4h2/y5dgmBf1k8uTeW82AfXj2YtK+rk4/6sGsB+Ze5yf69+PrpsZpC2au4CcMsfjxxEwoOXNOZ/RfFe4AgUNOd8uvV3JfPYvDRo0s2OYCXTcV2u+TZG0DHmcHSXjI+XZvqxLRrIbowhELDbUksic/mugIzSbTAbyvjaZSgpZLcsEOGSJZEW7Tkk2FuABGp1AzDV2YaWFELrWXhz+Uzr6oYyWHwVtBZ4BFkvTBTI8PVwxNgZcrk5FHhgqoLWAJhkWMS1V0MLeE84reLCTjUOpH51lv4IXA35MJ0uXBTGLbImeXTG3MYbVluQEyfll8pmmTqapSpLZFN9KaxkWUEGS2hUZ8uCVJo7fXatrKkootJiGtYJs0aWtnNRUKGsrAbYVN9vKtm0F6bZSe9tLhLbXI20vfvasjNKxCQ+1MIbpalK9BC3/NSStTLWbt95dsH6D6S9ZKJofr6tjMiM6Dh0dHR0dhfgBrf7CLdc/4ksAAAAASUVORK5CYII=";
+
 const detailIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTP////////////////////////b+/v///////////////////wDO0d75+YLn6V7g4yDU15/t7jbY27ny8hDR1HDj5RW9wREAAAAMdFJOUwA6IJC3EHD531ufz6arFycAAAN0SURBVGjezVrblqsgDBVFQKWggv7/px5sx06rSQTFNWe/dVXZ5h4CRRGFmomKd0rqAKk4rwSri1yom0ppAF3blBlWF1wT4Bc5GLn6ynH+45WOgjpHIaSOxgkKpnQSEilqrpPRJpi7kfoEooWoK30SVVTwlUqfhopQE5P6AhQ7VL++iANDCH0Z4ub1SYZGZwGqJaYzgeX3z29I0FvrbOsHb4UirtIZUcUZ2PgRh/cyxdB7A5h5ehzAjbgZtkpqt0/MjxgMBq2ktIKkW16fegLu9YiP89WtgpaXnT+wpLFBiRMmg6IEsGF9G+EsZghakhEpYyOAiVw/PDnhT37YGRBgiHT4MSjpOOsBFhhjQyqI4I+ssIuxoKHoujYT2lwdadujmB8N2QGBk1/qnA9iodQwgcTjy34ZoUfFq2ENrRI4bP1P3ycJBKihN4E2CKSOJOCghn4JIv0UJ3jqqLmToIHyaE6CpfB0dxKEWKv1nQTBCAwnMBbBGE/AoGZuJRjQQPPRBAJqJtZIxmvyGE1QFfxeFXGKIK7khAaG+Lsr1EWCox6vkPcSyELfS6D/YwI/u6W4WXOewBGtov+NQkdSEEY2UIi96q/ssQq6NzLhpkB7/frapaF7TLMPxc0/qXrCTbsTNlh0N6+im/5BNhYnItl+Z6Pnb48SVMkE+861x1+oqHSNICznNpbE+0dBFRwEw341i9qZpZdMA/TTBu2x6wLwU5pg3Gno1WNLOFtD+2NJdtdghQlqA+O5hTfIA+52iQRL41WDju7wJAf9iclcgs0vvUcLCpxkDOl7gyDAbctkiURh96HR4wMFQEfPfXhv0Eyx2bouEhtUQwWYjp7p3m029/M7br++Vw6IAJyYdG0y/k+5eWv8M30ah+33G2wb+1qmxwieg5JhdeRxwgqCOho2yu24yH+NYobZjraf8KL2OzOqk6e99rPYDQ5kUJfmpWb99ODPUoIMDTXOiYG3wbGsf7u1JcY5l0emAMNmasdzM7TbqanMwPBRdPYnCZfn1oGhJ+fX1wezhhzM3j9aLkqZbf3yb8b79x9Q3H/Ecv8h0f3HXOnHsJtoY39/1Hj/YeliiFNCyIQz67JNX5+nXbRIFUKxIhUpFFKcupcQS6HE6WsoTczFDVZcQUlzcJHhDk3ZtB2omarJeENnuf7D1+s/XcL1n3/3il3jSrcc5wAAAABJRU5ErkJggg==";
 
 const React$2 = await importShared('react');
@@ -16284,7 +16286,20 @@ const RunHistoryView = ({}) => {
     setSelectedNodeIO(null);
   };
   const getStatusIcon = (status) => {
-    if (status === "success" || status === true) {
+    if (status === "skipped") {
+      {
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "img",
+          {
+            src: skipIcon,
+            alt: "skipped",
+            width: 20,
+            height: 20,
+            className: "max-w-full max-h-full object-contain"
+          }
+        );
+      }
+    } else if (status === "success" || status === true) {
       return /* @__PURE__ */ jsxRuntimeExports.jsx(
         "img",
         {
