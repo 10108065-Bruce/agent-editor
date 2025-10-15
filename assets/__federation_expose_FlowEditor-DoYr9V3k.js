@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-09T08:14:10.847Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.13"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:08:41.021Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.14"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24185,6 +24185,8 @@ const RouterSwitchNode$2 = "data:image/svg+xml,%3csvg%20width='32'%20height='32'
 
 const SpeechToTextNode$2 = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M26%200a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6a6%206%200%200%201%206-6h20z'%20fill='url(%23k5v9g9jyna)'/%3e%3cpath%20d='M26%200a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6a6%206%200%200%201%206-6h20z'%20stroke='%23E5E7EB'/%3e%3cg%20clip-path='url(%23m37qrvb3kb)'%20fill='%23F4F4F5'%3e%3cpath%20d='M6.625%2012.25h1.25v7.5h-1.25v-7.5zM20.688%2012.25h1.25v7.5h-1.25v-7.5zM10.063%209.438h1.25V22.25h-1.25V9.437zM17.25%209.75h1.25v12.5h-1.25V9.75zM24.125%209.75h1.25v12.5h-1.25V9.75zM13.5%206.625h1.25v18.75H13.5V6.625z'/%3e%3c/g%3e%3cdefs%3e%3clinearGradient%20id='k5v9g9jyna'%20x1='16'%20y1='0'%20x2='16'%20y2='32'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%237C3AED'/%3e%3cstop%20offset='1'%20stop-color='%23FC6165'/%3e%3c/linearGradient%3e%3cclipPath%20id='m37qrvb3kb'%3e%3cpath%20fill='%23fff'%20transform='translate(6%206)'%20d='M0%200h20v20H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
 
+const FlowCheckNode = "data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M26%200a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6a6%206%200%200%201%206-6h20z'%20fill='url(%23xy5di8g8na)'/%3e%3cpath%20d='M26%200a6%206%200%200%201%206%206v20a6%206%200%200%201-6%206H6a6%206%200%200%201-6-6V6a6%206%200%200%201%206-6h20z'%20stroke='%23E5E7EB'/%3e%3cg%20clip-path='url(%23i1mwfh0emb)'%20fill='%23fff'%3e%3cpath%20d='M12.571%2012.071a.5.5%200%200%201-.5.5H8.5a.5.5%200%200%201-.5-.5V8.5a.5.5%200%200%201%20.5-.5h3.571a.5.5%200%200%201%20.5.5v3.571zm-3.428-1.143a.5.5%200%200%200%20.5.5h1.286a.5.5%200%200%200%20.5-.5V9.643a.5.5%200%200%200-.5-.5H9.643a.5.5%200%200%200-.5.5v1.285zM24%2023.5a.5.5%200%200%201-.5.5h-3.571a.5.5%200%200%201-.5-.5v-3.571a.5.5%200%200%201%20.5-.5H23.5a.5.5%200%200%201%20.5.5V23.5zm-3.428-1.143a.5.5%200%200%200%20.5.5h1.286a.5.5%200%200%200%20.5-.5V21.07a.5.5%200%200%200-.5-.5h-1.286a.5.5%200%200%200-.5.5v1.286zM18.286%2022.286H11.43a3.429%203.429%200%200%201%200-6.858v1.143a2.285%202.285%200%201%200%200%204.572h6.857v1.143zM20.571%2016.572v-1.143a2.286%202.286%200%200%200%200-4.572h-6.857V9.714h6.857a3.428%203.428%200%201%201%200%206.857z'/%3e%3cpath%20d='M17.712%2013.143h-3.427l-1.714%202.286L16%2018.858l3.429-3.429-1.716-2.286z'/%3e%3c/g%3e%3cdefs%3e%3clinearGradient%20id='xy5di8g8na'%20x1='0'%20y1='32'%20x2='32'%20y2='0'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3cclipPath%20id='i1mwfh0emb'%3e%3cpath%20fill='%23fff'%20transform='translate(8%208)'%20d='M0%200h16v16H0z'/%3e%3c/clipPath%3e%3c/defs%3e%3c/svg%3e";
+
 await importShared('react');
 const iconMap = {
   input: {
@@ -24241,6 +24243,10 @@ const iconMap = {
   speech_to_text: {
     src: SpeechToTextNode$2,
     alt: "Speech to Text Icon"
+  },
+  flow_check: {
+    src: FlowCheckNode,
+    alt: "Flow Check Icon"
   }
 };
 const IconBase = ({ type, className = "" }) => {
@@ -29752,6 +29758,569 @@ class WorkflowDataConverter {
 
     return parameters;
   }
+
+  /**
+   * 從 Run History 的 workflow_snapshot 轉換為 ReactFlow 格式
+   * 此方法用於唯讀模式的 Flow 顯示
+   * @param {Object} workflowSnapshot - Run History 中的 workflow_snapshot 物件
+   * @returns {Object} - ReactFlow 格式的 nodes 和 edges
+   */
+  static transformRunHistoryToReactFlowFormat(workflowSnapshot) {
+    console.log(
+      '轉換 Run History Snapshot 為 ReactFlow 格式',
+      workflowSnapshot
+    );
+
+    const flowPipeline = workflowSnapshot.flow_pipeline;
+
+    if (!flowPipeline || !Array.isArray(flowPipeline)) {
+      console.error('找不到有效的 flow_pipeline');
+      return { nodes: [], edges: [] };
+    }
+
+    const nodes = [];
+    const edges = [];
+
+    // 首先處理所有節點
+    flowPipeline.forEach((node) => {
+      console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
+
+      // 轉換為 ReactFlow 節點格式
+      const reactFlowNode = {
+        id: node.id,
+        type: WorkflowMappingService.getTypeFromOperator(node.operator),
+        position: {
+          x: typeof node.position_x === 'number' ? node.position_x : 0,
+          y: typeof node.position_y === 'number' ? node.position_y : 0
+        },
+        data: this.transformNodeDataToReactFlowForRunHistory(node)
+      };
+
+      // 特殊處理 BrowserExtensionOutput 節點
+      if (node.operator === 'browser_extension_output') {
+        console.log(`特殊處理 BrowserExtensionOutput 節點: ${node.id}`);
+
+        const inputHandles = [];
+        const handleMap = new Map();
+
+        if (node.node_input && typeof node.node_input === 'object') {
+          const handlePattern = /^(output\d+)(?:_\d+)?$/;
+          Object.keys(node.node_input).forEach((key) => {
+            const match = key.match(handlePattern);
+            if (match && match[1]) {
+              const baseHandleId = match[1];
+              if (!handleMap.has(baseHandleId)) {
+                handleMap.set(baseHandleId, true);
+                inputHandles.push({ id: baseHandleId });
+                console.log(
+                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
+                );
+              }
+            } else if (key === 'input') {
+              if (!handleMap.has('output0')) {
+                handleMap.set('output0', true);
+                inputHandles.push({ id: 'output0' });
+                console.log(`將舊版 'input' 轉換為 'output0'`);
+              }
+            }
+          });
+        }
+
+        // 檢查是否有從參數中保存的 inputHandles
+        if (
+          node.parameters &&
+          node.parameters.inputHandles &&
+          node.parameters.inputHandles.data
+        ) {
+          const savedHandles = node.parameters.inputHandles.data;
+          if (Array.isArray(savedHandles)) {
+            savedHandles.forEach((handleId) => {
+              const normalizedId = handleId === 'input' ? 'output0' : handleId;
+              if (!inputHandles.some((h) => h.id === normalizedId)) {
+                inputHandles.push({ id: normalizedId });
+                console.log(`從 parameters 提取 handle: ${normalizedId}`);
+              }
+            });
+          }
+        }
+
+        // 確保至少有一個默認 handle
+        if (inputHandles.length === 0) {
+          inputHandles.push({ id: 'output0' });
+          console.log(`添加默認 handle: output0`);
+        }
+
+        reactFlowNode.data.inputHandles = inputHandles;
+
+        // 確保 node_input 與 inputHandles 同步
+        if (!reactFlowNode.data.node_input) {
+          reactFlowNode.data.node_input = {};
+        }
+
+        inputHandles.forEach((handle) => {
+          if (!reactFlowNode.data.node_input[handle.id]) {
+            reactFlowNode.data.node_input[handle.id] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: ''
+            };
+          }
+        });
+
+        reactFlowNode.data.isPreInitialized = true;
+        reactFlowNode.data.isReadOnly = true;
+      }
+
+      // 特殊處理 webhook_output 節點
+      if (node.operator === 'webhook_output') {
+        console.log(`特殊處理 webhook_output 節點: ${node.id}`);
+
+        const inputHandles = [];
+        const handleMap = new Map();
+
+        if (node.node_input && typeof node.node_input === 'object') {
+          const handlePattern = /^(text\d+)(?:_\d+)?$/;
+          Object.keys(node.node_input).forEach((key) => {
+            const match = key.match(handlePattern);
+            if (match && match[1]) {
+              const baseHandleId = match[1];
+              if (!handleMap.has(baseHandleId)) {
+                handleMap.set(baseHandleId, true);
+                inputHandles.push({ id: baseHandleId });
+                console.log(
+                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
+                );
+              }
+            } else if (key === 'input') {
+              if (!handleMap.has('text0')) {
+                handleMap.set('text0', true);
+                inputHandles.push({ id: 'text0' });
+                console.log(`將舊版 'input' 轉換為 'text0'`);
+              }
+            }
+          });
+        }
+
+        if (
+          node.parameters &&
+          node.parameters.inputHandles &&
+          node.parameters.inputHandles.data
+        ) {
+          const savedHandles = node.parameters.inputHandles.data;
+          if (Array.isArray(savedHandles)) {
+            savedHandles.forEach((handleId) => {
+              const normalizedId = handleId === 'input' ? 'text0' : handleId;
+              if (!inputHandles.some((h) => h.id === normalizedId)) {
+                inputHandles.push({ id: normalizedId });
+                console.log(`從 parameters 提取 handle: ${normalizedId}`);
+              }
+            });
+          }
+        }
+
+        if (inputHandles.length === 0) {
+          inputHandles.push({ id: 'text0' });
+          console.log(`添加默認 handle: text0`);
+        }
+
+        reactFlowNode.data.inputHandles = inputHandles;
+
+        if (!reactFlowNode.data.node_input) {
+          reactFlowNode.data.node_input = {};
+        }
+
+        inputHandles.forEach((handle) => {
+          if (!reactFlowNode.data.node_input[handle.id]) {
+            reactFlowNode.data.node_input[handle.id] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: ''
+            };
+          }
+        });
+
+        reactFlowNode.data.isPreInitialized = true;
+        reactFlowNode.data.isReadOnly = true;
+      }
+
+      // 標記所有節點為唯讀
+      reactFlowNode.data.isReadOnly = true;
+
+      nodes.push(reactFlowNode);
+    });
+
+    // 處理連接關係
+    setTimeout(() => {
+      this.createEdgesFromNodeInputs(flowPipeline, nodes, edges);
+    }, 0);
+
+    console.log(`轉換完成: ${nodes.length} 個節點, 準備創建連接`);
+
+    // 自動布局(如果位置都是 0,0)
+    this.autoLayout(nodes);
+
+    return { nodes, edges };
+  }
+
+  /**
+   * 將 Run History 節點數據轉換為 ReactFlow 節點數據
+   * 專門用於唯讀模式
+   * @param {Object} node - Run History 格式節點
+   * @returns {Object} - ReactFlow 格式節點數據
+   */
+  static transformNodeDataToReactFlowForRunHistory(node) {
+    const baseData = {
+      label: node.display_name || WorkflowMappingService.getNodeLabel(node),
+      category: node.category,
+      operator: node.operator,
+      version: node.version,
+      node_input: node.node_input,
+      node_output: node.node_output,
+      isReadOnly: true // 標記為唯讀
+    };
+
+    // 如果有 parameter_display_values,優先使用
+    if (node.parameter_display_values) {
+      baseData.parameter_display_values = node.parameter_display_values;
+    }
+
+    // 根據節點類型轉換參數
+    switch (node.operator) {
+      case 'speech_to_text':
+        return {
+          ...baseData,
+          stt_model_id: node.parameters?.stt_model_id?.data?.toString() || '1'
+        };
+
+      case 'router_switch': {
+        const routersData = node.parameters?.routers?.data || [];
+        return {
+          ...baseData,
+          llm_id: node.parameters?.llm_id?.data?.toString() || '1',
+          routers: Array.isArray(routersData) ? routersData : []
+        };
+      }
+
+      case 'schedule_trigger': {
+        return {
+          ...baseData,
+          schedule_type:
+            node.parameters?.schedule_type?.data ||
+            node.parameters?.schedule_type ||
+            'cron',
+          cron_expression:
+            node.parameters?.cron_expression?.data ||
+            node.parameters?.cron_expression ||
+            '',
+          execute_at:
+            node.parameters?.execute_at?.data ||
+            node.parameters?.execute_at ||
+            null,
+          timezone:
+            node.parameters?.timezone?.data ||
+            node.parameters?.timezone ||
+            'Asia/Taipei',
+          enabled:
+            node.parameters?.enabled?.data ?? node.parameters?.enabled ?? true,
+          description:
+            node.parameters?.description?.data ||
+            node.parameters?.description ||
+            ''
+        };
+      }
+
+      case 'http_request': {
+        const bodyText = node.parameters?.body?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data || '';
+
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data || '',
+          method: node.parameters?.method?.data || 'GET',
+          headers: node.parameters?.headers?.data || [{ key: '', value: '' }],
+          body: bodyText,
+          editorHtmlContent: editorHtmlContent
+        };
+      }
+
+      case 'extract_data': {
+        const columnsData = node.parameters?.columns?.data || [];
+        const columns = Array.isArray(columnsData) ? columnsData : [];
+
+        return {
+          ...baseData,
+          model: node.parameters?.llm_id?.data?.toString() || '',
+          columns: columns
+        };
+      }
+
+      case 'line_webhook_input':
+        console.log('處理 line 節點數據轉換:', node);
+        return {
+          ...baseData,
+          external_service_config_id:
+            node.parameters?.external_service_config_id?.data || '',
+          webhook_url: node.parameters?.webhook_url?.data || '',
+          output_handles: node.node_output
+            ? Object.keys(node.node_output).filter((key) => key !== 'node_id')
+            : ['text', 'image', 'audio']
+        };
+
+      case 'browser_extension_input':
+        return {
+          ...baseData,
+          type: 'browserExtensionInput',
+          browser_extension_url: node.parameters?.browser_extension_url?.data,
+          items:
+            node.parameters?.functions?.map((func) => ({
+              id: func.func_id,
+              name: func.func_name,
+              icon: func.func_icon || 'document'
+            })) || []
+        };
+
+      case 'browser_extension_output': {
+        let inputHandles = [];
+
+        if (
+          node.node_input &&
+          typeof node.node_input === 'object' &&
+          Object.keys(node.node_input).length > 0
+        ) {
+          console.log(
+            `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
+            node.node_input
+          );
+
+          inputHandles = Object.keys(node.node_input).map((handleId) => {
+            console.log(`從 node_input 提取 handle ID: ${handleId}`);
+            return { id: handleId };
+          });
+
+          console.log(
+            `節點 ${node.id} 從 node_input 提取的 handle:`,
+            inputHandles
+          );
+        } else {
+          console.log(`節點 ${node.id} 沒有 node_input 數據,不創建 handle`);
+        }
+
+        return {
+          ...baseData,
+          type: 'browserExtensionOutput',
+          inputHandles: inputHandles
+        };
+      }
+
+      case 'webhook_output': {
+        let inputHandles = [];
+
+        if (
+          node.node_input &&
+          typeof node.node_input === 'object' &&
+          Object.keys(node.node_input).length > 0
+        ) {
+          console.log(
+            `處理 webhook_output 節點 ${node.id} 的輸入:`,
+            node.node_input
+          );
+
+          inputHandles = Object.keys(node.node_input).map((handleId) => {
+            console.log(`從 node_input 提取 handle ID: ${handleId}`);
+            return { id: handleId };
+          });
+
+          console.log(
+            `節點 ${node.id} 從 node_input 提取的 handle:`,
+            inputHandles
+          );
+        } else {
+          console.log(`節點 ${node.id} 沒有 node_input 數據,不創建 handle`);
+        }
+
+        return {
+          ...baseData,
+          type: 'webhook_output',
+          inputHandles: inputHandles
+        };
+      }
+
+      case 'webhook':
+      case 'webhook_input':
+        return {
+          ...baseData,
+          webhookUrl: node.parameters?.webhook_url?.data || '',
+          curl_example: node.parameters?.curl_example?.data || ''
+        };
+
+      case 'ask_ai': {
+        const rawModelId =
+          node.parameters?.llm_id?.data !== undefined
+            ? node.parameters.llm_id.data
+            : node.parameters?.model?.data !== undefined
+            ? node.parameters.model.data
+            : '';
+
+        const modelId =
+          rawModelId !== null && rawModelId !== undefined
+            ? rawModelId.toString()
+            : '';
+
+        const promptText = node.parameters?.prompt?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data ||
+          node.parameters?.prompt?.data ||
+          '';
+
+        return {
+          ...baseData,
+          model: modelId,
+          promptText: promptText,
+          editorHtmlContent: editorHtmlContent
+        };
+      }
+
+      case 'basic_input': {
+        const field = {
+          inputName:
+            node.parameters?.input_name?.data ||
+            node.parameters?.input_name_0?.data ||
+            'input_name',
+          defaultValue:
+            node.parameters?.default_value?.data ||
+            node.parameters?.default_value_0?.data ||
+            ''
+        };
+
+        console.log(`處理 basic_input 節點:`, {
+          inputName: field.inputName,
+          defaultValue: field.defaultValue
+        });
+
+        return {
+          ...baseData,
+          fields: [field]
+        };
+      }
+
+      case 'ifElse':
+        return {
+          ...baseData,
+          variableName: node.parameters?.variable?.data || '',
+          operator: node.parameters?.operator?.data || 'equals',
+          compareValue: node.parameters?.compare_value?.data || ''
+        };
+
+      case 'combine_text': {
+        return {
+          ...baseData,
+          textToCombine: node.parameters?.text_to_combine?.data || '',
+          editorHtmlContent: node.parameters?.editor_html_content?.data || '',
+          activeTab: node.parameters?.active_tab?.data || 'editor'
+        };
+      }
+
+      case 'knowledge_retrieval':
+        return {
+          ...baseData,
+          selectedFile: node.parameters?.knowledge_base_id?.data || '',
+          topK: node.parameters?.top_k?.data || 5,
+          threshold: node.parameters?.threshold?.data || 0.7,
+          // 如果有 display value,使用它
+          displayValue: node.parameter_display_values?.knowledge_base_id || null
+        };
+
+      case 'http':
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data || '',
+          method: node.parameters?.method?.data || 'GET'
+        };
+
+      case 'timer':
+        return {
+          ...baseData,
+          hours: node.parameters?.hours?.data || 0,
+          minutes: node.parameters?.minutes?.data || 0,
+          seconds: node.parameters?.seconds?.data || 0
+        };
+
+      case 'event':
+        return {
+          ...baseData,
+          eventType: node.parameters?.event_type?.data || 'message',
+          eventSource: node.parameters?.event_source?.data || ''
+        };
+
+      case 'end':
+        return {
+          ...baseData,
+          outputText: node.parameters?.output_text?.data || ''
+        };
+
+      case 'aim_ml': {
+        console.log(
+          'transformNodeDataToReactFlowForRunHistory - aim_ml 節點參數:',
+          node.parameters
+        );
+
+        let modelFieldsInfo = {};
+        if (node.parameters?.model_fields_info?.data) {
+          const rawData = node.parameters.model_fields_info.data;
+          if (typeof rawData === 'string') {
+            try {
+              modelFieldsInfo = JSON.parse(rawData);
+            } catch (error) {
+              console.error('解析 model_fields_info 字串失敗:', error);
+              modelFieldsInfo = {};
+            }
+          } else if (typeof rawData === 'object' && rawData !== null) {
+            modelFieldsInfo = rawData;
+          }
+        }
+
+        const nodeData = {
+          ...baseData,
+          externalServiceConfigId:
+            node.parameters?.external_service_config_id?.data || '',
+          selectedAim: node.parameters?.aim_ml_id?.data || '',
+          trainingId: node.parameters?.training_id?.data || 0,
+          simulatorId: node.parameters?.simulator_id?.data || '',
+          enableExplain: node.parameters?.enable_explain?.data ?? true,
+          llmId: node.parameters?.llm_id?.data || '',
+          promptText: node.parameters?.prompt?.data || '',
+          modelFieldsInfo: modelFieldsInfo
+        };
+
+        console.log('QOCA AIM 節點轉換後的數據:', nodeData);
+        return nodeData;
+      }
+
+      case 'line_send_message':
+        return {
+          ...baseData,
+          message: node.parameters?.message?.data || ''
+        };
+
+      default: {
+        const transformedParams = {};
+        Object.entries(node.parameters || {}).forEach(([key, value]) => {
+          transformedParams[key] = value.data;
+        });
+        return {
+          ...baseData,
+          ...transformedParams
+        };
+      }
+    }
+  }
 }
 
 /**
@@ -34119,7 +34688,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
             onTagInsert: handleTagInsert,
             onBlur: handleBlur,
             placeholder: "輸入您的提示",
-            className: "bg-[#e5e7eb] text-[#09090b] border-gray-300",
+            className: "bg-[#e9e9e7] text-[#09090b] border-gray-300",
             flowId: getFlowId(),
             initialHtmlContent: editorHtmlContent,
             shouldShowPanel: promptConnectionCount > 0,
@@ -36549,7 +37118,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
             onTagInsert: handleTagInsert,
             onBlur: handleBodyBlur,
             placeholder: '{"flow_id": "9e956c37-20ea-47a5-bcd5-3cafc35b967a", "func_id": "q1", "data":"$input"}',
-            className: "bg-[#e5e7eb] text-[#09090b] border-gray-300",
+            className: "bg-[#ee9e9e7] text-[#09090b] border-gray-300",
             flowId: getFlowId(),
             initialHtmlContent: editorHtmlContent,
             shouldShowPanel: bodyConnectionCount > 0,
@@ -41729,7 +42298,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             onChange: handleTextChange,
             onTagInsert: handleTagInsert,
             placeholder: "點擊此處編輯內容...",
-            className: "bg-[#e5e7eb] text-[#09090b] border-gray-300",
+            className: "bg-[#e9e9e7] text-[#09090b] border-gray-300",
             flowId: getFlowId(),
             initialHtmlContent: editorHtmlContent,
             shouldShowPanel: connectionCount > 0,
@@ -42981,7 +43550,11 @@ const BaseButton = ({
   width = "85px",
   buttonStyle = "primary",
   loading = false,
-  showBorder = true
+  showBorder = true,
+  badgeCount = 0,
+  // 新增：數字標記
+  badgeMax = 99
+  // 新增：數字標記的最大顯示值
 }) => {
   const getButtonStyles = () => {
     if (disabled) {
@@ -43000,7 +43573,13 @@ const BaseButton = ({
         return "bg-[#00ced1] text-white hover:bg-[#00b8bb] transition-colors";
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: showBorder ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-full shadow-md", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+  const formatBadgeCount = (count) => {
+    if (count > badgeMax) {
+      return `${badgeMax}+`;
+    }
+    return count;
+  };
+  const buttonContent = /* @__PURE__ */ jsxRuntimeExports.jsx(
     "button",
     {
       className: `rounded-full text-sm font-medium ${getButtonStyles()} ${className}`,
@@ -43016,23 +43595,36 @@ const BaseButton = ({
       },
       children
     }
-  ) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "button",
-    {
-      className: `rounded-full text-sm font-medium ${getButtonStyles()} ${className}`,
-      onClick,
-      disabled: disabled || loading,
-      title,
-      style: {
-        width,
-        height: "40px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      },
-      children
-    }
-  ) });
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+    showBorder ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-full shadow-md", children: buttonContent }) : buttonContent,
+    badgeCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "absolute -top-1 -right-1 bg-[#ffaa1e] text-white text-xs font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-lg animate-badge-in",
+        style: {
+          border: "2px solid white"
+        },
+        children: formatBadgeCount(badgeCount)
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("style", { jsx: true, children: `
+        @keyframes badgeIn {
+          from {
+            transform: scale(0);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        .animate-badge-in {
+          animation: badgeIn 0.3s ease-out;
+        }
+      ` })
+  ] });
 };
 
 await importShared('react');
@@ -43982,113 +44574,6 @@ function CustomEdge({
 
 const React$5 = await importShared('react');
 const {useState: useState$4} = React$5;
-const LoadWorkflowButton = ({ onLoad }) => {
-  const [workflowId, setWorkflowId] = useState$4(
-    "cb419ef0-ac18-4f73-9178-499b31136e48"
-  );
-  const [showInput, setShowInput] = useState$4(false);
-  const { state, setLoading, setSuccess, setError } = useButtonState();
-  const handleClick = () => {
-    setShowInput(true);
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!workflowId || typeof onLoad !== "function") return;
-    try {
-      setLoading();
-      await onLoad(workflowId);
-      setSuccess();
-      setWorkflowId("");
-      setShowInput(false);
-    } catch (error) {
-      console.error("載入工作流失敗:", error);
-      setError();
-    }
-  };
-  const handleCancel = () => {
-    setWorkflowId("");
-    setShowInput(false);
-  };
-  const getButtonStyle = () => {
-    if (state === "loading") return "loading";
-    if (state === "success") return "success";
-    if (state === "error") return "error";
-    return "primary";
-  };
-  const getButtonContent = () => {
-    if (state === "loading") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "載入中..." })
-      ] });
-    }
-    if (state === "success") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "已載入" })
-      ] });
-    }
-    if (state === "error") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorIcon, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
-      ] });
-    }
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "測試用" });
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BaseButton,
-      {
-        onClick: handleClick,
-        disabled: state === "loading",
-        title: "載入工作流",
-        buttonStyle: getButtonStyle(),
-        children: getButtonContent()
-      }
-    ),
-    showInput && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 mt-2 p-3 bg-white rounded-md shadow-lg border border-gray-200 z-20 w-64", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "form",
-      {
-        onSubmit: handleSubmit,
-        className: "flex flex-col",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "mb-1 text-sm text-gray-600", children: "請輸入工作流 ID:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: workflowId,
-              onChange: (e) => setWorkflowId(e.target.value),
-              className: "border border-gray-300 rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-[#00ced1] focus:border-transparent",
-              autoFocus: true,
-              placeholder: "例如: 5e9867a0-58b4-4c16-acbb-e194df6efa46"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end space-x-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: handleCancel,
-                className: "px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50",
-                children: "取消"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "submit",
-                className: "px-3 py-1.5 text-sm bg-[#00ced1] text-white rounded-md hover:bg-[#00b5b8]",
-                children: "載入"
-              }
-            )
-          ] })
-        ]
-      }
-    ) })
-  ] });
-};
 
 const React$4 = await importShared('react');
 const {useEffect: useEffect$2,useState: useState$3} = React$4;
@@ -44467,37 +44952,7 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
   );
 };
 
-const chatbuttleIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIoAAACKCAMAAABCWSJWAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABsUExURUdwTCjO2SbP2U/P4UTP3CrP2UbP30bO30bP30XP3mnP5l3O5F/P5DTO3CzO2jLO2zfO3CHO2FfO4ibO2TzO3VvO40DO3k7P4VLO4V/O5EvO4ETO30fO3xvO12PO5WfO5W/O52rO5hXO1QzO1BObFosAAAAOdFJOUwC7mOgQ3GB6JETbmrrvTnmwGwAACaNJREFUeNrtW+mSskgQHJDTAwSUQzzx/d9x6aaPqupmAMeZ3diwZn8ZX2ykWVl3+/X1sY997GMf+9jH/kcWRTG3KPr3MHhxuFmvm+v1euvt8bjd1ttNGHt/DSPYrI/NtWF2FWAYnPv9/lhv/g5OFG6PgykoPZiBmwHOfRv8gbu8cJsfjzkHMkBpAJQeCTOOJv5tIKt8sAELBAOw3LmtA+83gdR5Xisogpcr++tpgbwMaNZh9GtAmOWAF0jLTYn3cZfE9Mz8AhIBhGGpDR9dsY9u2kvvBxNtq6qSUASSHNLCmbnJHMOIuUvbRO+l5HSqTDAopBuQX5CT3kmMt+2B9H+1hILBNEcaRpSX++ZdzlmdTwxLfapqKy9NY8Wi9dIT8xYnBaszg9JjOVWalhoJRgX1TZYkSsw7sIRnZicOBsilJtI96ryLBKOd9GPBhC0Dwv44MRJNPuWkx4246H4Pf4qkPZ81L8xFlc1FMr8McaR9dH8blrBsWwGG81JVKKZriKUxEu87eQnLspRQJC2QmLzOCZihHkleqFxe10uPpC01LwJNfZK85NZc1+D2BfPyYucQlYwUDqWF4u3B1LXFRyrXNVeaeDWWl2I68g8lNwlFIgF6yUfrNE682tav9DDOoZRYShpGrAZUKI4MWkBpRGBeqAHhoYdyAD4CYFhBkrTY8m4jmilrTC8Oo+jATPDSgpgWWBgtlRlGlnbXiOmlcvEPBMsZBzVDM/goR70UiqOrNY62C92z3x/2CksrwJyBeOuTkV4MwdzsCSZeFj0SyqiPhkCS0q1p/3IdmUkWR5HbA+mRQDBtW56JXqqx/gUGkk0vC5Qb7bkJKCKkjbSrG7scJ97GUqdxHHkLSJFQIJiW1EYORqUXkXaNOQDp5bGUlihNJZZBuuVYfqkqgoWkF7OZeiyjxe2hpDYftaWW7lkn3spSjyy18QVaelJSBQbHEeDlJANJZTpbPSKzGhtJBjQz+2oLFJ1ftHbPqmXAtfFIBmpVkGANmJdb/BRi2e8xLyWs0xVpMoFgGoIF1KPH3JQ7+GfMRUC7Qi81GNbyb3ghO485wg2TJCW8jCYYLRc5BtT191iUeucI10/SxM6LDGprLyWIySf6uoesRzM8FCWJoGUPsGBaQO89CAaENNRug/d1uB5NeyhIOJYE8wJd1LY0piug3RwLptFOgnm3p2U6htwkUbykNNeVUC/nls6wFWrsdNNwtewOZ3SWfpJAXvZAMHtdpo1ydDJcJNA0oMVEM8l6cpeSJAYWkF00lhJrtzILklW6IL9MQYmTpJBIVCCZeRfVRgCm/m4mIfPRVI8bFoXAkijlEmbK0Z7BGO6PR+gjVKgfk1OrWxSFdFBCwkg7SWE5g1xX6cYuzyfr9O0xleQcxooCg3zksMV9FPqkTq/YnjgKViKmpY/6j73+4y3GAniZDCGn4B4ieul52QVoWBuk24NR3y0ULhoK0sZT+zNRHI3TxFS+9YsCqEXTsovQ4KjkAhwegP4lhFtFM5B4y7CeA8XCS4jHaakX9PHmJEsA4j7M6cnmxnmZglIUBeZlQOLbptjysEIB6a0kLzhO10d7bZwHRfLCWEkoKQMtjBcXfyxoOREVhHlurjyuk1CyLONAVEzzqE5J7XJ5OTqUBGEg8gv5OMZ7KbWvm4RSFBmVS5pGxsaDhxFBGIt6RKBEdAXfzGUlU07SijGgDNkuMKCcLaxEIzebqQjiWDIFRngosGilt9DcfDNWNoaDyP5l6F/mQMmwdnswDvlXomMgH7NrAPtvhTu0jeXe2GOZCmaHk6J4SaweCtQ4jcQSt7Ichdg/dW7pd69T2dbNBBbJi6DFB1802smuofQjmFZVk4nyzaq2LhrmQYFqkcQ4HtwDyQYGYIl8sPPQWLytcbIRepkqh0F2ySgxg3T9QBxWd3BqbPXHeM8g7rrxSndTR7T4vk71K9FFYMlUelEx7Tuu6+x0X7cfmt0d/5jVRrwk224221VVj94mplp+73JRvBQFimk1BVAwnA45Nep+lwEa2XvzOJochPwL4UW3UsnY3IgWU+czHWLtd5LV9BykoeiQLgrZYpImEw/3Lb0HVPDIh8OomZ5Ug4uBJQGdtzGrITDmjsxcech2d/o21IvlYviIl2orFj1OH8iO7DychLGPcrU8bGYsexwOxPARqI0TtJT4xme7N/ZDyXoayVd4sfICewYDjLGWMvbeal8n0cw5xsQSiOEjY1bbK/GO7A6NW5a+T89axjkXwYsRRwkd1vB+Vy49ytIcGyt8P5oRytpDmQZjFiTDR3oxpWlpwZ7BiOl5xzJvJ8VCY1rrJTGyLh5iwZ7hfKLvPBiYmYcY99Jh6YIeUzd2NKhRSOtyJPaYYO3NkMzzDxdud4FgClmoE2Nw3Ke2mLZoF+/rZt++mXA7xIpZGpVe9mlqzS+lZY8pV2RzSelp6QQtmYok2b+A2pik39UjsPNQelFxtOBBgNtdFBhFC80vqfLR3vDRAcWRuk0IF80npW+gsg6ohYjXsmfgPjqgoMYNjHoYxMEseiURMheN8WKsGcgW0+wZTid4oF5CSp9bfI5EUnOx5xcd1FbtonsAB1PzG9/Cm3fcdWZ2MUY1M+/iVNe2uq9Tp6zFrxKcTvkoE3AKjIZ2vKSBMfPLgGa1+N2I23Vcuh3SbjE4KSls6zrLXQ31UoNglr+m8QUrOO/C1tvUi7H5lm8IQK5b/t4p6p6cFrMamTsPopcDSS/oNLFejOQr6LoBioWX6byL70egx1y98MDI6ToJRtYjS++d2HvMg37mgQ8lryD56gAUUy5ausWceqRy3SsPwOJeKk/AC1EM4SX9pq+DMf3Ss7g+lJ+UmMwgBgoGz7CHPX1aUb6I5Mt/PjEvHe0xjbaOztP4xod38EtC+ckMEkMFkynBEL3sR94Q7F58KBhIUp4qpFVfd6H1iMbR3nYT9l99+usKUp5aLrqBIf1LUpgjLBVv67z8CNl/KizPiZgm/UtiLdPu6w/Dn9KAXHSZ1rnOMjiaA3Xp/+CXKCEkxaAloyXg21TXU/KTX6E4T0iLKZhsdM8Am4ahBjg/+nGOB4BgLKB/GV8zSF4YMbsfvlOPn4SVp2Zl1EmwCKiDY/jTXwgFT2QKixN7X5HrW3spwItE4rzhpx4xBjLkOkd9w3hAo+VCqwDbv+zct/yAy6OsPH3y8yeOhgpGb+vehEMlWw3F+j/2YtfZGbugJPHdt/5qy/M1jm+D0YvD0HF8bo7jhkH09l+yRSKzOOFf/7jSJl23/5L/ARwf+9jHPvaxj33sY/8AyeEIw7Nd8KIAAAAASUVORK5CYII=";
-
 await importShared('react');
-const ChatButton = ({
-  onClick,
-  disabled = false,
-  className = "",
-  title = "開啟聊天",
-  width = "50px",
-  showBorder = false
-}) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    BaseButton,
-    {
-      onClick,
-      disabled,
-      className,
-      width,
-      title,
-      buttonStyle: "secondary",
-      showBorder,
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "img",
-        {
-          src: chatbuttleIcon,
-          alt: "chat"
-        }
-      )
-    }
-  );
-};
 
 const flowCheckIcon = "data:image/png;base64,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";
 
@@ -44509,8 +44964,10 @@ const FlowCheckButton = ({
   title = "流程檢查",
   width = "50px",
   showBorder = false,
-  errors = []
+  errors = [],
   // 接收錯誤訊息陣列
+  unreadCount = 5
+  // 新增：未讀訊息數量
 }) => {
   const [showPopover, setShowPopover] = React$1.useState(false);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -44528,6 +44985,7 @@ const FlowCheckButton = ({
             width,
             title,
             buttonStyle: "secondary",
+            badgeCount: unreadCount,
             showBorder,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "img",
@@ -44583,7 +45041,8 @@ const ReactFlowWithControls = forwardRef(
     onDrop,
     onDragOver,
     sidebarVisible,
-    isLocked = false
+    isLocked = false,
+    runhistory = false
   }, ref) => {
     const reactFlowInstance = useReactFlow();
     const fitViewToNodes = useCallback(
@@ -44614,40 +45073,41 @@ const ReactFlowWithControls = forwardRef(
     useImperativeHandle(ref, () => ({
       fitViewToNodes
     }));
+    const isEditDisabled = isLocked || runhistory;
     const controlsStyle = useMemo(() => {
       return {
-        left: sidebarVisible ? "17rem" : "10px",
+        left: sidebarVisible && !runhistory ? "17rem" : "10px",
         // 如果sidebar顯示，將controls向右移動
         transition: "left 0.3s ease"
         // 添加過渡效果使移動更平滑
       };
-    }, [sidebarVisible]);
+    }, [sidebarVisible, runhistory]);
     return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
       ReactFlow,
       {
         nodes,
         edges,
-        onNodesChange: isLocked ? () => {
+        onNodesChange: isEditDisabled ? () => {
         } : onNodesChange,
-        onEdgesChange: isLocked ? () => {
+        onEdgesChange: isEditDisabled ? () => {
         } : onEdgesChange,
-        onConnect: isLocked ? () => {
+        onConnect: isEditDisabled ? () => {
         } : onConnect,
-        onNodesDelete: isLocked ? () => {
+        onNodesDelete: isEditDisabled ? () => {
         } : onNodesDelete,
         nodeTypes,
         edgeTypes,
         defaultViewport,
         onSelectionChange,
-        deleteKeyCode: isLocked ? [] : ["Backspace", "Delete"],
+        deleteKeyCode: isEditDisabled ? [] : ["Backspace", "Delete"],
         onInit,
-        onDrop: isLocked ? () => {
+        onDrop: isEditDisabled ? () => {
         } : onDrop,
-        onDragOver: isLocked ? () => {
+        onDragOver: isEditDisabled ? () => {
         } : onDragOver,
-        nodesDraggable: !isLocked,
-        nodesConnectable: !isLocked,
-        elementsSelectable: !isLocked,
+        nodesDraggable: !isEditDisabled,
+        nodesConnectable: !isEditDisabled,
+        elementsSelectable: !isEditDisabled,
         proOptions: { hideAttribution: true },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(MiniMap$1, {}),
@@ -44696,493 +45156,40 @@ const resetGlobalNodeListState = () => {
   globalNodeListPromise = null;
   globalNodeListData = null;
 };
-const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
-  const reactFlowWrapper = useRef(null);
-  const [reactFlowInstance, setReactFlowInstance] = useState(null);
-  const reactFlowControlsRef = useRef(null);
-  const isInitialized = useRef(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [sidebarVisible, setSidebarVisible] = useState(true);
-  const [isLocked, setIsLocked] = useState(false);
-  const nodeTypes = useMemo(() => enhancedNodeTypes, []);
-  const edgeTypes = useMemo(() => ({ "custom-edge": CustomEdge }), []);
-  const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
-  const [nodeList, setNodeList] = useState([]);
-  const [nodeListLoading, setNodeListLoading] = useState(true);
-  const [nodeListError, setNodeListError] = useState(null);
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    onNodesDelete,
-    handleAddNode,
-    handleAddInputNode,
-    handleAddAINode,
-    handleAddBrowserExtensionOutput,
-    handleAddBrowserExtensionInput,
-    updateNodeFunctions,
-    handleAddIfElseNode,
-    handleAddKnowledgeRetrievalNode,
-    handleAddEndNode,
-    handleAddWebhookNode,
-    handleAddHttpRequestNode,
-    handleAddEventNode,
-    handleAddTimerNode,
-    handleAddLineNode,
-    handleAddLineMessageNode,
-    handleAddExtractDataNode,
-    handleAddQOCAAimNode,
-    handleAddScheduleTriggerNode,
-    handleAddWebhookInputNode,
-    handleAddWebhookOutputNode,
-    handleAddCombineTextNode,
-    handleNodeSelection,
-    handleAddRouterSwitchNode,
-    handleAddSpeechToTextNode,
-    setNodes: setFlowNodes,
-    setEdges: setFlowEdges,
-    getNodeCallbacks,
-    handleAutoLayout,
-    startWorkflowLoading,
-    finishWorkflowLoading
-  } = useFlowNodes();
-  const [flowMetadata, setFlowMetadata] = useState({
-    id: null,
-    title: initialTitle || "",
-    lastSaved: null,
-    version: 1
-  });
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [saveDialogCallback, setSaveDialogCallback] = useState(null);
-  const isInIframe = useMemo(() => {
-    try {
-      return window.self !== window.top;
-    } catch {
-      return true;
-    }
-  }, []);
-  const loadNodeList = useCallback(async () => {
-    const loadId = Date.now();
-    if (globalNodeListPromise) {
-      return globalNodeListPromise;
-    }
-    if (globalNodeListLoaded && globalNodeListData) {
-      setNodeList(globalNodeListData);
-      setNodeListLoading(false);
-      setNodeListError(null);
-      return globalNodeListData;
-    }
-    const cacheKey = "nodeListCache";
-    const cacheTimeKey = "nodeListCacheTime";
-    const cacheExpiry = 5 * 1e3;
-    try {
-      const cached = localStorage.getItem(cacheKey);
-      const cacheTime = localStorage.getItem(cacheTimeKey);
-      if (cached && cacheTime) {
-        const isExpired = Date.now() - parseInt(cacheTime) > cacheExpiry;
-        if (!isExpired) {
-          const cachedData = JSON.parse(cached);
-          setNodeList(cachedData);
-          setNodeListLoading(false);
-          setNodeListError(null);
-          globalNodeListLoaded = true;
-          globalNodeListData = cachedData;
-          return cachedData;
-        } else {
-          console.warn(`[${loadId}] 緩存已過期，重新載入`);
-        }
-      }
-    } catch (error) {
-      console.warn(`[${loadId}] 讀取緩存失敗:`, error);
-    }
-    globalNodeListPromise = (async () => {
-      try {
-        setNodeListLoading(true);
-        setNodeListError(null);
-        const nodeListData = await workflowAPIService.getNodeList();
-        setNodeList(nodeListData);
-        globalNodeListLoaded = true;
-        globalNodeListData = nodeListData;
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
-          localStorage.setItem(cacheTimeKey, Date.now().toString());
-        } catch (error) {
-          console.warn(`[${loadId}] 緩存節點清單失敗:`, error);
-        }
-        return nodeListData;
-      } catch (error) {
-        console.error(`[${loadId}] 載入節點清單失敗:`, error);
-        setNodeListError(error.message || "載入節點清單失敗");
-        const defaultNodeList = [];
-        setNodeList(defaultNodeList);
-        globalNodeListData = defaultNodeList;
-        throw error;
-      } finally {
-        setNodeListLoading(false);
-        globalNodeListPromise = null;
-        console.log(
-          `[${loadId}] loadNodeList 完成，重置 globalNodeListPromise`
-        );
-      }
-    })();
-    return globalNodeListPromise;
-  }, []);
-  useEffect(() => {
-    if (!isInIframe) {
-      const effectId = Date.now();
-      if (globalNodeListLoaded && globalNodeListData) {
-        setNodeList(globalNodeListData);
-        setNodeListLoading(false);
-        setNodeListError(null);
-        return;
-      }
-      if (!globalNodeListPromise) {
-        loadNodeList().catch((error) => {
-          console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
-        });
-      } else {
-        globalNodeListPromise.then((data) => {
-          if (data) {
-            setNodeList(data);
-            setNodeListLoading(false);
-            setNodeListError(null);
-          }
-        }).catch((error) => {
-          console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
-        });
-      }
-    }
-  }, []);
-  useEffect(() => {
-    return () => {
-      console.log("FlowEditor 組件卸載");
-    };
-  }, []);
-  const toggleSidebar = useCallback(() => {
-    setSidebarVisible((prev) => !prev);
-  }, []);
-  const handleLoadWorkflow = useCallback(async (flowId) => {
-    try {
-      const success = await loadWorkflowImpl(flowId);
-      return success;
-    } catch (error) {
-      console.error("無法載入工作流:", error);
-      window.notify({
-        message: "載入工作流失敗",
-        type: "error",
-        duration: 2e3
-      });
-      return false;
-    }
-  }, []);
-  const loadWorkflowImpl = async (flowId) => {
-    if (flowId !== "new") {
-      try {
-        if (startWorkflowLoading) {
-          startWorkflowLoading();
-        }
-        const apiData = await workflowAPIService.loadWorkflow(flowId);
-        if (apiData.hasOwnProperty("is_locked")) {
-          setIsLocked(apiData.is_locked);
-        }
-        const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataConverter.transformToReactFlowFormat(apiData);
-        const nodesWithCallbacks = transformedNodes.map((node) => {
-          const nodeCallbacks = getNodeCallbacks(node.id, node.type);
-          if (node.type === "combine_text") {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                textToCombine: node.data.textToCombine || "",
-                editorHtmlContent: node.data.editorHtmlContent || "",
-                activeTab: node.data.activeTab || "editor",
-                inputHandles: node.data.inputHandles || [{ id: "text" }],
-                ...nodeCallbacks
-              }
-            };
-          }
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              ...nodeCallbacks
-            }
-          };
-        });
-        setFlowNodes(nodesWithCallbacks);
-        setFlowEdges(transformedEdges);
-        setTimeout(() => {
-          debugBrowserExtensionOutput(transformedNodes, transformedEdges);
-          setFlowMetadata((prev) => ({
-            ...prev,
-            id: apiData.flow_id,
-            title: apiData.flow_name || prev.flow_name,
-            version: apiData.version || prev.version
-          }));
-          if (typeof window !== "undefined") {
-            window.currentFlowId = apiData.flow_id;
-          }
-          console.log("載入工作流後立即更新節點函數...");
-          setTimeout(() => {
-            console.log("載入工作流後再次確認節點函數...");
-            updateNodeFunctions();
-            if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
-              console.log("載入工作流後，執行一次畫布縮放以顯示所有節點...");
-              reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
-            }
-            if (finishWorkflowLoading) {
-              finishWorkflowLoading();
-            }
-          }, 500);
-        }, 100);
-        window.notify({
-          message: "工作流載入成功",
-          type: "success",
-          duration: 2e3
-        });
-        return true;
-      } catch (error) {
-        console.error("載入工作流失敗:", error);
-        if (finishWorkflowLoading) {
-          finishWorkflowLoading();
-        }
-        window.notify({
-          message: "載入工作流失敗",
-          type: "error",
-          duration: 2e3
-        });
-        return false;
-      }
-    }
-  };
-  useImperativeHandle(ref, () => ({
-    // 導出流程數據的方法
-    exportFlowData: () => {
-      return {
-        id: flowMetadata.id || `flow_${Date.now()}`,
-        title: flowMetadata.title || "未命名流程",
-        version: flowMetadata.version || 1,
-        nodes,
-        edges,
-        metadata: {
-          lastModified: (/* @__PURE__ */ new Date()).toISOString(),
-          savedAt: (/* @__PURE__ */ new Date()).toISOString(),
-          nodeCount: nodes.length,
-          edgeCount: edges.length
-        }
-      };
-    },
-    // 設置流程標題的方法
-    setFlowTitle: (title) => {
-      if (title && typeof title === "string") {
-        setFlowMetadata((prev) => ({ ...prev, title }));
-        return true;
-      }
-      return false;
-    },
-    setFlowId: (flowId) => {
-      if (flowId && typeof flowId === "string") {
-        setFlowMetadata((prev) => ({ ...prev, flowId }));
-        return true;
-      }
-      return false;
-    },
-    loadWorkflow: loadWorkflowImpl,
-    // saveWorkflow 方法
-    saveWorkflow: saveToServer,
-    // 暴露 fitViewToNodes 方法給父組件
-    fitViewToNodes: () => {
-      if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
-        reactFlowControlsRef.current.fitViewToNodes();
-      }
-    },
-    // 暴露重新載入節點清單的方法
-    reloadNodeList: () => {
-      console.log("手動重新載入節點清單");
-      resetGlobalNodeListState();
-      return loadNodeList();
-    }
-  }));
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.currentFlowId = flowMetadata.id;
-    }
-    return () => {
-      if (typeof window !== "undefined") {
-        delete window.currentFlowId;
-      }
-    };
-  }, [flowMetadata.id]);
-  useEffect(() => {
-    if (!isInitialized.current) {
-      if (updateNodeFunctions) {
-        updateNodeFunctions();
-      }
-      isInitialized.current = true;
-    }
-  }, [updateNodeFunctions]);
-  const handleTitleChange = useCallback(
-    (title) => {
-      if (isLocked) return;
-      setFlowMetadata((prev) => ({ ...prev, title }));
-      if (onTitleChange && typeof onTitleChange === "function") {
-        onTitleChange(title);
-      }
-    },
-    [onTitleChange, isLocked]
-  );
-  useCallback(
-    (nodeType) => {
-      if (!reactFlowInstance) {
-        return { x: 400, y: 300 };
-      }
-      try {
-        let centerPosition;
-        const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-        if (reactFlowBounds) {
-          const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
-          const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
-          centerPosition = reactFlowInstance.screenToFlowPosition({
-            x: centerX,
-            y: centerY
-          });
-        } else {
-          const viewport = reactFlowInstance.getViewport();
-          const containerWidth = reactFlowWrapper.current?.clientWidth || 800;
-          const containerHeight = reactFlowWrapper.current?.clientHeight || 600;
-          centerPosition = {
-            x: (-viewport.x + containerWidth / 2) / viewport.zoom,
-            y: (-viewport.y + containerHeight / 2) / viewport.zoom
-          };
-        }
-        const nodeDimensions = calculateNodeDimensions({
-          type: nodeType,
-          data: {}
-          // 使用預設數據來計算基本尺寸
-        });
-        const adjustedPosition = {
-          x: centerPosition.x - nodeDimensions.width / 2,
-          y: centerPosition.y - nodeDimensions.height / 2
-        };
-        return adjustedPosition;
-      } catch (error) {
-        console.error("計算視窗中心位置失敗:", error);
-        return { x: 400, y: 300 };
-      }
-    },
-    [reactFlowInstance]
-  );
-  const handleNodeTypeSelection = useCallback(
-    (nodeTypeOrOperator, position = null) => {
-      if (isLocked) return;
-      let nodePosition = position;
-      if (!position && reactFlowInstance) {
-        try {
-          const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-          if (reactFlowBounds) {
-            const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
-            const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
-            const centerPosition = reactFlowInstance.screenToFlowPosition({
-              x: centerX,
-              y: centerY
-            });
-            const reactFlowNodeType = getReactFlowNodeType(nodeTypeOrOperator);
-            const nodeDimensions = calculateNodeDimensions({
-              type: reactFlowNodeType,
-              data: {}
-            });
-            nodePosition = {
-              x: centerPosition.x - nodeDimensions.width / 2,
-              y: centerPosition.y - nodeDimensions.height / 2
-            };
-          }
-        } catch (error) {
-          console.error("計算置中位置失敗:", error);
-          nodePosition = { x: 400, y: 300 };
-        }
-      }
-      const nodeType = nodeTypeOrOperator;
-      switch (nodeType) {
-        case "basic_input":
-        case "input":
-          handleAddInputNode(nodePosition);
-          break;
-        case "ask_ai":
-        case "ai":
-          handleAddAINode(nodePosition);
-          break;
-        case "if/else":
-          handleAddIfElseNode(nodePosition);
-          break;
-        case "browser_extension_input":
-        case "browser extension input":
-          handleAddBrowserExtensionInput(nodePosition);
-          break;
-        case "browser_extension_output":
-        case "browser extension output":
-          handleAddBrowserExtensionOutput(nodePosition);
-          break;
-        case "knowledge_retrieval":
-        case "knowledge retrieval":
-          handleAddKnowledgeRetrievalNode(nodePosition);
-          break;
-        case "end":
-          handleAddEndNode(nodePosition);
-          break;
-        case "webhook":
-          handleAddWebhookNode(nodePosition);
-          break;
-        case "http_request":
-          handleAddHttpRequestNode(nodePosition);
-          break;
-        case "event":
-          handleAddEventNode(nodePosition);
-          break;
-        case "timer":
-          handleAddTimerNode(nodePosition);
-          break;
-        case "line_webhook_input":
-          handleAddLineNode(nodePosition);
-          break;
-        case "line_send_message":
-          handleAddLineMessageNode(nodePosition);
-          break;
-        case "extract_data":
-          handleAddExtractDataNode(nodePosition);
-          break;
-        case "aim_ml":
-          handleAddQOCAAimNode(nodePosition);
-          break;
-        case "schedule_trigger":
-          handleAddScheduleTriggerNode(nodePosition);
-          break;
-        case "webhook_input":
-          handleAddWebhookInputNode(nodePosition);
-          break;
-        case "webhook_output":
-          handleAddWebhookOutputNode(nodePosition);
-          break;
-        case "combine_text":
-          handleAddCombineTextNode(nodePosition);
-          break;
-        case "router_switch":
-          handleAddRouterSwitchNode(nodePosition);
-          break;
-        case "speech_to_text":
-          handleAddSpeechToTextNode(nodePosition);
-          break;
-        default:
-          handleAddNode(nodePosition);
-      }
-    },
-    [
+const FlowEditor = forwardRef(
+  ({
+    initialTitle,
+    onTitleChange,
+    runhistory = false,
+    runHistorySnapshot = null
+  }, ref) => {
+    const reactFlowWrapper = useRef(null);
+    const [reactFlowInstance, setReactFlowInstance] = useState(null);
+    const reactFlowControlsRef = useRef(null);
+    const isInitialized = useRef(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [sidebarVisible, setSidebarVisible] = useState(true);
+    const [isLocked, setIsLocked] = useState(false);
+    const nodeTypes = useMemo(() => enhancedNodeTypes, []);
+    const edgeTypes = useMemo(() => ({ "custom-edge": CustomEdge }), []);
+    const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 1.3 }), []);
+    const [nodeList, setNodeList] = useState([]);
+    const [nodeListLoading, setNodeListLoading] = useState(true);
+    const [nodeListError, setNodeListError] = useState(null);
+    const {
+      nodes,
+      edges,
+      onNodesChange,
+      onEdgesChange,
+      onConnect,
+      onNodesDelete,
+      handleAddNode,
       handleAddInputNode,
       handleAddAINode,
-      handleAddIfElseNode,
-      handleAddBrowserExtensionInput,
       handleAddBrowserExtensionOutput,
+      handleAddBrowserExtensionInput,
+      updateNodeFunctions,
+      handleAddIfElseNode,
       handleAddKnowledgeRetrievalNode,
       handleAddEndNode,
       handleAddWebhookNode,
@@ -45193,293 +45200,269 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       handleAddLineMessageNode,
       handleAddExtractDataNode,
       handleAddQOCAAimNode,
-      handleAddNode,
       handleAddScheduleTriggerNode,
       handleAddWebhookInputNode,
       handleAddWebhookOutputNode,
       handleAddCombineTextNode,
+      handleNodeSelection,
       handleAddRouterSwitchNode,
       handleAddSpeechToTextNode,
-      reactFlowInstance,
-      isLocked
-    ]
-  );
-  const onDragOver = useCallback(
-    (event) => {
-      if (isLocked) return;
-      event.preventDefault();
-      event.dataTransfer.dropEffect = "move";
-      if (reactFlowWrapper.current) {
-        reactFlowWrapper.current.classList.add("drag-over");
-      }
-    },
-    [isLocked]
-  );
-  const onDrop = useCallback(
-    (event) => {
-      if (isLocked) return;
-      event.preventDefault();
-      if (!reactFlowInstance) return;
-      const type = event.dataTransfer.getData("application/reactflow");
-      if (typeof type === "undefined" || !type) {
-        return;
-      }
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top
-      });
-      handleNodeTypeSelection(type, position);
-      if (reactFlowWrapper.current) {
-        reactFlowWrapper.current.classList.remove("drag-over");
-      }
-    },
-    [reactFlowInstance, handleNodeTypeSelection, isLocked]
-  );
-  const onDragStart = useCallback(
-    (event, nodeType) => {
-      if (isLocked) return;
-      event.dataTransfer.setData("application/reactflow", nodeType);
-      event.dataTransfer.effectAllowed = "move";
-    },
-    [isLocked]
-  );
-  const saveToLocalFile = useCallback(async () => {
-    try {
-      const flowData = {
-        id: flowMetadata.id || `flow_${Date.now()}`,
-        title: flowMetadata.title || "未命名流程",
-        version: flowMetadata.version || 1,
-        nodes,
-        edges,
-        metadata: {
-          lastModified: (/* @__PURE__ */ new Date()).toISOString(),
-          savedAt: (/* @__PURE__ */ new Date()).toISOString(),
-          nodeCount: nodes.length,
-          edgeCount: edges.length
-        }
-      };
-      const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-      const safeTitle = (flowMetadata.title || "未命名_流程").replace(
-        /\s+/g,
-        "_"
-      );
-      const filename = `${safeTitle}_${date}.json`;
-      const result = await FileIOService.saveToFile(flowData, filename);
-      if (result.success) {
-        console.log(`檔案已儲存為：${result.filename}`);
-        window.notify({
-          message: `已儲存到 ${result.filename}`,
-          type: "success",
-          duration: 2e3
-        });
-        setFlowMetadata({
-          ...flowMetadata,
-          title: flowMetadata.title || "未命名流程",
-          lastSaved: (/* @__PURE__ */ new Date()).toISOString(),
-          version: (flowMetadata.version || 0) + 1
-        });
-      }
-      return result;
-    } catch (error) {
-      console.error("儲存檔案時發生錯誤：", error);
-      window.notify({
-        message: "無法儲存檔案，請稍後再試",
-        type: "error",
-        duration: 3e3
-      });
-      throw error;
-    }
-  }, [nodes, edges, flowMetadata]);
-  useCallback(async () => {
-    if (!isInIframe) {
-      return saveToLocalFile();
-    }
-    try {
-      const flowData = {
-        id: flowMetadata.id || `flow_${Date.now()}`,
-        title: flowMetadata.title || "未命名流程",
-        version: flowMetadata.version || 1,
-        nodes,
-        edges,
-        metadata: {
-          lastModified: (/* @__PURE__ */ new Date()).toISOString(),
-          savedAt: (/* @__PURE__ */ new Date()).toISOString(),
-          nodeCount: nodes.length,
-          edgeCount: edges.length
-        }
-      };
-      const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-      const safeTitle = (flowMetadata.title || "未命名_流程").replace(
-        /\s+/g,
-        "_"
-      );
-      const filename = `${safeTitle}_${date}.json`;
-      const result = iframeBridge.requestDownload(flowData, filename);
-      if (result) {
-        window.notify({
-          message: `已發送下載請求`,
-          type: "success",
-          duration: 2e3
-        });
-      } else {
-        window.notify({
-          message: "發送下載請求失敗",
-          type: "error",
-          duration: 3e3
-        });
-      }
-      return { success: result };
-    } catch (error) {
-      console.error("準備下載數據時發生錯誤：", error);
-      window.notify({
-        message: "無法發送下載請求，請稍後再試",
-        type: "error",
-        duration: 3e3
-      });
-      throw error;
-    }
-  }, [nodes, edges, flowMetadata, isInIframe, saveToLocalFile]);
-  const saveToServer = useCallback(async () => {
-    if (isLocked) return;
-    const isCreateMode = !flowMetadata.id || flowMetadata.id === "new";
-    const isTitleValid = flowMetadata.title && flowMetadata.title.trim().length > 0;
-    if (isCreateMode && !isTitleValid) {
-      setShowSaveDialog(true);
-      return;
-    }
-    setIsSaving(true);
-    try {
-      debugConnections(edges, "保存前");
-      nodes.forEach((node) => {
-        if (node.type === "combine_text") {
-          console.log(`保存前檢查 Combine Text 節點 ${node.id}:`, {
-            textToCombine: node.data.textToCombine,
-            editorHtmlContent: node.data.editorHtmlContent,
-            activeTab: node.data.activeTab,
-            inputHandles: node.data.inputHandles
-          });
-        }
-        if (node.type === "browserExtensionOutput") {
-          console.log(`保存前檢查節點 ${node.id}:`, {
-            inputHandles: node.data.inputHandles || [],
-            node_input: node.data.node_input || {}
-          });
-          if (node.data.inputHandles && node.data.node_input) {
-            const handleMismatch = node.data.inputHandles.some(
-              (handle) => !node.data.node_input[handle.id]
-            );
-            if (handleMismatch) {
-              console.warn(
-                `節點 ${node.id} 的 inputHandles 和 node_input 不同步`
-              );
-            }
-          }
-        }
-      });
-      const flowData = {
-        id: flowMetadata.id || `flow_${Date.now()}`,
-        title: flowMetadata.title || "未命名流程",
-        version: flowMetadata.version || 1,
-        nodes,
-        edges,
-        metadata: {
-          lastModified: (/* @__PURE__ */ new Date()).toISOString(),
-          savedAt: (/* @__PURE__ */ new Date()).toISOString(),
-          nodeCount: nodes.length,
-          edgeCount: edges.length
-        }
-      };
-      const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
-      debugAINodeConnections(nodes, edges);
-      debugAINodeAPIData(apiData);
-      if (apiData && apiData.flow_pipeline) {
-        debugNodeInputsBeforeSave(apiData.flow_pipeline);
-      }
-      console.log("FlowEditor: 將流程數據轉換為 API 格式:", apiData);
-      let response;
-      let flowIdToUse = flowMetadata.id || null;
-      if (flowMetadata.id) {
-        response = await workflowAPIService.updateWorkflow(apiData);
-        console.log("FlowEditor: 更新流程成功", response);
-        window.notify({
-          message: "流程更新成功",
-          type: "success",
-          duration: 2e3
-        });
-        setFlowMetadata((prev) => ({
-          ...prev,
-          lastSaved: (/* @__PURE__ */ new Date()).toISOString()
-        }));
-      } else {
-        response = await workflowAPIService.createWorkflow(apiData);
-        console.log("FlowEditor: 創建流程成功", response);
-        flowIdToUse = response?.flow_id;
-        if (flowIdToUse) {
-          setFlowMetadata((prev) => ({
-            ...prev,
-            id: flowIdToUse,
-            lastSaved: (/* @__PURE__ */ new Date()).toISOString()
-          }));
-        }
-        const isInIframe2 = window.self !== window.top;
-        if (isInIframe2) {
-          console.log("在 iframe 中檢測到新創建的流程，發送事件到父窗口");
-          try {
-            iframeBridge.sendToParent({
-              type: "FLOW_SAVED",
-              flowId: flowIdToUse,
-              success: true,
-              title: flowMetadata.title || "未命名流程",
-              isNewFlow: true,
-              currentPath: window.location.pathname,
-              isNewPath: window.location.pathname.includes("/new"),
-              timestamp: (/* @__PURE__ */ new Date()).toISOString()
-            });
-          } catch (error) {
-            console.error("向父頁面發送事件失敗：", error);
-          }
-        }
-        window.notify({
-          message: "流程創建成功",
-          type: "success",
-          duration: 2e3
-        });
-      }
-      if (flowIdToUse) {
-        setTimeout(async () => {
-          console.log("使用 flow_id 重新加載工作流:", flowIdToUse);
-          await handleLoadWorkflow(flowIdToUse);
-          debugConnections(edges, "保存後重新加載");
-          debugAINodeConnections(nodes, edges);
-        }, 1e3);
-      } else {
-        console.warn("沒有可用的 flow_id，無法重新加載工作流");
-      }
-      return response;
-    } catch (error) {
-      console.error("FlowEditor: 儲存流程時發生錯誤：", error);
-      window.notify({
-        message: "無法儲存流程，請稍後再試",
-        type: "error",
-        duration: 3e3
-      });
-      throw error;
-    } finally {
-      setIsSaving(false);
-    }
-  }, [isLocked, nodes, edges, flowMetadata, handleLoadWorkflow]);
-  const handleDialogSave = useCallback(
-    async (flowName) => {
-      if (isLocked) return;
-      console.log(`對話框觸發的保存，流程名稱: ${flowName}`);
-      console.log("當前 flowMetadata:", flowMetadata);
-      setIsSaving(true);
+      setNodes: setFlowNodes,
+      setEdges: setFlowEdges,
+      getNodeCallbacks,
+      handleAutoLayout,
+      startWorkflowLoading,
+      finishWorkflowLoading
+    } = useFlowNodes();
+    const [flowMetadata, setFlowMetadata] = useState({
+      id: null,
+      title: initialTitle || "",
+      lastSaved: null,
+      version: 1
+    });
+    const [showSaveDialog, setShowSaveDialog] = useState(false);
+    const [saveDialogCallback, setSaveDialogCallback] = useState(null);
+    const isInIframe = useMemo(() => {
       try {
-        const flowDataWithNewTitle = {
+        return window.self !== window.top;
+      } catch {
+        return true;
+      }
+    }, []);
+    useEffect(() => {
+      if (runHistorySnapshot && runhistory) {
+        console.log("載入 Run History Snapshot:", runHistorySnapshot);
+        try {
+          const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataConverter.transformRunHistoryToReactFlowFormat(
+            runHistorySnapshot
+          );
+          console.log("轉換後的節點:", transformedNodes);
+          console.log("轉換後的連線:", transformedEdges);
+          const nodesWithCallbacks = transformedNodes.map((node) => {
+            const nodeCallbacks = getNodeCallbacks(node.id, node.type);
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                ...nodeCallbacks,
+                // 確保唯讀標記
+                isReadOnly: true
+              }
+            };
+          });
+          setFlowNodes(nodesWithCallbacks);
+          setFlowEdges(transformedEdges);
+          setTimeout(() => {
+            if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
+              console.log("執行畫布縮放以顯示所有節點");
+              reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+            }
+          }, 500);
+        } catch (error) {
+          console.error("載入 Run History Snapshot 時發生錯誤:", error);
+        }
+      }
+    }, [runHistorySnapshot]);
+    const loadNodeList = useCallback(async () => {
+      const loadId = Date.now();
+      if (globalNodeListPromise) {
+        return globalNodeListPromise;
+      }
+      if (globalNodeListLoaded && globalNodeListData) {
+        setNodeList(globalNodeListData);
+        setNodeListLoading(false);
+        setNodeListError(null);
+        return globalNodeListData;
+      }
+      const cacheKey = "nodeListCache";
+      const cacheTimeKey = "nodeListCacheTime";
+      const cacheExpiry = 5 * 1e3;
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        const cacheTime = localStorage.getItem(cacheTimeKey);
+        if (cached && cacheTime) {
+          const isExpired = Date.now() - parseInt(cacheTime) > cacheExpiry;
+          if (!isExpired) {
+            const cachedData = JSON.parse(cached);
+            setNodeList(cachedData);
+            setNodeListLoading(false);
+            setNodeListError(null);
+            globalNodeListLoaded = true;
+            globalNodeListData = cachedData;
+            return cachedData;
+          } else {
+            console.warn(`[${loadId}] 緩存已過期，重新載入`);
+          }
+        }
+      } catch (error) {
+        console.warn(`[${loadId}] 讀取緩存失敗:`, error);
+      }
+      globalNodeListPromise = (async () => {
+        try {
+          setNodeListLoading(true);
+          setNodeListError(null);
+          const nodeListData = await workflowAPIService.getNodeList();
+          setNodeList(nodeListData);
+          globalNodeListLoaded = true;
+          globalNodeListData = nodeListData;
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(nodeListData));
+            localStorage.setItem(cacheTimeKey, Date.now().toString());
+          } catch (error) {
+            console.warn(`[${loadId}] 緩存節點清單失敗:`, error);
+          }
+          return nodeListData;
+        } catch (error) {
+          console.error(`[${loadId}] 載入節點清單失敗:`, error);
+          setNodeListError(error.message || "載入節點清單失敗");
+          const defaultNodeList = [];
+          setNodeList(defaultNodeList);
+          globalNodeListData = defaultNodeList;
+          throw error;
+        } finally {
+          setNodeListLoading(false);
+          globalNodeListPromise = null;
+          console.log(
+            `[${loadId}] loadNodeList 完成，重置 globalNodeListPromise`
+          );
+        }
+      })();
+      return globalNodeListPromise;
+    }, []);
+    useEffect(() => {
+      if (!isInIframe) {
+        const effectId = Date.now();
+        if (globalNodeListLoaded && globalNodeListData) {
+          setNodeList(globalNodeListData);
+          setNodeListLoading(false);
+          setNodeListError(null);
+          return;
+        }
+        if (!globalNodeListPromise) {
+          loadNodeList().catch((error) => {
+            console.error(`[${effectId}] useEffect 中載入節點清單失敗:`, error);
+          });
+        } else {
+          globalNodeListPromise.then((data) => {
+            if (data) {
+              setNodeList(data);
+              setNodeListLoading(false);
+              setNodeListError(null);
+            }
+          }).catch((error) => {
+            console.error(`[${effectId}] 等待中的載入請求失敗:`, error);
+          });
+        }
+      }
+    }, []);
+    useEffect(() => {
+      return () => {
+        console.log("FlowEditor 組件卸載");
+      };
+    }, []);
+    const toggleSidebar = useCallback(() => {
+      setSidebarVisible((prev) => !prev);
+    }, []);
+    const handleLoadWorkflow = useCallback(async (flowId) => {
+      try {
+        const success = await loadWorkflowImpl(flowId);
+        return success;
+      } catch (error) {
+        console.error("無法載入工作流:", error);
+        window.notify({
+          message: "載入工作流失敗",
+          type: "error",
+          duration: 2e3
+        });
+        return false;
+      }
+    }, []);
+    const loadWorkflowImpl = async (flowId) => {
+      if (flowId !== "new") {
+        try {
+          if (startWorkflowLoading) {
+            startWorkflowLoading();
+          }
+          const apiData = await workflowAPIService.loadWorkflow(flowId);
+          if (apiData.hasOwnProperty("is_locked")) {
+            setIsLocked(apiData.is_locked);
+          }
+          const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataConverter.transformToReactFlowFormat(apiData);
+          const nodesWithCallbacks = transformedNodes.map((node) => {
+            const nodeCallbacks = getNodeCallbacks(node.id, node.type);
+            if (node.type === "combine_text") {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  textToCombine: node.data.textToCombine || "",
+                  editorHtmlContent: node.data.editorHtmlContent || "",
+                  activeTab: node.data.activeTab || "editor",
+                  inputHandles: node.data.inputHandles || [{ id: "text" }],
+                  ...nodeCallbacks
+                }
+              };
+            }
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                ...nodeCallbacks
+              }
+            };
+          });
+          setFlowNodes(nodesWithCallbacks);
+          setFlowEdges(transformedEdges);
+          setTimeout(() => {
+            debugBrowserExtensionOutput(transformedNodes, transformedEdges);
+            setFlowMetadata((prev) => ({
+              ...prev,
+              id: apiData.flow_id,
+              title: apiData.flow_name || prev.flow_name,
+              version: apiData.version || prev.version
+            }));
+            if (typeof window !== "undefined") {
+              window.currentFlowId = apiData.flow_id;
+            }
+            console.log("載入工作流後立即更新節點函數...");
+            setTimeout(() => {
+              console.log("載入工作流後再次確認節點函數...");
+              updateNodeFunctions();
+              if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
+                console.log("載入工作流後，執行一次畫布縮放以顯示所有節點...");
+                reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+              }
+              if (finishWorkflowLoading) {
+                finishWorkflowLoading();
+              }
+            }, 500);
+          }, 100);
+          window.notify({
+            message: "工作流載入成功",
+            type: "success",
+            duration: 2e3
+          });
+          return true;
+        } catch (error) {
+          console.error("載入工作流失敗:", error);
+          if (finishWorkflowLoading) {
+            finishWorkflowLoading();
+          }
+          window.notify({
+            message: "載入工作流失敗",
+            type: "error",
+            duration: 2e3
+          });
+          return false;
+        }
+      }
+    };
+    useImperativeHandle(ref, () => ({
+      // 導出流程數據的方法
+      exportFlowData: () => {
+        return {
           id: flowMetadata.id || `flow_${Date.now()}`,
-          title: flowName,
-          // 直接使用對話框傳入的標題
+          title: flowMetadata.title || "未命名流程",
           version: flowMetadata.version || 1,
           nodes,
           edges,
@@ -45490,37 +45473,465 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             edgeCount: edges.length
           }
         };
-        console.log("創建的 flowData:", flowDataWithNewTitle);
-        const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowDataWithNewTitle);
-        console.log("轉換後的 API 數據:", apiData);
-        console.log("API 中的 flow_name:", apiData.flow_name);
+      },
+      // 設置流程標題的方法
+      setFlowTitle: (title) => {
+        if (title && typeof title === "string") {
+          setFlowMetadata((prev) => ({ ...prev, title }));
+          return true;
+        }
+        return false;
+      },
+      setFlowId: (flowId) => {
+        if (flowId && typeof flowId === "string") {
+          setFlowMetadata((prev) => ({ ...prev, flowId }));
+          return true;
+        }
+        return false;
+      },
+      loadWorkflow: loadWorkflowImpl,
+      // saveWorkflow 方法
+      saveWorkflow: saveToServer,
+      // 暴露 fitViewToNodes 方法給父組件
+      fitViewToNodes: () => {
+        if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
+          reactFlowControlsRef.current.fitViewToNodes();
+        }
+      },
+      // 暴露重新載入節點清單的方法
+      reloadNodeList: () => {
+        console.log("手動重新載入節點清單");
+        resetGlobalNodeListState();
+        return loadNodeList();
+      }
+    }));
+    useEffect(() => {
+      if (typeof window !== "undefined") {
+        window.currentFlowId = flowMetadata.id;
+      }
+      return () => {
+        if (typeof window !== "undefined") {
+          delete window.currentFlowId;
+        }
+      };
+    }, [flowMetadata.id]);
+    useEffect(() => {
+      if (!isInitialized.current) {
+        if (updateNodeFunctions) {
+          updateNodeFunctions();
+        }
+        isInitialized.current = true;
+      }
+    }, [updateNodeFunctions]);
+    const handleTitleChange = useCallback(
+      (title) => {
+        if (isLocked || runhistory) return;
+        setFlowMetadata((prev) => ({ ...prev, title }));
+        if (onTitleChange && typeof onTitleChange === "function") {
+          onTitleChange(title);
+        }
+      },
+      [onTitleChange, isLocked]
+    );
+    useCallback(
+      (nodeType) => {
+        if (!reactFlowInstance) {
+          return { x: 400, y: 300 };
+        }
+        try {
+          let centerPosition;
+          const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+          if (reactFlowBounds) {
+            const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
+            const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
+            centerPosition = reactFlowInstance.screenToFlowPosition({
+              x: centerX,
+              y: centerY
+            });
+          } else {
+            const viewport = reactFlowInstance.getViewport();
+            const containerWidth = reactFlowWrapper.current?.clientWidth || 800;
+            const containerHeight = reactFlowWrapper.current?.clientHeight || 600;
+            centerPosition = {
+              x: (-viewport.x + containerWidth / 2) / viewport.zoom,
+              y: (-viewport.y + containerHeight / 2) / viewport.zoom
+            };
+          }
+          const nodeDimensions = calculateNodeDimensions({
+            type: nodeType,
+            data: {}
+            // 使用預設數據來計算基本尺寸
+          });
+          const adjustedPosition = {
+            x: centerPosition.x - nodeDimensions.width / 2,
+            y: centerPosition.y - nodeDimensions.height / 2
+          };
+          return adjustedPosition;
+        } catch (error) {
+          console.error("計算視窗中心位置失敗:", error);
+          return { x: 400, y: 300 };
+        }
+      },
+      [reactFlowInstance]
+    );
+    const handleNodeTypeSelection = useCallback(
+      (nodeTypeOrOperator, position = null) => {
+        if (isLocked || runhistory) return;
+        let nodePosition = position;
+        if (!position && reactFlowInstance) {
+          try {
+            const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+            if (reactFlowBounds) {
+              const centerX = reactFlowBounds.left + reactFlowBounds.width / 2;
+              const centerY = reactFlowBounds.top + reactFlowBounds.height / 2;
+              const centerPosition = reactFlowInstance.screenToFlowPosition({
+                x: centerX,
+                y: centerY
+              });
+              const reactFlowNodeType = getReactFlowNodeType(nodeTypeOrOperator);
+              const nodeDimensions = calculateNodeDimensions({
+                type: reactFlowNodeType,
+                data: {}
+              });
+              nodePosition = {
+                x: centerPosition.x - nodeDimensions.width / 2,
+                y: centerPosition.y - nodeDimensions.height / 2
+              };
+            }
+          } catch (error) {
+            console.error("計算置中位置失敗:", error);
+            nodePosition = { x: 400, y: 300 };
+          }
+        }
+        const nodeType = nodeTypeOrOperator;
+        switch (nodeType) {
+          case "basic_input":
+          case "input":
+            handleAddInputNode(nodePosition);
+            break;
+          case "ask_ai":
+          case "ai":
+            handleAddAINode(nodePosition);
+            break;
+          case "if/else":
+            handleAddIfElseNode(nodePosition);
+            break;
+          case "browser_extension_input":
+          case "browser extension input":
+            handleAddBrowserExtensionInput(nodePosition);
+            break;
+          case "browser_extension_output":
+          case "browser extension output":
+            handleAddBrowserExtensionOutput(nodePosition);
+            break;
+          case "knowledge_retrieval":
+          case "knowledge retrieval":
+            handleAddKnowledgeRetrievalNode(nodePosition);
+            break;
+          case "end":
+            handleAddEndNode(nodePosition);
+            break;
+          case "webhook":
+            handleAddWebhookNode(nodePosition);
+            break;
+          case "http_request":
+            handleAddHttpRequestNode(nodePosition);
+            break;
+          case "event":
+            handleAddEventNode(nodePosition);
+            break;
+          case "timer":
+            handleAddTimerNode(nodePosition);
+            break;
+          case "line_webhook_input":
+            handleAddLineNode(nodePosition);
+            break;
+          case "line_send_message":
+            handleAddLineMessageNode(nodePosition);
+            break;
+          case "extract_data":
+            handleAddExtractDataNode(nodePosition);
+            break;
+          case "aim_ml":
+            handleAddQOCAAimNode(nodePosition);
+            break;
+          case "schedule_trigger":
+            handleAddScheduleTriggerNode(nodePosition);
+            break;
+          case "webhook_input":
+            handleAddWebhookInputNode(nodePosition);
+            break;
+          case "webhook_output":
+            handleAddWebhookOutputNode(nodePosition);
+            break;
+          case "combine_text":
+            handleAddCombineTextNode(nodePosition);
+            break;
+          case "router_switch":
+            handleAddRouterSwitchNode(nodePosition);
+            break;
+          case "speech_to_text":
+            handleAddSpeechToTextNode(nodePosition);
+            break;
+          default:
+            handleAddNode(nodePosition);
+        }
+      },
+      [
+        handleAddInputNode,
+        handleAddAINode,
+        handleAddIfElseNode,
+        handleAddBrowserExtensionInput,
+        handleAddBrowserExtensionOutput,
+        handleAddKnowledgeRetrievalNode,
+        handleAddEndNode,
+        handleAddWebhookNode,
+        handleAddHttpRequestNode,
+        handleAddEventNode,
+        handleAddTimerNode,
+        handleAddLineNode,
+        handleAddLineMessageNode,
+        handleAddExtractDataNode,
+        handleAddQOCAAimNode,
+        handleAddNode,
+        handleAddScheduleTriggerNode,
+        handleAddWebhookInputNode,
+        handleAddWebhookOutputNode,
+        handleAddCombineTextNode,
+        handleAddRouterSwitchNode,
+        handleAddSpeechToTextNode,
+        reactFlowInstance,
+        isLocked,
+        runhistory
+      ]
+    );
+    const onDragOver = useCallback(
+      (event) => {
+        if (isLocked || runhistory) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        if (reactFlowWrapper.current) {
+          reactFlowWrapper.current.classList.add("drag-over");
+        }
+      },
+      [isLocked, runhistory]
+    );
+    const onDrop = useCallback(
+      (event) => {
+        if (isLocked || runhistory) return;
+        event.preventDefault();
+        if (!reactFlowInstance) return;
+        const type = event.dataTransfer.getData("application/reactflow");
+        if (typeof type === "undefined" || !type) {
+          return;
+        }
+        const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+        const position = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top
+        });
+        handleNodeTypeSelection(type, position);
+        if (reactFlowWrapper.current) {
+          reactFlowWrapper.current.classList.remove("drag-over");
+        }
+      },
+      [reactFlowInstance, handleNodeTypeSelection, isLocked, runhistory]
+    );
+    const onDragStart = useCallback(
+      (event, nodeType) => {
+        if (isLocked || runhistory) return;
+        event.dataTransfer.setData("application/reactflow", nodeType);
+        event.dataTransfer.effectAllowed = "move";
+      },
+      [isLocked, runhistory]
+    );
+    const saveToLocalFile = useCallback(async () => {
+      try {
+        const flowData = {
+          id: flowMetadata.id || `flow_${Date.now()}`,
+          title: flowMetadata.title || "未命名流程",
+          version: flowMetadata.version || 1,
+          nodes,
+          edges,
+          metadata: {
+            lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+            savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+            nodeCount: nodes.length,
+            edgeCount: edges.length
+          }
+        };
+        const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+        const safeTitle = (flowMetadata.title || "未命名_流程").replace(
+          /\s+/g,
+          "_"
+        );
+        const filename = `${safeTitle}_${date}.json`;
+        const result = await FileIOService.saveToFile(flowData, filename);
+        if (result.success) {
+          console.log(`檔案已儲存為：${result.filename}`);
+          window.notify({
+            message: `已儲存到 ${result.filename}`,
+            type: "success",
+            duration: 2e3
+          });
+          setFlowMetadata({
+            ...flowMetadata,
+            title: flowMetadata.title || "未命名流程",
+            lastSaved: (/* @__PURE__ */ new Date()).toISOString(),
+            version: (flowMetadata.version || 0) + 1
+          });
+        }
+        return result;
+      } catch (error) {
+        console.error("儲存檔案時發生錯誤：", error);
+        window.notify({
+          message: "無法儲存檔案，請稍後再試",
+          type: "error",
+          duration: 3e3
+        });
+        throw error;
+      }
+    }, [nodes, edges, flowMetadata]);
+    useCallback(async () => {
+      if (!isInIframe) {
+        return saveToLocalFile();
+      }
+      try {
+        const flowData = {
+          id: flowMetadata.id || `flow_${Date.now()}`,
+          title: flowMetadata.title || "未命名流程",
+          version: flowMetadata.version || 1,
+          nodes,
+          edges,
+          metadata: {
+            lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+            savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+            nodeCount: nodes.length,
+            edgeCount: edges.length
+          }
+        };
+        const date = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+        const safeTitle = (flowMetadata.title || "未命名_流程").replace(
+          /\s+/g,
+          "_"
+        );
+        const filename = `${safeTitle}_${date}.json`;
+        const result = iframeBridge.requestDownload(flowData, filename);
+        if (result) {
+          window.notify({
+            message: `已發送下載請求`,
+            type: "success",
+            duration: 2e3
+          });
+        } else {
+          window.notify({
+            message: "發送下載請求失敗",
+            type: "error",
+            duration: 3e3
+          });
+        }
+        return { success: result };
+      } catch (error) {
+        console.error("準備下載數據時發生錯誤：", error);
+        window.notify({
+          message: "無法發送下載請求，請稍後再試",
+          type: "error",
+          duration: 3e3
+        });
+        throw error;
+      }
+    }, [nodes, edges, flowMetadata, isInIframe, saveToLocalFile]);
+    const saveToServer = useCallback(async () => {
+      if (isLocked || runhistory) return;
+      const isCreateMode = !flowMetadata.id || flowMetadata.id === "new";
+      const isTitleValid = flowMetadata.title && flowMetadata.title.trim().length > 0;
+      if (isCreateMode && !isTitleValid) {
+        setShowSaveDialog(true);
+        return;
+      }
+      setIsSaving(true);
+      try {
+        debugConnections(edges, "保存前");
+        nodes.forEach((node) => {
+          if (node.type === "combine_text") {
+            console.log(`保存前檢查 Combine Text 節點 ${node.id}:`, {
+              textToCombine: node.data.textToCombine,
+              editorHtmlContent: node.data.editorHtmlContent,
+              activeTab: node.data.activeTab,
+              inputHandles: node.data.inputHandles
+            });
+          }
+          if (node.type === "browserExtensionOutput") {
+            console.log(`保存前檢查節點 ${node.id}:`, {
+              inputHandles: node.data.inputHandles || [],
+              node_input: node.data.node_input || {}
+            });
+            if (node.data.inputHandles && node.data.node_input) {
+              const handleMismatch = node.data.inputHandles.some(
+                (handle) => !node.data.node_input[handle.id]
+              );
+              if (handleMismatch) {
+                console.warn(
+                  `節點 ${node.id} 的 inputHandles 和 node_input 不同步`
+                );
+              }
+            }
+          }
+        });
+        const flowData = {
+          id: flowMetadata.id || `flow_${Date.now()}`,
+          title: flowMetadata.title || "未命名流程",
+          version: flowMetadata.version || 1,
+          nodes,
+          edges,
+          metadata: {
+            lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+            savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+            nodeCount: nodes.length,
+            edgeCount: edges.length
+          }
+        };
+        const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+        debugAINodeConnections(nodes, edges);
+        debugAINodeAPIData(apiData);
+        if (apiData && apiData.flow_pipeline) {
+          debugNodeInputsBeforeSave(apiData.flow_pipeline);
+        }
+        console.log("FlowEditor: 將流程數據轉換為 API 格式:", apiData);
         let response;
         let flowIdToUse = flowMetadata.id || null;
         if (flowMetadata.id) {
-          console.log("更新現有流程，flow_id:", flowMetadata.id);
           response = await workflowAPIService.updateWorkflow(apiData);
-          console.log("更新流程成功:", response);
+          console.log("FlowEditor: 更新流程成功", response);
           window.notify({
             message: "流程更新成功",
             type: "success",
             duration: 2e3
           });
+          setFlowMetadata((prev) => ({
+            ...prev,
+            lastSaved: (/* @__PURE__ */ new Date()).toISOString()
+          }));
         } else {
-          console.log("創建新流程");
           response = await workflowAPIService.createWorkflow(apiData);
-          console.log("創建流程成功:", response);
+          console.log("FlowEditor: 創建流程成功", response);
           flowIdToUse = response?.flow_id;
-          console.log("獲得新的 flow_id:", flowIdToUse);
+          if (flowIdToUse) {
+            setFlowMetadata((prev) => ({
+              ...prev,
+              id: flowIdToUse,
+              lastSaved: (/* @__PURE__ */ new Date()).toISOString()
+            }));
+          }
           const isInIframe2 = window.self !== window.top;
           if (isInIframe2) {
-            console.log("在 iframe 中，發送事件到父頁面");
+            console.log("在 iframe 中檢測到新創建的流程，發送事件到父窗口");
             try {
               iframeBridge.sendToParent({
                 type: "FLOW_SAVED",
                 flowId: flowIdToUse,
                 success: true,
-                title: flowName,
-                // 使用正確的標題
+                title: flowMetadata.title || "未命名流程",
                 isNewFlow: true,
                 currentPath: window.location.pathname,
                 isNewPath: window.location.pathname.includes("/new"),
@@ -45536,37 +45947,19 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
             duration: 2e3
           });
         }
-        setFlowMetadata((prev) => {
-          const newMetadata = {
-            ...prev,
-            id: flowIdToUse || prev.id,
-            title: flowName,
-            // 確保標題正確更新
-            lastSaved: (/* @__PURE__ */ new Date()).toISOString()
-          };
-          console.log("更新 flowMetadata:", newMetadata);
-          return newMetadata;
-        });
-        setShowSaveDialog(false);
         if (flowIdToUse) {
           setTimeout(async () => {
-            console.log("重新加載工作流:", flowIdToUse);
+            console.log("使用 flow_id 重新加載工作流:", flowIdToUse);
             await handleLoadWorkflow(flowIdToUse);
-            if (saveDialogCallback) {
-              const finalFlowId = flowIdToUse || flowMetadata.id;
-              console.log("執行回調函數，flow_id:", finalFlowId);
-              saveDialogCallback(finalFlowId);
-              setSaveDialogCallback(null);
-            }
+            debugConnections(edges, "保存後重新加載");
+            debugAINodeConnections(nodes, edges);
           }, 1e3);
+        } else {
+          console.warn("沒有可用的 flow_id，無法重新加載工作流");
         }
-        return {
-          success: true,
-          flow_id: flowIdToUse || flowMetadata.id,
-          ...response
-        };
+        return response;
       } catch (error) {
-        console.error("對話框觸發的保存失敗:", error);
+        console.error("FlowEditor: 儲存流程時發生錯誤：", error);
         window.notify({
           message: "無法儲存流程，請稍後再試",
           type: "error",
@@ -45576,256 +45969,364 @@ const FlowEditor = forwardRef(({ initialTitle, onTitleChange }, ref) => {
       } finally {
         setIsSaving(false);
       }
-    },
-    [
-      nodes,
-      edges,
-      flowMetadata,
-      saveDialogCallback,
-      handleLoadWorkflow,
-      isLocked
-    ]
-  );
-  const closeSaveDialog = useCallback(() => {
-    setShowSaveDialog(false);
-    setSaveDialogCallback(null);
-  }, []);
-  const showSaveFlowDialog = useCallback(
-    (callback) => {
-      if (isLocked) return;
-      setSaveDialogCallback(() => callback);
-      setShowSaveDialog(true);
-    },
-    [isLocked]
-  );
-  useCallback(async () => {
-    try {
-      const result = await FileIOService.readFromFile();
-      if (result.success && result.data) {
-        console.log("檔案已載入：", result.filename);
-        window.notify({
-          message: `已載入 ${result.filename}`,
-          type: "success",
-          duration: 2e3
-        });
-        if (!result.data.nodes || !result.data.edges) {
-          throw new Error("無效的流程檔案格式");
-        }
-        setFlowNodes(result.data.nodes);
-        setFlowEdges(result.data.edges);
-        setFlowMetadata({
-          id: result.data.id || `flow_${Date.now()}`,
-          title: result.data.title || "匯入的流程",
-          lastSaved: result.data.metadata?.savedAt || (/* @__PURE__ */ new Date()).toISOString(),
-          version: result.data.version || 1
-        });
-        updateNodeFunctions();
-        if (isInIframe && onTitleChange) {
-          onTitleChange(result.data.title || "匯入的流程");
-        }
-        setTimeout(() => {
-          if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
-            reactFlowControlsRef.current.fitViewToNodes();
-          }
-        }, 300);
-      }
-      return result;
-    } catch (error) {
-      console.error("載入檔案時發生錯誤：", error);
-      window.notify({
-        message: "無法載入檔案",
-        type: "error",
-        duration: 3e3
-      });
-      throw error;
-    }
-  }, [
-    setFlowNodes,
-    setFlowEdges,
-    updateNodeFunctions,
-    isInIframe,
-    onTitleChange
-  ]);
-  const handleSelectionChange = useCallback(
-    ({ nodes: selectedNodes }) => {
-      if (selectedNodes && selectedNodes.length > 0) {
-        handleNodeSelection(selectedNodes[0].id);
-      }
-    },
-    [handleNodeSelection]
-  );
-  useEffect(() => {
-    if (initialTitle) {
-      setFlowMetadata((prev) => {
-        if (prev.title !== initialTitle) {
-          return { ...prev, title: initialTitle };
-        }
-        return prev;
-      });
-    }
-  }, [initialTitle]);
-  useEffect(() => {
-    const handleSaveRequest = (event) => {
-      if (isLocked) return;
-      console.log("收到來自 Line 節點的保存請求", event.detail);
-      const { callback } = event.detail;
-      if (flowMetadata.id) {
-        callback(flowMetadata.id);
-      } else {
-        showSaveFlowDialog(callback);
-      }
-    };
-    window.addEventListener("requestSaveFlow", handleSaveRequest);
-    return () => {
-      window.removeEventListener("requestSaveFlow", handleSaveRequest);
-    };
-  }, [flowMetadata.id, showSaveFlowDialog, isLocked]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      className: "relative w-full h-screen",
-      style: { height: "calc(100vh - 64px)" },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          APAAssistant,
-          {
-            title: flowMetadata.title,
-            onTitleChange: handleTitleChange,
-            isLocked,
-            isNew: !flowMetadata.id || flowMetadata.id === "new"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ReactFlowProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "w-full h-full",
-            ref: reactFlowWrapper,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ReactFlowWithControls,
-              {
-                ref: reactFlowControlsRef,
-                nodes,
-                edges,
-                onNodesChange,
-                onEdgesChange,
-                onConnect,
-                onNodesDelete,
-                nodeTypes,
-                edgeTypes,
-                defaultViewport,
-                onSelectionChange: handleSelectionChange,
-                onInit: setReactFlowInstance,
-                onDrop,
-                onDragOver,
-                sidebarVisible,
-                isLocked
+    }, [isLocked, nodes, edges, flowMetadata, handleLoadWorkflow]);
+    const handleDialogSave = useCallback(
+      async (flowName) => {
+        if (isLocked) return;
+        console.log(`對話框觸發的保存，流程名稱: ${flowName}`);
+        console.log("當前 flowMetadata:", flowMetadata);
+        setIsSaving(true);
+        try {
+          const flowDataWithNewTitle = {
+            id: flowMetadata.id || `flow_${Date.now()}`,
+            title: flowName,
+            // 直接使用對話框傳入的標題
+            version: flowMetadata.version || 1,
+            nodes,
+            edges,
+            metadata: {
+              lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+              savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+              nodeCount: nodes.length,
+              edgeCount: edges.length
+            }
+          };
+          console.log("創建的 flowData:", flowDataWithNewTitle);
+          const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowDataWithNewTitle);
+          console.log("轉換後的 API 數據:", apiData);
+          console.log("API 中的 flow_name:", apiData.flow_name);
+          let response;
+          let flowIdToUse = flowMetadata.id || null;
+          if (flowMetadata.id) {
+            console.log("更新現有流程，flow_id:", flowMetadata.id);
+            response = await workflowAPIService.updateWorkflow(apiData);
+            console.log("更新流程成功:", response);
+            window.notify({
+              message: "流程更新成功",
+              type: "success",
+              duration: 2e3
+            });
+          } else {
+            console.log("創建新流程");
+            response = await workflowAPIService.createWorkflow(apiData);
+            console.log("創建流程成功:", response);
+            flowIdToUse = response?.flow_id;
+            console.log("獲得新的 flow_id:", flowIdToUse);
+            const isInIframe2 = window.self !== window.top;
+            if (isInIframe2) {
+              console.log("在 iframe 中，發送事件到父頁面");
+              try {
+                iframeBridge.sendToParent({
+                  type: "FLOW_SAVED",
+                  flowId: flowIdToUse,
+                  success: true,
+                  title: flowName,
+                  // 使用正確的標題
+                  isNewFlow: true,
+                  currentPath: window.location.pathname,
+                  isNewPath: window.location.pathname.includes("/new"),
+                  timestamp: (/* @__PURE__ */ new Date()).toISOString()
+                });
+              } catch (error) {
+                console.error("向父頁面發送事件失敗：", error);
               }
-            )
+            }
+            window.notify({
+              message: "流程創建成功",
+              type: "success",
+              duration: 2e3
+            });
           }
-        ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            className: `absolute top-0 left-0 h-full transition-transform duration-300 transform ${sidebarVisible ? "translate-x-0" : "-translate-x-full"}`,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                NodeSidebar,
+          setFlowMetadata((prev) => {
+            const newMetadata = {
+              ...prev,
+              id: flowIdToUse || prev.id,
+              title: flowName,
+              // 確保標題正確更新
+              lastSaved: (/* @__PURE__ */ new Date()).toISOString()
+            };
+            console.log("更新 flowMetadata:", newMetadata);
+            return newMetadata;
+          });
+          setShowSaveDialog(false);
+          if (flowIdToUse) {
+            setTimeout(async () => {
+              console.log("重新加載工作流:", flowIdToUse);
+              await handleLoadWorkflow(flowIdToUse);
+              if (saveDialogCallback) {
+                const finalFlowId = flowIdToUse || flowMetadata.id;
+                console.log("執行回調函數，flow_id:", finalFlowId);
+                saveDialogCallback(finalFlowId);
+                setSaveDialogCallback(null);
+              }
+            }, 1e3);
+          }
+          return {
+            success: true,
+            flow_id: flowIdToUse || flowMetadata.id,
+            ...response
+          };
+        } catch (error) {
+          console.error("對話框觸發的保存失敗:", error);
+          window.notify({
+            message: "無法儲存流程，請稍後再試",
+            type: "error",
+            duration: 3e3
+          });
+          throw error;
+        } finally {
+          setIsSaving(false);
+        }
+      },
+      [
+        nodes,
+        edges,
+        flowMetadata,
+        saveDialogCallback,
+        handleLoadWorkflow,
+        isLocked
+      ]
+    );
+    const closeSaveDialog = useCallback(() => {
+      setShowSaveDialog(false);
+      setSaveDialogCallback(null);
+    }, []);
+    const showSaveFlowDialog = useCallback(
+      (callback) => {
+        if (isLocked) return;
+        setSaveDialogCallback(() => callback);
+        setShowSaveDialog(true);
+      },
+      [isLocked]
+    );
+    useCallback(async () => {
+      try {
+        const result = await FileIOService.readFromFile();
+        if (result.success && result.data) {
+          console.log("檔案已載入：", result.filename);
+          window.notify({
+            message: `已載入 ${result.filename}`,
+            type: "success",
+            duration: 2e3
+          });
+          if (!result.data.nodes || !result.data.edges) {
+            throw new Error("無效的流程檔案格式");
+          }
+          setFlowNodes(result.data.nodes);
+          setFlowEdges(result.data.edges);
+          setFlowMetadata({
+            id: result.data.id || `flow_${Date.now()}`,
+            title: result.data.title || "匯入的流程",
+            lastSaved: result.data.metadata?.savedAt || (/* @__PURE__ */ new Date()).toISOString(),
+            version: result.data.version || 1
+          });
+          updateNodeFunctions();
+          if (isInIframe && onTitleChange) {
+            onTitleChange(result.data.title || "匯入的流程");
+          }
+          setTimeout(() => {
+            if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
+              reactFlowControlsRef.current.fitViewToNodes();
+            }
+          }, 300);
+        }
+        return result;
+      } catch (error) {
+        console.error("載入檔案時發生錯誤：", error);
+        window.notify({
+          message: "無法載入檔案",
+          type: "error",
+          duration: 3e3
+        });
+        throw error;
+      }
+    }, [
+      setFlowNodes,
+      setFlowEdges,
+      updateNodeFunctions,
+      isInIframe,
+      onTitleChange
+    ]);
+    const handleSelectionChange = useCallback(
+      ({ nodes: selectedNodes }) => {
+        if (selectedNodes && selectedNodes.length > 0) {
+          handleNodeSelection(selectedNodes[0].id);
+        }
+      },
+      [handleNodeSelection]
+    );
+    useEffect(() => {
+      if (initialTitle) {
+        setFlowMetadata((prev) => {
+          if (prev.title !== initialTitle) {
+            return { ...prev, title: initialTitle };
+          }
+          return prev;
+        });
+      }
+    }, [initialTitle]);
+    useEffect(() => {
+      const handleSaveRequest = (event) => {
+        if (isLocked) return;
+        console.log("收到來自 Line 節點的保存請求", event.detail);
+        const { callback } = event.detail;
+        if (flowMetadata.id) {
+          callback(flowMetadata.id);
+        } else {
+          showSaveFlowDialog(callback);
+        }
+      };
+      window.addEventListener("requestSaveFlow", handleSaveRequest);
+      return () => {
+        window.removeEventListener("requestSaveFlow", handleSaveRequest);
+      };
+    }, [flowMetadata.id, showSaveFlowDialog, isLocked]);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "relative w-full h-screen",
+        style: { height: "calc(100vh - 64px)" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            APAAssistant,
+            {
+              title: flowMetadata.title,
+              onTitleChange: handleTitleChange,
+              isLocked: isLocked || runhistory,
+              isNew: !flowMetadata.id || flowMetadata.id === "new"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ReactFlowProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "w-full h-full",
+              ref: reactFlowWrapper,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ReactFlowWithControls,
                 {
-                  handleButtonClick: handleNodeTypeSelection,
-                  onDragStart,
+                  ref: reactFlowControlsRef,
                   nodes,
-                  nodeList,
-                  isLoading: nodeListLoading,
-                  onRetryLoad: loadNodeList,
-                  isLocked
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  className: "absolute top-1/2 -right-6 bg-white border border-gray-300 rounded-r-md p-1 shadow-md",
-                  onClick: toggleSidebar,
-                  children: sidebarVisible ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "svg",
-                    {
-                      xmlns: "http://www.w3.org/2000/svg",
-                      width: "16",
-                      height: "16",
-                      viewBox: "0 0 24 24",
-                      fill: "none",
-                      stroke: "currentColor",
-                      strokeWidth: "2",
-                      strokeLinecap: "round",
-                      strokeLinejoin: "round",
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 18 9 12 15 6" })
-                    }
-                  ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "svg",
-                    {
-                      xmlns: "http://www.w3.org/2000/svg",
-                      width: "16",
-                      height: "16",
-                      viewBox: "0 0 24 24",
-                      fill: "none",
-                      stroke: "currentColor",
-                      strokeWidth: "2",
-                      strokeLinecap: "round",
-                      strokeLinejoin: "round",
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "9 18 15 12 9 6" })
-                    }
-                  )
+                  edges,
+                  onNodesChange,
+                  onEdgesChange,
+                  onConnect,
+                  onNodesDelete,
+                  nodeTypes,
+                  edgeTypes,
+                  defaultViewport,
+                  onSelectionChange: handleSelectionChange,
+                  onInit: setReactFlowInstance,
+                  onDrop,
+                  onDragOver,
+                  sidebarVisible,
+                  isLocked,
+                  runhistory
                 }
               )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ChatButton, {}),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            FlowCheckButton,
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
             {
-              errors: [
-                "流程無效檢測失敗: The flow should not contain multiple trigger nodes",
-                "流程無效檢測失敗: The flow can contain only one starter node",
-                "發現 5 個節點參數驗證失敗"
+              className: `absolute top-0 left-0 h-full transition-transform duration-300 transform ${sidebarVisible ? "translate-x-0" : "-translate-x-full"}`,
+              children: [
+                !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  NodeSidebar,
+                  {
+                    handleButtonClick: handleNodeTypeSelection,
+                    onDragStart,
+                    nodes,
+                    nodeList,
+                    isLoading: nodeListLoading,
+                    onRetryLoad: loadNodeList,
+                    isLocked
+                  }
+                ),
+                !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "absolute top-1/2 -right-6 bg-white border border-gray-300 rounded-r-md p-1 shadow-md",
+                    onClick: toggleSidebar,
+                    children: sidebarVisible ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "svg",
+                      {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: "16",
+                        height: "16",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 18 9 12 15 6" })
+                      }
+                    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "svg",
+                      {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        width: "16",
+                        height: "16",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "9 18 15 12 9 6" })
+                      }
+                    )
+                  }
+                )
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            AutoLayoutButton,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FlowCheckButton,
+              {
+                errors: [
+                  "流程無效檢測失敗: The flow should not contain multiple trigger nodes",
+                  "流程無效檢測失敗: The flow can contain only one starter node",
+                  "發現 5 個節點參數驗證失敗"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              AutoLayoutButton,
+              {
+                onLayout: handleAutoLayout,
+                disabled: isSaving || nodes.length === 0 || isLocked,
+                isLocked
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              SaveButton,
+              {
+                onSave: saveToServer,
+                title: flowMetadata.title,
+                flowId: flowMetadata.id,
+                disabled: isSaving,
+                isLocked
+              }
+            ) })
+          ] }) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SaveFlowDialog,
             {
-              onLayout: handleAutoLayout,
-              disabled: isSaving || nodes.length === 0 || isLocked,
-              isLocked
+              isOpen: showSaveDialog,
+              onClose: closeSaveDialog,
+              onSave: handleDialogSave,
+              title: "請先儲存您的 Flow"
             }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            SaveButton,
-            {
-              onSave: saveToServer,
-              title: flowMetadata.title,
-              flowId: flowMetadata.id,
-              disabled: isSaving,
-              isLocked
-            }
-          ) })
-        ] }) }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          SaveFlowDialog,
-          {
-            isOpen: showSaveDialog,
-            onClose: closeSaveDialog,
-            onSave: handleDialogSave,
-            title: "請先儲存您的 Flow"
-          }
-        )
-      ]
-    }
-  );
-});
+          )
+        ]
+      }
+    );
+  }
+);
 FlowEditor.displayName = "FlowEditor";
 const debugConnections = (edges, message) => {
   console.group(`调试连接 - ${message}`);
@@ -45993,4 +46494,4 @@ const debugNodeInputsBeforeSave = (flowPipeline) => {
   console.groupEnd();
 };
 
-export { FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, tokenService as t };
+export { API_CONFIG as A, IconBase as I, FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, tokenService as t };
