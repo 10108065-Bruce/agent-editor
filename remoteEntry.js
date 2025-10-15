@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-xEXQKNKM.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-sY2pyJwn.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16218,7 +16218,7 @@ class RunHistoryAPIService {
       // return mockRunHistory;
       // return this.getMockRunHistory();
     } catch (error) {
-      console.error('獲取執行歷史失敗:', error);
+      console.error('獲取失敗:', error);
       throw error;
     }
   }
@@ -16280,7 +16280,6 @@ const RunHistoryView = ({}) => {
       } else {
         setLoadingMore(true);
       }
-      console.log(`開始載入執行歷史，第 ${page} 頁`);
       const data = await runHistoryAPIService.getRunHistory(workFlowId, page);
       if (page === 1) {
         setHistoryData(data);
@@ -16294,9 +16293,8 @@ const RunHistoryView = ({}) => {
         setHasMore(data.has_more || false);
       }
       setCurrentPage(page);
-      console.log(`載入執行歷史完成，第 ${page} 頁`);
     } catch (error) {
-      console.error(`載入執行歷史失敗，第 ${page} 頁:`, error);
+      console.error(`載入失敗，第 ${page} 頁:`, error);
     } finally {
       if (page === 1) {
         setLoading(false);
@@ -16420,13 +16418,13 @@ const RunHistoryView = ({}) => {
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ced1] mx-auto mb-4" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行歷史中..." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行中..." })
     ] }) }) });
   }
   if (!historyData) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ced1] mx-auto mb-4" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行歷史中..." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行中..." })
     ] }) }) });
   }
   const currentRun = historyData && historyData.data && historyData.data[0] ? formatRunData(historyData.data[0]) : null;
@@ -16435,7 +16433,7 @@ const RunHistoryView = ({}) => {
     showFlowEditor && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
       {
-        initialTitle: historyData.flow_name || " ",
+        initialTitle: historyData.flow_name || "Untitled Flow",
         isLocked: true,
         runhistory: true,
         runHistorySnapshot: currentSnapshot
@@ -16692,9 +16690,9 @@ const RunHistoryView = ({}) => {
                   )),
                   loadingMore && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 border-[#00ced1] mx-auto mb-2" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-sm", children: "載入更多執行歷史..." })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-sm", children: "載入更多" })
                   ] }),
-                  !hasMore && previousRuns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm", children: "已載入所有執行歷史" }) })
+                  !hasMore && previousRuns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm", children: "已載入所有資料" }) })
                 ] })
               ]
             }
