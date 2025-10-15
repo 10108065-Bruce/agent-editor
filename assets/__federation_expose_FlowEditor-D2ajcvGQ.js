@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:32:29.760Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.19"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "4c237b388f289b60b27a57da18279b891ae861f1", "VITE_APP_BUILD_TIME": "2025-10-15T02:37:57.429Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.54.20"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26531,62 +26531,73 @@ class TokenService {
   }
 
   /**
-   * 從 URL 參數初始化 workspace ID
+   * 從 URL 參數初始化 workspace ID 和 flow ID
+   * 優先嘗試從父視窗獲取（如果在 iframe 中）
    */
   initWorkspaceFromUrl() {
     try {
+      let targetLocation = window.location;
+
+      // 檢查是否在 iframe 中
+      if (window.self !== window.top) {
+        console.log('偵測到在 iframe 中運行');
+
+        try {
+          // 嘗試讀取父視窗的 URL (只有同源時才能讀取)
+          targetLocation = window.parent.location;
+          console.log('成功讀取父視窗 URL:', targetLocation.href);
+        } catch (e) {
+          console.warn('無法讀取父視窗 URL (跨域限制)，使用當前 iframe URL');
+          targetLocation = window.location;
+        }
+      }
+
       // 完整 debug 資訊
       console.log('=== URL Debug Info ===');
-      console.log('完整 URL:', window.location.href);
-      console.log('pathname:', window.location.pathname);
-      console.log('search:', window.location.search);
-      console.log('hash:', window.location.hash);
+      console.log('完整 URL:', targetLocation.href);
+      console.log('pathname:', targetLocation.pathname);
+      console.log('search:', targetLocation.search);
+      console.log('hash:', targetLocation.hash);
       console.log('====================');
 
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new URLSearchParams(targetLocation.search);
       const workspaceId = urlParams.get('workspace');
 
-      // 檢查是否有其他查詢參數包含 ID
-      const allParams = {};
-      urlParams.forEach((value, key) => {
-        allParams[key] = value;
-        console.log(`查詢參數 ${key}:`, value);
-      });
-
-      // 嘗試從不同地方提取 ID
+      // 嘗試從不同地方提取 flow ID
       let flowId = null;
 
-      // 1. 從查詢參數中找 (可能叫 id, flowId, flow, 等等)
+      // 1. 從查詢參數中找
       flowId =
         urlParams.get('id') ||
         urlParams.get('flowId') ||
         urlParams.get('flow') ||
         urlParams.get('workflowId');
 
+      if (flowId) {
+        console.log('從查詢參數中找到 flowId:', flowId);
+      }
+
       // 2. 從 hash 中找 (如果使用 hash routing)
-      if (!flowId && window.location.hash) {
-        const hashMatch = window.location.hash.match(
+      if (!flowId && targetLocation.hash) {
+        const hashMatch = targetLocation.hash.match(
           /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
         );
         if (hashMatch) {
           flowId = hashMatch[0];
-          console.log('從 hash 中找到 ID:', flowId);
+          console.log('從 hash 中找到 flowId:', flowId);
         }
       }
 
-      // 3. 從路徑中找
+      // 3. 從路徑中找 UUID
       if (!flowId) {
-        const pathname = window.location.pathname;
-        const pathParts = pathname.split('/').filter((part) => part);
-        console.log('路徑片段:', pathParts);
-
-        // 找出看起來像 UUID 的部分
+        const pathname = targetLocation.pathname;
         const uuidPattern =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        flowId = pathParts.find((part) => uuidPattern.test(part));
+          /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+        const match = pathname.match(uuidPattern);
 
-        if (flowId) {
-          console.log('從路徑中找到 ID:', flowId);
+        if (match) {
+          flowId = match[0];
+          console.log('從路徑中找到 flowId:', flowId);
         }
       }
 
@@ -26597,7 +26608,7 @@ class TokenService {
       }
 
       if (flowId) {
-        this.flowId = flowId;
+        this.workFlowId = flowId;
         console.log('✓ 設定 flowId:', flowId);
       } else {
         console.log('✗ 未找到 flow ID');
@@ -26642,10 +26653,23 @@ class TokenService {
 
   getWorkFlowId() {
     try {
-      // 1. 首先嘗試從 URL的path 取得最新的值
-      const workFlowId = window.location.pathname
+      // 1. 首先嘗試從當前或父視窗的 URL path 取得
+      let targetLocation = window.location;
+
+      // 如果在 iframe 中，嘗試讀取父視窗
+      if (window.self !== window.top) {
+        try {
+          targetLocation = window.parent.location;
+        } catch (e) {
+          // 跨域時使用當前視窗
+          targetLocation = window.location;
+        }
+      }
+
+      const workFlowId = targetLocation.pathname
         .split('/')
         .find((segment) => /^[0-9a-fA-F-]{36}$/.test(segment));
+
       if (workFlowId) {
         // 更新內部快取
         if (this.workFlowId !== workFlowId) {
@@ -26658,13 +26682,6 @@ class TokenService {
       if (this.workFlowId) {
         return this.workFlowId;
       }
-
-      // // 3. 最後嘗試從 localStorage 讀取
-      // const storedWorkFlowId = localStorage.getItem('selected_workflow_id');
-      // if (storedWorkFlowId) {
-      //   this.workFlowId = storedWorkFlowId;
-      //   return storedWorkFlowId;
-      // }
 
       return null;
     } catch (error) {
@@ -26689,13 +26706,26 @@ class TokenService {
 
   /**
    * 取得工作區 ID
-   * 優先順序：URL 參數 > 內部快取 > localStorage
+   * 優先順序：URL 參數 > 內部快取
    */
   getWorkspaceId() {
     try {
-      // 1. 首先嘗試從 URL的query 取得最新的值
-      const urlParams = new URLSearchParams(window.location.search);
+      // 1. 首先嘗試從當前或父視窗的 URL query 取得
+      let targetLocation = window.location;
+
+      // 如果在 iframe 中，嘗試讀取父視窗
+      if (window.self !== window.top) {
+        try {
+          targetLocation = window.parent.location;
+        } catch (e) {
+          // 跨域時使用當前視窗
+          targetLocation = window.location;
+        }
+      }
+
+      const urlParams = new URLSearchParams(targetLocation.search);
       const urlWorkspaceId = urlParams.get('workspace');
+
       if (urlWorkspaceId) {
         // 更新內部快取
         if (this.workspaceId !== urlWorkspaceId) {
@@ -26708,13 +26738,6 @@ class TokenService {
       if (this.workspaceId) {
         return this.workspaceId;
       }
-
-      // // 3. 最後嘗試從 localStorage 讀取
-      // const storedWorkspaceId = localStorage.getItem('selected_workspace_id');
-      // if (storedWorkspaceId) {
-      //   this.workspaceId = storedWorkspaceId;
-      //   return storedWorkspaceId;
-      // }
 
       return null;
     } catch (error) {
@@ -26748,10 +26771,12 @@ class TokenService {
       headers
     };
   }
+
   /**
    * 創建帶有 workspace_id 的完整 URL
    * @param {string} baseUrl - 基礎 URL
-   * @param {Object} params - 額外的查詢參數
+   * @param {Object} queryParams - 額外的查詢參數
+   * @param {boolean} forceWorkspaceInQuery - 強制在查詢參數中加入 workspace_id
    * @returns {string} 完整的 URL
    */
   createUrlWithWorkspace(
