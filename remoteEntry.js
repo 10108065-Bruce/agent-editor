@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-jw2fUiEa.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-C_UyAcvp.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16777,7 +16777,7 @@ const {useState,useEffect} = React$1;
 const WorkflowContainer = () => {
   const [activeView, setActiveView] = useState("canvas");
   const [isInIframe, setIsInIframe] = useState(false);
-  const [historyKey, setHistoryKey] = useState(0);
+  const [isNewFlow, setIsNewFlow] = useState(false);
   useEffect(() => {
     try {
       setIsInIframe(window.self !== window.top);
@@ -16786,9 +16786,25 @@ const WorkflowContainer = () => {
     }
   }, []);
   useEffect(() => {
-    if (activeView === "history") {
-      setHistoryKey((prev) => prev + 1);
-    }
+    const checkIsNewFlow = () => {
+      const currentPath = window.location.pathname;
+      const isNew = currentPath.includes("/new");
+      setIsNewFlow(isNew);
+      if (isNew && activeView === "history") {
+        setActiveView("canvas");
+      }
+    };
+    checkIsNewFlow();
+    const handlePopState = () => checkIsNewFlow();
+    window.addEventListener("popstate", handlePopState);
+    const observer = new MutationObserver(() => {
+      checkIsNewFlow();
+    });
+    observer.observe(document, { subtree: true, childList: true });
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      observer.disconnect();
+    };
   }, [activeView]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm", children: [
