@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BC9BEzXh.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-CcBghzDi.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16777,9 +16777,10 @@ const {useState,useEffect} = React$1;
 const WorkflowContainer = () => {
   const [activeView, setActiveView] = useState("canvas");
   const [isInIframe, setIsInIframe] = useState(false);
+  const [isNewFlow, setIsNewFlow] = useState(false);
   useEffect(() => {
-    const isNewFlow2 = tokenService.getWorkFlowId() === "new";
-    console.log("isNewFlow", isNewFlow2);
+    setIsNewFlow(tokenService.getWorkFlowId() === "new");
+    console.log("isNewFlow", isNewFlow);
     try {
       setIsInIframe(window.self !== window.top);
     } catch {
