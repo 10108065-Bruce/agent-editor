@@ -117,7 +117,7 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
 
   const getButtonTitle = () => {
     if (isLocked) return '工作流已鎖定，無法執行自動排版';
-    return `自動排版 (${currentDirection?.label}) - ${currentDirection?.description}`;
+    return `Layout (${currentDirection?.label}) - ${currentDirection?.description}`;
   };
 
   const getButtonContent = () => {
@@ -134,7 +134,7 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
               <span>排版中</span>
             </div>
           ) : (
-            <span>自動排版</span>
+            <span>Layout</span>
           )}
         </div>
 

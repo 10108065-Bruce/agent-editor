@@ -5,6 +5,7 @@ class TokenService {
     this.token = null;
     this.storageType = 'local'; // 默認使用 localStorage
     this.workspaceId = null; // 快取 workspace ID
+    this.workflowId = null; // 快取 workflow ID
     this.initToken();
     this.initWorkspaceFromUrl(); // 從 URL 初始化 workspace ID
   }
@@ -56,6 +57,52 @@ class TokenService {
 
   getToken() {
     return this.token;
+  }
+
+  setWorkflowId(workflowId) {
+    if (!workflowId) return;
+
+    // 更新內部快取
+    this.workflowId = workflowId;
+
+    try {
+      localStorage.setItem('selected_workflow_id', workflowId);
+      console.log(`已設置工作流 ID: ${workflowId}`);
+    } catch (error) {
+      console.error('保存工作流 ID 失敗:', error);
+    }
+  }
+
+  getWorkFlowId() {
+    try {
+      // 1. 首先嘗試從 URL的query 取得最新的值
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlWorkflowId = urlParams.get('workflow');
+      if (urlWorkflowId) {
+        // 更新內部快取
+        if (this.workflowId !== urlWorkflowId) {
+          this.workflowId = urlWorkflowId;
+        }
+        return urlWorkflowId;
+      }
+
+      // 2. 如果 URL 沒有，使用內部快取
+      if (this.workflowId) {
+        return this.workflowId;
+      }
+
+      // // 3. 最後嘗試從 localStorage 讀取
+      // const storedWorkflowId = localStorage.getItem('selected_workflow_id');
+      // if (storedWorkflowId) {
+      //   this.workflowId = storedWorkflowId;
+      //   return storedWorkflowId;
+      // }
+
+      return null;
+    } catch (error) {
+      console.error('讀取工作流 ID 失敗:', error);
+      return null;
+    }
   }
 
   setWorkspaceId(workspaceId) {

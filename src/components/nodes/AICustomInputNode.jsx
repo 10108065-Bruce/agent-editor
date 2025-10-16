@@ -782,7 +782,7 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               onTagInsert={handleTagInsert}
               onBlur={handleBlur} // 新增這一行
               placeholder='輸入您的提示'
-              className='bg-[#e5e7eb] text-[#09090b] border-gray-300'
+              className='bg-[#e9e9e7] text-[#09090b] border-gray-300'
               flowId={getFlowId()}
               initialHtmlContent={editorHtmlContent}
               shouldShowPanel={promptConnectionCount > 0}

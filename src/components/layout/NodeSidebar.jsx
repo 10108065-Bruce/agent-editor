@@ -65,10 +65,6 @@ const NodeSidebar = ({
           nodeName.includes(operatorWords) ||
           node.id?.includes(operator);
 
-        if (isMatchingNode) {
-          console.log(`Found existing ${operator} node:`, node);
-        }
-
         return isMatchingNode;
       });
     }

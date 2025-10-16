@@ -1574,4 +1574,503 @@ export class WorkflowDataConverter {
 
     return parameters;
   }
+
+  /**
+   * 從 Run History 的 workflow_snapshot 轉換為 ReactFlow 格式
+   * 此方法用於唯讀模式的 Flow 顯示
+   * @param {Object} workflowSnapshot - Run History 中的 workflow_snapshot 物件
+   * @returns {Object} - ReactFlow 格式的 nodes 和 edges
+   */
+  static transformRunHistoryToReactFlowFormat(workflowSnapshot) {
+    const flowPipeline = workflowSnapshot.flow_pipeline;
+
+    if (!flowPipeline || !Array.isArray(flowPipeline)) {
+      return { nodes: [], edges: [] };
+    }
+
+    const nodes = [];
+    const edges = [];
+
+    // 首先處理所有節點
+    flowPipeline.forEach((node) => {
+      // 轉換為 ReactFlow 節點格式
+      const reactFlowNode = {
+        id: node.id,
+        type: WorkflowMappingService.getTypeFromOperator(node.operator),
+        position: {
+          x: typeof node.position_x === 'number' ? node.position_x : 0,
+          y: typeof node.position_y === 'number' ? node.position_y : 0
+        },
+        data: this.transformNodeDataToReactFlowForRunHistory(node)
+      };
+
+      // 特殊處理 BrowserExtensionOutput 節點
+      if (node.operator === 'browser_extension_output') {
+        const inputHandles = [];
+        const handleMap = new Map();
+
+        if (node.node_input && typeof node.node_input === 'object') {
+          const handlePattern = /^(output\d+)(?:_\d+)?$/;
+          Object.keys(node.node_input).forEach((key) => {
+            const match = key.match(handlePattern);
+            if (match && match[1]) {
+              const baseHandleId = match[1];
+              if (!handleMap.has(baseHandleId)) {
+                handleMap.set(baseHandleId, true);
+                inputHandles.push({ id: baseHandleId });
+              }
+            } else if (key === 'input') {
+              if (!handleMap.has('output0')) {
+                handleMap.set('output0', true);
+                inputHandles.push({ id: 'output0' });
+              }
+            }
+          });
+        }
+
+        // 檢查是否有從參數中保存的 inputHandles
+        if (
+          node.parameters &&
+          node.parameters.inputHandles &&
+          node.parameters.inputHandles.data
+        ) {
+          const savedHandles = node.parameters.inputHandles.data;
+          if (Array.isArray(savedHandles)) {
+            savedHandles.forEach((handleId) => {
+              const normalizedId = handleId === 'input' ? 'output0' : handleId;
+              if (!inputHandles.some((h) => h.id === normalizedId)) {
+                inputHandles.push({ id: normalizedId });
+              }
+            });
+          }
+        }
+
+        // 確保至少有一個默認 handle
+        if (inputHandles.length === 0) {
+          inputHandles.push({ id: 'output0' });
+        }
+
+        reactFlowNode.data.inputHandles = inputHandles;
+
+        // 確保 node_input 與 inputHandles 同步
+        if (!reactFlowNode.data.node_input) {
+          reactFlowNode.data.node_input = {};
+        }
+
+        inputHandles.forEach((handle) => {
+          if (!reactFlowNode.data.node_input[handle.id]) {
+            reactFlowNode.data.node_input[handle.id] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: ''
+            };
+          }
+        });
+
+        reactFlowNode.data.isPreInitialized = true;
+        reactFlowNode.data.isReadOnly = true;
+      }
+
+      // 特殊處理 webhook_output 節點
+      if (node.operator === 'webhook_output') {
+        const inputHandles = [];
+        const handleMap = new Map();
+
+        if (node.node_input && typeof node.node_input === 'object') {
+          const handlePattern = /^(text\d+)(?:_\d+)?$/;
+          Object.keys(node.node_input).forEach((key) => {
+            const match = key.match(handlePattern);
+            if (match && match[1]) {
+              const baseHandleId = match[1];
+              if (!handleMap.has(baseHandleId)) {
+                handleMap.set(baseHandleId, true);
+                inputHandles.push({ id: baseHandleId });
+              }
+            } else if (key === 'input') {
+              if (!handleMap.has('text0')) {
+                handleMap.set('text0', true);
+                inputHandles.push({ id: 'text0' });
+              }
+            }
+          });
+        }
+
+        if (
+          node.parameters &&
+          node.parameters.inputHandles &&
+          node.parameters.inputHandles.data
+        ) {
+          const savedHandles = node.parameters.inputHandles.data;
+          if (Array.isArray(savedHandles)) {
+            savedHandles.forEach((handleId) => {
+              const normalizedId = handleId === 'input' ? 'text0' : handleId;
+              if (!inputHandles.some((h) => h.id === normalizedId)) {
+                inputHandles.push({ id: normalizedId });
+              }
+            });
+          }
+        }
+
+        if (inputHandles.length === 0) {
+          inputHandles.push({ id: 'text0' });
+        }
+
+        reactFlowNode.data.inputHandles = inputHandles;
+
+        if (!reactFlowNode.data.node_input) {
+          reactFlowNode.data.node_input = {};
+        }
+
+        inputHandles.forEach((handle) => {
+          if (!reactFlowNode.data.node_input[handle.id]) {
+            reactFlowNode.data.node_input[handle.id] = {
+              node_id: '',
+              output_name: '',
+              type: 'string',
+              data: '',
+              is_empty: true,
+              return_name: ''
+            };
+          }
+        });
+
+        reactFlowNode.data.isPreInitialized = true;
+        reactFlowNode.data.isReadOnly = true;
+      }
+
+      // 標記所有節點為唯讀
+      reactFlowNode.data.isReadOnly = true;
+
+      nodes.push(reactFlowNode);
+    });
+
+    // 處理連接關係
+    setTimeout(() => {
+      this.createEdgesFromNodeInputs(flowPipeline, nodes, edges);
+    }, 0);
+
+    // 自動布局(如果位置都是 0,0)
+    this.autoLayout(nodes);
+
+    return { nodes, edges };
+  }
+
+  /**
+   * 將 Run History 節點數據轉換為 ReactFlow 節點數據
+   * 專門用於唯讀模式
+   * @param {Object} node - Run History 格式節點
+   * @returns {Object} - ReactFlow 格式節點數據
+   */
+  static transformNodeDataToReactFlowForRunHistory(node) {
+    const baseData = {
+      label: node.display_name || WorkflowMappingService.getNodeLabel(node),
+      category: node.category,
+      operator: node.operator,
+      version: node.version,
+      node_input: node.node_input,
+      node_output: node.node_output,
+      isReadOnly: true // 標記為唯讀
+    };
+
+    // 如果有 parameter_display_values,優先使用
+    if (node.parameter_display_values) {
+      baseData.parameter_display_values = node.parameter_display_values;
+    }
+
+    // 根據節點類型轉換參數
+    switch (node.operator) {
+      case 'speech_to_text':
+        return {
+          ...baseData,
+          stt_model_id: node.parameters?.stt_model_id?.data?.toString() || '1'
+        };
+
+      case 'router_switch': {
+        const routersData = node.parameters?.routers?.data || [];
+        return {
+          ...baseData,
+          llm_id: node.parameters?.llm_id?.data?.toString() || '1',
+          routers: Array.isArray(routersData) ? routersData : []
+        };
+      }
+
+      case 'schedule_trigger': {
+        return {
+          ...baseData,
+          schedule_type:
+            node.parameters?.schedule_type?.data ||
+            node.parameters?.schedule_type ||
+            'cron',
+          cron_expression:
+            node.parameters?.cron_expression?.data ||
+            node.parameters?.cron_expression ||
+            '',
+          execute_at:
+            node.parameters?.execute_at?.data ||
+            node.parameters?.execute_at ||
+            null,
+          timezone:
+            node.parameters?.timezone?.data ||
+            node.parameters?.timezone ||
+            'Asia/Taipei',
+          enabled:
+            node.parameters?.enabled?.data ?? node.parameters?.enabled ?? true,
+          description:
+            node.parameters?.description?.data ||
+            node.parameters?.description ||
+            ''
+        };
+      }
+
+      case 'http_request': {
+        const bodyText = node.parameters?.body?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data || '';
+
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data || '',
+          method: node.parameters?.method?.data || 'GET',
+          headers: node.parameters?.headers?.data || [{ key: '', value: '' }],
+          body: bodyText,
+          editorHtmlContent: editorHtmlContent
+        };
+      }
+
+      case 'extract_data': {
+        const columnsData = node.parameters?.columns?.data || [];
+        const columns = Array.isArray(columnsData) ? columnsData : [];
+
+        return {
+          ...baseData,
+          model: node.parameters?.llm_id?.data?.toString() || '',
+          columns: columns
+        };
+      }
+
+      case 'line_webhook_input':
+        return {
+          ...baseData,
+          external_service_config_id:
+            node.parameters?.external_service_config_id?.data || '',
+          webhook_url: node.parameters?.webhook_url?.data || '',
+          output_handles: node.node_output
+            ? Object.keys(node.node_output).filter((key) => key !== 'node_id')
+            : ['text', 'image', 'audio']
+        };
+
+      case 'browser_extension_input':
+        return {
+          ...baseData,
+          type: 'browserExtensionInput',
+          browser_extension_url: node.parameters?.browser_extension_url?.data,
+          items:
+            node.parameters?.functions?.map((func) => ({
+              id: func.func_id,
+              name: func.func_name,
+              icon: func.func_icon || 'document'
+            })) || []
+        };
+
+      case 'browser_extension_output': {
+        let inputHandles = [];
+
+        if (
+          node.node_input &&
+          typeof node.node_input === 'object' &&
+          Object.keys(node.node_input).length > 0
+        ) {
+          inputHandles = Object.keys(node.node_input).map((handleId) => {
+            return { id: handleId };
+          });
+        }
+
+        return {
+          ...baseData,
+          type: 'browserExtensionOutput',
+          inputHandles: inputHandles
+        };
+      }
+
+      case 'webhook_output': {
+        let inputHandles = [];
+
+        if (
+          node.node_input &&
+          typeof node.node_input === 'object' &&
+          Object.keys(node.node_input).length > 0
+        ) {
+          inputHandles = Object.keys(node.node_input).map((handleId) => {
+            return { id: handleId };
+          });
+        }
+
+        return {
+          ...baseData,
+          type: 'webhook_output',
+          inputHandles: inputHandles
+        };
+      }
+
+      case 'webhook':
+      case 'webhook_input':
+        return {
+          ...baseData,
+          webhookUrl: node.parameters?.webhook_url?.data || '',
+          curl_example: node.parameters?.curl_example?.data || ''
+        };
+
+      case 'ask_ai': {
+        const rawModelId =
+          node.parameters?.llm_id?.data !== undefined
+            ? node.parameters.llm_id.data
+            : node.parameters?.model?.data !== undefined
+            ? node.parameters.model.data
+            : '';
+
+        const modelId =
+          rawModelId !== null && rawModelId !== undefined
+            ? rawModelId.toString()
+            : '';
+
+        const promptText = node.parameters?.prompt?.data || '';
+        const editorHtmlContent =
+          node.parameters?.editor_html_content?.data ||
+          node.parameters?.prompt?.data ||
+          '';
+
+        return {
+          ...baseData,
+          model: modelId,
+          promptText: promptText,
+          editorHtmlContent: editorHtmlContent
+        };
+      }
+
+      case 'basic_input': {
+        const field = {
+          inputName:
+            node.parameters?.input_name?.data ||
+            node.parameters?.input_name_0?.data ||
+            'input_name',
+          defaultValue:
+            node.parameters?.default_value?.data ||
+            node.parameters?.default_value_0?.data ||
+            ''
+        };
+
+        return {
+          ...baseData,
+          fields: [field]
+        };
+      }
+
+      case 'ifElse':
+        return {
+          ...baseData,
+          variableName: node.parameters?.variable?.data || '',
+          operator: node.parameters?.operator?.data || 'equals',
+          compareValue: node.parameters?.compare_value?.data || ''
+        };
+
+      case 'combine_text': {
+        return {
+          ...baseData,
+          textToCombine: node.parameters?.text_to_combine?.data || '',
+          editorHtmlContent: node.parameters?.editor_html_content?.data || '',
+          activeTab: node.parameters?.active_tab?.data || 'editor'
+        };
+      }
+
+      case 'knowledge_retrieval':
+        return {
+          ...baseData,
+          selectedFile: node.parameters?.knowledge_base_id?.data || '',
+          topK: node.parameters?.top_k?.data || 5,
+          threshold: node.parameters?.threshold?.data || 0.7,
+          // 如果有 display value,使用它
+          displayValue: node.parameter_display_values?.knowledge_base_id || null
+        };
+
+      case 'http':
+        return {
+          ...baseData,
+          url: node.parameters?.url?.data || '',
+          method: node.parameters?.method?.data || 'GET'
+        };
+
+      case 'timer':
+        return {
+          ...baseData,
+          hours: node.parameters?.hours?.data || 0,
+          minutes: node.parameters?.minutes?.data || 0,
+          seconds: node.parameters?.seconds?.data || 0
+        };
+
+      case 'event':
+        return {
+          ...baseData,
+          eventType: node.parameters?.event_type?.data || 'message',
+          eventSource: node.parameters?.event_source?.data || ''
+        };
+
+      case 'end':
+        return {
+          ...baseData,
+          outputText: node.parameters?.output_text?.data || ''
+        };
+
+      case 'aim_ml': {
+        let modelFieldsInfo = {};
+        if (node.parameters?.model_fields_info?.data) {
+          const rawData = node.parameters.model_fields_info.data;
+          if (typeof rawData === 'string') {
+            try {
+              modelFieldsInfo = JSON.parse(rawData);
+            } catch (error) {
+              console.error('解析 model_fields_info 字串失敗:', error);
+              modelFieldsInfo = {};
+            }
+          } else if (typeof rawData === 'object' && rawData !== null) {
+            modelFieldsInfo = rawData;
+          }
+        }
+
+        const nodeData = {
+          ...baseData,
+          externalServiceConfigId:
+            node.parameters?.external_service_config_id?.data || '',
+          selectedAim: node.parameters?.aim_ml_id?.data || '',
+          trainingId: node.parameters?.training_id?.data || 0,
+          simulatorId: node.parameters?.simulator_id?.data || '',
+          enableExplain: node.parameters?.enable_explain?.data ?? true,
+          llmId: node.parameters?.llm_id?.data || '',
+          promptText: node.parameters?.prompt?.data || '',
+          modelFieldsInfo: modelFieldsInfo
+        };
+
+        return nodeData;
+      }
+
+      case 'line_send_message':
+        return {
+          ...baseData,
+          message: node.parameters?.message?.data || ''
+        };
+
+      default: {
+        const transformedParams = {};
+        Object.entries(node.parameters || {}).forEach(([key, value]) => {
+          transformedParams[key] = value.data;
+        });
+        return {
+          ...baseData,
+          ...transformedParams
+        };
+      }
+    }
+  }
 }

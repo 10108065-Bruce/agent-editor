@@ -6,7 +6,7 @@ import { tokenService } from '../services/TokenService';
 /**
  * 增強版 IFrameFlowEditor - 從 URL 取得 workspace ID
  */
-const IFrameFlowEditor = () => {
+const IFrameFlowEditor = ({ onFlowStatusChange }) => {
   // 狀態管理
   const [flowTitle, setFlowTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +16,7 @@ const IFrameFlowEditor = () => {
   const flowEditorRef = useRef(null);
   const eventsRegistered = useRef(false);
   const isLoadingRef = useRef(false);
+  const lastFlowStatus = useRef(null);
   const dataValidationRef = useRef({
     hasToken: false,
     hasWorkspaceId: false,
@@ -51,50 +52,47 @@ const IFrameFlowEditor = () => {
   // }, []);
 
   // 驗證必要資料是否齊全
-  const validateRequiredData = useCallback((flowId = null) => {
-    const token = tokenService.getToken();
-    const workspaceId = tokenService.getWorkspaceId(); // 會自動從 URL 取得
+  const validateRequiredData = useCallback(
+    (flowId = null) => {
+      const token = tokenService.getToken();
+      const workspaceId = tokenService.getWorkspaceId(); // 會自動從 URL 取得
 
-    const validation = {
-      hasToken: !!token,
-      hasWorkspaceId: !!workspaceId,
-      hasFlowId: !!flowId,
-      allRequiredDataReceived: false
-    };
+      const validation = {
+        hasToken: !!token,
+        hasWorkspaceId: !!workspaceId,
+        hasFlowId: !!flowId,
+        allRequiredDataReceived: false
+      };
 
-    // 對於新建流程，不需要 flowId
-    if (flowId === 'new' || !flowId) {
-      validation.allRequiredDataReceived =
-        validation.hasToken && validation.hasWorkspaceId;
-    } else {
-      validation.allRequiredDataReceived =
-        validation.hasToken &&
-        validation.hasWorkspaceId &&
-        validation.hasFlowId;
-    }
+      // 對於新建流程，不需要 flowId
+      const isNew = flowId === 'new' || !flowId;
 
-    dataValidationRef.current = validation;
+      if (isNew) {
+        validation.allRequiredDataReceived =
+          validation.hasToken && validation.hasWorkspaceId;
+      } else {
+        validation.allRequiredDataReceived =
+          validation.hasToken &&
+          validation.hasWorkspaceId &&
+          validation.hasFlowId;
+      }
 
-    console.log('IFrameFlowEditor: 資料驗證結果', {
-      ...validation,
-      token: token ? `${token.substring(0, 10)}...` : 'null',
-      workspaceId,
-      flowId: flowId || 'null'
-    });
+      dataValidationRef.current = validation;
 
-    return validation;
-  }, []);
+      // 只在狀態真的改變時才調用回調
+      if (onFlowStatusChange && lastFlowStatus.current !== isNew) {
+        onFlowStatusChange(isNew);
+        lastFlowStatus.current = isNew;
+      }
+
+      return validation;
+    },
+    [onFlowStatusChange]
+  );
 
   // 處理從父頁面接收 token
   const handleTokenReceived = useCallback(
     (data) => {
-      console.log('IFrameFlowEditor: 接收到 token 資料', {
-        hasToken: !!data.token,
-        storage: data.storage,
-        hasWorkspaceId: !!data.selectedWorkspaceId,
-        urlWorkspaceId: tokenService.getWorkspaceId()
-      });
-
       try {
         // 設置 token
         if (data.token) {
@@ -138,7 +136,6 @@ const IFrameFlowEditor = () => {
 
       // 防止重複執行
       if (isLoadingRef.current) {
-        console.log('IFrameFlowEditor: 載入工作流已在進行中，忽略重複請求');
         return;
       }
 
@@ -154,7 +151,6 @@ const IFrameFlowEditor = () => {
         setTimeout(() => {
           const retryValidation = validateRequiredData(workflowId);
           if (retryValidation.allRequiredDataReceived) {
-            console.log('IFrameFlowEditor: 重試載入工作流');
             handleLoadWorkflow(workflowId);
           } else {
             console.error('IFrameFlowEditor: 重試後仍缺少必要資料');
@@ -171,12 +167,9 @@ const IFrameFlowEditor = () => {
 
       try {
         if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
-          console.log('IFrameFlowEditor: 開始載入工作流');
-
           // 確保 FlowEditor 已完全初始化
           if (typeof flowEditorRef.current.loadWorkflow === 'function') {
             const result = await flowEditorRef.current.loadWorkflow(workflowId);
-            console.log('IFrameFlowEditor: 載入工作流結果:', result);
 
             // 發送載入完成確認
             iframeBridge.sendToParent({
@@ -220,11 +213,8 @@ const IFrameFlowEditor = () => {
 
   // 處理保存工作流
   const handleSaveWorkflow = useCallback(async () => {
-    console.log('IFrameFlowEditor: 處理保存工作流請求');
-
     // 防止重複執行
     if (isLoadingRef.current) {
-      console.log('IFrameFlowEditor: 保存工作流已在進行中，忽略重複請求');
       return;
     }
 

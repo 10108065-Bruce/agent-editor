@@ -800,7 +800,7 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
                   onChange={handleTextChange}
                   onTagInsert={handleTagInsert}
                   placeholder='點擊此處編輯內容...'
-                  className='bg-[#e5e7eb] text-[#09090b] border-gray-300'
+                  className='bg-[#e9e9e7] text-[#09090b] border-gray-300'
                   flowId={getFlowId()}
                   initialHtmlContent={editorHtmlContent}
                   shouldShowPanel={connectionCount > 0}

@@ -1,82 +1,102 @@
 import React, { useState } from 'react';
-import workflowIcon from '../assets/icn-workflow.svg';
 import pencilIcon from '../assets/objects-pencil-1.svg';
 import lockIcon from '../assets/icon-lock-on-off.svg';
-// This version uses a fully controlled pattern with no internal state for the title
-const APAAssistant = ({ title, onTitleChange, isLocked = false }) => {
-  const [isEditing, setIsEditing] = useState(true);
+import checkIcon from '../assets/icon-save.png';
+
+const APAAssistant = ({
+  title,
+  onTitleChange,
+  isLocked = false,
+  isNew = false,
+  runhistory = false
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleEditClick = () => {
-    if (isLocked) return; // 鎖定狀態下不允許編輯
+    if (isLocked) return;
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    if (isLocked) return; // 鎖定狀態下不允許保存
-    // console.log('handleSave');
-    // setIsEditing(false);
+  const handleConfirm = () => {
+    if (isLocked) return;
+    if (!title || title.trim() === '') {
+      return;
+    }
+    setIsEditing(false);
   };
 
   const handleKeyDown = (e) => {
-    if (isLocked) return; // 鎖定狀態下不允許鍵盤操作
-    // console.log('handleKeyDown', e);
+    if (isLocked) return;
     if (e.key === 'Enter') {
+      if (!title || title.trim() === '') {
+        return;
+      }
       setIsEditing(false);
     }
   };
 
   const handleTitleChange = (value) => {
-    if (isLocked) return; // 鎖定狀態下不允許修改標題
+    if (isLocked) return;
     if (onTitleChange) {
       onTitleChange(value);
     }
   };
 
+  // 只有在編輯狀態時才顯示框線和陰影
+  const showBorderAndShadow = isEditing;
+
   return (
-    <div className='fixed top-4 left-1/2 transform -translate-x-1/2 z-50'>
-      {/* Container with double shadow effect */}
-      <div className='rounded-full shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]'>
+    <div className='fixed top-3 left-[80px] transform'>
+      <div
+        className={`transition-all duration-300 ease-in-out ${
+          showBorderAndShadow && !isLocked
+            ? 'shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]'
+            : ''
+        }`}>
         <div
-          className={`bg-white border border-gray-200 rounded-full px-4 py-2 flex items-center w-64 md:w-80 ${
+          className={`transition-all duration-300 ease-in-out ${
+            (showBorderAndShadow && !isLocked) || isNew
+              ? 'border border-gray-200 bg-white'
+              : ''
+          } px-4 py-2 flex items-center w-64 md:w-80 ${
             isLocked ? 'bg-gray-50' : ''
           }`}>
-          <div className='mr-2 text-gray-700 flex-shrink-0'>
-            <div
-              className={'flex items-center justify-center'}
-              style={{
-                width: '16px',
-                height: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-              <img
-                src={workflowIcon}
-                width={16}
-                height={16}
-                className='max-w-full max-h-full object-contain'
+          {/* 左側圖標 - 只在非編輯狀態顯示 */}
+          {!runhistory && !isEditing && !isNew && (
+            <div className='mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out'>
+              <div
+                className='flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-110'
                 style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain'
+                  width: '16px',
+                  height: '16px'
                 }}
-              />
+                onClick={handleEditClick}>
+                <img
+                  src={isLocked ? lockIcon : pencilIcon}
+                  width={16}
+                  height={16}
+                  className='max-w-full max-h-full object-contain transition-opacity duration-200'
+                  alt={isLocked ? 'locked' : 'edit'}
+                />
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* 標題輸入區域 */}
           <div className='flex-1 relative min-w-0'>
-            {isEditing && !isLocked ? (
+            {(isEditing && !isLocked) || isNew ? (
               <input
                 type='text'
-                className='w-full outline-none text-gray-800 bg-transparent'
+                className='w-full outline-none text-gray-800 bg-transparent animate-fadeIn'
                 value={title || ''}
                 onChange={(e) => handleTitleChange(e.target.value)}
-                onBlur={handleSave}
                 onKeyDown={handleKeyDown}
+                placeholder='輸入標題...'
                 autoFocus
               />
             ) : (
               <div
-                className={`w-full text-gray-800 truncate ${
+                className={`w-full text-gray-800 truncate transition-colors duration-200 ${
                   isLocked
                     ? 'text-gray-600 cursor-not-allowed'
                     : 'cursor-pointer hover:text-gray-600'
@@ -89,35 +109,61 @@ const APAAssistant = ({ title, onTitleChange, isLocked = false }) => {
               </div>
             )}
           </div>
-          <div
-            className={`ml-2 flex-shrink-0 ${
-              isLocked ? 'text-orange-500' : 'text-gray-500'
-            }`}>
+
+          {/* 右側確認圖標 */}
+          {isEditing && !isLocked && (
             <div
-              className={'flex items-center justify-center'}
-              style={{
-                width: '16px',
-                height: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              title={isLocked ? '工作流已鎖定' : '編輯標題'}>
-              <img
-                src={isLocked ? lockIcon : pencilIcon} // 根據鎖定狀態切換圖標
-                width={16}
-                height={16}
-                className='max-w-full max-h-full object-contain'
+              className='ml-2 flex-shrink-0 text-cyan-500 cursor-pointer animate-scaleIn'
+              onClick={handleConfirm}>
+              <div
+                className='flex items-center justify-center transition-transform duration-200 hover:scale-110'
                 style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain'
+                  width: '16px',
+                  height: '16px'
                 }}
-              />
+                title='確認'>
+                <img
+                  src={checkIcon}
+                  width={16}
+                  height={16}
+                  className='max-w-full max-h-full object-contain'
+                  alt='confirm'
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .animate-scaleIn {
+          animation: scaleIn 0.3s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };

@@ -13,6 +13,7 @@ import webhookOutputNode from '../../assets/icn-webhook-input.svg';
 import CombineTextNode from '../../assets/icon-node-combine-text.svg';
 import RouterSwitchNode from '../../assets/icon-node-router.svg';
 import SpeechToTextNode from '../../assets/icn-audio-node.svg';
+import FlowCheckNode from '../../assets/icon-flow-check.svg';
 // Map of icon types to their respective assets
 const iconMap = {
   input: {
@@ -69,6 +70,10 @@ const iconMap = {
   speech_to_text: {
     src: SpeechToTextNode,
     alt: 'Speech to Text Icon'
+  },
+  flow_check: {
+    src: FlowCheckNode,
+    alt: 'Flow Check Icon'
   }
 };
 
