@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-2wqdXPDo.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-Df_7ECiR.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15824,28 +15824,15 @@ const IFrameFlowEditor = ({ onFlowStatusChange }) => {
       }
       dataValidationRef.current = validation;
       if (onFlowStatusChange && lastFlowStatus.current !== isNew) {
-        console.log("IFrameFlowEditor: 流程狀態變更 - isNewFlow:", isNew);
         onFlowStatusChange(isNew);
         lastFlowStatus.current = isNew;
       }
-      console.log("IFrameFlowEditor: 資料驗證結果", {
-        ...validation,
-        token: token ? `${token.substring(0, 10)}...` : "null",
-        workspaceId,
-        flowId: flowId || "null"
-      });
       return validation;
     },
     [onFlowStatusChange]
   );
   const handleTokenReceived = useCallback(
     (data) => {
-      console.log("IFrameFlowEditor: 接收到 token 資料", {
-        hasToken: !!data.token,
-        storage: data.storage,
-        hasWorkspaceId: !!data.selectedWorkspaceId,
-        urlWorkspaceId: tokenService.getWorkspaceId()
-      });
       try {
         if (data.token) {
           tokenService.setToken(data.token, data.storage || "local");
@@ -15873,7 +15860,6 @@ const IFrameFlowEditor = ({ onFlowStatusChange }) => {
     async (workflowId) => {
       console.log("IFrameFlowEditor: 處理載入工作流請求:", workflowId);
       if (isLoadingRef.current) {
-        console.log("IFrameFlowEditor: 載入工作流已在進行中，忽略重複請求");
         return;
       }
       const validation = validateRequiredData(workflowId);
@@ -15885,7 +15871,6 @@ const IFrameFlowEditor = ({ onFlowStatusChange }) => {
         setTimeout(() => {
           const retryValidation = validateRequiredData(workflowId);
           if (retryValidation.allRequiredDataReceived) {
-            console.log("IFrameFlowEditor: 重試載入工作流");
             handleLoadWorkflow(workflowId);
           } else {
             console.error("IFrameFlowEditor: 重試後仍缺少必要資料");
@@ -15899,10 +15884,8 @@ const IFrameFlowEditor = ({ onFlowStatusChange }) => {
       setError(null);
       try {
         if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
-          console.log("IFrameFlowEditor: 開始載入工作流");
           if (typeof flowEditorRef.current.loadWorkflow === "function") {
             const result = await flowEditorRef.current.loadWorkflow(workflowId);
-            console.log("IFrameFlowEditor: 載入工作流結果:", result);
             iframeBridge.sendToParent({
               type: "WORKFLOW_LOADED",
               workflowId,
@@ -15938,9 +15921,7 @@ const IFrameFlowEditor = ({ onFlowStatusChange }) => {
     [validateRequiredData]
   );
   const handleSaveWorkflow = useCallback(async () => {
-    console.log("IFrameFlowEditor: 處理保存工作流請求");
     if (isLoadingRef.current) {
-      console.log("IFrameFlowEditor: 保存工作流已在進行中，忽略重複請求");
       return;
     }
     const validation = validateRequiredData();
@@ -16247,7 +16228,7 @@ const detailIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAA
 
 const React$2 = await importShared('react');
 const {useState: useState$1,useEffect: useEffect$1,useRef} = React$2;
-const RunHistoryView = ({}) => {
+const RunHistoryView = () => {
   const [historyData, setHistoryData] = useState$1(null);
   const [loading, setLoading] = useState$1(true);
   const [expandedNodeId, setExpandedNodeId] = useState$1(null);
@@ -16256,7 +16237,7 @@ const RunHistoryView = ({}) => {
   const [ioDialogOpen, setIoDialogOpen] = useState$1(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
-  const [hasLoaded, setHasLoaded] = useState$1(false);
+  const hasLoadedRef = useRef(false);
   const [currentPage, setCurrentPage] = useState$1(1);
   const [hasMore, setHasMore] = useState$1(false);
   const [loadingMore, setLoadingMore] = useState$1(false);
@@ -16265,11 +16246,11 @@ const RunHistoryView = ({}) => {
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
   const workFlowId = tokenService.getWorkFlowId();
   useEffect$1(() => {
-    if (!hasLoaded) {
+    if (!hasLoadedRef.current) {
       loadHistory();
-      setHasLoaded(true);
+      hasLoadedRef.current = true;
     }
-  }, [hasLoaded]);
+  }, []);
   useEffect$1(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -16295,8 +16276,13 @@ const RunHistoryView = ({}) => {
         setHistoryData(data);
         setAllRuns(data.data || []);
         setHasMore(data.has_more || false);
+        setCurrentSnapshot(null);
         if (data && data.data && data.data.length > 0 && data.data[0].workflow_snapshot) {
-          setCurrentSnapshot(data.data[0].workflow_snapshot);
+          setTimeout(() => {
+            if (data?.data?.[0]?.workflow_snapshot) {
+              setCurrentSnapshot(data.data[0].workflow_snapshot);
+            }
+          }, 100);
         }
       } else {
         setAllRuns((prevRuns) => [...prevRuns, ...data.data || []]);
@@ -16321,8 +16307,21 @@ const RunHistoryView = ({}) => {
     const key = `${runId}_${nodeId}`;
     setExpandedNodeId(expandedNodeId === key ? null : key);
   };
-  const toggleRunExpand = (runId) => {
-    setExpandedRunId(expandedRunId === runId ? null : runId);
+  const handleRunDoubleClick = (run) => {
+    setCurrentSnapshot(null);
+    setTimeout(() => {
+      setActiveTab("current");
+      if (run.workflow_snapshot) {
+        setCurrentSnapshot(run.workflow_snapshot);
+      }
+    }, 100);
+    setHistoryData((prev) => ({
+      ...prev,
+      data: [
+        run,
+        ...(prev?.data || []).filter((r) => r.request_id !== run.request_id)
+      ]
+    }));
   };
   const handleViewNodeIO = (nodeData, nodeName, nodeId) => {
     const ioData = runHistoryAPIService.getNodeIO(nodeData);
@@ -16370,26 +16369,30 @@ const RunHistoryView = ({}) => {
     }
   };
   const getIconType = (operator) => {
+    if (!operator) return "input";
+    const operatorLower = operator.toLowerCase();
     const iconMap = {
-      basic_input: "input",
-      ask_ai: "ai",
-      browser_extension_input: "browser",
-      browser_extension_output: "browser",
-      knowledge_retrieval: "knowledge",
-      line_webhook_input: "line",
-      line_send_message: "line",
-      extract_data: "ai",
-      aim_ml: "aim",
-      http_request: "http",
-      schedule_trigger: "schedule",
+      ai: "ai",
+      browser: "browser",
+      knowledge: "knowledge",
+      line: "line",
+      extract: "ai",
+      aim: "aim",
+      http: "http",
+      schedule: "schedule",
       webhook_input: "webhook_input",
       webhook_output: "webhook_output",
-      combine_text: "combine_text",
-      router_switch: "router_switch",
-      speech_to_text: "speech_to_text",
-      flow_check: "flow_check"
+      webhook: "webhook_output",
+      combine: "combine_text",
+      router: "router_switch",
+      speech: "speech_to_text",
+      flow_check: "flow_check",
+      input: "input"
     };
-    return iconMap[operator] || "input";
+    const matchedKey = Object.keys(iconMap).find(
+      (key) => operatorLower.includes(key)
+    );
+    return matchedKey ? iconMap[matchedKey] : "input";
   };
   const getNodeIcon = (nodeType) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: getIconType(nodeType) }) || /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: getIconType("flow_check") }) });
@@ -16425,15 +16428,23 @@ const RunHistoryView = ({}) => {
       nodes
     };
   };
+  const formatTime = (timeString) => {
+    if (!timeString) return "N/A";
+    return timeString.replace("T", " ").split(".")[0];
+  };
+  const formatDuration = (durationMs) => {
+    if (!durationMs && durationMs !== 0) return "0 s";
+    return `${(durationMs / 1e3).toFixed(2)} s`;
+  };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-4xl h-[80vh] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[#00ced1] mx-auto mb-4" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: "載入執行中..." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white", children: "載入中..." })
     ] }) }) });
   }
   const currentRun = historyData && historyData.data && historyData.data[0] ? formatRunData(historyData.data[0]) : null;
   const previousRuns = allRuns.map((run) => formatRunData(run));
-  const initialTitle = historyData && historyData.flow_name ? historyData.flow_name : "Untitled Flow";
+  const initialTitle = historyData && historyData.data.length && historyData.data[0] && historyData.data[0].flow_name ? historyData.data[0].flow_name : "  ";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-16 left-0 right-0 bottom-0 flex z-50", children: [
     showFlowEditor && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
@@ -16454,6 +16465,11 @@ const RunHistoryView = ({}) => {
               "button",
               {
                 onClick: () => setActiveTab("current"),
+                disabled: !currentRun,
+                style: currentRun ? {} : {
+                  opacity: 0.5,
+                  cursor: "not-allowed"
+                },
                 className: `px-10 py-2 rounded-md font-medium text-sm transition-all ${activeTab === "current" ? "bg-[#00ced1] text-white shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
                 children: "Current Run"
               }
@@ -16462,6 +16478,11 @@ const RunHistoryView = ({}) => {
               "button",
               {
                 onClick: () => setActiveTab("previous"),
+                disabled: previousRuns.length === 0,
+                style: previousRuns.length > 0 ? {} : {
+                  opacity: 0.5,
+                  cursor: "not-allowed"
+                },
                 className: `px-10 py-2 rounded-md font-medium text-sm transition-all ${activeTab === "previous" ? "bg-[#00ced1] text-white shadow-sm" : "text-gray-600 hover:text-gray-800"}`,
                 children: "Previous Runs"
               }
@@ -16473,27 +16494,24 @@ const RunHistoryView = ({}) => {
               className: "flex-1 overflow-auto p-2",
               ref: scrollContainerRef,
               children: [
-                activeTab === "current" && currentRun && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                activeTab === "current" && (currentRun ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg border border-gray-200 p-4 mb-4", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-4", children: [
                       getStatusIcon(currentRun.status),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg font-semibold text-gray-800", children: currentRun.start_time ? currentRun.start_time.replace("T", " ").replace("Z", "") : "時間未記錄" })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg font-semibold text-gray-800", children: formatTime(currentRun.start_time) })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "Start Time:" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: currentRun.start_time ? currentRun.start_time.replace("T", " ").replace("Z", "") : "N/A" })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: formatTime(currentRun.start_time) })
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "End Time:" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: currentRun.end_time ? currentRun.end_time.replace("T", " ").replace("Z", "") : "N/A" })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: formatTime(currentRun.end_time) })
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-gray-600", children: "Duration:" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-medium text-gray-800", children: [
-                          currentRun.total_duration_ms || 0,
-                          " ms"
-                        ] })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-800", children: formatDuration(currentRun.total_duration_ms) })
                       ] })
                     ] })
                   ] }),
@@ -16610,8 +16628,7 @@ const RunHistoryView = ({}) => {
                             ] }) }),
                             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-medium text-gray-700 mb-1", children: [
                               "執行時間: ",
-                              node.duration_ms,
-                              " ms"
+                              formatDuration(node.duration_ms)
                             ] }) }),
                             node.error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-medium text-gray-700 mb-1", children: "錯誤訊息:" }),
@@ -16622,7 +16639,7 @@ const RunHistoryView = ({}) => {
                       )
                     ] }, node.node_id))
                   ] })
-                ] }),
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center text-gray-500 mt-10", children: "尚無執行記錄" })),
                 activeTab === "previous" && previousRuns && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
                   previousRuns.map((run) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     "div",
@@ -16632,24 +16649,24 @@ const RunHistoryView = ({}) => {
                         /* @__PURE__ */ jsxRuntimeExports.jsx(
                           "div",
                           {
-                            onClick: () => toggleRunExpand(run.request_id),
+                            onClick: () => handleRunDoubleClick(run),
+                            onDoubleClick: () => handleRunDoubleClick(run),
                             className: "p-4 cursor-pointer hover:bg-gray-50 transition-colors",
                             children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
                               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 flex-1", children: [
                                 getStatusIcon(run.status),
                                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-800", children: run.start_time ? run.start_time.replace("T", " ").replace("Z", "") : "時間未記錄" }),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-800", children: formatTime(run.start_time) }),
                                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-gray-500", children: [
                                     "Duration: ",
-                                    run.total_duration_ms || 0,
-                                    " ms"
+                                    formatDuration(run.total_duration_ms)
                                   ] })
                                 ] })
                               ] }),
                               /* @__PURE__ */ jsxRuntimeExports.jsx(
                                 "svg",
                                 {
-                                  className: `w-5 h-5 text-gray-400 transition-transform ${expandedRunId === run.request_id ? "rotate-180" : ""}`,
+                                  className: `w-5 h-5 text-gray-400 transition-transform -rotate-90`,
                                   fill: "none",
                                   viewBox: "0 0 24 24",
                                   stroke: "currentColor",
@@ -16716,18 +16733,16 @@ const RunHistoryView = ({}) => {
             className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex flex-col",
             onClick: (e) => e.stopPropagation(),
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-6 border-b border-gray-200", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-800", children: "檢視節點I/O" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-gray-500 mt-1", children: [
-                    selectedNodeIO.nodeName,
-                    selectedNodeIO.nodeId && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-2 text-xs text-gray-400", children: [
-                      "(",
-                      getNodeDisplayId(selectedNodeIO.nodeId),
-                      ")"
-                    ] })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-6 pb-2 pt-3 border-b border-gray-200", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-gray-500 mt-1 font-bold flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(IconBase, { type: getIconType(selectedNodeIO.nodeId) }),
+                  selectedNodeIO.nodeName,
+                  selectedNodeIO.nodeId && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-2 text-xs text-gray-400", children: [
+                    "(",
+                    getNodeDisplayId(selectedNodeIO.nodeId),
+                    ")"
                   ] })
-                ] }),
+                ] }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
