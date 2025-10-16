@@ -672,7 +672,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
 
           {/* 對話框內容 */}
           <div
-            className='absolute -left-[250px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto border border-gray-200 z-10 w-[450px]'
+            className='absolute left-[520px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl mx-4 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto border border-gray-200 z-10 w-100'
             onClick={(e) => {
               e.stopPropagation();
             }}>
@@ -764,7 +764,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
                     <select
                       value={selectedLlm}
                       onChange={(e) => setSelectedLlm(e.target.value)}
-                      className={`border border-gray-300 rounded p-1 text-sm bg-white appearance-none pr-8
+                      className={`w-[250px] border border-gray-300 rounded p-1 text-sm bg-white appearance-none pr-8
                         ${isLoadingModels ? 'opacity-70 cursor-wait' : ''} 
                         ${modelLoadError ? 'border-red-300' : ''}`}
                       disabled={isLoadingModels || isGenerating}>
@@ -814,7 +814,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
                 <button
                   onClick={generateScheduleSettings}
                   disabled={isGenerating || !userInput.trim()}
-                  className='bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 min-w-[120px] whitespace-nowrap'>
+                  className='ml-4 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 min-w-[120px] whitespace-nowrap'>
                   <span>{isGenerating ? '生成中...' : '生成設定'}</span>
                   {isGenerating && (
                     <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
