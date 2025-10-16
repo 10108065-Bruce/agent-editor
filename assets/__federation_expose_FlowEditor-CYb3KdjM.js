@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6a5fe8e93eac50170640f8aa28cd73714ae52c8e", "VITE_APP_BUILD_TIME": "2025-10-16T07:37:04.049Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.1"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9a00c9e0497e337f389ac7019762e6bf4ce77aa3", "VITE_APP_BUILD_TIME": "2025-10-16T08:22:44.501Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.2"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44921,13 +44921,6 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
       notify("自動排版失敗，請檢查節點連接", "error", 3e3);
     }
   };
-  const handleLayout = () => {
-    if (isLocked) {
-      notify("工作流已鎖定，無法執行自動排版", "warning", 3e3);
-      return;
-    }
-    executeLayout(layoutDirection);
-  };
   const handleDirectionChange = async (direction) => {
     if (isLocked) {
       notify("工作流已鎖定，無法執行自動排版", "warning", 3e3);
@@ -44957,45 +44950,52 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
     return `Layout (${currentDirection?.label}) - ${currentDirection?.description}`;
   };
   const getButtonContent = () => {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center w-full", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "16px", marginRight: "6px" }, children: currentDirection?.icon }),
-        state === "loading" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, { size: 14 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "排版中" })
-        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Layout" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          className: "flex items-center justify-center ml-2 pl-2 border-l border-white/30",
-          onClick: toggleDropdown,
-          style: {
-            cursor: disabled || state === "loading" || isLocked ? "not-allowed" : "pointer",
-            opacity: disabled || state === "loading" || isLocked ? 0.5 : 1
-          },
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "svg",
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex items-center justify-center w-full",
+        onClick: toggleDropdown,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "16px", marginRight: "6px" }, children: currentDirection?.icon }),
+            state === "loading" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, { size: 14 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "排版中" })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Layout" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
             {
-              xmlns: "http://www.w3.org/2000/svg",
-              width: "12",
-              height: "12",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
+              className: "flex items-center justify-center ml-2 pl-2 border-l border-white/30",
+              onClick: toggleDropdown,
               style: {
-                transform: showDirectionMenu ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.2s ease"
+                cursor: disabled || state === "loading" || isLocked ? "not-allowed" : "pointer",
+                opacity: disabled || state === "loading" || isLocked ? 0.5 : 1
               },
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "svg",
+                {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "12",
+                  height: "12",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  style: {
+                    transform: showDirectionMenu ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.2s ease"
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "6 9 12 15 18 9" })
+                }
+              )
             }
           )
-        }
-      )
-    ] });
+        ]
+      }
+    );
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
@@ -45006,7 +45006,6 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           BaseButton,
           {
-            onClick: handleLayout,
             disabled: disabled || isLocked,
             title: getButtonTitle(),
             width: "120px",
