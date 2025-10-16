@@ -1150,7 +1150,6 @@ const FlowEditor = forwardRef(
         if (apiData && apiData.flow_pipeline) {
           debugNodeInputsBeforeSave(apiData.flow_pipeline);
         }
-        console.log('FlowEditor: 將流程數據轉換為 API 格式:', apiData);
 
         // 根據是否有 flow_id 決定使用 POST 還是 PUT
         let response;
@@ -1158,11 +1157,12 @@ const FlowEditor = forwardRef(
         if (flowMetadata.id) {
           // 更新現有流程
           response = await workflowAPIService.updateWorkflow(apiData);
-          console.log('FlowEditor: 更新流程成功', response);
 
           // 處理驗證失敗
           if (response && response.failures && response.failures.length > 0) {
             setValidationFailures(response.failures);
+          } else {
+            setValidationFailures([]);
           }
 
           window.notify({
@@ -1182,6 +1182,8 @@ const FlowEditor = forwardRef(
 
           if (response && response.failures && response.failures.length > 0) {
             setValidationFailures(response.failures);
+          } else {
+            setValidationFailures([]);
           }
 
           // 捕獲從後端回傳的 flow_id
