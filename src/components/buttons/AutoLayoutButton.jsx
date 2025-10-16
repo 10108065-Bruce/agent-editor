@@ -122,7 +122,9 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
 
   const getButtonContent = () => {
     return (
-      <div className='flex items-center justify-center w-full'>
+      <div
+        className='flex items-center justify-center w-full'
+        onClick={toggleDropdown}>
         <div className='flex items-center justify-center'>
           <span style={{ fontSize: '16px', marginRight: '6px' }}>
             {currentDirection?.icon}
@@ -174,7 +176,7 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
       className='relative'
       ref={dropdownRef}>
       <BaseButton
-        onClick={handleLayout}
+        // onClick={handleLayout}
         disabled={disabled || isLocked} // 新增 isLocked 條件
         title={getButtonTitle()}
         width='120px'
