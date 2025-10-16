@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "acd12038226dcad5f9505ae4a81079c0f32ed643", "VITE_APP_BUILD_TIME": "2025-10-16T07:15:09.824Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.0"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "6a5fe8e93eac50170640f8aa28cd73714ae52c8e", "VITE_APP_BUILD_TIME": "2025-10-16T07:37:04.049Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.1"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -40798,7 +40798,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          className: "absolute -left-[250px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto border border-gray-200 z-10 w-[450px]",
+          className: "absolute left-[520px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl mx-4 max-h-[90vh] overflow-hidden flex flex-col pointer-events-auto border border-gray-200 z-10 w-100",
           onClick: (e) => {
             e.stopPropagation();
           },
@@ -40897,7 +40897,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
                     {
                       value: selectedLlm,
                       onChange: (e) => setSelectedLlm(e.target.value),
-                      className: `border border-gray-300 rounded p-1 text-sm bg-white appearance-none pr-8
+                      className: `w-[250px] border border-gray-300 rounded p-1 text-sm bg-white appearance-none pr-8
                         ${isLoadingModels ? "opacity-70 cursor-wait" : ""} 
                         ${modelLoadError ? "border-red-300" : ""}`,
                       disabled: isLoadingModels || isGenerating,
@@ -40945,7 +40945,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
                 {
                   onClick: generateScheduleSettings,
                   disabled: isGenerating || !userInput.trim(),
-                  className: "bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 min-w-[120px] whitespace-nowrap",
+                  className: "ml-4 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 min-w-[120px] whitespace-nowrap",
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isGenerating ? "生成中..." : "生成設定" }),
                     isGenerating && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-white" })
