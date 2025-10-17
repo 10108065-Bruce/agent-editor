@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-e_4PyiEb.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-BVRWMwM1.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16831,7 +16831,7 @@ const WorkflowContainer = () => {
           onClick: handleLogoClick,
           src: logoQocaApa,
           alt: "Logo",
-          className: "h-9"
+          className: "h-9 cursor-pointer"
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3" }),
