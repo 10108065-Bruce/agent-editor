@@ -7,6 +7,120 @@ import detailIcon from '../assets/icon-detail.png';
 import FlowEditor from './FlowEditor';
 import IconBase from '../components/icons/IconBase';
 import { tokenService } from '../services/TokenService';
+// JSON 樹狀檢視器元件
+const JsonTreeViewer = ({ data, name = 'root', defaultExpanded = false }) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  // 判斷資料類型
+  const getType = (value) => {
+    if (value === null) return 'null';
+    if (Array.isArray(value)) return 'array';
+    return typeof value;
+  };
+
+  // 取得值的預覽
+  const getPreview = (value) => {
+    const type = getType(value);
+    switch (type) {
+      case 'null':
+        return 'null';
+      case 'string':
+        return value.length > 50
+          ? `"${value.substring(0, 50)}..."`
+          : `"${value}"`;
+      case 'number':
+      case 'boolean':
+        return String(value);
+      case 'array':
+        return `Array(${value.length})`;
+      case 'object':
+        return `Object(${Object.keys(value).length})`;
+      default:
+        return String(value);
+    }
+  };
+
+  // 取得值的顏色
+  const getValueColor = (value) => {
+    const type = getType(value);
+    switch (type) {
+      case 'null':
+        return 'text-gray-500';
+      case 'string':
+        return 'text-green-600';
+      case 'number':
+        return 'text-blue-600';
+      case 'boolean':
+        return 'text-purple-600';
+      default:
+        return 'text-gray-800';
+    }
+  };
+
+  const type = getType(data);
+  const isExpandable = type === 'object' || type === 'array';
+
+  // 如果是簡單值，直接顯示
+  if (!isExpandable) {
+    return (
+      <div className='flex items-start py-1'>
+        <span className='text-gray-700 font-medium mr-2'>{name}:</span>
+        <span className={getValueColor(data)}>{getPreview(data)}</span>
+      </div>
+    );
+  }
+
+  // 取得子項目
+  const entries =
+    type === 'array'
+      ? data.map((item, index) => [index, item])
+      : Object.entries(data);
+
+  return (
+    <div className='py-1'>
+      <div className='flex items-center group'>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className='mr-1 text-gray-500 hover:text-gray-700 focus:outline-none flex-shrink-0'>
+          <svg
+            className={`w-4 h-4 transition-transform ${
+              isExpanded ? 'rotate-90' : ''
+            }`}
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'>
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M9 5l7 7-7 7'
+            />
+          </svg>
+        </button>
+        <span className='text-gray-700 font-medium mr-2'>{name}:</span>
+        <span className='text-gray-500 text-sm'>
+          {isExpanded ? (type === 'array' ? '[' : '{') : getPreview(data)}
+        </span>
+      </div>
+
+      {isExpanded && (
+        <div className='ml-6 border-l-2 border-gray-200 pl-3'>
+          {entries.map(([key, value]) => (
+            <JsonTreeViewer
+              key={key}
+              name={key}
+              data={value}
+              defaultExpanded={false}
+            />
+          ))}
+          <div className='text-gray-500 text-sm -ml-3'>
+            {type === 'array' ? ']' : '}'}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const RunHistoryView = () => {
   const [historyData, setHistoryData] = useState(null);
@@ -736,11 +850,11 @@ const RunHistoryView = () => {
                   </h4>
                   <div className='flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto min-h-0'>
                     <pre className='text-xs whitespace-pre-wrap break-words'>
-                      {JSON.stringify(
-                        selectedNodeIO.data?.inputs || {},
-                        null,
-                        2
-                      )}
+                      <JsonTreeViewer
+                        data={selectedNodeIO.data?.inputs || {}}
+                        name='inputs'
+                        defaultExpanded={true}
+                      />
                     </pre>
                   </div>
                 </div>
@@ -752,11 +866,11 @@ const RunHistoryView = () => {
                   </h4>
                   <div className='flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto min-h-0'>
                     <pre className='text-xs whitespace-pre-wrap break-words'>
-                      {JSON.stringify(
-                        selectedNodeIO.data?.outputs || {},
-                        null,
-                        2
-                      )}
+                      <JsonTreeViewer
+                        data={selectedNodeIO.data?.outputs || {}}
+                        name='outputs'
+                        defaultExpanded={true}
+                      />
                     </pre>
                   </div>
                 </div>
