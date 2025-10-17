@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-CYb3KdjM.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-e_4PyiEb.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16813,11 +16813,22 @@ const WorkflowContainer = () => {
   const handleFlowStatusChange = (isNew) => {
     setIsNewFlow(isNew);
   };
+  const handleLogoClick = () => {
+    if (isInIframe) {
+      iframeBridge.sendToParent({
+        type: "NAVIGATE_TO_HOME",
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } else {
+      window.location.href = "/workflows-management";
+    }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-screen flex flex-col bg-white", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "img",
         {
+          onClick: handleLogoClick,
           src: logoQocaApa,
           alt: "Logo",
           className: "h-9"

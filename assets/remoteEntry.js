@@ -5,7 +5,7 @@ const currentImports = {};
       let moduleMap = {
 "./FlowEditor":()=>{
       dynamicLoadingCss(["styles.css"], false, './FlowEditor');
-      return __federation_import('/agent-editor/assets/__federation_expose_FlowEditor-CYb3KdjM.js').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},};
+      return __federation_import('/agent-editor/assets/__federation_expose_FlowEditor-e_4PyiEb.js').then(module =>Object.keys(module).every(item => exportSet.has(item)) ? () => module.default : () => module)},};
       const seen = {};
       const dynamicLoadingCss = (cssFilePaths, dontAppendStylesToHead, exposeItemName) => {
         const metaUrl = import.meta.url;
