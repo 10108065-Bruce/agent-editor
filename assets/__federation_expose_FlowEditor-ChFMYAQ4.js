@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9a00c9e0497e337f389ac7019762e6bf4ce77aa3", "VITE_APP_BUILD_TIME": "2025-10-17T06:07:16.573Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.5"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9a00c9e0497e337f389ac7019762e6bf4ce77aa3", "VITE_APP_BUILD_TIME": "2025-10-17T06:19:09.439Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.6"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24650,6 +24650,8 @@ const APAAssistant = ({
   useEffect$o(() => {
     if (isNew) {
       setIsEditing(true);
+    } else {
+      setIsEditing(false);
     }
   }, [isNew]);
   const handleEditClick = () => {
@@ -24687,9 +24689,9 @@ const APAAssistant = ({
         children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
-            className: `transition-all duration-300 ease-in-out ${showBorderAndShadow && !isLocked || isNew ? "border border-gray-200 bg-white" : ""} px-4 py-2 flex items-center w-64 md:w-80 ${isLocked ? "bg-gray-50" : ""}`,
+            className: `transition-all duration-300 ease-in-out ${showBorderAndShadow && !isLocked ? "border border-gray-200 bg-white" : ""} px-4 py-2 flex items-center w-64 md:w-80 ${isLocked ? "bg-gray-50" : ""}`,
             children: [
-              !runhistory && !isEditing && !isNew && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              !runhistory && !isEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
                   className: "flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-110",
@@ -24710,7 +24712,7 @@ const APAAssistant = ({
                   )
                 }
               ) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative min-w-0", children: isEditing && !isLocked || isNew ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative min-w-0", children: isEditing && !isLocked ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
                   type: "text",
