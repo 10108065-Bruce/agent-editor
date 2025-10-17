@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import pencilIcon from '../assets/objects-pencil-1.svg';
 import lockIcon from '../assets/icon-lock-on-off.svg';
 import checkIcon from '../assets/icon-save.png';
@@ -12,6 +12,13 @@ const APAAssistant = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
+  useEffect(() => {
+    if (isNew) {
+      setIsEditing(true);
+    } else {
+      setIsEditing(false);
+    }
+  }, [isNew]);
   const handleEditClick = () => {
     if (isLocked) return;
     setIsEditing(true);
@@ -55,14 +62,14 @@ const APAAssistant = ({
         }`}>
         <div
           className={`transition-all duration-300 ease-in-out ${
-            (showBorderAndShadow && !isLocked) || isNew
+            showBorderAndShadow && !isLocked
               ? 'border border-gray-200 bg-white'
               : ''
           } px-4 py-2 flex items-center w-64 md:w-80 ${
             isLocked ? 'bg-gray-50' : ''
           }`}>
           {/* 左側圖標 - 只在非編輯狀態顯示 */}
-          {!runhistory && !isEditing && !isNew && (
+          {!runhistory && !isEditing && (
             <div className='mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out'>
               <div
                 className='flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-110'
@@ -84,7 +91,7 @@ const APAAssistant = ({
 
           {/* 標題輸入區域 */}
           <div className='flex-1 relative min-w-0'>
-            {(isEditing && !isLocked) || isNew ? (
+            {isEditing && !isLocked ? (
               <input
                 type='text'
                 className='w-full outline-none text-gray-800 bg-transparent animate-fadeIn'

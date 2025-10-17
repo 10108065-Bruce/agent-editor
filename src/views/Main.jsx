@@ -3,6 +3,7 @@ import FlowEditor from './FlowEditor';
 import IFrameFlowEditor from './IFrameFlowEditor';
 import RunHistoryView from './RunHistoryView';
 import logoQocaApa from '../assets/logo-qoca.png';
+import { iframeBridge } from '../services/IFrameBridgeService';
 
 const WorkflowContainer = () => {
   const [activeView, setActiveView] = useState('canvas');
@@ -25,14 +26,29 @@ const WorkflowContainer = () => {
     setIsNewFlow(isNew);
   };
 
+  // 處理 logo 點擊
+  const handleLogoClick = () => {
+    if (isInIframe) {
+      // 如果在 iframe 中，發送訊息給父頁面
+      iframeBridge.sendToParent({
+        type: 'NAVIGATE_TO_HOME',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      // 如果不在 iframe 中，直接導航
+      window.location.href = '/workflows-management';
+    }
+  };
+
   return (
     <div className='w-full h-screen flex flex-col bg-white'>
       {/* Header */}
       <header className='h-16 border-b border-gray-200 px-6 flex items-center justify-between bg-[#f9fafb] shadow-sm'>
         <img
+          onClick={handleLogoClick}
           src={logoQocaApa}
           alt='Logo'
-          className='h-9'
+          className='h-9 cursor-pointer'
         />
         {/* 左側：標題編輯區 */}
         <div className='flex items-center gap-3'></div>
