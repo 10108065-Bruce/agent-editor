@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "890f19db23daa70a78e6e24f152b480cf640effc", "VITE_APP_BUILD_TIME": "2025-10-20T03:45:04.841Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.8"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2871018438253639a99e162c63e8874278a578bc", "VITE_APP_BUILD_TIME": "2025-10-20T08:17:21.745Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.9"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -44978,8 +44978,6 @@ const AutoLayoutButton = ({ onLayout, disabled = false, isLocked = false }) => {
   );
 };
 
-await importShared('react');
-
 const flowCheckIcon = "data:image/png;base64,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";
 
 const React$1 = await importShared('react');
@@ -45078,28 +45076,55 @@ const ReactFlowWithControls = forwardRef(
     runhistory = false
   }, ref) => {
     const reactFlowInstance = useReactFlow();
+    const zoomConfig = useMemo(
+      () => ({
+        minZoom: 0.1,
+        // 最小縮放
+        maxZoom: 1.5,
+        // 最大縮放
+        padding: 0.15,
+        // fit view 邊距
+        duration: 800
+        // 動畫時長
+      }),
+      []
+    );
+    useCallback(() => {
+      if (!reactFlowInstance) return zoomConfig.padding;
+      reactFlowInstance.getViewport();
+      const containerWidth = window.innerWidth;
+      const sidebarWidth = 272;
+      if (sidebarVisible && !runhistory) {
+        const leftPaddingRatio = sidebarWidth / containerWidth;
+        return {
+          top: zoomConfig.padding,
+          right: zoomConfig.padding,
+          bottom: zoomConfig.padding,
+          left: leftPaddingRatio + zoomConfig.padding
+          // 左側加上 sidebar 寬度比例
+        };
+      }
+      return zoomConfig.padding;
+    }, [sidebarVisible, runhistory, reactFlowInstance, zoomConfig.padding]);
     const fitViewToNodes = useCallback(
-      (padding = 0.1, maxZoom = 1.85, duration = 800) => {
+      (padding, maxZoom, duration) => {
         if (!reactFlowInstance) {
-          console.warn("ReactFlow 實例尚未初始化，無法自動縮放畫布");
+          console.warn("ReactFlow 實例尚未初始化,無法自動縮放畫布");
           return;
         }
         try {
           reactFlowInstance.fitView({
-            padding,
-            // 邊緣留白，值越大顯示的節點佔比越小
-            maxZoom,
-            // 限制最大縮放，防止縮放過大
-            duration,
-            // 動畫持續時間（毫秒）
+            padding: padding ?? zoomConfig.padding,
+            maxZoom: maxZoom ?? zoomConfig.maxZoom,
+            minZoom: zoomConfig.minZoom,
+            duration: duration ?? zoomConfig.duration,
             includeHiddenNodes: false
-            // 不包含隱藏節點
           });
         } catch (error) {
-          console.error("自動縮放畫布時發生錯誤：", error);
+          console.error("自動縮放畫布時發生錯誤:", error);
         }
       },
-      [reactFlowInstance]
+      [reactFlowInstance, zoomConfig]
     );
     useImperativeHandle(ref, () => ({
       fitViewToNodes
@@ -45140,9 +45165,23 @@ const ReactFlowWithControls = forwardRef(
         nodesConnectable: !isEditDisabled,
         elementsSelectable: !isEditDisabled,
         proOptions: { hideAttribution: true },
+        minZoom: zoomConfig.minZoom,
+        maxZoom: zoomConfig.maxZoom,
+        fitViewOptions: {
+          padding: zoomConfig.padding,
+          maxZoom: zoomConfig.maxZoom,
+          minZoom: zoomConfig.minZoom,
+          duration: zoomConfig.duration
+        },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(MiniMap$1, {}),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Controls$1, { style: controlsStyle }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Controls$1,
+            {
+              style: controlsStyle,
+              showFitView: false
+            }
+          ),
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx(Background$1, {}),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Panel, { position: "bottom-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -45283,7 +45322,7 @@ const FlowEditor = forwardRef(
           setFlowEdges(transformedEdges);
           setTimeout(() => {
             if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
-              reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+              reactFlowControlsRef.current.fitViewToNodes(0.1, 1.5, 800);
             }
           }, 500);
         } catch (error) {
@@ -45456,7 +45495,7 @@ const FlowEditor = forwardRef(
               updateNodeFunctions();
               if (reactFlowControlsRef.current && reactFlowControlsRef.current.fitViewToNodes) {
                 console.log("載入工作流後，執行一次畫布縮放以顯示所有節點...");
-                reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+                reactFlowControlsRef.current.fitViewToNodes(0.1, 1.5, 800);
               }
               if (finishWorkflowLoading) {
                 finishWorkflowLoading();
