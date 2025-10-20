@@ -927,7 +927,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
               onBlur={handleBodyBlur}
               placeholder='{"flow_id": "9e956c37-20ea-47a5-bcd5-3cafc35b967a", "func_id": "q1", "data":"$input"}'
               // className='w-full border border-gray-300 rounded p-2 text-xs font-mono bg-gray-900 text-green-400'
-              className='bg-[#ee9e9e7] text-[#09090b] border-gray-300'
+              className='bg-[#e9e9e7] text-[#09090b] border-gray-300'
               flowId={getFlowId()}
               initialHtmlContent={editorHtmlContent}
               shouldShowPanel={bodyConnectionCount > 0}

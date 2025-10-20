@@ -603,6 +603,34 @@ const FlowEditor = forwardRef(
       }
     };
 
+    const handleLockToggle = useCallback(
+      async (newLockState) => {
+        // 檢查是否有有效的 flow ID
+        if (!flowMetadata.id || flowMetadata.id === 'new') {
+          return;
+        }
+
+        try {
+          // 調用 API 切換鎖定狀態
+          await workflowAPIService.toggleWorkflowLock(
+            flowMetadata.id,
+            newLockState
+          );
+
+          // 更新本地狀態
+          setIsLocked(newLockState);
+        } catch (error) {
+          console.error('切換鎖定狀態失敗:', error);
+          window.notify({
+            message: '切換鎖定狀態失敗',
+            type: 'error',
+            duration: 3000
+          });
+        }
+      },
+      [flowMetadata.id]
+    );
+
     // 向父組件暴露方法
     useImperativeHandle(ref, () => ({
       // 導出流程數據的方法
@@ -653,7 +681,9 @@ const FlowEditor = forwardRef(
         console.log('手動重新載入節點清單');
         resetGlobalNodeListState();
         return loadNodeList();
-      }
+      },
+      toggleLock: handleLockToggle,
+      getIsLocked: () => isLocked
     }));
 
     useEffect(() => {
@@ -1585,6 +1615,8 @@ const FlowEditor = forwardRef(
           isLocked={isLocked || runhistory}
           runhistory={runhistory}
           isNew={(!flowMetadata.id || flowMetadata.id === 'new') && !runhistory}
+          onLockToggle={handleLockToggle}
+          flowId={flowMetadata.id}
         />
 
         {/* 添加通知系統 */}

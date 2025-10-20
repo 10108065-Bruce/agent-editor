@@ -61,7 +61,7 @@ const Notification = () => {
       {notifications.map((notification) => (
         <div
           key={notification.id}
-          className={`absolute top-16 left-1/2 rounded-lg transform -translate-x-1/2 px-4 py-2 z-20 text-sm ${
+          className={`absolute top-8 left-1/2 rounded-lg transform -translate-x-1/2 px-4 py-2 z-20 text-sm ${
             notification.type === 'error'
               ? 'bg-red-100 text-red-700 border border-red-200'
               : notification.type === 'success'

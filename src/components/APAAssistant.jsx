@@ -8,9 +8,12 @@ const APAAssistant = ({
   onTitleChange,
   isLocked = false,
   isNew = false,
-  runhistory = false
+  runhistory = false,
+  flowId = null,
+  onLockToggle = null
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isTogglingLock, setIsTogglingLock] = useState(false);
 
   useEffect(() => {
     if (isNew) {
@@ -19,6 +22,7 @@ const APAAssistant = ({
       setIsEditing(false);
     }
   }, [isNew]);
+
   const handleEditClick = () => {
     if (isLocked) return;
     setIsEditing(true);
@@ -49,16 +53,37 @@ const APAAssistant = ({
     }
   };
 
-  // 只有在編輯狀態時才顯示框線和陰影
+  const handleLockClick = async (e) => {
+    e.stopPropagation();
+
+    // 如果沒有 flowId 或是新建模式,不允許切換鎖定狀態
+    if (!flowId || flowId === 'new' || isNew) {
+      return;
+    }
+
+    // 如果正在切換中,不允許重複操作
+    if (isTogglingLock) return;
+
+    // 調用父組件傳入的鎖定切換函數
+    if (onLockToggle && typeof onLockToggle === 'function') {
+      setIsTogglingLock(true);
+      try {
+        await onLockToggle(!isLocked);
+      } catch (error) {
+        console.error('切換鎖定狀態失敗:', error);
+      } finally {
+        setIsTogglingLock(false);
+      }
+    }
+  };
+
   const showBorderAndShadow = isEditing;
 
   return (
     <div className='fixed top-3 left-[80px] transform'>
       <div
         className={`transition-all duration-300 ease-in-out ${
-          showBorderAndShadow && !isLocked
-            ? 'shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]'
-            : ''
+          showBorderAndShadow && !isLocked ? '' : ''
         }`}>
         <div
           className={`transition-all duration-300 ease-in-out ${
@@ -72,19 +97,28 @@ const APAAssistant = ({
           {!runhistory && !isEditing && (
             <div className='mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out'>
               <div
-                className='flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-110'
+                className={`flex items-center justify-center transition-transform duration-200 ${
+                  isTogglingLock
+                    ? 'opacity-50 cursor-wait'
+                    : 'cursor-pointer hover:scale-110'
+                }`}
                 style={{
                   width: '16px',
                   height: '16px'
                 }}
-                onClick={handleEditClick}>
-                <img
-                  src={isLocked ? lockIcon : pencilIcon}
-                  width={16}
-                  height={16}
-                  className='max-w-full max-h-full object-contain transition-opacity duration-200'
-                  alt={isLocked ? 'locked' : 'edit'}
-                />
+                onClick={isLocked ? handleLockClick : handleEditClick}
+                title={isLocked ? '點擊解鎖工作流' : '點擊編輯標題'}>
+                {isTogglingLock ? (
+                  <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700'></div>
+                ) : (
+                  <img
+                    src={isLocked ? lockIcon : pencilIcon}
+                    width={16}
+                    height={16}
+                    className='max-w-full max-h-full object-contain transition-opacity duration-200'
+                    alt={isLocked ? 'locked' : 'edit'}
+                  />
+                )}
               </div>
             </div>
           )}
@@ -109,9 +143,7 @@ const APAAssistant = ({
                     : 'cursor-pointer hover:text-gray-600'
                 }`}
                 onClick={handleEditClick}
-                title={
-                  isLocked ? '工作流已鎖定，無法編輯標題' : '點擊編輯標題'
-                }>
+                title={isLocked ? '工作流已鎖定,無法編輯標題' : '點擊編輯標題'}>
                 {title || ''}
               </div>
             )}

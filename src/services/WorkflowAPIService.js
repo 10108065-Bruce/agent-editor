@@ -43,6 +43,42 @@ export class WorkflowAPIService {
       throw error;
     }
   }
+  /**
+   * 切換工作流鎖定狀態
+   * @param {string} workflowId - 工作流 ID
+   * @param {boolean} isLocked - 是否鎖定
+   * @returns {Promise<Object>} API 回應
+   */
+  async toggleWorkflowLock(workflowId, isLocked) {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'PATCH',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          is_locked: isLocked
+        })
+      });
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/${workflowId}/lock`
+      );
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    } catch (error) {
+      console.error('切換工作流鎖定狀態失敗:', error);
+      throw error;
+    }
+  }
 
   /**
    * 建立工作流數據

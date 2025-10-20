@@ -17,7 +17,7 @@ const CombineTextEditor = forwardRef(
       onKeyDown,
       placeholder,
       className,
-      flowId,
+
       onTagInsert,
       initialHtmlContent,
       shouldShowPanel,
@@ -49,19 +49,6 @@ const CombineTextEditor = forwardRef(
     // 追蹤滑鼠拖拽選擇
     const isSelectingRef = useRef(false);
     const selectionStartRef = useRef(null);
-
-    // 默認內容生成
-    const generateDefaultContent = useCallback(() => {
-      return JSON.stringify(
-        {
-          flow_id: flowId || 'default-flow-id',
-          func_id: '',
-          data: ''
-        },
-        null,
-        2
-      );
-    }, [flowId]);
 
     // 獲取編輯器的純文字內容（替換標籤為其代碼，排除×按鈕）
     const getEditorTextContent = useCallback(() => {
@@ -1166,7 +1153,7 @@ const CombineTextEditor = forwardRef(
           '.react-flow__node-aiCustomInput'
         );
         if (!isAINode) {
-          const defaultContent = generateDefaultContent();
+          const defaultContent = '';
           isUpdatingFromExternal.current = true;
           editorRef.current.textContent = defaultContent;
           lastReportedValue.current = defaultContent;
@@ -1181,13 +1168,7 @@ const CombineTextEditor = forwardRef(
         // AI 節點只設置為已初始化，不生成內容
         setIsInitialized(true);
       }
-    }, [
-      value,
-      generateDefaultContent,
-      handleContentChange,
-      initialHtmlContent,
-      isInitialized
-    ]);
+    }, [value, handleContentChange, initialHtmlContent, isInitialized]);
 
     // 處理外部 value 變更 - 只在必要時更新 DOM
     useEffect(() => {
