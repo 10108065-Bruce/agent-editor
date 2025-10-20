@@ -104,7 +104,7 @@ const JsonTreeViewer = ({ data, name = 'root', defaultExpanded = false }) => {
       </div>
 
       {isExpanded && (
-        <div className='ml-6 border-l-2 border-gray-200 pl-3'>
+        <div className='ml-6 pl-3 pb'>
           {entries.map(([key, value]) => (
             <JsonTreeViewer
               key={key}
@@ -126,7 +126,6 @@ const RunHistoryView = () => {
   const [historyData, setHistoryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedNodeId, setExpandedNodeId] = useState(null);
-  const [expandedRunId, setExpandedRunId] = useState(null);
   const [activeTab, setActiveTab] = useState('current');
   const [ioDialogOpen, setIoDialogOpen] = useState(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState(null);
@@ -229,10 +228,6 @@ const RunHistoryView = () => {
     const key = `${runId}_${nodeId}`;
     setExpandedNodeId(expandedNodeId === key ? null : key);
   };
-
-  // const toggleRunExpand = (runId) => {
-  //   setExpandedRunId(expandedRunId === runId ? null : runId);
-  // };
 
   // 處理雙擊 previous run 項目
   const handleRunDoubleClick = (run) => {
@@ -745,40 +740,6 @@ const RunHistoryView = () => {
                       </svg>
                     </div>
                   </div>
-
-                  {expandedRunId === run.request_id && (
-                    <div className='border-t border-gray-200 bg-gray-50 p-4'>
-                      <div className='space-y-2'>
-                        {/* Flow Check */}
-                        {run.flowCheck && (
-                          <div className='flex items-center gap-3 p-2 bg-white rounded'>
-                            {getStatusIcon(run.flowCheck.is_valid)}
-                            <span className='text-sm font-medium'>
-                              {run.flowCheck.display_name}
-                            </span>
-                            <span className='text-xs text-gray-500'>
-                              {run.flowCheck.is_valid ? 'Valid' : 'Invalid'}
-                            </span>
-                          </div>
-                        )}
-                        {/* 其他節點 */}
-                        {run.nodes &&
-                          run.nodes.map((node) => (
-                            <div
-                              key={node.node_id}
-                              className='flex items-center gap-3 p-2 bg-white rounded'>
-                              {getStatusIcon(node.status)}
-                              <span className='text-sm font-medium'>
-                                {node.display_name || 'Unknown Node'}
-                              </span>
-                              <span className='text-xs text-gray-500'>
-                                {node.duration_ms || 0} ms
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               ))}
 
@@ -807,7 +768,7 @@ const RunHistoryView = () => {
           className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]'
           onClick={closeIODialog}>
           <div
-            className='bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex flex-col'
+            className='bg-white rounded-lg shadow-2xl w-[95%] max-w-5xl h-[80vh] flex flex-col'
             onClick={(e) => e.stopPropagation()}>
             {/* Dialog Header */}
             <div className='flex items-center justify-between p-6 pb-2 pt-3 border-b border-gray-200'>
