@@ -27,18 +27,14 @@ import { iframeBridge } from '../services/IFrameBridgeService';
 
 import 'reactflow/dist/style.css';
 import { CustomEdge } from '../components/CustomEdge';
-import {
-  WorkflowDataConverter,
-  WorkflowMappingService,
-  workflowAPIService
-} from '../services/index';
+import { WorkflowDataConverter, workflowAPIService } from '../services/index';
 
 import LoadWorkflowButton from '../components/buttons/LoadWorkflowButton';
 import Notification from '../components/common/Notification';
 import SaveFlowDialog from '../components/common/SaveFlowDialog';
 import AutoLayoutButton from '../components/buttons/AutoLayoutButton';
 import { calculateNodeDimensions } from '../utils/nodeDimensions';
-import ChatButton from '../components/buttons/ChatButton';
+// import ChatButton from '../components/buttons/ChatButton';
 import FlowCheckButton from '../components/buttons/FlowCheckButton';
 import { tokenService } from '../services/TokenService';
 
@@ -67,29 +63,60 @@ const ReactFlowWithControls = forwardRef(
   ) => {
     const reactFlowInstance = useReactFlow();
 
-    // 自動縮放畫布以顯示所有節點
+    const zoomConfig = useMemo(
+      () => ({
+        minZoom: 0.1, // 最小縮放
+        maxZoom: 1.5, // 最大縮放
+        padding: 0.15, // fit view 邊距
+        duration: 800 // 動畫時長
+      }),
+      []
+    );
+
+    // 根據 sidebar 狀態計算動態 padding
+    const getDynamicPadding = useCallback(() => {
+      if (!reactFlowInstance) return zoomConfig.padding;
+
+      const container = reactFlowInstance.getViewport();
+      const containerWidth = window.innerWidth;
+      const sidebarWidth = 272; // 17rem = 272px (根據你的 left: '17rem')
+
+      if (sidebarVisible && !runhistory) {
+        // sidebar 顯示時,左側需要更多 padding
+        const leftPaddingRatio = sidebarWidth / containerWidth;
+
+        return {
+          top: zoomConfig.padding,
+          right: zoomConfig.padding,
+          bottom: zoomConfig.padding,
+          left: leftPaddingRatio + zoomConfig.padding // 左側加上 sidebar 寬度比例
+        };
+      }
+
+      // sidebar 隱藏時,使用統一 padding
+      return zoomConfig.padding;
+    }, [sidebarVisible, runhistory, reactFlowInstance, zoomConfig.padding]);
+
     const fitViewToNodes = useCallback(
-      (padding = 0.1, maxZoom = 1.85, duration = 800) => {
+      (padding, maxZoom, duration) => {
         if (!reactFlowInstance) {
-          console.warn('ReactFlow 實例尚未初始化，無法自動縮放畫布');
+          console.warn('ReactFlow 實例尚未初始化,無法自動縮放畫布');
           return;
         }
 
         try {
-          // 使用 ReactFlow 的 fitView 方法自動縮放畫布
           reactFlowInstance.fitView({
-            padding, // 邊緣留白，值越大顯示的節點佔比越小
-            maxZoom, // 限制最大縮放，防止縮放過大
-            duration, // 動畫持續時間（毫秒）
-            includeHiddenNodes: false // 不包含隱藏節點
+            padding: padding ?? zoomConfig.padding,
+            maxZoom: maxZoom ?? zoomConfig.maxZoom,
+            minZoom: zoomConfig.minZoom,
+            duration: duration ?? zoomConfig.duration,
+            includeHiddenNodes: false
           });
-
-          // console.log('畫布縮放完成');
         } catch (error) {
-          console.error('自動縮放畫布時發生錯誤：', error);
+          console.error('自動縮放畫布時發生錯誤:', error);
         }
       },
-      [reactFlowInstance]
+      [reactFlowInstance, zoomConfig]
     );
 
     // 重要：將 fitViewToNodes 方法暴露給父組件
@@ -127,9 +154,22 @@ const ReactFlowWithControls = forwardRef(
           nodesDraggable={!isEditDisabled} // 鎖定時節點不可拖拽
           nodesConnectable={!isEditDisabled} // 鎖定時節點不可連接
           elementsSelectable={!isEditDisabled} // 鎖定時元素不可選擇
-          proOptions={{ hideAttribution: true }}>
+          proOptions={{ hideAttribution: true }}
+          // 統一配置縮放範圍
+          minZoom={zoomConfig.minZoom}
+          maxZoom={zoomConfig.maxZoom}
+          fitViewOptions={{
+            padding: zoomConfig.padding,
+            maxZoom: zoomConfig.maxZoom,
+            minZoom: zoomConfig.minZoom,
+            duration: zoomConfig.duration
+          }}>
           <MiniMap />
-          <Controls style={controlsStyle} /> {/* 使用動態樣式控制位置 */}
+          <Controls
+            style={controlsStyle}
+            showFitView={false}
+          />{' '}
+          {/* 使用動態樣式控制位置 */}
           <Background />
           {/* 添加縮放視圖按鈕 */}
           <Panel position='bottom-right'>
@@ -331,7 +371,7 @@ const FlowEditor = forwardRef(
               reactFlowControlsRef.current &&
               reactFlowControlsRef.current.fitViewToNodes
             ) {
-              reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+              reactFlowControlsRef.current.fitViewToNodes(0.1, 1.5, 800);
             }
           }, 500);
         } catch (error) {
@@ -568,7 +608,7 @@ const FlowEditor = forwardRef(
                 reactFlowControlsRef.current.fitViewToNodes
               ) {
                 console.log('載入工作流後，執行一次畫布縮放以顯示所有節點...');
-                reactFlowControlsRef.current.fitViewToNodes(0.1, 1.85, 800);
+                reactFlowControlsRef.current.fitViewToNodes(0.1, 1.5, 800);
               }
 
               // 所有操作完成後恢復清理功能
