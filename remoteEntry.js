@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-ChFMYAQ4.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-iPE1KLbq.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16228,11 +16228,109 @@ const detailIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAA
 
 const React$2 = await importShared('react');
 const {useState: useState$1,useEffect: useEffect$1,useRef} = React$2;
+const JsonTreeViewer = ({ data, name = "root", defaultExpanded = false }) => {
+  const [isExpanded, setIsExpanded] = useState$1(defaultExpanded);
+  const getType = (value) => {
+    if (value === null) return "null";
+    if (Array.isArray(value)) return "array";
+    return typeof value;
+  };
+  const getPreview = (value) => {
+    const type2 = getType(value);
+    switch (type2) {
+      case "null":
+        return "null";
+      case "string":
+        return value.length > 50 ? `"${value.substring(0, 50)}..."` : `"${value}"`;
+      case "number":
+      case "boolean":
+        return String(value);
+      case "array":
+        return `Array(${value.length})`;
+      case "object":
+        return `Object(${Object.keys(value).length})`;
+      default:
+        return String(value);
+    }
+  };
+  const getValueColor = (value) => {
+    const type2 = getType(value);
+    switch (type2) {
+      case "null":
+        return "text-gray-500";
+      case "string":
+        return "text-green-600";
+      case "number":
+        return "text-blue-600";
+      case "boolean":
+        return "text-purple-600";
+      default:
+        return "text-gray-800";
+    }
+  };
+  const type = getType(data);
+  const isExpandable = type === "object" || type === "array";
+  if (!isExpandable) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start py-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-gray-700 font-medium mr-2", children: [
+        name,
+        ":"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: getValueColor(data), children: getPreview(data) })
+    ] });
+  }
+  const entries = type === "array" ? data.map((item, index) => [index, item]) : Object.entries(data);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-1", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center group", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => setIsExpanded(!isExpanded),
+          className: "mr-1 text-gray-500 hover:text-gray-700 focus:outline-none flex-shrink-0",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              className: `w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`,
+              fill: "none",
+              viewBox: "0 0 24 24",
+              stroke: "currentColor",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "path",
+                {
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  strokeWidth: 2,
+                  d: "M9 5l7 7-7 7"
+                }
+              )
+            }
+          )
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-gray-700 font-medium mr-2", children: [
+        name,
+        ":"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-500 text-sm", children: isExpanded ? type === "array" ? "[" : "{" : getPreview(data) })
+    ] }),
+    isExpanded && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ml-6 pl-3 pb", children: [
+      entries.map(([key, value]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        JsonTreeViewer,
+        {
+          name: key,
+          data: value,
+          defaultExpanded: false
+        },
+        key
+      )),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-500 text-sm -ml-3", children: type === "array" ? "]" : "}" })
+    ] })
+  ] });
+};
 const RunHistoryView = () => {
   const [historyData, setHistoryData] = useState$1(null);
   const [loading, setLoading] = useState$1(true);
   const [expandedNodeId, setExpandedNodeId] = useState$1(null);
-  const [expandedRunId, setExpandedRunId] = useState$1(null);
   const [activeTab, setActiveTab] = useState$1("current");
   const [ioDialogOpen, setIoDialogOpen] = useState$1(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
@@ -16641,72 +16739,48 @@ const RunHistoryView = () => {
                   ] })
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center text-gray-500 mt-10", children: "尚無執行記錄" })),
                 activeTab === "previous" && previousRuns && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-                  previousRuns.map((run) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  previousRuns.map((run) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "div",
                     {
                       className: "bg-white rounded-lg border border-gray-200 overflow-hidden",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "div",
-                          {
-                            onClick: () => handleRunDoubleClick(run),
-                            onDoubleClick: () => handleRunDoubleClick(run),
-                            className: "p-4 cursor-pointer hover:bg-gray-50 transition-colors",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 flex-1", children: [
-                                getStatusIcon(run.status),
-                                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-800", children: formatTime(run.start_time) }),
-                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-gray-500", children: [
-                                    "Duration: ",
-                                    formatDuration(run.total_duration_ms)
-                                  ] })
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          onClick: () => handleRunDoubleClick(run),
+                          onDoubleClick: () => handleRunDoubleClick(run),
+                          className: "p-4 cursor-pointer hover:bg-gray-50 transition-colors",
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 flex-1", children: [
+                              getStatusIcon(run.status),
+                              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-800", children: formatTime(run.start_time) }),
+                                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm text-gray-500", children: [
+                                  "Duration: ",
+                                  formatDuration(run.total_duration_ms)
                                 ] })
-                              ] }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "svg",
-                                {
-                                  className: `w-5 h-5 text-gray-400 transition-transform -rotate-90`,
-                                  fill: "none",
-                                  viewBox: "0 0 24 24",
-                                  stroke: "currentColor",
-                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                    "path",
-                                    {
-                                      strokeLinecap: "round",
-                                      strokeLinejoin: "round",
-                                      strokeWidth: 2,
-                                      d: "M19 9l-7 7-7-7"
-                                    }
-                                  )
-                                }
-                              )
-                            ] })
-                          }
-                        ),
-                        expandedRunId === run.request_id && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t border-gray-200 bg-gray-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                          run.flowCheck && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 p-2 bg-white rounded", children: [
-                            getStatusIcon(run.flowCheck.is_valid),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: run.flowCheck.display_name }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-500", children: run.flowCheck.is_valid ? "Valid" : "Invalid" })
-                          ] }),
-                          run.nodes && run.nodes.map((node) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                            "div",
-                            {
-                              className: "flex items-center gap-3 p-2 bg-white rounded",
-                              children: [
-                                getStatusIcon(node.status),
-                                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: node.display_name || "Unknown Node" }),
-                                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
-                                  node.duration_ms || 0,
-                                  " ms"
-                                ] })
-                              ]
-                            },
-                            node.node_id
-                          ))
-                        ] }) })
-                      ]
+                              ] })
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "svg",
+                              {
+                                className: `w-5 h-5 text-gray-400 transition-transform -rotate-90`,
+                                fill: "none",
+                                viewBox: "0 0 24 24",
+                                stroke: "currentColor",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                  "path",
+                                  {
+                                    strokeLinecap: "round",
+                                    strokeLinejoin: "round",
+                                    strokeWidth: 2,
+                                    d: "M19 9l-7 7-7-7"
+                                  }
+                                )
+                              }
+                            )
+                          ] })
+                        }
+                      )
                     },
                     run.request_id
                   )),
@@ -16730,7 +16804,7 @@ const RunHistoryView = () => {
         children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
-            className: "bg-white rounded-lg shadow-2xl w-[90%] max-w-4xl h-[80vh] flex flex-col",
+            className: "bg-white rounded-lg shadow-2xl w-[95%] max-w-5xl h-[80vh] flex flex-col",
             onClick: (e) => e.stopPropagation(),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-6 pb-2 pt-3 border-b border-gray-200", children: [
@@ -16772,18 +16846,24 @@ const RunHistoryView = () => {
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 p-6 min-h-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-6 h-full", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col min-h-0", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold text-gray-700 mb-4 uppercase flex-shrink-0", children: "INPUTS" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto min-h-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-xs whitespace-pre-wrap break-words", children: JSON.stringify(
-                    selectedNodeIO.data?.inputs || {},
-                    null,
-                    2
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto min-h-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-xs whitespace-pre-wrap break-words", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    JsonTreeViewer,
+                    {
+                      data: selectedNodeIO.data?.inputs || {},
+                      name: "inputs",
+                      defaultExpanded: true
+                    }
                   ) }) })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col min-h-0", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-semibold text-gray-700 mb-4 uppercase flex-shrink-0", children: "OUTPUTS" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto min-h-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-xs whitespace-pre-wrap break-words", children: JSON.stringify(
-                    selectedNodeIO.data?.outputs || {},
-                    null,
-                    2
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 rounded-lg p-4 overflow-y-auto min-h-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-xs whitespace-pre-wrap break-words", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    JsonTreeViewer,
+                    {
+                      data: selectedNodeIO.data?.outputs || {},
+                      name: "outputs",
+                      defaultExpanded: true
+                    }
                   ) }) })
                 ] })
               ] }) })
