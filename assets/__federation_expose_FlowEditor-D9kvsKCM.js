@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "3d269d0b0dc054e2d324556513849487e526d647", "VITE_APP_BUILD_TIME": "2025-10-20T02:00:02.502Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.7"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "890f19db23daa70a78e6e24f152b480cf640effc", "VITE_APP_BUILD_TIME": "2025-10-20T03:45:04.841Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.8"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -24644,9 +24644,12 @@ const APAAssistant = ({
   onTitleChange,
   isLocked = false,
   isNew = false,
-  runhistory = false
+  runhistory = false,
+  flowId = null,
+  onLockToggle = null
 }) => {
   const [isEditing, setIsEditing] = useState$u(false);
+  const [isTogglingLock, setIsTogglingLock] = useState$u(false);
   useEffect$o(() => {
     if (isNew) {
       setIsEditing(true);
@@ -24680,12 +24683,29 @@ const APAAssistant = ({
       onTitleChange(value);
     }
   };
+  const handleLockClick = async (e) => {
+    e.stopPropagation();
+    if (!flowId || flowId === "new" || isNew) {
+      return;
+    }
+    if (isTogglingLock) return;
+    if (onLockToggle && typeof onLockToggle === "function") {
+      setIsTogglingLock(true);
+      try {
+        await onLockToggle(!isLocked);
+      } catch (error) {
+        console.error("切換鎖定狀態失敗:", error);
+      } finally {
+        setIsTogglingLock(false);
+      }
+    }
+  };
   const showBorderAndShadow = isEditing;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-3 left-[80px] transform", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
-        className: `transition-all duration-300 ease-in-out ${showBorderAndShadow && !isLocked ? "shadow-[0_3px_10px_rgb(0,0,0,0.1),0_6px_20px_rgb(0,0,0,0.05)]" : ""}`,
+        className: `transition-all duration-300 ease-in-out ${showBorderAndShadow && !isLocked ? "" : ""}`,
         children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
@@ -24694,13 +24714,14 @@ const APAAssistant = ({
               !runhistory && !isEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mr-2 text-gray-700 flex-shrink-0 transition-all duration-300 ease-in-out", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "div",
                 {
-                  className: "flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-110",
+                  className: `flex items-center justify-center transition-transform duration-200 ${isTogglingLock ? "opacity-50 cursor-wait" : "cursor-pointer hover:scale-110"}`,
                   style: {
                     width: "16px",
                     height: "16px"
                   },
-                  onClick: handleEditClick,
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  onClick: isLocked ? handleLockClick : handleEditClick,
+                  title: isLocked ? "點擊解鎖工作流" : "點擊編輯標題",
+                  children: isTogglingLock ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "img",
                     {
                       src: isLocked ? lockIcon : pencilIcon,
@@ -24728,7 +24749,7 @@ const APAAssistant = ({
                 {
                   className: `w-full text-gray-800 truncate transition-colors duration-200 ${isLocked ? "text-gray-600 cursor-not-allowed" : "cursor-pointer hover:text-gray-600"}`,
                   onClick: handleEditClick,
-                  title: isLocked ? "工作流已鎖定，無法編輯標題" : "點擊編輯標題",
+                  title: isLocked ? "工作流已鎖定,無法編輯標題" : "點擊編輯標題",
                   children: title || ""
                 }
               ) }),
@@ -26783,6 +26804,42 @@ class WorkflowAPIService {
       return data;
     } catch (error) {
       console.error('載入工作流失敗:', error);
+      throw error;
+    }
+  }
+  /**
+   * 切換工作流鎖定狀態
+   * @param {string} workflowId - 工作流 ID
+   * @param {boolean} isLocked - 是否鎖定
+   * @returns {Promise<Object>} API 回應
+   */
+  async toggleWorkflowLock(workflowId, isLocked) {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'PATCH',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          is_locked: isLocked
+        })
+      });
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/${workflowId}/lock`
+      );
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    } catch (error) {
+      console.error('切換工作流鎖定狀態失敗:', error);
       throw error;
     }
   }
@@ -32487,7 +32544,6 @@ const CombineTextEditor = forwardRef$1(
     onKeyDown,
     placeholder,
     className,
-    flowId,
     onTagInsert,
     initialHtmlContent,
     shouldShowPanel,
@@ -32511,17 +32567,6 @@ const CombineTextEditor = forwardRef$1(
     const clickTimerRef = useRef$g(null);
     const isSelectingRef = useRef$g(false);
     const selectionStartRef = useRef$g(null);
-    const generateDefaultContent = useCallback$j(() => {
-      return JSON.stringify(
-        {
-          flow_id: flowId || "default-flow-id",
-          func_id: "",
-          data: ""
-        },
-        null,
-        2
-      );
-    }, [flowId]);
     const getEditorTextContent = useCallback$j(() => {
       if (!editorRef.current) return "";
       let content = "";
@@ -33298,7 +33343,7 @@ const CombineTextEditor = forwardRef$1(
           ".react-flow__node-aiCustomInput"
         );
         if (!isAINode) {
-          const defaultContent = generateDefaultContent();
+          const defaultContent = "";
           isUpdatingFromExternal.current = true;
           editorRef.current.textContent = defaultContent;
           lastReportedValue.current = defaultContent;
@@ -33311,13 +33356,7 @@ const CombineTextEditor = forwardRef$1(
       } else {
         setIsInitialized(true);
       }
-    }, [
-      value,
-      generateDefaultContent,
-      handleContentChange,
-      initialHtmlContent,
-      isInitialized
-    ]);
+    }, [value, handleContentChange, initialHtmlContent, isInitialized]);
     useEffect$k(() => {
       if (isInitialized && value !== void 0 && value !== lastReportedValue.current && !isUpdatingFromExternal.current && !isFocused) {
         isUpdatingFromExternal.current = true;
@@ -37106,7 +37145,7 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
             onTagInsert: handleTagInsert,
             onBlur: handleBodyBlur,
             placeholder: '{"flow_id": "9e956c37-20ea-47a5-bcd5-3cafc35b967a", "func_id": "q1", "data":"$input"}',
-            className: "bg-[#ee9e9e7] text-[#09090b] border-gray-300",
+            className: "bg-[#e9e9e7] text-[#09090b] border-gray-300",
             flowId: getFlowId(),
             initialHtmlContent: editorHtmlContent,
             shouldShowPanel: bodyConnectionCount > 0,
@@ -44562,113 +44601,6 @@ function CustomEdge({
 
 const React$5 = await importShared('react');
 const {useState: useState$4} = React$5;
-const LoadWorkflowButton = ({ onLoad }) => {
-  const [workflowId, setWorkflowId] = useState$4(
-    "d50d2adc-dcfc-47f9-9307-88fad8add7ac"
-  );
-  const [showInput, setShowInput] = useState$4(false);
-  const { state, setLoading, setSuccess, setError } = useButtonState();
-  const handleClick = () => {
-    setShowInput(true);
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!workflowId || typeof onLoad !== "function") return;
-    try {
-      setLoading();
-      await onLoad(workflowId);
-      setSuccess();
-      setWorkflowId("");
-      setShowInput(false);
-    } catch (error) {
-      console.error("載入工作流失敗:", error);
-      setError();
-    }
-  };
-  const handleCancel = () => {
-    setWorkflowId("");
-    setShowInput(false);
-  };
-  const getButtonStyle = () => {
-    if (state === "loading") return "loading";
-    if (state === "success") return "success";
-    if (state === "error") return "error";
-    return "primary";
-  };
-  const getButtonContent = () => {
-    if (state === "loading") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "載入中..." })
-      ] });
-    }
-    if (state === "success") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "已載入" })
-      ] });
-    }
-    if (state === "error") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorIcon, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
-      ] });
-    }
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "測試用" });
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BaseButton,
-      {
-        onClick: handleClick,
-        disabled: state === "loading",
-        title: "載入工作流",
-        buttonStyle: getButtonStyle(),
-        children: getButtonContent()
-      }
-    ),
-    showInput && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 mt-2 p-3 bg-white rounded-md shadow-lg border border-gray-200 z-20 w-64", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "form",
-      {
-        onSubmit: handleSubmit,
-        className: "flex flex-col",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "mb-1 text-sm text-gray-600", children: "請輸入工作流 ID:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: workflowId,
-              onChange: (e) => setWorkflowId(e.target.value),
-              className: "border border-gray-300 rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-[#00ced1] focus:border-transparent",
-              autoFocus: true,
-              placeholder: "例如: 5e9867a0-58b4-4c16-acbb-e194df6efa46"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end space-x-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: handleCancel,
-                className: "px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50",
-                children: "取消"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "submit",
-                className: "px-3 py-1.5 text-sm bg-[#00ced1] text-white rounded-md hover:bg-[#00b5b8]",
-                children: "載入"
-              }
-            )
-          ] })
-        ]
-      }
-    ) })
-  ] });
-};
 
 const React$4 = await importShared('react');
 const {useEffect: useEffect$2,useState: useState$3} = React$4;
@@ -44717,7 +44649,7 @@ const Notification = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "", children: notifications.map((notification) => /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
-      className: `absolute top-16 left-1/2 rounded-lg transform -translate-x-1/2 px-4 py-2 z-20 text-sm ${notification.type === "error" ? "bg-red-100 text-red-700 border border-red-200" : notification.type === "success" ? "bg-green-100 text-green-700 border border-green-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`,
+      className: `absolute top-8 left-1/2 rounded-lg transform -translate-x-1/2 px-4 py-2 z-20 text-sm ${notification.type === "error" ? "bg-red-100 text-red-700 border border-red-200" : notification.type === "success" ? "bg-green-100 text-green-700 border border-green-200" : "bg-blue-100 text-blue-700 border border-blue-200"}`,
       children: notification.message
     },
     notification.id
@@ -45551,6 +45483,28 @@ const FlowEditor = forwardRef(
         }
       }
     };
+    const handleLockToggle = useCallback(
+      async (newLockState) => {
+        if (!flowMetadata.id || flowMetadata.id === "new") {
+          return;
+        }
+        try {
+          await workflowAPIService.toggleWorkflowLock(
+            flowMetadata.id,
+            newLockState
+          );
+          setIsLocked(newLockState);
+        } catch (error) {
+          console.error("切換鎖定狀態失敗:", error);
+          window.notify({
+            message: "切換鎖定狀態失敗",
+            type: "error",
+            duration: 3e3
+          });
+        }
+      },
+      [flowMetadata.id]
+    );
     useImperativeHandle(ref, () => ({
       // 導出流程數據的方法
       exportFlowData: () => {
@@ -45597,7 +45551,9 @@ const FlowEditor = forwardRef(
         console.log("手動重新載入節點清單");
         resetGlobalNodeListState();
         return loadNodeList();
-      }
+      },
+      toggleLock: handleLockToggle,
+      getIsLocked: () => isLocked
     }));
     useEffect(() => {
       if (typeof window !== "undefined") {
@@ -46319,7 +46275,9 @@ const FlowEditor = forwardRef(
               onTitleChange: handleTitleChange,
               isLocked: isLocked || runhistory,
               runhistory,
-              isNew: (!flowMetadata.id || flowMetadata.id === "new") && !runhistory
+              isNew: (!flowMetadata.id || flowMetadata.id === "new") && !runhistory,
+              onLockToggle: handleLockToggle,
+              flowId: flowMetadata.id
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Notification, {}),
@@ -46409,7 +46367,6 @@ const FlowEditor = forwardRef(
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               FlowCheckButton,
               {
