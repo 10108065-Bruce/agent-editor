@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "2871018438253639a99e162c63e8874278a578bc", "VITE_APP_BUILD_TIME": "2025-10-20T08:17:21.745Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.9"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f9f60360a84b8ffd10e8bb37bf26fd3c61ecfb07", "VITE_APP_BUILD_TIME": "2025-10-21T06:20:45.851Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.10"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -36423,6 +36423,56 @@ const WebhookNode = ({ data, isConnectable, id }) => {
 };
 const WebhookNode$1 = memo$c(WebhookNode);
 
+// 獲取節點標籤顏色
+const getNodeTagColor = (nodeName) => {
+  console.log('原始 nodeName:', nodeName);
+  console.log('nodeName 長度:', nodeName.length);
+  console.log('nodeName 類型:', typeof nodeName);
+
+  // 轉換為小寫、移除前後空格、將底線替換為空格
+  // 處理駝峰命名、底線、轉小寫
+  // 處理駝峰命名、底線、轉小寫
+  const lowerNodeName = nodeName
+    .trim()
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2') // 處理連續大寫+小寫: "HTTPRequest" → "HTTP Request"
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2') // 處理小寫+大寫: "myName" → "my Name"
+    .replace(/_/g, ' ') // 底線轉空格
+    .toLowerCase()
+    .replace(/\s+/g, ' ') // 多個空格合併為一個
+    .trim(); // 移除首尾空格
+
+  console.log('處理後:', lowerNodeName);
+
+  // 按優先級排序的顏色映射
+  const colorMap = [
+    { keyword: 'browser extension input', color: '#D5F2D8' },
+    { keyword: 'line webhook input', color: '#06C755' },
+    { keyword: 'webhook input', color: '#FC6165' },
+    { keyword: 'webhook output', color: '#FC6165' },
+    { keyword: 'extract data', color: '#FFAA1E' },
+    { keyword: 'http request', color: '#FF6D01' },
+    { keyword: 'combine text', color: '#4E7ECF' },
+    { keyword: 'router switch', color: '#00ced1' },
+    { keyword: 'schedule', color: '#7C3AED' },
+    { keyword: 'knowledge retrieval', color: '#87CEEB' },
+    { keyword: 'qoca aim', color: '#098D7F' },
+    { keyword: 'input', color: '#0075FF' },
+    { keyword: 'ai', color: '#FFAA1E' },
+    { keyword: 'speech to text', color: '#BB4DAA' }
+  ];
+
+  // 遍歷顏色映射
+  for (const { keyword, color } of colorMap) {
+    if (lowerNodeName.includes(keyword)) {
+      console.log('✅ 匹配成功:', keyword, '→', color);
+      return color;
+    }
+  }
+
+  console.log('❌ 沒有匹配，返回預設顏色');
+  return '#6b7280';
+};
+
 const React$j = await importShared('react');
 const {memo: memo$b,useState: useState$j,useEffect: useEffect$e,useCallback: useCallback$e,useRef: useRef$b} = React$j;
 const HttpRequestNode = ({ data, isConnectable, id }) => {
@@ -36893,22 +36943,6 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
           default:
             return sourceNode2.type.charAt(0).toUpperCase() + sourceNode2.type.slice(1);
         }
-      };
-      const getNodeTagColor = (nodeName2) => {
-        const lowerNodeName = nodeName2.toLowerCase();
-        const colorMap = [
-          { keyword: "combine text node", color: "#4E7ECF" },
-          { keyword: "knowledge retrieval", color: "#87CEEB" },
-          { keyword: "qoca aim node", color: "#098D7F" },
-          { keyword: "input", color: "#0075FF" },
-          { keyword: "ai", color: "#FFAA1E" }
-        ];
-        for (const { keyword, color } of colorMap) {
-          if (lowerNodeName.includes(keyword)) {
-            return color;
-          }
-        }
-        return "#6b7280";
       };
       const nodeName = getNodeDisplayName(sourceNode);
       return {
@@ -42197,30 +42231,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
             return `${sourceNode2.type.charAt(0).toUpperCase() + sourceNode2.type.slice(1)}`;
         }
       };
-      const getNodeTagColor = (nodeName2) => {
-        const lowerNodeName = nodeName2.toLowerCase();
-        const colorMap = [
-          { keyword: "browser extension input", color: "#1FCD28" },
-          { keyword: "line webhook input", color: "#06C755" },
-          { keyword: "webhook input node", color: "#FC6165" },
-          { keyword: "extract data node", color: "#D97706" },
-          { keyword: "http request node", color: "#F8D7DA" },
-          { keyword: "combine text node", color: "#4E7ECF" },
-          { keyword: "router switch node", color: "#00ced1" },
-          { keyword: "schedule node", color: "#DCCAFA" },
-          { keyword: "knowledge retrieval", color: "#87CEEB" },
-          { keyword: "qoca aim node", color: "#098D7F" },
-          { keyword: "input", color: "#0075FF" },
-          { keyword: "ai", color: "#FFAA1E" },
-          { keyword: "speech to text", color: "#dccafa" }
-        ];
-        for (const { keyword, color } of colorMap) {
-          if (lowerNodeName.includes(keyword)) {
-            return color;
-          }
-        }
-        return "#6b7280";
-      };
       const nodeName = getNodeDisplayName(sourceNode);
       return {
         id: edge.source,
@@ -44601,6 +44611,113 @@ function CustomEdge({
 
 const React$5 = await importShared('react');
 const {useState: useState$4} = React$5;
+const LoadWorkflowButton = ({ onLoad }) => {
+  const [workflowId, setWorkflowId] = useState$4(
+    "d50d2adc-dcfc-47f9-9307-88fad8add7ac"
+  );
+  const [showInput, setShowInput] = useState$4(false);
+  const { state, setLoading, setSuccess, setError } = useButtonState();
+  const handleClick = () => {
+    setShowInput(true);
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!workflowId || typeof onLoad !== "function") return;
+    try {
+      setLoading();
+      await onLoad(workflowId);
+      setSuccess();
+      setWorkflowId("");
+      setShowInput(false);
+    } catch (error) {
+      console.error("載入工作流失敗:", error);
+      setError();
+    }
+  };
+  const handleCancel = () => {
+    setWorkflowId("");
+    setShowInput(false);
+  };
+  const getButtonStyle = () => {
+    if (state === "loading") return "loading";
+    if (state === "success") return "success";
+    if (state === "error") return "error";
+    return "primary";
+  };
+  const getButtonContent = () => {
+    if (state === "loading") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "載入中..." })
+      ] });
+    }
+    if (state === "success") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "已載入" })
+      ] });
+    }
+    if (state === "error") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorIcon, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
+      ] });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "測試用" });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BaseButton,
+      {
+        onClick: handleClick,
+        disabled: state === "loading",
+        title: "載入工作流",
+        buttonStyle: getButtonStyle(),
+        children: getButtonContent()
+      }
+    ),
+    showInput && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 mt-2 p-3 bg-white rounded-md shadow-lg border border-gray-200 z-20 w-64", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "form",
+      {
+        onSubmit: handleSubmit,
+        className: "flex flex-col",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "mb-1 text-sm text-gray-600", children: "請輸入工作流 ID:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: workflowId,
+              onChange: (e) => setWorkflowId(e.target.value),
+              className: "border border-gray-300 rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-[#00ced1] focus:border-transparent",
+              autoFocus: true,
+              placeholder: "例如: 5e9867a0-58b4-4c16-acbb-e194df6efa46"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end space-x-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: handleCancel,
+                className: "px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50",
+                children: "取消"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "submit",
+                className: "px-3 py-1.5 text-sm bg-[#00ced1] text-white rounded-md hover:bg-[#00b5b8]",
+                children: "載入"
+              }
+            )
+          ] })
+        ]
+      }
+    ) })
+  ] });
+};
 
 const React$4 = await importShared('react');
 const {useEffect: useEffect$2,useState: useState$3} = React$4;
@@ -46406,6 +46523,7 @@ const FlowEditor = forwardRef(
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               FlowCheckButton,
               {
