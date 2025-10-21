@@ -12,6 +12,7 @@ import CombineTextEditor from '../text/CombineTextEditor';
 import CopytIncon from '../../assets/text-copy-off.png';
 import { flushSync } from 'react-dom';
 import { formatNodeTitle } from '../../utils/nodeUtils';
+import { getNodeTagColor } from '../../utils/nodeColor';
 
 const CombineTextNode = ({ data, isConnectable, id }) => {
   const edges = useEdges();
@@ -594,39 +595,6 @@ const CombineTextNode = ({ data, isConnectable, id }) => {
               sourceNode.type.charAt(0).toUpperCase() + sourceNode.type.slice(1)
             }`;
         }
-      };
-
-      // 獲取節點標籤顏色
-      const getNodeTagColor = (nodeName) => {
-        // 轉換為小寫進行不區分大小寫的匹配
-        const lowerNodeName = nodeName.toLowerCase();
-
-        // 按優先級排序的顏色映射（更具體的關鍵詞放在前面避免衝突）
-        const colorMap = [
-          { keyword: 'browser extension input', color: '#1FCD28' },
-          { keyword: 'line webhook input', color: '#06C755' },
-          { keyword: 'webhook input node', color: '#FC6165' },
-          { keyword: 'extract data node', color: '#D97706' },
-          { keyword: 'http request node', color: '#F8D7DA' },
-          { keyword: 'combine text node', color: '#4E7ECF' },
-          { keyword: 'router switch node', color: '#00ced1' },
-          { keyword: 'schedule node', color: '#DCCAFA' },
-          { keyword: 'knowledge retrieval', color: '#87CEEB' },
-          { keyword: 'qoca aim node', color: '#098D7F' },
-          { keyword: 'input', color: '#0075FF' },
-          { keyword: 'ai', color: '#FFAA1E' },
-          { keyword: 'speech to text', color: '#dccafa' }
-        ];
-
-        // 遍歷顏色映射，找到第一個匹配的關鍵詞
-        for (const { keyword, color } of colorMap) {
-          if (lowerNodeName.includes(keyword)) {
-            return color;
-          }
-        }
-
-        // 如果沒有找到匹配的關鍵詞，返回預設顏色
-        return '#6b7280';
       };
 
       const nodeName = getNodeDisplayName(sourceNode);

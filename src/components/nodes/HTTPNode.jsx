@@ -4,6 +4,7 @@ import IconBase from '../icons/IconBase';
 import AddIcon from '../icons/AddIcon';
 import CombineTextEditor from '../text/CombineTextEditor';
 import { formatNodeTitle } from '../../utils/nodeUtils';
+import { getNodeTagColor } from '../../utils/nodeColor';
 
 const HttpRequestNode = ({ data, isConnectable, id }) => {
   // 管理各個狀態
@@ -610,23 +611,6 @@ const HttpRequestNode = ({ data, isConnectable, id }) => {
               sourceNode.type.charAt(0).toUpperCase() + sourceNode.type.slice(1)
             );
         }
-      };
-
-      const getNodeTagColor = (nodeName) => {
-        const lowerNodeName = nodeName.toLowerCase();
-        const colorMap = [
-          { keyword: 'combine text node', color: '#4E7ECF' },
-          { keyword: 'knowledge retrieval', color: '#87CEEB' },
-          { keyword: 'qoca aim node', color: '#098D7F' },
-          { keyword: 'input', color: '#0075FF' },
-          { keyword: 'ai', color: '#FFAA1E' }
-        ];
-        for (const { keyword, color } of colorMap) {
-          if (lowerNodeName.includes(keyword)) {
-            return color;
-          }
-        }
-        return '#6b7280';
       };
 
       const nodeName = getNodeDisplayName(sourceNode);
