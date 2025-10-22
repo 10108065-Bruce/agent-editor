@@ -326,7 +326,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
 
       if (isCustomOption) {
         setFrequencyMode('custom');
-        setSelectedPresetValue(''); // 清空預設選項記錄
+        setSelectedPresetValue(selectedValue); // 清空預設選項記錄
         // 清空 cron 表達式，讓用戶手動輸入
         handleCronExpressionChange('');
       } else {
