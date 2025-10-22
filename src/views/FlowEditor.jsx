@@ -547,6 +547,13 @@ const FlowEditor = forwardRef(
             setIsLocked(apiData.is_locked);
           }
 
+          // 處理驗證失敗
+          if (apiData && apiData.failures && apiData.failures.length > 0) {
+            setValidationFailures(apiData.failures);
+          } else {
+            setValidationFailures([]);
+          }
+
           const { nodes: transformedNodes, edges: transformedEdges } =
             WorkflowDataConverter.transformToReactFlowFormat(apiData);
 
@@ -1227,9 +1234,13 @@ const FlowEditor = forwardRef(
         if (flowMetadata.id) {
           // 更新現有流程
           response = await workflowAPIService.updateWorkflow(apiData);
-
+          const responseData = response.data || response;
           // 處理驗證失敗
-          if (response && response.failures && response.failures.length > 0) {
+          if (
+            responseData &&
+            responseData.failures &&
+            responseData.failures.length > 0
+          ) {
             setValidationFailures(response.failures);
           } else {
             setValidationFailures([]);
