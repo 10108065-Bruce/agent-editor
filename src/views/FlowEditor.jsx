@@ -540,8 +540,8 @@ const FlowEditor = forwardRef(
             startWorkflowLoading();
           }
 
-          const apiData = await workflowAPIService.loadWorkflow(flowId);
-
+          const response = await workflowAPIService.loadWorkflow(flowId);
+          const apiData = response.data || response;
           // eslint-disable-next-line no-prototype-builtins
           if (apiData.hasOwnProperty('is_locked')) {
             setIsLocked(apiData.is_locked);
@@ -1250,14 +1250,19 @@ const FlowEditor = forwardRef(
           response = await workflowAPIService.createWorkflow(apiData);
           console.log('FlowEditor: 創建流程成功', response);
 
-          if (response && response.failures && response.failures.length > 0) {
+          if (
+            response &&
+            response.data &&
+            response.data.failures &&
+            response.failures.length > 0
+          ) {
             setValidationFailures(response.failures);
           } else {
             setValidationFailures([]);
           }
 
           // 捕獲從後端回傳的 flow_id
-          flowIdToUse = response?.flow_id;
+          flowIdToUse = response?.data?.flow_id;
           // 如果後端回傳了 flow_id，更新流程元數據
           if (flowIdToUse) {
             setFlowMetadata((prev) => ({
@@ -1378,17 +1383,13 @@ const FlowEditor = forwardRef(
             });
           } else {
             // 創建新流程
-            console.log('創建新流程');
             response = await workflowAPIService.createWorkflow(apiData);
-            console.log('創建流程成功:', response);
 
-            flowIdToUse = response?.flow_id;
-            console.log('獲得新的 flow_id:', flowIdToUse);
+            flowIdToUse = response?.data?.flow_id;
 
             // 檢查是否在 iframe 中運行並發送事件
             const isInIframe = window.self !== window.top;
             if (isInIframe) {
-              console.log('在 iframe 中，發送事件到父頁面');
               try {
                 iframeBridge.sendToParent({
                   type: 'FLOW_SAVED',
@@ -1644,6 +1645,51 @@ const FlowEditor = forwardRef(
       return [...flowErrors, ...nodeErrors];
     }, []);
 
+    const handleCheckWorkflow = useCallback(async () => {
+      try {
+        const flowData = {
+          id: flowMetadata.id,
+          title: flowMetadata.title || '未命名流程',
+          version: flowMetadata.version || 1,
+          nodes,
+          edges,
+          metadata: {
+            lastModified: new Date().toISOString(),
+            savedAt: new Date().toISOString(),
+            nodeCount: nodes.length,
+            edgeCount: edges.length
+          }
+        };
+
+        const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+
+        const response = await workflowAPIService.checkWorkflow(apiData);
+
+        const checkResult = response.data || response;
+
+        // 處理驗證失敗
+        if (
+          checkResult &&
+          checkResult.failures &&
+          checkResult.failures.length > 0
+        ) {
+          setValidationFailures(checkResult.failures);
+        } else {
+          setValidationFailures([]);
+        }
+
+        return checkResult;
+      } catch (error) {
+        console.error('檢查工作流失敗:', error);
+        throw error;
+      }
+    }, [
+      flowMetadata.id,
+      flowMetadata.title,
+      flowMetadata.version,
+      nodes,
+      edges
+    ]);
     return (
       <div
         className='relative w-full h-screen'
@@ -1751,6 +1797,7 @@ const FlowEditor = forwardRef(
                 {/* <LoadWorkflowButton onLoad={handleLoadWorkflow} /> */}
                 {/* <ChatButton /> */}
                 <FlowCheckButton
+                  onClick={handleCheckWorkflow}
                   errors={formatValidationErrors(validationFailures)}
                   unreadCount={validationFailures.length - 1}
                 />

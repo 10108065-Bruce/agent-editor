@@ -159,6 +159,41 @@ export class WorkflowAPIService {
       throw error;
     }
   }
+
+  /**
+   * 檢查工作流
+   * @param {Object} flowData - 工作流數據（轉換後的 API 格式）
+   * @returns {Promise<Object>} 檢查結果，包含 failures 陣列
+   */
+  async checkWorkflow(flowData) {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_pipeline: flowData.flow_pipeline
+        })
+      });
+
+      const url = `${API_CONFIG.BASE_URL}/agent_designer/workflows/check`;
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('檢查工作流失敗:', error);
+      throw error;
+    }
+  }
+
   /**
    * 取得可用的節點清單
    * @returns {Promise<Array>} 節點清單
