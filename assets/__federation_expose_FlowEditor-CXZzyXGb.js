@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "04062d22907f5bcf933197b48e7fb0ef475d2958", "VITE_APP_BUILD_TIME": "2025-10-22T07:19:24.005Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.11"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9bf3eb2b885e5e640d71490586ff132d18cd5f0f", "VITE_APP_BUILD_TIME": "2025-10-22T08:01:31.036Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.12"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -45490,6 +45490,11 @@ const FlowEditor = forwardRef(
           if (apiData.hasOwnProperty("is_locked")) {
             setIsLocked(apiData.is_locked);
           }
+          if (apiData && apiData.failures && apiData.failures.length > 0) {
+            setValidationFailures(apiData.failures);
+          } else {
+            setValidationFailures([]);
+          }
           const { nodes: transformedNodes, edges: transformedEdges } = WorkflowDataConverter.transformToReactFlowFormat(apiData);
           const nodesWithCallbacks = transformedNodes.map((node) => {
             const nodeCallbacks = getNodeCallbacks(node.id, node.type);
@@ -46028,7 +46033,8 @@ const FlowEditor = forwardRef(
         let flowIdToUse = flowMetadata.id || null;
         if (flowMetadata.id) {
           response = await workflowAPIService.updateWorkflow(apiData);
-          if (response && response.failures && response.failures.length > 0) {
+          const responseData = response.data || response;
+          if (responseData && responseData.failures && responseData.failures.length > 0) {
             setValidationFailures(response.failures);
           } else {
             setValidationFailures([]);
