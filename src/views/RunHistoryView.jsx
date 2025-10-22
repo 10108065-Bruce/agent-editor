@@ -7,6 +7,7 @@ import detailIcon from '../assets/icon-detail.png';
 import FlowEditor from './FlowEditor';
 import IconBase from '../components/icons/IconBase';
 import { tokenService } from '../services/TokenService';
+import { formatISOToNumeric } from '../utils/timeUtils';
 // JSON 樹狀檢視器元件
 const JsonTreeViewer = ({ data, name = 'root', defaultExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
@@ -382,11 +383,10 @@ const RunHistoryView = () => {
     };
   };
 
-  // 格式化時間，移除毫秒
+  // 格式化時間，轉換為純數字格式的本地時間
+  // 格式: YYYY-MM-DD HH:mm:ss (24小時制)
   const formatTime = (timeString) => {
-    if (!timeString) return 'N/A';
-    // 移除 'Z' 和毫秒部分，只保留到秒
-    return timeString.replace('T', ' ').split('.')[0];
+    return formatISOToNumeric(timeString);
   };
 
   // 將毫秒轉換為秒，保留兩位小數
