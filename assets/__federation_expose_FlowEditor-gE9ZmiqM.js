@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f9f60360a84b8ffd10e8bb37bf26fd3c61ecfb07", "VITE_APP_BUILD_TIME": "2025-10-21T06:20:45.851Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.10"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "04062d22907f5bcf933197b48e7fb0ef475d2958", "VITE_APP_BUILD_TIME": "2025-10-22T07:19:24.005Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.11"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26923,6 +26923,41 @@ class WorkflowAPIService {
       throw error;
     }
   }
+
+  /**
+   * 檢查工作流
+   * @param {Object} flowData - 工作流數據（轉換後的 API 格式）
+   * @returns {Promise<Object>} 檢查結果，包含 failures 陣列
+   */
+  async checkWorkflow(flowData) {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_pipeline: flowData.flow_pipeline
+        })
+      });
+
+      const url = `${API_CONFIG.BASE_URL}/agent_designer/workflows/check`;
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('檢查工作流失敗:', error);
+      throw error;
+    }
+  }
+
   /**
    * 取得可用的節點清單
    * @returns {Promise<Array>} 節點清單
@@ -36425,10 +36460,6 @@ const WebhookNode$1 = memo$c(WebhookNode);
 
 // 獲取節點標籤顏色
 const getNodeTagColor = (nodeName) => {
-  console.log('原始 nodeName:', nodeName);
-  console.log('nodeName 長度:', nodeName.length);
-  console.log('nodeName 類型:', typeof nodeName);
-
   // 轉換為小寫、移除前後空格、將底線替換為空格
   // 處理駝峰命名、底線、轉小寫
   // 處理駝峰命名、底線、轉小寫
@@ -36440,8 +36471,6 @@ const getNodeTagColor = (nodeName) => {
     .toLowerCase()
     .replace(/\s+/g, ' ') // 多個空格合併為一個
     .trim(); // 移除首尾空格
-
-  console.log('處理後:', lowerNodeName);
 
   // 按優先級排序的顏色映射
   const colorMap = [
@@ -36464,12 +36493,10 @@ const getNodeTagColor = (nodeName) => {
   // 遍歷顏色映射
   for (const { keyword, color } of colorMap) {
     if (lowerNodeName.includes(keyword)) {
-      console.log('✅ 匹配成功:', keyword, '→', color);
       return color;
     }
   }
 
-  console.log('❌ 沒有匹配，返回預設顏色');
   return '#6b7280';
 };
 
@@ -40589,7 +40616,7 @@ const ScheduleTriggerNode = ({ data, isConnectable, id }) => {
       const isCustomOption = selectedConfig && (selectedConfig.value === "custom" || selectedConfig.cronExpression === "");
       if (isCustomOption) {
         setFrequencyMode("custom");
-        setSelectedPresetValue("");
+        setSelectedPresetValue(selectedValue);
         handleCronExpressionChange("");
       } else {
         setFrequencyMode("preset");
@@ -44611,113 +44638,6 @@ function CustomEdge({
 
 const React$5 = await importShared('react');
 const {useState: useState$4} = React$5;
-const LoadWorkflowButton = ({ onLoad }) => {
-  const [workflowId, setWorkflowId] = useState$4(
-    "d50d2adc-dcfc-47f9-9307-88fad8add7ac"
-  );
-  const [showInput, setShowInput] = useState$4(false);
-  const { state, setLoading, setSuccess, setError } = useButtonState();
-  const handleClick = () => {
-    setShowInput(true);
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!workflowId || typeof onLoad !== "function") return;
-    try {
-      setLoading();
-      await onLoad(workflowId);
-      setSuccess();
-      setWorkflowId("");
-      setShowInput(false);
-    } catch (error) {
-      console.error("載入工作流失敗:", error);
-      setError();
-    }
-  };
-  const handleCancel = () => {
-    setWorkflowId("");
-    setShowInput(false);
-  };
-  const getButtonStyle = () => {
-    if (state === "loading") return "loading";
-    if (state === "success") return "success";
-    if (state === "error") return "error";
-    return "primary";
-  };
-  const getButtonContent = () => {
-    if (state === "loading") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingSpinner, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "載入中..." })
-      ] });
-    }
-    if (state === "success") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CheckIcon, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "已載入" })
-      ] });
-    }
-    if (state === "error") {
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorIcon, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "錯誤" })
-      ] });
-    }
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "測試用" });
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BaseButton,
-      {
-        onClick: handleClick,
-        disabled: state === "loading",
-        title: "載入工作流",
-        buttonStyle: getButtonStyle(),
-        children: getButtonContent()
-      }
-    ),
-    showInput && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 mt-2 p-3 bg-white rounded-md shadow-lg border border-gray-200 z-20 w-64", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "form",
-      {
-        onSubmit: handleSubmit,
-        className: "flex flex-col",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "mb-1 text-sm text-gray-600", children: "請輸入工作流 ID:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: workflowId,
-              onChange: (e) => setWorkflowId(e.target.value),
-              className: "border border-gray-300 rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-[#00ced1] focus:border-transparent",
-              autoFocus: true,
-              placeholder: "例如: 5e9867a0-58b4-4c16-acbb-e194df6efa46"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end space-x-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: handleCancel,
-                className: "px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 rounded-md border border-gray-300 hover:bg-gray-50",
-                children: "取消"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "submit",
-                className: "px-3 py-1.5 text-sm bg-[#00ced1] text-white rounded-md hover:bg-[#00b5b8]",
-                children: "載入"
-              }
-            )
-          ] })
-        ]
-      }
-    ) })
-  ] });
-};
 
 const React$4 = await importShared('react');
 const {useEffect: useEffect$2,useState: useState$3} = React$4;
@@ -45565,7 +45485,8 @@ const FlowEditor = forwardRef(
           if (startWorkflowLoading) {
             startWorkflowLoading();
           }
-          const apiData = await workflowAPIService.loadWorkflow(flowId);
+          const response = await workflowAPIService.loadWorkflow(flowId);
+          const apiData = response.data || response;
           if (apiData.hasOwnProperty("is_locked")) {
             setIsLocked(apiData.is_locked);
           }
@@ -46124,12 +46045,12 @@ const FlowEditor = forwardRef(
         } else {
           response = await workflowAPIService.createWorkflow(apiData);
           console.log("FlowEditor: 創建流程成功", response);
-          if (response && response.failures && response.failures.length > 0) {
+          if (response && response.data && response.data.failures && response.failures.length > 0) {
             setValidationFailures(response.failures);
           } else {
             setValidationFailures([]);
           }
-          flowIdToUse = response?.flow_id;
+          flowIdToUse = response?.data?.flow_id;
           if (flowIdToUse) {
             setFlowMetadata((prev) => ({
               ...prev,
@@ -46221,14 +46142,10 @@ const FlowEditor = forwardRef(
               duration: 2e3
             });
           } else {
-            console.log("創建新流程");
             response = await workflowAPIService.createWorkflow(apiData);
-            console.log("創建流程成功:", response);
-            flowIdToUse = response?.flow_id;
-            console.log("獲得新的 flow_id:", flowIdToUse);
+            flowIdToUse = response?.data?.flow_id;
             const isInIframe2 = window.self !== window.top;
             if (isInIframe2) {
-              console.log("在 iframe 中，發送事件到父頁面");
               try {
                 iframeBridge.sendToParent({
                   type: "FLOW_SAVED",
@@ -46418,6 +46335,41 @@ const FlowEditor = forwardRef(
       });
       return [...flowErrors, ...nodeErrors];
     }, []);
+    const handleCheckWorkflow = useCallback(async () => {
+      try {
+        const flowData = {
+          id: flowMetadata.id,
+          title: flowMetadata.title || "未命名流程",
+          version: flowMetadata.version || 1,
+          nodes,
+          edges,
+          metadata: {
+            lastModified: (/* @__PURE__ */ new Date()).toISOString(),
+            savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+            nodeCount: nodes.length,
+            edgeCount: edges.length
+          }
+        };
+        const apiData = WorkflowDataConverter.convertReactFlowToAPI(flowData);
+        const response = await workflowAPIService.checkWorkflow(apiData);
+        const checkResult = response.data || response;
+        if (checkResult && checkResult.failures && checkResult.failures.length > 0) {
+          setValidationFailures(checkResult.failures);
+        } else {
+          setValidationFailures([]);
+        }
+        return checkResult;
+      } catch (error) {
+        console.error("檢查工作流失敗:", error);
+        throw error;
+      }
+    }, [
+      flowMetadata.id,
+      flowMetadata.title,
+      flowMetadata.version,
+      nodes,
+      edges
+    ]);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -46523,10 +46475,10 @@ const FlowEditor = forwardRef(
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(LoadWorkflowButton, { onLoad: handleLoadWorkflow }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               FlowCheckButton,
               {
+                onClick: handleCheckWorkflow,
                 errors: formatValidationErrors(validationFailures),
                 unreadCount: validationFailures.length - 1
               }
