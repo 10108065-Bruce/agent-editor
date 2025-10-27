@@ -2402,6 +2402,11 @@ code {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.hover\:border-\[\#00ced1\]:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(0 206 209 / var(--tw-border-opacity, 1));
+}
+
 .hover\:border-cyan-300:hover {
   --tw-border-opacity: 1;
   border-color: rgb(103 232 249 / var(--tw-border-opacity, 1));
@@ -2490,6 +2495,11 @@ code {
 .hover\:text-\[\#00b8bb\]:hover {
   --tw-text-opacity: 1;
   color: rgb(0 184 187 / var(--tw-text-opacity, 1));
+}
+
+.hover\:text-\[\#00ced1\]:hover {
+  --tw-text-opacity: 1;
+  color: rgb(0 206 209 / var(--tw-text-opacity, 1));
 }
 
 .hover\:text-blue-700:hover {

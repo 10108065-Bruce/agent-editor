@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-GqA2WJiV.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-f5diKdZk.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16284,12 +16284,15 @@ const JsonTreeViewer = ({ data, name = "root", defaultExpanded = false }) => {
     if (Array.isArray(value)) return "array";
     return typeof value;
   };
-  const getPreview = (value) => {
+  const getPreview = (value, isFullDisplay = false) => {
     const type2 = getType(value);
     switch (type2) {
       case "null":
         return "null";
       case "string":
+        if (isFullDisplay) {
+          return `"${value}"`;
+        }
         return value.length > 50 ? `"${value.substring(0, 50)}..."` : `"${value}"`;
       case "number":
       case "boolean":
@@ -16321,11 +16324,17 @@ const JsonTreeViewer = ({ data, name = "root", defaultExpanded = false }) => {
   const isExpandable = type === "object" || type === "array";
   if (!isExpandable) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start py-1", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-gray-700 font-medium mr-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-gray-700 font-medium mr-2 flex-shrink-0", children: [
         name,
         ":"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: getValueColor(data), children: getPreview(data) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          className: `${getValueColor(data)} break-all whitespace-pre-wrap`,
+          children: getPreview(data, true)
+        }
+      )
     ] });
   }
   const entries = type === "array" ? data.map((item, index) => [index, item]) : Object.entries(data);
@@ -16385,6 +16394,7 @@ const RunHistoryView = () => {
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
   const hasLoadedRef = useRef(false);
+  const flowEditorRef = useRef(null);
   const [currentPage, setCurrentPage] = useState$1(1);
   const [hasMore, setHasMore] = useState$1(false);
   const [loadingMore, setLoadingMore] = useState$1(false);
@@ -16595,6 +16605,7 @@ const RunHistoryView = () => {
     showFlowEditor && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 bg-gray-50 relative", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlowEditor,
       {
+        ref: flowEditorRef,
         initialTitle,
         isLocked: true,
         runhistory: true,
@@ -16715,7 +16726,22 @@ const RunHistoryView = () => {
                               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-bold text-gray-800 text-sm", children: node.display_name }),
                               node.error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-600 mt-1 truncate", children: node.error })
                             ] }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 border border-gray-300 rounded-full px-2 py-1", children: getNodeDisplayId(node.node_id) }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  if (flowEditorRef.current && flowEditorRef.current.focusNode) {
+                                    setTimeout(() => {
+                                      flowEditorRef.current.focusNode(node.node_id);
+                                    }, 100);
+                                  }
+                                },
+                                className: "text-xs text-gray-500 border border-gray-300 rounded-full px-2 py-1 hover:bg-gray-100 hover:text-[#00ced1] hover:border-[#00ced1] transition-all cursor-pointer",
+                                title: "點擊聚焦到此節點",
+                                children: getNodeDisplayId(node.node_id)
+                              }
+                            ),
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               "button",
                               {

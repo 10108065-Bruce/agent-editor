@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9bf3eb2b885e5e640d71490586ff132d18cd5f0f", "VITE_APP_BUILD_TIME": "2025-10-27T00:34:23.250Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.13"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "9549346b65b8a490383c6d0bd1bff54b57fbb1ab", "VITE_APP_BUILD_TIME": "2025-10-27T02:12:37.634Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.14"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -45292,9 +45292,6 @@ const ReactFlowWithControls = forwardRef(
       },
       [reactFlowInstance, zoomConfig]
     );
-    useImperativeHandle(ref, () => ({
-      fitViewToNodes
-    }));
     const isEditDisabled = isLocked || runhistory;
     const controlsStyle = useMemo(() => {
       return {
@@ -45764,7 +45761,37 @@ const FlowEditor = forwardRef(
         return loadNodeList();
       },
       toggleLock: handleLockToggle,
-      getIsLocked: () => isLocked
+      getIsLocked: () => isLocked,
+      focusNode: (nodeId) => {
+        if (!reactFlowInstance) {
+          console.warn("ReactFlow 實例尚未初始化");
+          return;
+        }
+        try {
+          const node = reactFlowInstance.getNode(nodeId);
+          if (!node) {
+            console.warn(`找不到節點: ${nodeId}`);
+            return;
+          }
+          const x = node.position.x + (node.width || 150) / 2;
+          const y = node.position.y + (node.height || 50) / 2;
+          reactFlowInstance.setCenter(x, y, {
+            zoom: 1.2,
+            // 適當的縮放等級
+            duration: 800
+            // 動畫時長
+          });
+          const allNodes = reactFlowInstance.getNodes();
+          const updatedNodes = allNodes.map((n) => ({
+            ...n,
+            selected: n.id === nodeId
+            // 只選中目標節點
+          }));
+          reactFlowInstance.setNodes(updatedNodes);
+        } catch (error) {
+          console.error("聚焦節點時發生錯誤:", error);
+        }
+      }
     }));
     useEffect(() => {
       if (typeof window !== "undefined") {
