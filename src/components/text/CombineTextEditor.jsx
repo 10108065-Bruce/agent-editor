@@ -105,6 +105,41 @@ const CombineTextEditor = forwardRef(
       }
     }, [onChange, getEditorTextContent, isComposing, isRestoring]);
 
+    // 只保留純文字
+    const handlePaste = useCallback(
+      (e) => {
+        e.preventDefault();
+
+        // 獲取剪貼簿中的純文字
+        const text = (e.clipboardData || window.clipboardData).getData(
+          'text/plain'
+        );
+
+        if (!text) return;
+
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+
+        // 刪除選中的內容（如果有）
+        selection.deleteFromDocument();
+
+        // 插入純文字
+        const range = selection.getRangeAt(0);
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+
+        // 將游標移到插入文字的後面
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // 通知內容變更
+        handleContentChange();
+      },
+      [handleContentChange]
+    );
+
     // 設置游標到指定位置
     const setCursorPosition = useCallback((x, y) => {
       if (!editorRef.current) return;
@@ -1319,6 +1354,7 @@ const CombineTextEditor = forwardRef(
           contentEditable
           suppressContentEditableWarning={true}
           onInput={handleInput}
+          onPaste={handlePaste}
           onClick={handleEditorClick}
           onKeyDown={handleKeyDown}
           onCompositionStart={handleCompositionStart}
