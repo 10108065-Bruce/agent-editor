@@ -1295,9 +1295,9 @@ const FlowEditor = forwardRef(
             response &&
             response.data &&
             response.data.failures &&
-            response.failures.length > 0
+            response.data.failures.length > 0
           ) {
-            setValidationFailures(response.failures);
+            setValidationFailures(response.data.failures);
           } else {
             setValidationFailures([]);
           }
@@ -1835,7 +1835,7 @@ const FlowEditor = forwardRef(
             {/* Separator */}
             {!runhistory && (
               <div className='flex bg-white border rounded-full shadow-md p-3 space-x-2'>
-                <LoadWorkflowButton onLoad={handleLoadWorkflow} />
+                {/* <LoadWorkflowButton onLoad={handleLoadWorkflow} /> */}
                 {/* <ChatButton /> */}
                 <FlowCheckButton
                   onClick={handleCheckWorkflow}
