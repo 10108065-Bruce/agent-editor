@@ -19,13 +19,18 @@ const JsonTreeViewer = ({ data, name = 'root', defaultExpanded = false }) => {
     return typeof value;
   };
 
-  // 取得值的預覽
-  const getPreview = (value) => {
+  // 取得值的顯示內容
+  const getPreview = (value, isFullDisplay = false) => {
     const type = getType(value);
     switch (type) {
       case 'null':
         return 'null';
       case 'string':
+        // 如果是完整顯示模式，直接返回完整字串
+        if (isFullDisplay) {
+          return `"${value}"`;
+        }
+        // 摺疊時仍顯示預覽
         return value.length > 50
           ? `"${value.substring(0, 50)}..."`
           : `"${value}"`;
@@ -61,12 +66,17 @@ const JsonTreeViewer = ({ data, name = 'root', defaultExpanded = false }) => {
   const type = getType(data);
   const isExpandable = type === 'object' || type === 'array';
 
-  // 如果是簡單值，直接顯示
+  // 如果是簡單值，直接顯示（完整內容，支援換行）
   if (!isExpandable) {
     return (
       <div className='flex items-start py-1'>
-        <span className='text-gray-700 font-medium mr-2'>{name}:</span>
-        <span className={getValueColor(data)}>{getPreview(data)}</span>
+        <span className='text-gray-700 font-medium mr-2 flex-shrink-0'>
+          {name}:
+        </span>
+        <span
+          className={`${getValueColor(data)} break-all whitespace-pre-wrap`}>
+          {getPreview(data, true)}
+        </span>
       </div>
     );
   }
@@ -103,7 +113,6 @@ const JsonTreeViewer = ({ data, name = 'root', defaultExpanded = false }) => {
           {isExpanded ? (type === 'array' ? '[' : '{') : getPreview(data)}
         </span>
       </div>
-
       {isExpanded && (
         <div className='ml-6 pl-3 pb'>
           {entries.map(([key, value]) => (
@@ -132,6 +141,8 @@ const RunHistoryView = () => {
   const [selectedNodeIO, setSelectedNodeIO] = useState(null);
   const [showFlowEditor, setShowFlowEditor] = useState(true);
   const hasLoadedRef = useRef(false);
+
+  const flowEditorRef = useRef(null);
   // 分頁相關狀態
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -428,6 +439,7 @@ const RunHistoryView = () => {
       {showFlowEditor && (
         <div className='flex-1 bg-gray-50 relative'>
           <FlowEditor
+            ref={flowEditorRef}
             initialTitle={initialTitle}
             isLocked={true}
             runhistory={true}
@@ -616,9 +628,23 @@ const RunHistoryView = () => {
                             </div>
                           )}
                         </div>
-                        <div className='text-xs text-gray-500 border border-gray-300 rounded-full px-2 py-1'>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // 直接調用 FlowEditor 的 focusNode 方法
+                            if (
+                              flowEditorRef.current &&
+                              flowEditorRef.current.focusNode
+                            ) {
+                              setTimeout(() => {
+                                flowEditorRef.current.focusNode(node.node_id);
+                              }, 100);
+                            }
+                          }}
+                          className='text-xs text-gray-500 border border-gray-300 rounded-full px-2 py-1 hover:bg-gray-100 hover:text-[#00ced1] hover:border-[#00ced1] transition-all cursor-pointer'
+                          title='點擊聚焦到此節點'>
                           {getNodeDisplayId(node.node_id)}
-                        </div>
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

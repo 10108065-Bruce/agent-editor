@@ -119,11 +119,6 @@ const ReactFlowWithControls = forwardRef(
       [reactFlowInstance, zoomConfig]
     );
 
-    // 重要：將 fitViewToNodes 方法暴露給父組件
-    useImperativeHandle(ref, () => ({
-      fitViewToNodes
-    }));
-
     const isEditDisabled = isLocked || runhistory;
 
     // 根據sidebar狀態計算controls的樣式
@@ -730,7 +725,42 @@ const FlowEditor = forwardRef(
         return loadNodeList();
       },
       toggleLock: handleLockToggle,
-      getIsLocked: () => isLocked
+      getIsLocked: () => isLocked,
+      focusNode: (nodeId) => {
+        if (!reactFlowInstance) {
+          console.warn('ReactFlow 實例尚未初始化');
+          return;
+        }
+
+        try {
+          // 獲取節點
+          const node = reactFlowInstance.getNode(nodeId);
+          if (!node) {
+            console.warn(`找不到節點: ${nodeId}`);
+            return;
+          }
+
+          // 設定視口中心到節點位置
+          const x = node.position.x + (node.width || 150) / 2;
+          const y = node.position.y + (node.height || 50) / 2;
+
+          // 使用動畫移動到節點位置
+          reactFlowInstance.setCenter(x, y, {
+            zoom: 1.2, // 適當的縮放等級
+            duration: 800 // 動畫時長
+          });
+
+          const allNodes = reactFlowInstance.getNodes();
+          const updatedNodes = allNodes.map((n) => ({
+            ...n,
+            selected: n.id === nodeId // 只選中目標節點
+          }));
+
+          reactFlowInstance.setNodes(updatedNodes);
+        } catch (error) {
+          console.error('聚焦節點時發生錯誤:', error);
+        }
+      }
     }));
 
     useEffect(() => {
@@ -1805,7 +1835,7 @@ const FlowEditor = forwardRef(
             {/* Separator */}
             {!runhistory && (
               <div className='flex bg-white border rounded-full shadow-md p-3 space-x-2'>
-                {/* <LoadWorkflowButton onLoad={handleLoadWorkflow} /> */}
+                <LoadWorkflowButton onLoad={handleLoadWorkflow} />
                 {/* <ChatButton /> */}
                 <FlowCheckButton
                   onClick={handleCheckWorkflow}
