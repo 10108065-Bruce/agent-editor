@@ -750,6 +750,7 @@ const FlowEditor = forwardRef(
             duration: 800 // 動畫時長
           });
 
+          // 更新所有節點的選中狀態
           const allNodes = reactFlowInstance.getNodes();
           const updatedNodes = allNodes.map((n) => ({
             ...n,
@@ -757,6 +758,9 @@ const FlowEditor = forwardRef(
           }));
 
           reactFlowInstance.setNodes(updatedNodes);
+
+          // 同時調用 handleNodeSelection 來更新內部狀態
+          handleNodeSelection(nodeId);
         } catch (error) {
           console.error('聚焦節點時發生錯誤:', error);
         }
