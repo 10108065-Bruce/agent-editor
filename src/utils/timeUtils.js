@@ -6,15 +6,15 @@
 /**
  * 將 ISO 時間字串轉換為純數字格式的本地時間
  * 格式: YYYY-MM-DD HH:mm:ss (24小時制，不受地區語言影響)
- * 
+ *
  * @param {string} isoString - ISO 8601 格式的時間字串 (例如: "2025-10-09T05:31:17.909000Z")
  * @returns {string} 純數字格式的本地時間 (例如: "2025-10-09 13:31:17")
- * 
+ *
  * @example
  * // 台灣用戶 (UTC+8)
  * formatISOToNumeric("2025-10-09T05:31:17.909000Z")
  * // 返回: "2025-10-09 13:31:17"
- * 
+ *
  * @example
  * // 美國用戶 (UTC-5)
  * formatISOToNumeric("2025-10-09T05:31:17.909000Z")
@@ -22,10 +22,18 @@
  */
 export const formatISOToNumeric = (isoString) => {
   if (!isoString) return 'N/A';
-  
+
   try {
-    const date = new Date(isoString);
-    
+    // 修正不標準的格式：移除重複的時區標記
+    let cleanedString = isoString;
+
+    // 如果同時有 +00:00 和 Z，移除 Z
+    if (cleanedString.includes('+00:00Z')) {
+      cleanedString = cleanedString.replace('Z', '');
+    }
+
+    const date = new Date(cleanedString);
+
     if (isNaN(date.getTime())) {
       throw new Error('Invalid ISO string');
     }
@@ -42,13 +50,11 @@ export const formatISOToNumeric = (isoString) => {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   } catch (error) {
     console.error('Error formatting ISO to numeric:', error);
-    // Fallback: 簡單移除毫秒和 'Z'
-    return isoString.replace('T', ' ').split('.')[0];
+    return 'Invalid Date'; // 改為明確的錯誤訊息
   }
 };
 
 // 預設匯出
 export default {
-  formatISOToNumeric,
+  formatISOToNumeric
 };
-
