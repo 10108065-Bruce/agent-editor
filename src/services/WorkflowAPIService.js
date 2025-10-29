@@ -224,4 +224,42 @@ export class WorkflowAPIService {
       throw error;
     }
   }
+
+  /**
+   * 還原工作流快照
+   * @param {string} flowId - 工作流 ID
+   * @param {Array} flowPipeline - 工作流管線數據
+   * @returns {Promise<Object>} API 回應
+   */
+  async restoreSnapshot(flowId, flowPipeline) {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'PUT',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_id: flowId,
+          flow_pipeline: flowPipeline
+        })
+      });
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/restore-snapshot`
+      );
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    } catch (error) {
+      console.error('還原工作流快照失敗:', error);
+      throw error;
+    }
+  }
 }

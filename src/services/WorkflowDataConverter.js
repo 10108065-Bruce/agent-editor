@@ -6,8 +6,6 @@ import { WorkflowMappingService } from './WorkflowMappingService';
 export class WorkflowDataConverter {
   // 修改 transformToReactFlowFormat 方法，確保連線正確處理
   static transformToReactFlowFormat(apiData) {
-    console.log('開始轉換 API 格式為 ReactFlow 格式', apiData);
-
     // 處理 API 數據結構差異
     const flowPipeline =
       apiData.flow_pipeline ||
@@ -23,8 +21,6 @@ export class WorkflowDataConverter {
 
     // 首先處理所有節點，確保在創建邊緣之前節點已存在
     flowPipeline.forEach((node) => {
-      console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
-
       // 轉換為 ReactFlow 節點格式
       const reactFlowNode = {
         id: node.id,
@@ -38,8 +34,6 @@ export class WorkflowDataConverter {
 
       // 特殊處理 BrowserExtensionOutput 節點
       if (node.operator === 'browser_extension_output') {
-        console.log(`特殊處理 BrowserExtensionOutput 節點: ${node.id}`);
-
         // 從 node_input 提取所有 handle
         const inputHandles = [];
         const handleMap = new Map();
@@ -53,16 +47,12 @@ export class WorkflowDataConverter {
               if (!handleMap.has(baseHandleId)) {
                 handleMap.set(baseHandleId, true);
                 inputHandles.push({ id: baseHandleId });
-                console.log(
-                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
-                );
               }
             } else if (key === 'input') {
               // 處理舊版 'input' 格式，轉換為 'output0'
               if (!handleMap.has('output0')) {
                 handleMap.set('output0', true);
                 inputHandles.push({ id: 'output0' });
-                console.log(`將舊版 'input' 轉換為 'output0'`);
               }
             } else {
               // 非標準格式的 handle ID 直接添加，但確保格式正確
@@ -72,7 +62,6 @@ export class WorkflowDataConverter {
               if (!handleMap.has(normalizedId)) {
                 handleMap.set(normalizedId, true);
                 inputHandles.push({ id: normalizedId });
-                console.log(`標準化 handle ID: ${key} -> ${normalizedId}`);
               }
             }
           });
@@ -90,7 +79,6 @@ export class WorkflowDataConverter {
               const normalizedId = handleId === 'input' ? 'output0' : handleId;
               if (!inputHandles.some((h) => h.id === normalizedId)) {
                 inputHandles.push({ id: normalizedId });
-                console.log(`從 parameters 提取 handle: ${normalizedId}`);
               }
             });
           }
@@ -99,7 +87,6 @@ export class WorkflowDataConverter {
         // 確保至少有一個默認 handle
         if (inputHandles.length === 0) {
           inputHandles.push({ id: 'output0' });
-          console.log(`添加默認 handle: output0`);
         }
 
         // 設置節點數據，確保所有必要的屬性都存在
@@ -129,8 +116,6 @@ export class WorkflowDataConverter {
       }
 
       if (node.operator === 'webhook_output') {
-        console.log(`特殊處理 webhook_output 節點: ${node.id}`);
-
         const inputHandles = [];
         const handleMap = new Map();
 
@@ -143,16 +128,12 @@ export class WorkflowDataConverter {
               if (!handleMap.has(baseHandleId)) {
                 handleMap.set(baseHandleId, true);
                 inputHandles.push({ id: baseHandleId });
-                console.log(
-                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
-                );
               }
             } else if (key === 'input') {
               // 處理舊版 'input' 格式，轉換為 'text0'
               if (!handleMap.has('text0')) {
                 handleMap.set('text0', true);
                 inputHandles.push({ id: 'text0' });
-                console.log(`將舊版 'input' 轉換為 'text0'`);
               }
             } else {
               const normalizedId = key.startsWith('text')
@@ -161,7 +142,6 @@ export class WorkflowDataConverter {
               if (!handleMap.has(normalizedId)) {
                 handleMap.set(normalizedId, true);
                 inputHandles.push({ id: normalizedId });
-                console.log(`標準化 handle ID: ${key} -> ${normalizedId}`);
               }
             }
           });
@@ -178,7 +158,6 @@ export class WorkflowDataConverter {
               const normalizedId = handleId === 'input' ? 'text0' : handleId;
               if (!inputHandles.some((h) => h.id === normalizedId)) {
                 inputHandles.push({ id: normalizedId });
-                console.log(`從 parameters 提取 handle: ${normalizedId}`);
               }
             });
           }
@@ -186,7 +165,6 @@ export class WorkflowDataConverter {
 
         if (inputHandles.length === 0) {
           inputHandles.push({ id: 'text0' });
-          console.log(`添加默認 handle: text0`);
         }
 
         reactFlowNode.data.inputHandles = inputHandles;
@@ -219,8 +197,6 @@ export class WorkflowDataConverter {
       this.createEdgesFromNodeInputs(flowPipeline, nodes, edges);
     }, 0);
 
-    console.log(`轉換完成: ${nodes.length} 個節點, 準備創建連接`);
-
     // 自動布局（如果位置都是 0,0）
     this.autoLayout(nodes);
 
@@ -245,7 +221,6 @@ export class WorkflowDataConverter {
           if (reactFlowNode) {
             // 設置直接輸入的 body 文本
             reactFlowNode.data.body = body0.data || '';
-            console.log(`設置HTTP Request節點直接輸入的body: "${body0.data}"`);
           }
         }
 
@@ -262,14 +237,11 @@ export class WorkflowDataConverter {
           if (reactFlowNode) {
             reactFlowNode.data.editorHtmlContent =
               node.parameters.editor_html_content.data;
-            console.log(`恢復HTTP Request節點的編輯器HTML內容`);
           }
         }
       }
 
       if (node.node_input && Object.keys(node.node_input).length > 0) {
-        console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
-
         if (isAINode) {
           // 處理 promptText 直接輸入
           const prompt0 = node.node_input.prompt0;
@@ -350,10 +322,6 @@ export class WorkflowDataConverter {
             inputValue.output_name || 'output'
           }`;
 
-          console.log(
-            `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${targetHandle}`
-          );
-
           const targetNode = nodes.find((n) => n.id === node.id);
           if (!targetNode) {
             console.warn(`找不到目標節點 ${node.id}，跳過邊緣創建`);
@@ -371,19 +339,7 @@ export class WorkflowDataConverter {
 
           if (inputValue.return_name) {
             edge.label = inputValue.return_name;
-            console.log(
-              `邊緣 ${edgeId} 添加 return_name: ${inputValue.return_name}`
-            );
           }
-
-          console.log('創建的邊緣詳情:', {
-            id: edge.id,
-            source: edge.source,
-            target: edge.target,
-            sourceHandle: edge.sourceHandle,
-            targetHandle: edge.targetHandle,
-            label: edge.label
-          });
 
           edges.push(edge);
         });
@@ -502,7 +458,6 @@ export class WorkflowDataConverter {
         };
       }
       case 'line_webhook_input':
-        console.log('處理 line 節點數據轉換:', node);
         return {
           ...baseData,
           external_service_config_id:
@@ -536,23 +491,12 @@ export class WorkflowDataConverter {
           typeof node.node_input === 'object' &&
           Object.keys(node.node_input).length > 0
         ) {
-          console.log(
-            `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
-            node.node_input
-          );
-
           // 從 node_input 提取所有 handle ID
           inputHandles = Object.keys(node.node_input).map((handleId) => {
-            console.log(`從 node_input 提取 handle ID: ${handleId}`);
             return { id: handleId };
           });
-
-          console.log(
-            `節點 ${node.id} 從 node_input 提取的 handle:`,
-            inputHandles
-          );
         } else {
-          console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
+          // console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
         }
 
         return {
@@ -572,23 +516,12 @@ export class WorkflowDataConverter {
           typeof node.node_input === 'object' &&
           Object.keys(node.node_input).length > 0
         ) {
-          console.log(
-            `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
-            node.node_input
-          );
-
           // 從 node_input 提取所有 handle ID
           inputHandles = Object.keys(node.node_input).map((handleId) => {
-            console.log(`從 node_input 提取 handle ID: ${handleId}`);
             return { id: handleId };
           });
-
-          console.log(
-            `節點 ${node.id} 從 node_input 提取的 handle:`,
-            inputHandles
-          );
         } else {
-          console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
+          // console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
         }
 
         return {
@@ -651,53 +584,6 @@ export class WorkflowDataConverter {
             node.parameters?.default_value_0?.data ||
             ''
         };
-
-        console.log(`處理 basic_input 節點:`, {
-          inputName: field.inputName,
-          defaultValue: field.defaultValue
-        });
-        // const paramKeys = Object.keys(node.parameters || {});
-
-        // console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
-
-        // // 查找所有輸入欄位對
-        // const fieldIndicies = new Set();
-
-        // paramKeys.forEach((key) => {
-        //   if (
-        //     key.startsWith('input_name_') ||
-        //     key.startsWith('default_value_')
-        //   ) {
-        //     const match = key.match(/_(\d+)$/);
-        //     if (match && match[1]) {
-        //       fieldIndicies.add(parseInt(match[1]));
-        //     }
-        //   }
-        // });
-
-        // const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
-        // console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
-
-        // // 處理每個欄位
-        // sortedIndicies.forEach((i) => {
-        //   const field = {
-        //     inputName:
-        //       node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
-        //     defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
-        //   };
-        //   fields.push(field);
-        //   console.log(`添加欄位 ${i}:`, field);
-        // });
-
-        // // 確保至少有一個欄位
-        // if (fields.length === 0) {
-        //   const defaultField = {
-        //     inputName: 'default_input',
-        //     defaultValue: 'Enter value here'
-        //   };
-        //   fields.push(defaultField);
-        //   console.log('添加一個默認欄位:', defaultField);
-        // }
 
         // 返回完整的資料結構，不包含回調函數
         // 回調函數將在 updateNodeFunctions 中添加
@@ -764,10 +650,6 @@ export class WorkflowDataConverter {
           outputText: node.parameters?.output_text?.data || ''
         };
       case 'aim_ml': {
-        console.log(
-          'transformNodeDataToReactFlow - aim_ml 節點參數:',
-          node.parameters
-        );
         // 處理 model_fields_info 的向後相容
         let modelFieldsInfo = {};
 
@@ -803,8 +685,6 @@ export class WorkflowDataConverter {
           modelFieldsInfo: modelFieldsInfo
         };
 
-        console.log('QOCA AIM 節點轉換後的數據:', nodeData);
-
         return nodeData;
       }
       default: {
@@ -832,8 +712,6 @@ export class WorkflowDataConverter {
       nodes.every((node) => node.position.x === 0 && node.position.y === 0);
 
     if (needsLayout) {
-      console.log('執行自動節點布局');
-
       let currentX = 50;
       let currentY = 50;
       const xSpacing = 300;
@@ -891,8 +769,6 @@ export class WorkflowDataConverter {
         node.position.x = currentX;
         node.position.y = currentY + index * ySpacing;
       });
-
-      console.log('自動布局完成');
     }
   }
 
@@ -900,8 +776,6 @@ export class WorkflowDataConverter {
    * 修改 WorkflowDataConverter 中的 convertReactFlowToAPI 方法，修復 'nodes is not defined' 錯誤
    */
   static convertReactFlowToAPI(reactFlowData) {
-    console.log('開始轉換 ReactFlow 格式為 API 格式');
-
     // 從 reactFlowData 中提取節點和邊緣
     const { nodes, edges } = reactFlowData;
 
@@ -912,8 +786,6 @@ export class WorkflowDataConverter {
 
     // 轉換節點
     const flowPipeline = nodes.map((node) => {
-      console.log(`處理節點 ${node.id}, 類型: ${node.type}`);
-
       // 提取節點輸入連接 - 現在傳遞所有節點作為參數
       const nodeInput = WorkflowMappingService.extractNodeInputForAPI(
         node.id,
@@ -954,7 +826,6 @@ export class WorkflowDataConverter {
       flow_pipeline: flowPipeline
     };
 
-    console.log('轉換為 API 格式完成');
     return apiData;
   }
 
@@ -997,7 +868,7 @@ export class WorkflowDataConverter {
    */
   static transformNodeDataToAPI(node) {
     const parameters = {};
-    console.log(`轉換節點 ${node.id} 數據為 API 參數`);
+
     switch (node.type) {
       case 'speech_to_text': {
         // 處理可能的無效model值
@@ -1108,7 +979,6 @@ export class WorkflowDataConverter {
         break;
       case 'line_webhook_input':
       case 'line':
-        console.log('處理 line 節點 API 轉換:', node.data);
         // Line Webhook 節點參數
         if (node.data.external_service_config_id) {
           parameters.external_service_config_id = {
@@ -1125,27 +995,11 @@ export class WorkflowDataConverter {
         break;
       case 'customInput':
       case 'input':
-        // if (node.data.fields && node.data.fields.length > 0) {
-        //   node.data.fields.forEach((field, index) => {
-        //     parameters[`input_name_${index}`] = { data: field.inputName || '' };
-        //     parameters[`default_value_${index}`] = {
-        //       data: field.defaultValue || ''
-        //     };
-        //   });
-        //   console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
-        // } else {
-        //   console.warn(`節點 ${node.id} 沒有欄位資料`);
-        // }
-
-        // 修改: 使用固定參數名稱而不是索引
         // 使用第一個欄位的資料，或是空字串
         if (node.data.fields && node.data.fields.length > 0) {
           const field = node.data.fields[0]; // 只使用第一個欄位
           parameters.input_name = { data: field.inputName || '' };
           parameters.default_value = { data: field.defaultValue || '' };
-          console.log(
-            `處理輸入節點參數: input_name=${field.inputName}, default_value=${field.defaultValue}`
-          );
         } else {
           // 如果沒有欄位資料，提供默認值
           parameters.input_name = { data: 'input_name' };
@@ -1271,12 +1125,7 @@ export class WorkflowDataConverter {
             data: handleIds
           };
 
-          console.log(
-            `保存節點 ${node.id} 的 ${handleIds.length} 個 handle 到 parameters:`,
-            handleIds
-          );
-
-          // 🔧 修復：驗證 node_input 與 inputHandles 的一致性
+          // 驗證 node_input 與 inputHandles 的一致性
           if (node.data.node_input) {
             const nodeInputKeys = Object.keys(node.data.node_input);
             const missingInNodeInput = handleIds.filter(
@@ -1303,9 +1152,6 @@ export class WorkflowDataConverter {
             // 🔧 修復：確保 node_input 包含所有 inputHandles 中的 handle
             handleIds.forEach((handleId) => {
               if (!node.data.node_input[handleId]) {
-                console.log(
-                  `為節點 ${node.id} 添加缺少的 node_input 項目: ${handleId}`
-                );
                 node.data.node_input[handleId] = {
                   node_id: '',
                   output_name: '',
@@ -1340,12 +1186,7 @@ export class WorkflowDataConverter {
             data: handleIds
           };
 
-          console.log(
-            `保存節點 ${node.id} 的 ${handleIds.length} 個 handle 到 parameters:`,
-            handleIds
-          );
-
-          // 🔧 修復：驗證 node_input 與 inputHandles 的一致性
+          // node_input 與 inputHandles 的一致性
           if (node.data.node_input) {
             const nodeInputKeys = Object.keys(node.data.node_input);
             const missingInNodeInput = handleIds.filter(
@@ -1372,9 +1213,6 @@ export class WorkflowDataConverter {
             // 🔧 修復：確保 node_input 包含所有 inputHandles 中的 handle
             handleIds.forEach((handleId) => {
               if (!node.data.node_input[handleId]) {
-                console.log(
-                  `為節點 ${node.id} 添加缺少的 node_input 項目: ${handleId}`
-                );
                 node.data.node_input[handleId] = {
                   node_id: '',
                   output_name: '',
@@ -1513,12 +1351,9 @@ export class WorkflowDataConverter {
           }
         }
 
-        console.log('QOCA AIM 節點轉換後的參數:', parameters);
         break;
       }
       case 'combine_text': {
-        console.log('將 combine_text 節點資料轉換為 API 格式:', node.data);
-
         // Combine Text 節點參數轉換
         if (node.data.textToCombine !== undefined) {
           parameters.text_to_combine = { data: node.data.textToCombine };
@@ -1542,7 +1377,6 @@ export class WorkflowDataConverter {
           parameters.inputHandles = { data: handleIds };
         }
 
-        console.log('combine_text 節點轉換後的參數:', parameters);
         break;
       }
       default:

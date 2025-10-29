@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { runHistoryAPIService } from '../services/RunHistoryAPIServie';
+import { workflowAPIService } from '../services/index';
 import successIcon from '../assets/icon-success.png';
 import failedIcon from '../assets/icon-fail.png';
 import skipIcon from '../assets/icon-status-skip.png';
@@ -132,7 +133,7 @@ const JsonTreeViewer = ({ data, name = 'root', defaultExpanded = false }) => {
   );
 };
 
-const RunHistoryView = () => {
+const RunHistoryView = ({ onRestoreVersion }) => {
   const [historyData, setHistoryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedNodeId, setExpandedNodeId] = useState(null);
@@ -154,12 +155,35 @@ const RunHistoryView = () => {
   const [currentSnapshot, setCurrentSnapshot] = useState(null);
   const workFlowId = tokenService.getWorkFlowId();
 
+  // 還原版本相關狀態
+  const [showRestoreMenu, setShowRestoreMenu] = useState(false);
+  const [showRestoreDialog, setShowRestoreDialog] = useState(false);
+  const [restoringVersion, setRestoringVersion] = useState(false);
+  const menuRef = useRef(null);
+
   useEffect(() => {
     if (!hasLoadedRef.current) {
       loadHistory();
       hasLoadedRef.current = true;
     }
   }, []);
+
+  // 點擊外部關閉下拉菜單
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowRestoreMenu(false);
+      }
+    };
+
+    if (showRestoreMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showRestoreMenu]);
 
   // 監聽滾動事件
   useEffect(() => {
@@ -275,6 +299,40 @@ const RunHistoryView = () => {
   const closeIODialog = () => {
     setIoDialogOpen(false);
     setSelectedNodeIO(null);
+  };
+
+  // 處理還原版本
+  const handleRestoreVersion = async () => {
+    if (!currentSnapshot || !workFlowId) {
+      console.error('缺少必要資料：currentSnapshot 或 workFlowId');
+      return;
+    }
+
+    setRestoringVersion(true);
+    try {
+      // 調用 API 還原快照
+      await workflowAPIService.restoreSnapshot(
+        workFlowId,
+        currentSnapshot.flow_pipeline || []
+      );
+      // 關閉對話框
+      setShowRestoreDialog(false);
+      setShowRestoreMenu(false);
+
+      // 通知父組件切換回 Canvas 並重新載入
+      if (onRestoreVersion) {
+        onRestoreVersion();
+      }
+      window.notify({
+        message: `還原版本成功`,
+        type: 'success',
+        duration: 2000
+      });
+    } catch (error) {
+      console.error('還原版本失敗:', error);
+    } finally {
+      setRestoringVersion(false);
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -507,11 +565,49 @@ const RunHistoryView = () => {
               <div>
                 {/* 時間資訊卡片 */}
                 <div className='bg-white rounded-lg border border-gray-200 p-4 mb-4'>
-                  <div className='flex items-center gap-2 mb-4'>
-                    {getStatusIcon(currentRun.status)}
-                    <span className='text-lg font-semibold text-gray-800'>
-                      {formatTime(currentRun.start_time)}
-                    </span>
+                  <div className='flex items-center justify-between mb-4'>
+                    <div className='flex items-center gap-2'>
+                      {getStatusIcon(currentRun.status)}
+                      <span className='text-lg font-semibold text-gray-800'>
+                        {formatTime(currentRun.start_time)}
+                      </span>
+                    </div>
+
+                    {/* 漢堡菜單按鈕 */}
+                    <div
+                      className='relative'
+                      ref={menuRef}>
+                      <button
+                        onClick={() => setShowRestoreMenu(!showRestoreMenu)}
+                        className='p-2 hover:bg-gray-100 rounded-lg transition-colors'>
+                        <svg
+                          className='w-5 h-5 text-gray-600'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                          stroke='currentColor'>
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z'
+                          />
+                        </svg>
+                      </button>
+
+                      {/* 下拉菜單 */}
+                      {showRestoreMenu && (
+                        <div className='absolute right-0 mt-2 w-[110px] bg-white rounded-lg shadow-lg border border-gray-200 z-10'>
+                          <button
+                            onClick={() => {
+                              setShowRestoreMenu(false);
+                              setShowRestoreDialog(true);
+                            }}
+                            className='w-full px-2 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex justify-center content-center gap-2'>
+                            還原至此版本
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className='space-y-3'>
@@ -864,6 +960,42 @@ const RunHistoryView = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 還原版本確認對話框 */}
+      {showRestoreDialog && (
+        <div
+          className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]'
+          onClick={() => !restoringVersion && setShowRestoreDialog(false)}>
+          <div
+            className='bg-white rounded-2xl shadow-2xl w-[90%] max-w-xl p-8'
+            onClick={(e) => e.stopPropagation()}>
+            <h2 className='text-2xl font-bold text-gray-900 mb-4'>
+              Restore to this version?
+            </h2>
+            <p className='text-gray-600 mb-8'>
+              Your current workflow will be overwritten by this version. Are you
+              sure you want to continue?
+            </p>
+            <div className='flex justify-end gap-3'>
+              <button
+                onClick={() => setShowRestoreDialog(false)}
+                disabled={restoringVersion}
+                className='px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'>
+                Cancel
+              </button>
+              <button
+                onClick={handleRestoreVersion}
+                disabled={restoringVersion}
+                className='px-6 py-2.5 rounded-lg bg-[#00ced1] text-white font-medium hover:bg-[#00b8bb] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2'>
+                {restoringVersion && (
+                  <div className='animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent'></div>
+                )}
+                {restoringVersion ? 'Restoring...' : 'Restore'}
+              </button>
             </div>
           </div>
         </div>

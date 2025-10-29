@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FlowEditor from './FlowEditor';
 import IFrameFlowEditor from './IFrameFlowEditor';
 import RunHistoryView from './RunHistoryView';
 import logoQocaApa from '../assets/logo-qoca.png';
 import { iframeBridge } from '../services/IFrameBridgeService';
+import { tokenService } from '../services/TokenService';
 
 const WorkflowContainer = () => {
   const [activeView, setActiveView] = useState('canvas');
   // Determine if we're running inside an iframe
   const [isInIframe, setIsInIframe] = useState(false);
   const [isNewFlow, setIsNewFlow] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+
+  // FlowEditor 的 ref
+  const flowEditorRef = useRef(null);
+  const iframeFlowEditorRef = useRef(null);
 
   useEffect(() => {
     // Check if we're in an iframe
@@ -24,6 +30,36 @@ const WorkflowContainer = () => {
 
   const handleFlowStatusChange = (isNew) => {
     setIsNewFlow(isNew);
+  };
+
+  // 處理還原版本
+  const handleRestoreVersion = async () => {
+    try {
+      // 切換回 Canvas 視圖
+      setActiveView('canvas');
+
+      // 等待視圖切換完成
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // 獲取正確的 ref
+      const editorRef = isInIframe ? iframeFlowEditorRef : flowEditorRef;
+
+      // 獲取當前的 workflow ID
+      const workflowId = tokenService.getWorkFlowId();
+
+      // 清空並重新載入 FlowEditor
+      if (editorRef.current && editorRef.current.loadWorkflow) {
+        await editorRef.current.loadWorkflow(workflowId);
+      } else {
+        console.warn(
+          'FlowEditor ref 不可用，嘗試使用 reloadTrigger 強制重新渲染'
+        );
+        // 如果 ref 不可用，使用 reloadTrigger 強制重新渲染
+        setReloadTrigger((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error('處理還原版本失敗:', error);
+    }
   };
 
   // 處理 logo 點擊
@@ -94,10 +130,17 @@ const WorkflowContainer = () => {
           {isInIframe ? (
             // If we're in an iframe, use the IFrameFlowEditor which has
             // the iframe communication functionality
-            <IFrameFlowEditor onFlowStatusChange={handleFlowStatusChange} />
+            <IFrameFlowEditor
+              ref={iframeFlowEditorRef}
+              key={`iframe-editor-${reloadTrigger}`}
+              onFlowStatusChange={handleFlowStatusChange}
+            />
           ) : (
             // Otherwise, use the regular FlowEditor for standalone mode
-            <FlowEditor />
+            <FlowEditor
+              ref={flowEditorRef}
+              key={`flow-editor-${reloadTrigger}`}
+            />
           )}
         </div>
 
@@ -109,7 +152,9 @@ const WorkflowContainer = () => {
             display: activeView === 'history' ? 'block' : 'none'
           }}>
           {/* 使用 key 來強制重新渲染和執行 loadHistory */}
-          {activeView === 'history' && <RunHistoryView />}
+          {activeView === 'history' && (
+            <RunHistoryView onRestoreVersion={handleRestoreVersion} />
+          )}
         </div>
       </main>
     </div>
