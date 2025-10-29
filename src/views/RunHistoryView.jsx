@@ -444,6 +444,8 @@ const RunHistoryView = () => {
             isLocked={true}
             runhistory={true}
             runHistorySnapshot={currentSnapshot}
+            metaData={historyData?.data[0]}
+            isCurrentHistoryView={activeTab === 'current'}
           />
         </div>
       )}

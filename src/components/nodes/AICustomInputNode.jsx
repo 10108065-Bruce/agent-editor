@@ -9,6 +9,7 @@ import { PromptGeneratorService } from '../../services/PromptGeneratorService';
 import promptIcon from '../../assets/prompt-generator.svg';
 import promptDisabledIcon from '../../assets/prompt-generator-disabled.svg';
 import { formatNodeTitle } from '../../utils/nodeUtils';
+import { getNodeTagColor } from '../../utils/nodeColor';
 
 const AICustomInputNode = ({ data, isConnectable, id }) => {
   const [modelOptions, setModelOptions] = useState([]);
@@ -576,24 +577,6 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
               sourceNode.type.charAt(0).toUpperCase() + sourceNode.type.slice(1)
             );
         }
-      };
-
-      // 獲取節點標籤顏色
-      const getNodeTagColor = (nodeName) => {
-        const lowerNodeName = nodeName.toLowerCase();
-        const colorMap = [
-          { keyword: 'combine text node', color: '#4E7ECF' },
-          { keyword: 'knowledge retrieval', color: '#87CEEB' },
-          { keyword: 'qoca aim node', color: '#098D7F' },
-          { keyword: 'input', color: '#0075FF' }
-        ];
-
-        for (const { keyword, color } of colorMap) {
-          if (lowerNodeName.includes(keyword)) {
-            return color;
-          }
-        }
-        return '#6b7280';
       };
 
       const nodeName = getNodeDisplayName(sourceNode);

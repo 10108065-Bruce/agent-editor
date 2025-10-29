@@ -37,6 +37,7 @@ import { calculateNodeDimensions } from '../utils/nodeDimensions';
 // import ChatButton from '../components/buttons/ChatButton';
 import FlowCheckButton from '../components/buttons/FlowCheckButton';
 import { tokenService } from '../services/TokenService';
+import CopyFlowButton from '../components/buttons/CopyFlowButton';
 
 // 內部 ReactFlow 組件，使用 useReactFlow hook
 const ReactFlowWithControls = forwardRef(
@@ -244,7 +245,9 @@ const FlowEditor = forwardRef(
       initialTitle,
       onTitleChange,
       runhistory = false,
-      runHistorySnapshot = null
+      runHistorySnapshot = null,
+      metaData = null, // from runhistoryview select history data
+      isCurrentHistoryView = false
     },
     ref
   ) => {
@@ -1275,7 +1278,7 @@ const FlowEditor = forwardRef(
             responseData.failures &&
             responseData.failures.length > 0
           ) {
-            setValidationFailures(response.failures);
+            setValidationFailures(responseData.failures);
           } else {
             setValidationFailures([]);
           }
@@ -1690,6 +1693,20 @@ const FlowEditor = forwardRef(
       return [...flowErrors, ...nodeErrors];
     }, []);
 
+    const handleCopyFlow = useCallback(async () => {
+      iframeBridge.sendToParent({
+        type: 'COPY_FLOW',
+        flowMetadata: runhistory
+          ? {
+              id: metaData.flow_id,
+              title: metaData.flow_name || '未命名流程',
+              metaData
+            }
+          : flowMetadata,
+        timestamp: new Date().toISOString()
+      });
+    }, [flowMetadata, runhistory, metaData]);
+
     const handleCheckWorkflow = useCallback(async () => {
       try {
         const flowData = {
@@ -1841,6 +1858,7 @@ const FlowEditor = forwardRef(
               <div className='flex bg-white border rounded-full shadow-md p-3 space-x-2'>
                 {/* <LoadWorkflowButton onLoad={handleLoadWorkflow} /> */}
                 {/* <ChatButton /> */}
+
                 <FlowCheckButton
                   onClick={handleCheckWorkflow}
                   errors={formatValidationErrors(validationFailures)}
@@ -1848,6 +1866,11 @@ const FlowEditor = forwardRef(
                 />
                 {/* Separator */}
                 <div className='h-10 w-px bg-gray-300 self-center'></div>
+                <CopyFlowButton onClick={handleCopyFlow} />
+                {/* Separator */}
+                {!runhistory && (
+                  <div className='h-10 w-px bg-gray-300 self-center'></div>
+                )}
                 {/* Auto Layout Button */}
                 <div className='ml-2'>
                   <AutoLayoutButton
@@ -1867,6 +1890,11 @@ const FlowEditor = forwardRef(
                     isLocked={isLocked}
                   />
                 </div>
+              </div>
+            )}
+            {runhistory && isCurrentHistoryView && (
+              <div className='flex bg-white border rounded-full shadow-md p-1 space-x-2'>
+                <CopyFlowButton onClick={handleCopyFlow} />
               </div>
             )}
           </div>

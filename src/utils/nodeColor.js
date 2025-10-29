@@ -14,7 +14,7 @@ export const getNodeTagColor = (nodeName) => {
 
   // 按優先級排序的顏色映射
   const colorMap = [
-    { keyword: 'browser extension input', color: '#D5F2D8' },
+    { keyword: 'browser extension input', color: '#1fc2d8' },
     { keyword: 'line webhook input', color: '#06C755' },
     { keyword: 'webhook input', color: '#FC6165' },
     { keyword: 'webhook output', color: '#FC6165' },
