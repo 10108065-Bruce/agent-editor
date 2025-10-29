@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-C9KrF9c9.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-NWCh61Rg.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16616,7 +16616,8 @@ const RunHistoryView = () => {
         initialTitle,
         isLocked: true,
         runhistory: true,
-        runHistorySnapshot: currentSnapshot
+        runHistorySnapshot: currentSnapshot,
+        metaData: historyData?.data[0]
       }
     ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(

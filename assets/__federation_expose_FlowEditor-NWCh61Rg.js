@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "befa09d478cf83531faa79e337b55e3346e38aa3", "VITE_APP_BUILD_TIME": "2025-10-29T01:07:50.519Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.19"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "befa09d478cf83531faa79e337b55e3346e38aa3", "VITE_APP_BUILD_TIME": "2025-10-29T01:47:39.870Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.20"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -45319,7 +45319,8 @@ const FlowEditor = forwardRef(
     initialTitle,
     onTitleChange,
     runhistory = false,
-    runHistorySnapshot = null
+    runHistorySnapshot = null,
+    metaData = null
   }, ref) => {
     const reactFlowWrapper = useRef(null);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -46424,13 +46425,15 @@ const FlowEditor = forwardRef(
       return [...flowErrors, ...nodeErrors];
     }, []);
     const handleCopyFlow = useCallback(async () => {
-      console.log(flowMetadata);
       iframeBridge.sendToParent({
         type: "COPY_FLOW",
-        flowMetadata,
+        flowMetadata: runhistory ? {
+          id: metaData.flow_id,
+          title: metaData.flow_name || "未命名流程"
+        } : flowMetadata,
         timestamp: (/* @__PURE__ */ new Date()).toISOString()
       });
-    }, [flowMetadata]);
+    }, [flowMetadata, runhistory, metaData]);
     const handleCheckWorkflow = useCallback(async () => {
       try {
         const flowData = {
