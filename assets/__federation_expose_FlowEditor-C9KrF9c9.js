@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "befa09d478cf83531faa79e337b55e3346e38aa3", "VITE_APP_BUILD_TIME": "2025-10-29T00:43:48.716Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.18"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "befa09d478cf83531faa79e337b55e3346e38aa3", "VITE_APP_BUILD_TIME": "2025-10-29T01:07:50.519Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.19"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -46570,8 +46570,8 @@ const FlowEditor = forwardRef(
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
+            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx(
               FlowCheckButton,
               {
                 onClick: handleCheckWorkflow,
@@ -46579,10 +46579,10 @@ const FlowEditor = forwardRef(
                 unreadCount: validationFailures.length - 1
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(CopyFlowButton, { onClick: handleCopyFlow }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               AutoLayoutButton,
               {
                 onLayout: handleAutoLayout,
@@ -46590,7 +46590,7 @@ const FlowEditor = forwardRef(
                 isLocked
               }
             ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               SaveButton,
               {
                 onSave: saveToServer,
