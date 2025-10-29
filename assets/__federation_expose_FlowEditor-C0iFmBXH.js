@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "befa09d478cf83531faa79e337b55e3346e38aa3", "VITE_APP_BUILD_TIME": "2025-10-29T00:36:31.755Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.17"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "befa09d478cf83531faa79e337b55e3346e38aa3", "VITE_APP_BUILD_TIME": "2025-10-29T00:43:48.716Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.18"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -45113,6 +45113,8 @@ const FlowCheckButton = ({
   );
 };
 
+const copyFlowIcon = "data:image/svg+xml,%3csvg%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='36'%20height='36'%20rx='18'%20fill='url(%23k3agzn1npa)'/%3e%3cpath%20d='M10.286%2025.393V14.464c0-.087.032-.162.095-.226a.31.31%200%200%201%20.226-.095h10.929c.087%200%20.162.032.226.095a.309.309%200%200%201%20.095.226v10.929a.31.31%200%200%201-.095.226.309.309%200%200%201-.226.095H10.607a.31.31%200%200%201-.226-.095.31.31%200%200%201-.095-.226zM9%2014.464v10.929c0%20.442.157.82.472%201.135.315.315.693.472%201.135.472h10.929c.442%200%20.82-.157%201.135-.472.314-.315.472-.693.472-1.135V14.464c0-.442-.158-.82-.472-1.135a1.548%201.548%200%200%200-1.135-.472H10.607c-.442%200-.82.158-1.135.472A1.548%201.548%200%200%200%209%2014.464zm3.857-3.857v1.607h1.286v-1.607a.31.31%200%200%201%20.095-.226.309.309%200%200%201%20.226-.095h10.929a.31.31%200%200%201%20.226.095.31.31%200%200%201%20.095.226v10.929a.309.309%200%200%201-.095.226.31.31%200%200%201-.226.095h-1.607v1.286h1.607c.442%200%20.82-.158%201.135-.472.315-.315.472-.693.472-1.135V10.607c0-.442-.157-.82-.472-1.135A1.548%201.548%200%200%200%2025.393%209H14.464c-.442%200-.82.157-1.135.472a1.548%201.548%200%200%200-.472%201.135z'%20fill='%23fff'/%3e%3cdefs%3e%3clinearGradient%20id='k3agzn1npa'%20x1='0'%20y1='36'%20x2='36'%20y2='0'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2300CED1'/%3e%3cstop%20offset='1'%20stop-color='%2387CEEB'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
+
 await importShared('react');
 const CopyFlowButton = ({
   onClick,
@@ -45135,8 +45137,8 @@ const CopyFlowButton = ({
       children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         "img",
         {
-          src: flowCheckIcon,
-          alt: "flowcheck"
+          src: copyFlowIcon,
+          alt: "copyFlow"
         }
       )
     }
@@ -46428,7 +46430,7 @@ const FlowEditor = forwardRef(
         flowMetadata,
         timestamp: (/* @__PURE__ */ new Date()).toISOString()
       });
-    }, []);
+    }, [flowMetadata]);
     const handleCheckWorkflow = useCallback(async () => {
       try {
         const flowData = {
