@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "befa09d478cf83531faa79e337b55e3346e38aa3", "VITE_APP_BUILD_TIME": "2025-10-29T02:14:52.643Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.21"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "e4dfe78ec9994e7c977ea67ada3a5421c303ddf5", "VITE_APP_BUILD_TIME": "2025-10-29T07:07:28.773Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.22"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -26988,6 +26988,44 @@ class WorkflowAPIService {
       throw error;
     }
   }
+
+  /**
+   * 還原工作流快照
+   * @param {string} flowId - 工作流 ID
+   * @param {Array} flowPipeline - 工作流管線數據
+   * @returns {Promise<Object>} API 回應
+   */
+  async restoreSnapshot(flowId, flowPipeline) {
+    try {
+      const options = tokenService.createAuthHeader({
+        method: 'PUT',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          flow_id: flowId,
+          flow_pipeline: flowPipeline
+        })
+      });
+
+      const url = tokenService.createUrlWithWorkspace(
+        `${API_CONFIG.BASE_URL}/agent_designer/workflows/restore-snapshot`
+      );
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    } catch (error) {
+      console.error('還原工作流快照失敗:', error);
+      throw error;
+    }
+  }
 }
 
 /**
@@ -28334,8 +28372,6 @@ class ExternalService {
 class WorkflowDataConverter {
   // 修改 transformToReactFlowFormat 方法，確保連線正確處理
   static transformToReactFlowFormat(apiData) {
-    console.log('開始轉換 API 格式為 ReactFlow 格式', apiData);
-
     // 處理 API 數據結構差異
     const flowPipeline =
       apiData.flow_pipeline ||
@@ -28351,8 +28387,6 @@ class WorkflowDataConverter {
 
     // 首先處理所有節點，確保在創建邊緣之前節點已存在
     flowPipeline.forEach((node) => {
-      console.log(`處理節點 ${node.id}, 操作符: ${node.operator}`);
-
       // 轉換為 ReactFlow 節點格式
       const reactFlowNode = {
         id: node.id,
@@ -28366,8 +28400,6 @@ class WorkflowDataConverter {
 
       // 特殊處理 BrowserExtensionOutput 節點
       if (node.operator === 'browser_extension_output') {
-        console.log(`特殊處理 BrowserExtensionOutput 節點: ${node.id}`);
-
         // 從 node_input 提取所有 handle
         const inputHandles = [];
         const handleMap = new Map();
@@ -28381,16 +28413,12 @@ class WorkflowDataConverter {
               if (!handleMap.has(baseHandleId)) {
                 handleMap.set(baseHandleId, true);
                 inputHandles.push({ id: baseHandleId });
-                console.log(
-                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
-                );
               }
             } else if (key === 'input') {
               // 處理舊版 'input' 格式，轉換為 'output0'
               if (!handleMap.has('output0')) {
                 handleMap.set('output0', true);
                 inputHandles.push({ id: 'output0' });
-                console.log(`將舊版 'input' 轉換為 'output0'`);
               }
             } else {
               // 非標準格式的 handle ID 直接添加，但確保格式正確
@@ -28400,7 +28428,6 @@ class WorkflowDataConverter {
               if (!handleMap.has(normalizedId)) {
                 handleMap.set(normalizedId, true);
                 inputHandles.push({ id: normalizedId });
-                console.log(`標準化 handle ID: ${key} -> ${normalizedId}`);
               }
             }
           });
@@ -28418,7 +28445,6 @@ class WorkflowDataConverter {
               const normalizedId = handleId === 'input' ? 'output0' : handleId;
               if (!inputHandles.some((h) => h.id === normalizedId)) {
                 inputHandles.push({ id: normalizedId });
-                console.log(`從 parameters 提取 handle: ${normalizedId}`);
               }
             });
           }
@@ -28427,7 +28453,6 @@ class WorkflowDataConverter {
         // 確保至少有一個默認 handle
         if (inputHandles.length === 0) {
           inputHandles.push({ id: 'output0' });
-          console.log(`添加默認 handle: output0`);
         }
 
         // 設置節點數據，確保所有必要的屬性都存在
@@ -28457,8 +28482,6 @@ class WorkflowDataConverter {
       }
 
       if (node.operator === 'webhook_output') {
-        console.log(`特殊處理 webhook_output 節點: ${node.id}`);
-
         const inputHandles = [];
         const handleMap = new Map();
 
@@ -28471,16 +28494,12 @@ class WorkflowDataConverter {
               if (!handleMap.has(baseHandleId)) {
                 handleMap.set(baseHandleId, true);
                 inputHandles.push({ id: baseHandleId });
-                console.log(
-                  `從 node_input 提取基本 handle ID: ${baseHandleId}`
-                );
               }
             } else if (key === 'input') {
               // 處理舊版 'input' 格式，轉換為 'text0'
               if (!handleMap.has('text0')) {
                 handleMap.set('text0', true);
                 inputHandles.push({ id: 'text0' });
-                console.log(`將舊版 'input' 轉換為 'text0'`);
               }
             } else {
               const normalizedId = key.startsWith('text')
@@ -28489,7 +28508,6 @@ class WorkflowDataConverter {
               if (!handleMap.has(normalizedId)) {
                 handleMap.set(normalizedId, true);
                 inputHandles.push({ id: normalizedId });
-                console.log(`標準化 handle ID: ${key} -> ${normalizedId}`);
               }
             }
           });
@@ -28506,7 +28524,6 @@ class WorkflowDataConverter {
               const normalizedId = handleId === 'input' ? 'text0' : handleId;
               if (!inputHandles.some((h) => h.id === normalizedId)) {
                 inputHandles.push({ id: normalizedId });
-                console.log(`從 parameters 提取 handle: ${normalizedId}`);
               }
             });
           }
@@ -28514,7 +28531,6 @@ class WorkflowDataConverter {
 
         if (inputHandles.length === 0) {
           inputHandles.push({ id: 'text0' });
-          console.log(`添加默認 handle: text0`);
         }
 
         reactFlowNode.data.inputHandles = inputHandles;
@@ -28547,8 +28563,6 @@ class WorkflowDataConverter {
       this.createEdgesFromNodeInputs(flowPipeline, nodes, edges);
     }, 0);
 
-    console.log(`轉換完成: ${nodes.length} 個節點, 準備創建連接`);
-
     // 自動布局（如果位置都是 0,0）
     this.autoLayout(nodes);
 
@@ -28573,7 +28587,6 @@ class WorkflowDataConverter {
           if (reactFlowNode) {
             // 設置直接輸入的 body 文本
             reactFlowNode.data.body = body0.data || '';
-            console.log(`設置HTTP Request節點直接輸入的body: "${body0.data}"`);
           }
         }
 
@@ -28590,14 +28603,11 @@ class WorkflowDataConverter {
           if (reactFlowNode) {
             reactFlowNode.data.editorHtmlContent =
               node.parameters.editor_html_content.data;
-            console.log(`恢復HTTP Request節點的編輯器HTML內容`);
           }
         }
       }
 
       if (node.node_input && Object.keys(node.node_input).length > 0) {
-        console.log(`處理節點 ${node.id} 的輸入連接:`, node.node_input);
-
         if (isAINode) {
           // 處理 promptText 直接輸入
           const prompt0 = node.node_input.prompt0;
@@ -28678,10 +28688,6 @@ class WorkflowDataConverter {
             inputValue.output_name || 'output'
           }`;
 
-          console.log(
-            `創建連接: ${edgeId}, 從 ${inputValue.node_id} 到 ${node.id}:${targetHandle}`
-          );
-
           const targetNode = nodes.find((n) => n.id === node.id);
           if (!targetNode) {
             console.warn(`找不到目標節點 ${node.id}，跳過邊緣創建`);
@@ -28699,19 +28705,7 @@ class WorkflowDataConverter {
 
           if (inputValue.return_name) {
             edge.label = inputValue.return_name;
-            console.log(
-              `邊緣 ${edgeId} 添加 return_name: ${inputValue.return_name}`
-            );
           }
-
-          console.log('創建的邊緣詳情:', {
-            id: edge.id,
-            source: edge.source,
-            target: edge.target,
-            sourceHandle: edge.sourceHandle,
-            targetHandle: edge.targetHandle,
-            label: edge.label
-          });
 
           edges.push(edge);
         });
@@ -28830,7 +28824,6 @@ class WorkflowDataConverter {
         };
       }
       case 'line_webhook_input':
-        console.log('處理 line 節點數據轉換:', node);
         return {
           ...baseData,
           external_service_config_id:
@@ -28864,23 +28857,10 @@ class WorkflowDataConverter {
           typeof node.node_input === 'object' &&
           Object.keys(node.node_input).length > 0
         ) {
-          console.log(
-            `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
-            node.node_input
-          );
-
           // 從 node_input 提取所有 handle ID
           inputHandles = Object.keys(node.node_input).map((handleId) => {
-            console.log(`從 node_input 提取 handle ID: ${handleId}`);
             return { id: handleId };
           });
-
-          console.log(
-            `節點 ${node.id} 從 node_input 提取的 handle:`,
-            inputHandles
-          );
-        } else {
-          console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
         }
 
         return {
@@ -28900,23 +28880,10 @@ class WorkflowDataConverter {
           typeof node.node_input === 'object' &&
           Object.keys(node.node_input).length > 0
         ) {
-          console.log(
-            `處理瀏覽器擴展輸出節點 ${node.id} 的輸入:`,
-            node.node_input
-          );
-
           // 從 node_input 提取所有 handle ID
           inputHandles = Object.keys(node.node_input).map((handleId) => {
-            console.log(`從 node_input 提取 handle ID: ${handleId}`);
             return { id: handleId };
           });
-
-          console.log(
-            `節點 ${node.id} 從 node_input 提取的 handle:`,
-            inputHandles
-          );
-        } else {
-          console.log(`節點 ${node.id} 沒有 node_input 數據，不創建 handle`);
         }
 
         return {
@@ -28979,53 +28946,6 @@ class WorkflowDataConverter {
             node.parameters?.default_value_0?.data ||
             ''
         };
-
-        console.log(`處理 basic_input 節點:`, {
-          inputName: field.inputName,
-          defaultValue: field.defaultValue
-        });
-        // const paramKeys = Object.keys(node.parameters || {});
-
-        // console.log(`處理 basic_input 節點，參數鍵:`, paramKeys);
-
-        // // 查找所有輸入欄位對
-        // const fieldIndicies = new Set();
-
-        // paramKeys.forEach((key) => {
-        //   if (
-        //     key.startsWith('input_name_') ||
-        //     key.startsWith('default_value_')
-        //   ) {
-        //     const match = key.match(/_(\d+)$/);
-        //     if (match && match[1]) {
-        //       fieldIndicies.add(parseInt(match[1]));
-        //     }
-        //   }
-        // });
-
-        // const sortedIndicies = Array.from(fieldIndicies).sort((a, b) => a - b);
-        // console.log(`找到欄位索引: ${sortedIndicies.join(', ')}`);
-
-        // // 處理每個欄位
-        // sortedIndicies.forEach((i) => {
-        //   const field = {
-        //     inputName:
-        //       node.parameters?.[`input_name_${i}`]?.data || `input_${i}`,
-        //     defaultValue: node.parameters?.[`default_value_${i}`]?.data || ''
-        //   };
-        //   fields.push(field);
-        //   console.log(`添加欄位 ${i}:`, field);
-        // });
-
-        // // 確保至少有一個欄位
-        // if (fields.length === 0) {
-        //   const defaultField = {
-        //     inputName: 'default_input',
-        //     defaultValue: 'Enter value here'
-        //   };
-        //   fields.push(defaultField);
-        //   console.log('添加一個默認欄位:', defaultField);
-        // }
 
         // 返回完整的資料結構，不包含回調函數
         // 回調函數將在 updateNodeFunctions 中添加
@@ -29092,10 +29012,6 @@ class WorkflowDataConverter {
           outputText: node.parameters?.output_text?.data || ''
         };
       case 'aim_ml': {
-        console.log(
-          'transformNodeDataToReactFlow - aim_ml 節點參數:',
-          node.parameters
-        );
         // 處理 model_fields_info 的向後相容
         let modelFieldsInfo = {};
 
@@ -29131,8 +29047,6 @@ class WorkflowDataConverter {
           modelFieldsInfo: modelFieldsInfo
         };
 
-        console.log('QOCA AIM 節點轉換後的數據:', nodeData);
-
         return nodeData;
       }
       default: {
@@ -29160,8 +29074,6 @@ class WorkflowDataConverter {
       nodes.every((node) => node.position.x === 0 && node.position.y === 0);
 
     if (needsLayout) {
-      console.log('執行自動節點布局');
-
       let currentX = 50;
       let currentY = 50;
       const xSpacing = 300;
@@ -29219,8 +29131,6 @@ class WorkflowDataConverter {
         node.position.x = currentX;
         node.position.y = currentY + index * ySpacing;
       });
-
-      console.log('自動布局完成');
     }
   }
 
@@ -29228,8 +29138,6 @@ class WorkflowDataConverter {
    * 修改 WorkflowDataConverter 中的 convertReactFlowToAPI 方法，修復 'nodes is not defined' 錯誤
    */
   static convertReactFlowToAPI(reactFlowData) {
-    console.log('開始轉換 ReactFlow 格式為 API 格式');
-
     // 從 reactFlowData 中提取節點和邊緣
     const { nodes, edges } = reactFlowData;
 
@@ -29240,8 +29148,6 @@ class WorkflowDataConverter {
 
     // 轉換節點
     const flowPipeline = nodes.map((node) => {
-      console.log(`處理節點 ${node.id}, 類型: ${node.type}`);
-
       // 提取節點輸入連接 - 現在傳遞所有節點作為參數
       const nodeInput = WorkflowMappingService.extractNodeInputForAPI(
         node.id,
@@ -29282,7 +29188,6 @@ class WorkflowDataConverter {
       flow_pipeline: flowPipeline
     };
 
-    console.log('轉換為 API 格式完成');
     return apiData;
   }
 
@@ -29325,7 +29230,7 @@ class WorkflowDataConverter {
    */
   static transformNodeDataToAPI(node) {
     const parameters = {};
-    console.log(`轉換節點 ${node.id} 數據為 API 參數`);
+
     switch (node.type) {
       case 'speech_to_text': {
         // 處理可能的無效model值
@@ -29436,7 +29341,6 @@ class WorkflowDataConverter {
         break;
       case 'line_webhook_input':
       case 'line':
-        console.log('處理 line 節點 API 轉換:', node.data);
         // Line Webhook 節點參數
         if (node.data.external_service_config_id) {
           parameters.external_service_config_id = {
@@ -29453,27 +29357,11 @@ class WorkflowDataConverter {
         break;
       case 'customInput':
       case 'input':
-        // if (node.data.fields && node.data.fields.length > 0) {
-        //   node.data.fields.forEach((field, index) => {
-        //     parameters[`input_name_${index}`] = { data: field.inputName || '' };
-        //     parameters[`default_value_${index}`] = {
-        //       data: field.defaultValue || ''
-        //     };
-        //   });
-        //   console.log(`處理 ${node.data.fields.length} 個輸入欄位`);
-        // } else {
-        //   console.warn(`節點 ${node.id} 沒有欄位資料`);
-        // }
-
-        // 修改: 使用固定參數名稱而不是索引
         // 使用第一個欄位的資料，或是空字串
         if (node.data.fields && node.data.fields.length > 0) {
           const field = node.data.fields[0]; // 只使用第一個欄位
           parameters.input_name = { data: field.inputName || '' };
           parameters.default_value = { data: field.defaultValue || '' };
-          console.log(
-            `處理輸入節點參數: input_name=${field.inputName}, default_value=${field.defaultValue}`
-          );
         } else {
           // 如果沒有欄位資料，提供默認值
           parameters.input_name = { data: 'input_name' };
@@ -29599,12 +29487,7 @@ class WorkflowDataConverter {
             data: handleIds
           };
 
-          console.log(
-            `保存節點 ${node.id} 的 ${handleIds.length} 個 handle 到 parameters:`,
-            handleIds
-          );
-
-          // 🔧 修復：驗證 node_input 與 inputHandles 的一致性
+          // 驗證 node_input 與 inputHandles 的一致性
           if (node.data.node_input) {
             const nodeInputKeys = Object.keys(node.data.node_input);
             const missingInNodeInput = handleIds.filter(
@@ -29631,9 +29514,6 @@ class WorkflowDataConverter {
             // 🔧 修復：確保 node_input 包含所有 inputHandles 中的 handle
             handleIds.forEach((handleId) => {
               if (!node.data.node_input[handleId]) {
-                console.log(
-                  `為節點 ${node.id} 添加缺少的 node_input 項目: ${handleId}`
-                );
                 node.data.node_input[handleId] = {
                   node_id: '',
                   output_name: '',
@@ -29668,12 +29548,7 @@ class WorkflowDataConverter {
             data: handleIds
           };
 
-          console.log(
-            `保存節點 ${node.id} 的 ${handleIds.length} 個 handle 到 parameters:`,
-            handleIds
-          );
-
-          // 🔧 修復：驗證 node_input 與 inputHandles 的一致性
+          // node_input 與 inputHandles 的一致性
           if (node.data.node_input) {
             const nodeInputKeys = Object.keys(node.data.node_input);
             const missingInNodeInput = handleIds.filter(
@@ -29700,9 +29575,6 @@ class WorkflowDataConverter {
             // 🔧 修復：確保 node_input 包含所有 inputHandles 中的 handle
             handleIds.forEach((handleId) => {
               if (!node.data.node_input[handleId]) {
-                console.log(
-                  `為節點 ${node.id} 添加缺少的 node_input 項目: ${handleId}`
-                );
                 node.data.node_input[handleId] = {
                   node_id: '',
                   output_name: '',
@@ -29841,12 +29713,9 @@ class WorkflowDataConverter {
           }
         }
 
-        console.log('QOCA AIM 節點轉換後的參數:', parameters);
         break;
       }
       case 'combine_text': {
-        console.log('將 combine_text 節點資料轉換為 API 格式:', node.data);
-
         // Combine Text 節點參數轉換
         if (node.data.textToCombine !== undefined) {
           parameters.text_to_combine = { data: node.data.textToCombine };
@@ -29870,7 +29739,6 @@ class WorkflowDataConverter {
           parameters.inputHandles = { data: handleIds };
         }
 
-        console.log('combine_text 節點轉換後的參數:', parameters);
         break;
       }
       default:
@@ -34163,6 +34031,48 @@ const RefinePromptOverlay = ({
 
 const promptDisabledIcon = "data:image/svg+xml,%3csvg%20width='60'%20height='61'%20viewBox='0%200%2060%2061'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='60'%20height='61'%20rx='12'%20fill='%23F5F5F5'/%3e%3cpath%20d='M27.647%2030.324a1.576%201.576%200%200%201%202.248%200l.547.553c.62.63.62%201.649%200%202.277L15.919%2047.861a1.576%201.576%200%200%201-2.248%200l-.547-.553a1.625%201.625%200%200%201%200-2.277l14.523-14.707zM36.141%2017.204c0%20.663-.53%201.201-1.186%201.201a1.194%201.194%200%200%201-1.186-1.2V13.2c0-.663.531-1.201%201.186-1.201.655%200%201.186.538%201.186%201.201v4.003zM30.384%2018.785c.463.47.463%201.23%200%201.699a1.175%201.175%200%200%201-1.677%200l-2.796-2.831a1.212%201.212%200%200%201%200-1.698%201.175%201.175%200%200%201%201.677%200l2.796%202.83zM27.05%2024.81c.654%200%201.185.538%201.185%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM46.814%2024.81c.655%200%201.186.538%201.186%201.201s-.53%201.201-1.186%201.201h-3.953a1.193%201.193%200%200%201-1.186-1.2c0-.664.531-1.202%201.186-1.202h3.953zM42.841%2015.955a1.175%201.175%200%200%201%201.677%200c.463.469.463%201.229%200%201.698l-2.795%202.83a1.175%201.175%200%200%201-1.677%200%201.212%201.212%200%200%201%200-1.698l2.795-2.83zM43.824%2033.197c.463.469.463%201.23%200%201.698a1.175%201.175%200%200%201-1.677%200l-2.795-2.83a1.212%201.212%200%200%201%200-1.699%201.175%201.175%200%200%201%201.677%200l2.795%202.83zM36.141%2038.02c0%20.664-.53%201.202-1.186%201.202a1.194%201.194%200%200%201-1.186-1.201v-4.004c0-.663.531-1.2%201.186-1.2.655%200%201.186.537%201.186%201.2v4.004zM34.745%2021.223a.236.236%200%200%201%20.421%200l1.499%202.953c.022.045.058.081.102.104l2.917%201.517a.242.242%200%200%201%200%20.428l-2.917%201.517a.238.238%200%200%200-.102.104l-1.499%202.953a.236.236%200%200%201-.421%200l-1.499-2.953a.24.24%200%200%200-.102-.104l-2.917-1.517a.242.242%200%200%201%200-.428l2.917-1.517a.24.24%200%200%200%20.102-.104l1.498-2.953z'%20fill='%23D9D9D9'/%3e%3c/svg%3e";
 
+// 獲取節點標籤顏色
+const getNodeTagColor = (nodeName) => {
+  // 轉換為小寫、移除前後空格、將底線替換為空格
+  // 處理駝峰命名、底線、轉小寫
+  // 處理駝峰命名、底線、轉小寫
+  const lowerNodeName = nodeName
+    .trim()
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2') // 處理連續大寫+小寫: "HTTPRequest" → "HTTP Request"
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2') // 處理小寫+大寫: "myName" → "my Name"
+    .replace(/_/g, ' ') // 底線轉空格
+    .toLowerCase()
+    .replace(/\s+/g, ' ') // 多個空格合併為一個
+    .trim(); // 移除首尾空格
+
+  // 按優先級排序的顏色映射
+  const colorMap = [
+    { keyword: 'browser extension input', color: '#1fc2d8' },
+    { keyword: 'line webhook input', color: '#06C755' },
+    { keyword: 'webhook input', color: '#FC6165' },
+    { keyword: 'webhook output', color: '#FC6165' },
+    { keyword: 'extract data', color: '#FFAA1E' },
+    { keyword: 'http request', color: '#FF6D01' },
+    { keyword: 'combine text', color: '#4E7ECF' },
+    { keyword: 'router switch', color: '#00ced1' },
+    { keyword: 'schedule', color: '#7C3AED' },
+    { keyword: 'knowledge retrieval', color: '#87CEEB' },
+    { keyword: 'qoca aim', color: '#098D7F' },
+    { keyword: 'input', color: '#0075FF' },
+    { keyword: 'ai', color: '#FFAA1E' },
+    { keyword: 'speech to text', color: '#BB4DAA' }
+  ];
+
+  // 遍歷顏色映射
+  for (const { keyword, color } of colorMap) {
+    if (lowerNodeName.includes(keyword)) {
+      return color;
+    }
+  }
+
+  return '#6b7280';
+};
+
 const React$q = await importShared('react');
 const {memo: memo$i,useState: useState$o,useEffect: useEffect$i,useCallback: useCallback$i,useRef: useRef$e} = React$q;
 const AICustomInputNode = ({ data, isConnectable, id }) => {
@@ -34590,21 +34500,6 @@ const AICustomInputNode = ({ data, isConnectable, id }) => {
           default:
             return sourceNode2.type.charAt(0).toUpperCase() + sourceNode2.type.slice(1);
         }
-      };
-      const getNodeTagColor = (nodeName2) => {
-        const lowerNodeName = nodeName2.toLowerCase();
-        const colorMap = [
-          { keyword: "combine text node", color: "#4E7ECF" },
-          { keyword: "knowledge retrieval", color: "#87CEEB" },
-          { keyword: "qoca aim node", color: "#098D7F" },
-          { keyword: "input", color: "#0075FF" }
-        ];
-        for (const { keyword, color } of colorMap) {
-          if (lowerNodeName.includes(keyword)) {
-            return color;
-          }
-        }
-        return "#6b7280";
       };
       const nodeName = getNodeDisplayName(sourceNode);
       return {
@@ -36479,48 +36374,6 @@ const WebhookNode = ({ data, isConnectable, id }) => {
   ] });
 };
 const WebhookNode$1 = memo$c(WebhookNode);
-
-// 獲取節點標籤顏色
-const getNodeTagColor = (nodeName) => {
-  // 轉換為小寫、移除前後空格、將底線替換為空格
-  // 處理駝峰命名、底線、轉小寫
-  // 處理駝峰命名、底線、轉小寫
-  const lowerNodeName = nodeName
-    .trim()
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2') // 處理連續大寫+小寫: "HTTPRequest" → "HTTP Request"
-    .replace(/([a-z\d])([A-Z])/g, '$1 $2') // 處理小寫+大寫: "myName" → "my Name"
-    .replace(/_/g, ' ') // 底線轉空格
-    .toLowerCase()
-    .replace(/\s+/g, ' ') // 多個空格合併為一個
-    .trim(); // 移除首尾空格
-
-  // 按優先級排序的顏色映射
-  const colorMap = [
-    { keyword: 'browser extension input', color: '#D5F2D8' },
-    { keyword: 'line webhook input', color: '#06C755' },
-    { keyword: 'webhook input', color: '#FC6165' },
-    { keyword: 'webhook output', color: '#FC6165' },
-    { keyword: 'extract data', color: '#FFAA1E' },
-    { keyword: 'http request', color: '#FF6D01' },
-    { keyword: 'combine text', color: '#4E7ECF' },
-    { keyword: 'router switch', color: '#00ced1' },
-    { keyword: 'schedule', color: '#7C3AED' },
-    { keyword: 'knowledge retrieval', color: '#87CEEB' },
-    { keyword: 'qoca aim', color: '#098D7F' },
-    { keyword: 'input', color: '#0075FF' },
-    { keyword: 'ai', color: '#FFAA1E' },
-    { keyword: 'speech to text', color: '#BB4DAA' }
-  ];
-
-  // 遍歷顏色映射
-  for (const { keyword, color } of colorMap) {
-    if (lowerNodeName.includes(keyword)) {
-      return color;
-    }
-  }
-
-  return '#6b7280';
-};
 
 const React$j = await importShared('react');
 const {memo: memo$b,useState: useState$j,useEffect: useEffect$e,useCallback: useCallback$e,useRef: useRef$b} = React$j;
@@ -45320,8 +45173,9 @@ const FlowEditor = forwardRef(
     onTitleChange,
     runhistory = false,
     runHistorySnapshot = null,
-    metaData = null
+    metaData = null,
     // from runhistoryview select history data
+    isCurrentHistoryView = false
   }, ref) => {
     const reactFlowWrapper = useRef(null);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -46119,7 +45973,7 @@ const FlowEditor = forwardRef(
           response = await workflowAPIService.updateWorkflow(apiData);
           const responseData = response.data || response;
           if (responseData && responseData.failures && responseData.failures.length > 0) {
-            setValidationFailures(response.failures);
+            setValidationFailures(responseData.failures);
           } else {
             setValidationFailures([]);
           }
@@ -46575,37 +46429,40 @@ const FlowEditor = forwardRef(
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
-            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              FlowCheckButton,
-              {
-                onClick: handleCheckWorkflow,
-                errors: formatValidationErrors(validationFailures),
-                unreadCount: validationFailures.length - 1
-              }
-            ),
-            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CopyFlowButton, { onClick: handleCopyFlow }),
-            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
-            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              AutoLayoutButton,
-              {
-                onLayout: handleAutoLayout,
-                disabled: isSaving || nodes.length === 0 || isLocked,
-                isLocked
-              }
-            ) }),
-            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              SaveButton,
-              {
-                onSave: saveToServer,
-                title: flowMetadata.title,
-                flowId: flowMetadata.id,
-                disabled: isSaving,
-                isLocked
-              }
-            ) })
-          ] }) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10 flex flex-col items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
+            !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex bg-white border rounded-full shadow-md p-3 space-x-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                FlowCheckButton,
+                {
+                  onClick: handleCheckWorkflow,
+                  errors: formatValidationErrors(validationFailures),
+                  unreadCount: validationFailures.length - 1
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CopyFlowButton, { onClick: handleCopyFlow }),
+              !runhistory && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-px bg-gray-300 self-center" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                AutoLayoutButton,
+                {
+                  onLayout: handleAutoLayout,
+                  disabled: isSaving || nodes.length === 0 || isLocked,
+                  isLocked
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                SaveButton,
+                {
+                  onSave: saveToServer,
+                  title: flowMetadata.title,
+                  flowId: flowMetadata.id,
+                  disabled: isSaving,
+                  isLocked
+                }
+              ) })
+            ] }),
+            runhistory && isCurrentHistoryView && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex bg-white border rounded-full shadow-md p-1 space-x-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CopyFlowButton, { onClick: handleCopyFlow }) })
+          ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             SaveFlowDialog,
             {
@@ -46785,4 +46642,4 @@ const debugNodeInputsBeforeSave = (flowPipeline) => {
   console.groupEnd();
 };
 
-export { API_CONFIG as A, IconBase as I, FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, tokenService as t };
+export { API_CONFIG as A, IconBase as I, FlowEditor as default, iframeBridge as i, jsxRuntimeExports as j, tokenService as t, workflowAPIService as w };

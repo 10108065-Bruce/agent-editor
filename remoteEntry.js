@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase } from './assets/__federation_expose_FlowEditor-cIQSEJTe.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase, w as workflowAPIService } from './assets/__federation_expose_FlowEditor-CEqbCy1f.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -15791,16 +15791,16 @@ var clientExports = requireClient();
 const ReactDOM = /*@__PURE__*/getDefaultExportFromCjs(clientExports);
 
 const React$3 = await importShared('react');
-const {useEffect: useEffect$2,useState: useState$2,useCallback,useRef: useRef$1} = React$3;
+const {useEffect: useEffect$2,useState: useState$2,useCallback,useRef: useRef$2} = React$3;
 const IFrameFlowEditor = ({ onFlowStatusChange }) => {
   const [flowTitle, setFlowTitle] = useState$2("");
   const [isLoading, setIsLoading] = useState$2(false);
   const [error, setError] = useState$2(null);
-  const flowEditorRef = useRef$1(null);
-  const eventsRegistered = useRef$1(false);
-  const isLoadingRef = useRef$1(false);
-  const lastFlowStatus = useRef$1(null);
-  const dataValidationRef = useRef$1({
+  const flowEditorRef = useRef$2(null);
+  const eventsRegistered = useRef$2(false);
+  const isLoadingRef = useRef$2(false);
+  const lastFlowStatus = useRef$2(null);
+  const dataValidationRef = useRef$2({
     hasToken: false,
     hasWorkspaceId: false,
     hasFlowId: false,
@@ -16283,7 +16283,7 @@ const formatISOToNumeric = (isoString) => {
 };
 
 const React$2 = await importShared('react');
-const {useState: useState$1,useEffect: useEffect$1,useRef} = React$2;
+const {useState: useState$1,useEffect: useEffect$1,useRef: useRef$1} = React$2;
 const JsonTreeViewer = ({ data, name = "root", defaultExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState$1(defaultExpanded);
   const getType = (value) => {
@@ -16392,7 +16392,7 @@ const JsonTreeViewer = ({ data, name = "root", defaultExpanded = false }) => {
     ] })
   ] });
 };
-const RunHistoryView = () => {
+const RunHistoryView = ({ onRestoreVersion }) => {
   const [historyData, setHistoryData] = useState$1(null);
   const [loading, setLoading] = useState$1(true);
   const [expandedNodeId, setExpandedNodeId] = useState$1(null);
@@ -16400,21 +16400,38 @@ const RunHistoryView = () => {
   const [ioDialogOpen, setIoDialogOpen] = useState$1(false);
   const [selectedNodeIO, setSelectedNodeIO] = useState$1(null);
   const [showFlowEditor, setShowFlowEditor] = useState$1(true);
-  const hasLoadedRef = useRef(false);
-  const flowEditorRef = useRef(null);
+  const hasLoadedRef = useRef$1(false);
+  const flowEditorRef = useRef$1(null);
   const [currentPage, setCurrentPage] = useState$1(1);
   const [hasMore, setHasMore] = useState$1(false);
   const [loadingMore, setLoadingMore] = useState$1(false);
   const [allRuns, setAllRuns] = useState$1([]);
-  const scrollContainerRef = useRef(null);
+  const scrollContainerRef = useRef$1(null);
   const [currentSnapshot, setCurrentSnapshot] = useState$1(null);
   const workFlowId = tokenService.getWorkFlowId();
+  const [showRestoreMenu, setShowRestoreMenu] = useState$1(false);
+  const [showRestoreDialog, setShowRestoreDialog] = useState$1(false);
+  const [restoringVersion, setRestoringVersion] = useState$1(false);
+  const menuRef = useRef$1(null);
   useEffect$1(() => {
     if (!hasLoadedRef.current) {
       loadHistory();
       hasLoadedRef.current = true;
     }
   }, []);
+  useEffect$1(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowRestoreMenu(false);
+      }
+    };
+    if (showRestoreMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showRestoreMenu]);
   useEffect$1(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -16495,6 +16512,33 @@ const RunHistoryView = () => {
   const closeIODialog = () => {
     setIoDialogOpen(false);
     setSelectedNodeIO(null);
+  };
+  const handleRestoreVersion = async () => {
+    if (!currentSnapshot || !workFlowId) {
+      console.error("缺少必要資料：currentSnapshot 或 workFlowId");
+      return;
+    }
+    setRestoringVersion(true);
+    try {
+      await workflowAPIService.restoreSnapshot(
+        workFlowId,
+        currentSnapshot.flow_pipeline || []
+      );
+      setShowRestoreDialog(false);
+      setShowRestoreMenu(false);
+      if (onRestoreVersion) {
+        onRestoreVersion();
+      }
+      window.notify({
+        message: `還原版本成功`,
+        type: "success",
+        duration: 2e3
+      });
+    } catch (error) {
+      console.error("還原版本失敗:", error);
+    } finally {
+      setRestoringVersion(false);
+    }
   };
   const getStatusIcon = (status) => {
     if (status === "skipped") {
@@ -16617,7 +16661,8 @@ const RunHistoryView = () => {
         isLocked: true,
         runhistory: true,
         runHistorySnapshot: currentSnapshot,
-        metaData: historyData?.data[0]
+        metaData: historyData?.data[0],
+        isCurrentHistoryView: activeTab === "current"
       }
     ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -16661,9 +16706,56 @@ const RunHistoryView = () => {
               children: [
                 activeTab === "current" && (currentRun ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg border border-gray-200 p-4 mb-4", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-4", children: [
-                      getStatusIcon(currentRun.status),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg font-semibold text-gray-800", children: formatTime(currentRun.start_time) })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                        getStatusIcon(currentRun.status),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg font-semibold text-gray-800", children: formatTime(currentRun.start_time) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "div",
+                        {
+                          className: "relative",
+                          ref: menuRef,
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                onClick: () => setShowRestoreMenu(!showRestoreMenu),
+                                className: "p-2 hover:bg-gray-100 rounded-lg transition-colors",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                  "svg",
+                                  {
+                                    className: "w-5 h-5 text-gray-600",
+                                    fill: "none",
+                                    viewBox: "0 0 24 24",
+                                    stroke: "currentColor",
+                                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                      "path",
+                                      {
+                                        strokeLinecap: "round",
+                                        strokeLinejoin: "round",
+                                        strokeWidth: 2,
+                                        d: "M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+                                      }
+                                    )
+                                  }
+                                )
+                              }
+                            ),
+                            showRestoreMenu && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 mt-2 w-[110px] bg-white rounded-lg shadow-lg border border-gray-200 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                onClick: () => {
+                                  setShowRestoreMenu(false);
+                                  setShowRestoreDialog(true);
+                                },
+                                className: "w-full px-2 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex justify-center content-center gap-2",
+                                children: "還原至此版本"
+                              }
+                            ) })
+                          ]
+                        }
+                      )
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
@@ -16953,6 +17045,47 @@ const RunHistoryView = () => {
           }
         )
       }
+    ),
+    showRestoreDialog && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]",
+        onClick: () => !restoringVersion && setShowRestoreDialog(false),
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "bg-white rounded-2xl shadow-2xl w-[90%] max-w-xl p-8",
+            onClick: (e) => e.stopPropagation(),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-gray-900 mb-4", children: "Restore to this version?" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 mb-8", children: "Your current workflow will be overwritten by this version. Are you sure you want to continue?" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => setShowRestoreDialog(false),
+                    disabled: restoringVersion,
+                    className: "px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                    children: "Cancel"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    onClick: handleRestoreVersion,
+                    disabled: restoringVersion,
+                    className: "px-6 py-2.5 rounded-lg bg-[#00ced1] text-white font-medium hover:bg-[#00b8bb] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2",
+                    children: [
+                      restoringVersion && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" }),
+                      restoringVersion ? "Restoring..." : "Restore"
+                    ]
+                  }
+                )
+              ] })
+            ]
+          }
+        )
+      }
     )
   ] });
 };
@@ -16960,11 +17093,14 @@ const RunHistoryView = () => {
 const logoQocaApa = "data:image/png;base64,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";
 
 const React$1 = await importShared('react');
-const {useState,useEffect} = React$1;
+const {useState,useEffect,useRef} = React$1;
 const WorkflowContainer = () => {
   const [activeView, setActiveView] = useState("canvas");
   const [isInIframe, setIsInIframe] = useState(false);
   const [isNewFlow, setIsNewFlow] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+  const flowEditorRef = useRef(null);
+  const iframeFlowEditorRef = useRef(null);
   useEffect(() => {
     try {
       setIsInIframe(window.self !== window.top);
@@ -16974,6 +17110,24 @@ const WorkflowContainer = () => {
   }, []);
   const handleFlowStatusChange = (isNew) => {
     setIsNewFlow(isNew);
+  };
+  const handleRestoreVersion = async () => {
+    try {
+      setActiveView("canvas");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const editorRef = isInIframe ? iframeFlowEditorRef : flowEditorRef;
+      const workflowId = tokenService.getWorkFlowId();
+      if (editorRef.current && editorRef.current.loadWorkflow) {
+        await editorRef.current.loadWorkflow(workflowId);
+      } else {
+        console.warn(
+          "FlowEditor ref 不可用，嘗試使用 reloadTrigger 強制重新渲染"
+        );
+        setReloadTrigger((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("處理還原版本失敗:", error);
+    }
   };
   const handleLogoClick = () => {
     if (isInIframe) {
@@ -17030,10 +17184,23 @@ const WorkflowContainer = () => {
           children: isInIframe ? (
             // If we're in an iframe, use the IFrameFlowEditor which has
             // the iframe communication functionality
-            /* @__PURE__ */ jsxRuntimeExports.jsx(IFrameFlowEditor, { onFlowStatusChange: handleFlowStatusChange })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              IFrameFlowEditor,
+              {
+                ref: iframeFlowEditorRef,
+                onFlowStatusChange: handleFlowStatusChange
+              },
+              `iframe-editor-${reloadTrigger}`
+            )
           ) : (
             // Otherwise, use the regular FlowEditor for standalone mode
-            /* @__PURE__ */ jsxRuntimeExports.jsx(FlowEditor, {})
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FlowEditor,
+              {
+                ref: flowEditorRef
+              },
+              `flow-editor-${reloadTrigger}`
+            )
           )
         }
       ),
@@ -17045,7 +17212,7 @@ const WorkflowContainer = () => {
             height: "calc(100vh - 64px)",
             display: activeView === "history" ? "block" : "none"
           },
-          children: activeView === "history" && /* @__PURE__ */ jsxRuntimeExports.jsx(RunHistoryView, {})
+          children: activeView === "history" && /* @__PURE__ */ jsxRuntimeExports.jsx(RunHistoryView, { onRestoreVersion: handleRestoreVersion })
         }
       )
     ] })
