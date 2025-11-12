@@ -1,7 +1,7 @@
 window.drawingApp = window.drawingApp || {};
 
 import { importShared } from './assets/__federation_fn_import-Dzt68AjK.js';
-import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase, w as workflowAPIService } from './assets/__federation_expose_FlowEditor-CEqbCy1f.js';
+import FlowEditor, { t as tokenService, i as iframeBridge, j as jsxRuntimeExports, A as API_CONFIG, I as IconBase, w as workflowAPIService } from './assets/__federation_expose_FlowEditor-BYF1KnMV.js';
 import { r as requireReact, g as getDefaultExportFromCjs } from './assets/index-sElO2NqQ.js';
 import { r as requireReactDom } from './assets/index-B7LpUMsO.js';
 
@@ -16526,6 +16526,7 @@ const RunHistoryView = ({ onRestoreVersion }) => {
       );
       setShowRestoreDialog(false);
       setShowRestoreMenu(false);
+      console.log(onRestoreVersion);
       if (onRestoreVersion) {
         onRestoreVersion();
       }
@@ -17116,7 +17117,9 @@ const WorkflowContainer = () => {
       setActiveView("canvas");
       await new Promise((resolve) => setTimeout(resolve, 100));
       const editorRef = isInIframe ? iframeFlowEditorRef : flowEditorRef;
+      console.log(editorRef);
       const workflowId = tokenService.getWorkFlowId();
+      console.log(workflowId);
       if (editorRef.current && editorRef.current.loadWorkflow) {
         await editorRef.current.loadWorkflow(workflowId);
       } else {
