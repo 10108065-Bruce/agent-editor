@@ -24100,7 +24100,7 @@ function useFlowNodes() {
   };
 }
 
-const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f704830050d3ddd17088e46127a2455437afd426", "VITE_APP_BUILD_TIME": "2025-11-12T02:57:25.276Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.23"};
+const __vite_import_meta_env__ = {"BASE_URL": "/agent-editor/", "DEV": false, "MODE": "production", "PROD": true, "SSR": false, "VITE_APP_BUILD_ID": "f704830050d3ddd17088e46127a2455437afd426", "VITE_APP_BUILD_TIME": "2025-11-12T03:05:36.134Z", "VITE_APP_GIT_BRANCH": "main", "VITE_APP_VERSION": "0.1.55.24"};
 function getEnvVar(name, defaultValue) {
   if (typeof window !== "undefined" && window.ENV && window.ENV[name]) {
     return window.ENV[name];
@@ -25414,7 +25414,7 @@ const CustomInputNode = ({ data, isConnectable, id }) => {
 const CustomInputNode$1 = memo$j(CustomInputNode);
 
 const API_CONFIG = {
-  BASE_URL: "https://api-dev-qoca-apa.qrilab.com/v1",
+  BASE_URL: "https://dev-qoca-agentify.qrilab.com/api/v1",
   CREATE_WEBHOOK_URL: "https://lightly-mature-lemming.ngrok-free.app/v1/external_service/webhook"
 };
 
