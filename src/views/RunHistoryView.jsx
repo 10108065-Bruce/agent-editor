@@ -318,7 +318,6 @@ const RunHistoryView = ({ onRestoreVersion }) => {
       // 關閉對話框
       setShowRestoreDialog(false);
       setShowRestoreMenu(false);
-
       // 通知父組件切換回 Canvas 並重新載入
       if (onRestoreVersion) {
         onRestoreVersion();
@@ -703,8 +702,8 @@ const RunHistoryView = ({ onRestoreVersion }) => {
                   )}
 
                   {/* 其他節點 */}
-                  {currentRun.nodes.map((node) => (
-                    <div key={node.node_id}>
+                  {currentRun.nodes.map((node, index) => (
+                    <div key={node.node_id || `node-${index}`}>
                       <div
                         onClick={() =>
                           toggleNodeExpand(node.node_id, currentRun.request_id)
@@ -829,9 +828,9 @@ const RunHistoryView = ({ onRestoreVersion }) => {
           {/* Previous Runs */}
           {activeTab === 'previous' && previousRuns && (
             <div className='space-y-4'>
-              {previousRuns.map((run) => (
+              {previousRuns.map((run, index) => (
                 <div
-                  key={run.request_id}
+                  key={run.request_id || `run-fallback-${index}`}
                   className='bg-white rounded-lg border border-gray-200 overflow-hidden'>
                   <div
                     onClick={() => handleRunDoubleClick(run)}

@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useImperativeHandle
+} from 'react';
 import FlowEditor from './FlowEditor';
 import { iframeBridge } from '../services/IFrameBridgeService';
 import { tokenService } from '../services/TokenService';
@@ -6,7 +12,7 @@ import { tokenService } from '../services/TokenService';
 /**
  * 增強版 IFrameFlowEditor - 從 URL 取得 workspace ID
  */
-const IFrameFlowEditor = ({ onFlowStatusChange }) => {
+const IFrameFlowEditor = React.forwardRef(({ onFlowStatusChange }, ref) => {
   // 狀態管理
   const [flowTitle, setFlowTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +29,48 @@ const IFrameFlowEditor = ({ onFlowStatusChange }) => {
     hasFlowId: false,
     allRequiredDataReceived: false
   });
+
+  // 暴露方法給父元件
+  useImperativeHandle(
+    ref,
+    () => ({
+      // 暴露 loadWorkflow 方法
+      loadWorkflow: async (workflowId) => {
+        // 確保 FlowEditor 準備好
+        await ensureFlowEditorReady();
+
+        // 調用內部的 FlowEditor 的 loadWorkflow
+        if (flowEditorRef.current && flowEditorRef.current.loadWorkflow) {
+          return await flowEditorRef.current.loadWorkflow(workflowId);
+        } else {
+          console.warn('IFrameFlowEditor: FlowEditor ref 尚未準備好');
+          throw new Error('FlowEditor 尚未準備好');
+        }
+      },
+
+      // 暴露 saveWorkflow 方法
+      saveWorkflow: async () => {
+        return await handleSaveWorkflow();
+      },
+
+      // 暴露 exportFlowData 方法
+      exportFlowData: () => {
+        if (flowEditorRef.current && flowEditorRef.current.exportFlowData) {
+          return flowEditorRef.current.exportFlowData();
+        }
+        return null;
+      },
+
+      // 暴露 reloadNodeList 方法
+      reloadNodeList: async () => {
+        if (flowEditorRef.current && flowEditorRef.current.reloadNodeList) {
+          return await flowEditorRef.current.reloadNodeList();
+        }
+        return null;
+      }
+    }),
+    []
+  );
 
   // // 初始化時從 URL 取得 workspace ID
   // useEffect(() => {
@@ -476,6 +524,6 @@ const IFrameFlowEditor = ({ onFlowStatusChange }) => {
       `}</style>
     </div>
   );
-};
+});
 
 export default IFrameFlowEditor;
